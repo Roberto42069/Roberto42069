@@ -72,6 +72,18 @@ class RobotoApp {
             e.preventDefault();
             this.showLearningInsights();
         });
+
+        // File attachment button
+        document.getElementById('fileBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        // File input change
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFileAttachment(e.target.files);
+            }
+        });
     }
 
     initializeErrorDatabase() {
@@ -776,6 +788,23 @@ class RobotoApp {
             console.error('Error loading learning insights:', error);
             this.showNotification('Error loading insights', 'error');
         }
+    }
+
+    handleFileAttachment(files) {
+        let fileInfo = [];
+        for (let file of files) {
+            fileInfo.push(`📎 ${file.name} (${(file.size / 1024).toFixed(1)}KB)`);
+        }
+        
+        const chatInput = document.getElementById('chatInput');
+        const currentValue = chatInput.value;
+        const newValue = currentValue + (currentValue ? '\n' : '') + fileInfo.join('\n');
+        chatInput.value = newValue;
+        
+        this.showNotification(`${files.length} file(s) attached`, 'success');
+        
+        // Clear file input for next use
+        document.getElementById('fileInput').value = '';
     }
 
     escapeHtml(text) {

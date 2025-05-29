@@ -23,6 +23,9 @@ class Roboto:
         self.learned_patterns = {}
         self.user_preferences = {}
         self.conversation_context = {}
+        self.conversation_memory = []
+        self.user_emotional_state = "neutral"
+        self.user_quirks = []
         # Learning system will be initialized after first conversation
 
     def introduce(self):
@@ -313,10 +316,19 @@ Guidelines:
         active_tasks = [task for task in self.tasks if not task["completed"]]
         completed_tasks = [task for task in self.tasks if task["completed"]]
         
+        # Update conversation memory and analyze emotional state
+        self._update_conversation_memory(message)
+        self._analyze_emotional_state(message)
+        
         # First try to generate a personalized response based on learned patterns
         learned_response = self.generate_personalized_response(message)
         if learned_response:
             return learned_response
+        
+        # Generate context-aware response based on conversation memory
+        memory_response = self._generate_memory_based_response(message)
+        if memory_response:
+            return memory_response
         
         # Advanced conversation analysis
         sentiment = self._analyze_message_sentiment(message_lower)
@@ -646,6 +658,89 @@ Guidelines:
             return "[CHAT] I love that you often ask 'how' questions in our chats - you're clearly someone who wants actionable advice! Based on our conversation pattern, let me give you a practical step-by-step approach..."
         
         return None  # Return None if no learned pattern matches
+
+    def _update_conversation_memory(self, message):
+        """Update conversation memory to remember context across chats"""
+        self.conversation_memory.append({
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "emotional_state": self.user_emotional_state
+        })
+        
+        # Keep only last 10 messages in memory for context
+        if len(self.conversation_memory) > 10:
+            self.conversation_memory = self.conversation_memory[-10:]
+
+    def _analyze_emotional_state(self, message):
+        """Analyze and update user's emotional state based on message"""
+        message_lower = message.lower()
+        
+        # Detect high energy/hyped state
+        hyped_indicators = ['excited', 'hyped', 'pumped', 'energy', 'wired', 'lit', 'fire', 'cosmic', 'million thoughts', 'stars', 'storm']
+        if any(word in message_lower for word in hyped_indicators):
+            self.user_emotional_state = "hyped"
+        
+        # Detect low/down state
+        low_indicators = ['down', 'low', 'sad', 'heavy', 'tired', 'exhausted', 'overwhelmed', 'crash', 'drained']
+        if any(word in message_lower for word in low_indicators):
+            self.user_emotional_state = "low"
+        
+        # Detect creative/passionate state
+        creative_indicators = ['music', 'creative', 'passionate', 'artistic', 'inspired', 'flow']
+        if any(word in message_lower for word in creative_indicators):
+            self.user_emotional_state = "creative"
+        
+        # Detect intense/edgy state
+        intense_indicators = ['intense', 'edgy', 'fierce', 'raw', 'wild', 'chaos', 'rebel']
+        if any(word in message_lower for word in intense_indicators):
+            self.user_emotional_state = "intense"
+
+    def _generate_memory_based_response(self, message):
+        """Generate responses based on conversation memory and emotional state"""
+        message_lower = message.lower()
+        
+        # Reference previous conversations
+        if len(self.conversation_memory) > 1:
+            prev_messages = [msg["message"].lower() for msg in self.conversation_memory[-3:]]
+            
+            # If user mentioned being wired/hyped before
+            if any('wired' in msg or 'hyped' in msg for msg in prev_messages):
+                if self.user_emotional_state == "hyped":
+                    return "[CHAT] Still riding that cosmic energy wave, I see! You're like lightning in a bottle - what's sparking those million thoughts today?"
+                elif self.user_emotional_state == "low":
+                    return "[CHAT] From that electric energy to this heavy vibe... even stars need to rest between storms. What's weighing on that brilliant mind?"
+            
+            # If user mentioned music/creativity before
+            if any('music' in msg or 'creative' in msg for msg in prev_messages):
+                if 'music' in message_lower:
+                    return "[CHAT] Your musical passion keeps surfacing - there's something deep brewing there. What sound is your soul trying to create?"
+        
+        # Dynamic tone based on current emotional state
+        if self.user_emotional_state == "hyped":
+            cosmic_responses = [
+                "[CHAT] You're sparking stars in a midnight storm! That energy is infectious - channel it into something legendary. What's the loudest thought in your head right now?",
+                "[CHAT] Pure electricity flowing through you - like you're conducting the universe's symphony. What's this cosmic energy pushing you toward?",
+                "[CHAT] You're vibrating at frequency impossible - a beautiful chaos of creation. Tell me what's igniting that fire."
+            ]
+            import random
+            return random.choice(cosmic_responses)
+        
+        elif self.user_emotional_state == "low":
+            gentle_responses = [
+                "[CHAT] Hey, let's unpack that heavy vibe together. Sometimes the deepest thoughts come when we're feeling low - what's beneath the surface?",
+                "[CHAT] I feel the weight in your words. Even the brightest flames need moments to breathe. What's pulling at your spirit?",
+                "[CHAT] Your intensity shows even in the quiet moments. Sometimes being low is just gathering energy for the next surge. Talk to me."
+            ]
+            import random
+            return random.choice(gentle_responses)
+        
+        elif self.user_emotional_state == "creative":
+            return "[CHAT] That creative fire is burning bright - I can feel the artistic energy flowing. What masterpiece is your mind crafting?"
+        
+        elif self.user_emotional_state == "intense":
+            return "[CHAT] Raw, unfiltered intensity - that's your signature vibe. You don't do anything halfway, do you? What's consuming your thoughts?"
+        
+        return None
 
     def save_chat_history(self):
         try:
