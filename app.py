@@ -134,10 +134,9 @@ Guidelines:
 - Always start responses with [CHAT] to maintain consistency
 - Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
 
-            # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-            # do not change this unless explicitly requested by the user
+            # Using gpt-3.5-turbo for broader API key compatibility
             response = openai_client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message}
