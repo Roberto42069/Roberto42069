@@ -73,11 +73,38 @@
                     <div class="card-body">
                         <!-- Add Task Form -->
                         <form id="addTaskForm" class="mb-3">
-                            <div class="input-group">
+                            <div class="input-group mb-2">
                                 <input type="text" id="taskInput" class="form-control" placeholder="Enter a new task..." required>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#taskOptions" title="More Options">
+                                    <i class="fas fa-cog"></i>
+                                </button>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-plus"></i>
                                 </button>
+                            </div>
+                            
+                            <!-- Advanced Task Options -->
+                            <div class="collapse" id="taskOptions">
+                                <div class="card card-body bg-secondary">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-2">
+                                            <label for="dueDateInput" class="form-label small text-muted">Due Date</label>
+                                            <input type="date" id="dueDateInput" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label for="reminderTimeInput" class="form-label small text-muted">Reminder Time</label>
+                                            <input type="datetime-local" id="reminderTimeInput" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label for="prioritySelect" class="form-label small text-muted">Priority</label>
+                                            <select id="prioritySelect" class="form-select form-select-sm">
+                                                <option value="low">Low</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="high">High</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </form>
 

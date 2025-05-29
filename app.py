@@ -723,6 +723,31 @@ Guidelines:
 def get_chat_history():
     return jsonify({"success": True, "history": roberto.get_chat_history()})
 
+@app.route('/api/tasks/due', methods=['GET'])
+def get_due_tasks():
+    return jsonify({"success": True, "tasks": roberto.get_due_tasks()})
+
+@app.route('/api/tasks/upcoming', methods=['GET'])
+def get_upcoming_tasks():
+    days_ahead = request.args.get('days', 7, type=int)
+    return jsonify({"success": True, "tasks": roberto.get_upcoming_tasks(days_ahead)})
+
+@app.route('/api/tasks/<int:task_id>/schedule', methods=['POST'])
+def schedule_task(task_id):
+    try:
+        data = request.get_json()
+        if not data or 'due_date' not in data:
+            return jsonify({"success": False, "message": "[ERROR] Due date is required!"}), 400
+        
+        result = roberto.schedule_task(task_id, data['due_date'], data.get('reminder_time'))
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"success": False, "message": f"[ERROR] {str(e)}"}), 500
+
+@app.route('/api/tasks/suggestions', methods=['GET'])
+def get_scheduling_suggestions():
+    return jsonify({"success": True, "suggestions": roberto.get_smart_scheduling_suggestions()})
+
 @app.route('/api/export', methods=['GET'])
 def export_data():
     try:

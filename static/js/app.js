@@ -14,6 +14,10 @@ class RobotoApp {
         this.bindEvents();
         this.loadTasks();
         this.loadChatHistory();
+        
+        // Load scheduling suggestions periodically
+        this.loadSchedulingSuggestions();
+        setInterval(() => this.loadSchedulingSuggestions(), 300000); // Every 5 minutes
     }
 
     bindEvents() {
@@ -127,11 +131,28 @@ class RobotoApp {
 
     async addTask() {
         const taskInput = document.getElementById('taskInput');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const reminderTimeInput = document.getElementById('reminderTimeInput');
+        const prioritySelect = document.getElementById('prioritySelect');
+        
         const task = taskInput.value.trim();
         
         if (!task) {
             this.showNotification('Please enter a task', 'warning');
             return;
+        }
+
+        const taskData = {
+            task: task,
+            priority: prioritySelect.value
+        };
+
+        if (dueDateInput.value) {
+            taskData.due_date = dueDateInput.value + 'T00:00:00';
+        }
+
+        if (reminderTimeInput.value) {
+            taskData.reminder_time = reminderTimeInput.value + ':00';
         }
 
         try {
@@ -140,7 +161,7 @@ class RobotoApp {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ task })
+                body: JSON.stringify(taskData)
             });
 
             const data = await response.json();
@@ -149,6 +170,17 @@ class RobotoApp {
                 this.tasks.push(data.task);
                 this.renderTasks();
                 taskInput.value = '';
+                dueDateInput.value = '';
+                reminderTimeInput.value = '';
+                prioritySelect.value = 'medium';
+                
+                // Collapse the options panel
+                const taskOptions = document.getElementById('taskOptions');
+                if (taskOptions.classList.contains('show')) {
+                    const collapse = new bootstrap.Collapse(taskOptions);
+                    collapse.hide();
+                }
+                
                 this.showNotification(data.message, 'success');
             } else {
                 this.showNotification(data.message, 'warning');
@@ -247,17 +279,50 @@ class RobotoApp {
 
     renderTaskItem(task, isCompleted) {
         const date = new Date(task.created_at).toLocaleDateString();
+        
+        // Priority indicator
+        const priorityClass = task.priority === 'high' ? 'border-danger' : 
+                             task.priority === 'low' ? 'border-info' : 'border-warning';
+        
+        // Due date information
+        let dueDateInfo = '';
+        if (task.due_date && !isCompleted) {
+            const dueDate = new Date(task.due_date);
+            const today = new Date();
+            const timeDiff = dueDate - today;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            if (daysDiff < 0) {
+                dueDateInfo = `<span class="badge bg-danger ms-1">Overdue</span>`;
+            } else if (daysDiff === 0) {
+                dueDateInfo = `<span class="badge bg-warning ms-1">Due Today</span>`;
+            } else if (daysDiff <= 3) {
+                dueDateInfo = `<span class="badge bg-info ms-1">Due in ${daysDiff} days</span>`;
+            } else {
+                dueDateInfo = `<span class="badge bg-secondary ms-1">Due ${dueDate.toLocaleDateString()}</span>`;
+            }
+        }
+        
+        // Category badge
+        const categoryBadge = task.category ? `<span class="badge bg-dark me-1">${task.category}</span>` : '';
+        
         return `
-            <div class="task-item d-flex align-items-center p-2 mb-2 border rounded ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}">
+            <div class="task-item d-flex align-items-center p-2 mb-2 border rounded ${priorityClass} ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}">
                 <div class="flex-grow-1">
                     <div class="${isCompleted ? 'text-decoration-line-through text-muted' : ''}">
-                        ${this.escapeHtml(task.text)}
+                        ${categoryBadge}${this.escapeHtml(task.text)}${dueDateInfo}
                     </div>
                     <small class="text-muted">
                         <i class="fas fa-calendar-alt me-1"></i>${date}
+                        ${task.priority !== 'medium' ? `<i class="fas fa-flag ms-2 me-1"></i>${task.priority}` : ''}
                     </small>
                 </div>
                 <div class="task-actions ms-2">
+                    ${!isCompleted && !task.due_date ? `
+                        <button class="btn btn-sm btn-outline-info me-1" onclick="app.scheduleTask(${task.id})" title="Schedule Task">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    ` : ''}
                     ${!isCompleted ? `
                         <button class="btn btn-sm btn-success me-1" onclick="app.completeTask(${task.id})" title="Complete Task">
                             <i class="fas fa-check"></i>
@@ -602,6 +667,69 @@ class RobotoApp {
             };
         } catch (error) {
             console.error('Audio decode error:', error);
+        }
+    }
+
+    async scheduleTask(taskId) {
+        const dueDate = prompt('Enter due date (YYYY-MM-DD):');
+        if (!dueDate) return;
+
+        const reminderTime = prompt('Enter reminder time (optional, YYYY-MM-DD HH:MM):');
+
+        try {
+            const scheduleData = { due_date: dueDate + 'T00:00:00' };
+            if (reminderTime) {
+                scheduleData.reminder_time = reminderTime + ':00';
+            }
+
+            const response = await fetch(`/api/tasks/${taskId}/schedule`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(scheduleData)
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                const taskIndex = this.tasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    this.tasks[taskIndex] = data.task;
+                    this.renderTasks();
+                }
+                this.showNotification(data.message, 'success');
+            } else {
+                this.showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error scheduling task:', error);
+            this.showNotification('Error scheduling task', 'error');
+        }
+    }
+
+    async loadSchedulingSuggestions() {
+        try {
+            const response = await fetch('/api/tasks/suggestions');
+            const data = await response.json();
+            
+            if (data.success && data.suggestions.length > 0) {
+                this.showSchedulingSuggestions(data.suggestions);
+            }
+        } catch (error) {
+            console.error('Error loading suggestions:', error);
+        }
+    }
+
+    showSchedulingSuggestions(suggestions) {
+        let message = "Smart Scheduling Suggestions:\n\n";
+        suggestions.forEach(suggestion => {
+            message += `• ${suggestion.message}\n`;
+        });
+        
+        if (confirm(message + "\nWould you like to schedule some tasks now?")) {
+            // User can manually schedule tasks using the interface
+            this.showNotification('Use the clock icon next to tasks to schedule them!', 'info');
         }
     }
 
