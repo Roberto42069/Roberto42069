@@ -80,6 +80,12 @@ class RobotoApp {
             this.toggleNotifications();
         });
 
+        // Predictive insights button
+        document.getElementById('predictiveInsightsBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showPredictiveInsights();
+        });
+
         // File attachment button
         document.getElementById('fileBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
@@ -812,6 +818,27 @@ class RobotoApp {
             toast.classList.add('text-bg-warning');
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
+        }
+    }
+
+    async showPredictiveInsights() {
+        try {
+            const response = await fetch('/api/predictive_insights');
+            const data = await response.json();
+            
+            if (data.success) {
+                let message = "🔮 Predictive Insights:\n\n";
+                data.insights.forEach(insight => {
+                    message += `✨ ${insight}\n`;
+                });
+                
+                alert(message);
+            } else {
+                this.showNotification('Could not load predictive insights', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading predictive insights:', error);
+            this.showNotification('Error loading predictive insights', 'error');
         }
     }
 
