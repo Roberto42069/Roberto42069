@@ -69,6 +69,12 @@ class RobotoApp {
         document.getElementById('retryErrorAction').addEventListener('click', () => {
             this.retryLastAction();
         });
+
+        // Learning insights button
+        document.getElementById('learningInsightsBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showLearningInsights();
+        });
     }
 
     initializeErrorDatabase() {
@@ -730,6 +736,48 @@ class RobotoApp {
         if (confirm(message + "\nWould you like to schedule some tasks now?")) {
             // User can manually schedule tasks using the interface
             this.showNotification('Use the clock icon next to tasks to schedule them!', 'info');
+        }
+    }
+
+    async showLearningInsights() {
+        try {
+            const response = await fetch('/api/learning/insights');
+            const data = await response.json();
+            
+            if (data.success) {
+                const insights = data.insights;
+                let message = `🧠 Roboto's Learning Progress\n\n`;
+                message += `Conversations: ${insights.conversation_count}\n\n`;
+                
+                if (insights.insights.length > 0) {
+                    message += "What I've learned about you:\n";
+                    insights.insights.forEach(insight => {
+                        message += `• ${insight}\n`;
+                    });
+                } else {
+                    message += "Keep chatting with me to help me learn your preferences!";
+                }
+                
+                if (insights.learned_patterns && Object.keys(insights.learned_patterns).length > 0) {
+                    message += "\nDetailed patterns:\n";
+                    if (insights.learned_patterns.favorite_topics) {
+                        const topics = Object.entries(insights.learned_patterns.favorite_topics)
+                            .sort(([,a], [,b]) => b - a)
+                            .slice(0, 3);
+                        if (topics.length > 0) {
+                            message += `Most discussed topics: ${topics.map(([topic, count]) => 
+                                `${topic.replace('_', ' ')} (${count})`).join(', ')}\n`;
+                        }
+                    }
+                }
+                
+                alert(message);
+            } else {
+                this.showNotification('Could not load learning insights', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading learning insights:', error);
+            this.showNotification('Error loading insights', 'error');
         }
     }
 

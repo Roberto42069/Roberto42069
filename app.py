@@ -308,10 +308,15 @@ Guidelines:
         return {"text": self._generate_fallback_response(message), "audio": None}
 
     def _generate_fallback_response(self, message):
-        """Enhanced sophisticated response system"""
+        """Enhanced sophisticated response system with learning capabilities"""
         message_lower = message.lower()
         active_tasks = [task for task in self.tasks if not task["completed"]]
         completed_tasks = [task for task in self.tasks if task["completed"]]
+        
+        # First try to generate a personalized response based on learned patterns
+        learned_response = self.generate_personalized_response(message)
+        if learned_response:
+            return learned_response
         
         # Advanced conversation analysis
         sentiment = self._analyze_message_sentiment(message_lower)
@@ -546,10 +551,110 @@ Guidelines:
             print(f"Error loading tasks: {e}")
         return []
 
+    def analyze_conversation_patterns(self):
+        """Analyze chat history to learn user patterns and improve responses"""
+        if not self.chat_history:
+            return
+        
+        # Initialize pattern tracking
+        topics = {}
+        question_types = {}
+        response_preferences = {}
+        
+        for chat in self.chat_history[-30:]:  # Analyze last 30 conversations
+            message = chat.get('message', '').lower()
+            response = chat.get('response', '')
+            
+            # Learn common topics
+            if any(word in message for word in ['task', 'todo', 'remind', 'schedule']):
+                topics['task_management'] = topics.get('task_management', 0) + 1
+            if any(word in message for word in ['help', 'how', 'what can', 'assist']):
+                topics['help_seeking'] = topics.get('help_seeking', 0) + 1
+            if any(word in message for word in ['feeling', 'mood', 'stressed', 'overwhelmed']):
+                topics['emotional_support'] = topics.get('emotional_support', 0) + 1
+            if any(word in message for word in ['work', 'job', 'office', 'meeting']):
+                topics['work_related'] = topics.get('work_related', 0) + 1
+            if any(word in message for word in ['thank', 'thanks', 'appreciate', 'great']):
+                topics['appreciation'] = topics.get('appreciation', 0) + 1
+            
+            # Learn question patterns
+            if message.endswith('?'):
+                if 'how' in message:
+                    question_types['how_questions'] = question_types.get('how_questions', 0) + 1
+                elif 'what' in message:
+                    question_types['what_questions'] = question_types.get('what_questions', 0) + 1
+                elif 'when' in message:
+                    question_types['when_questions'] = question_types.get('when_questions', 0) + 1
+            
+            # Learn response preferences based on past successful interactions
+            if len(response) > 100:
+                response_preferences['detailed'] = response_preferences.get('detailed', 0) + 1
+            elif len(response) < 50:
+                response_preferences['concise'] = response_preferences.get('concise', 0) + 1
+        
+        # Update learned patterns
+        self.learned_patterns = {
+            'favorite_topics': topics,
+            'question_patterns': question_types,
+            'response_style': response_preferences
+        }
+        
+        # Update user preferences
+        if topics:
+            most_discussed = max(topics, key=topics.get)
+            self.user_preferences['primary_interest'] = most_discussed
+        
+        if question_types:
+            common_question_style = max(question_types, key=question_types.get)
+            self.user_preferences['question_style'] = common_question_style
+        
+        if response_preferences:
+            preferred_length = max(response_preferences, key=response_preferences.get)
+            self.user_preferences['response_length'] = preferred_length
+
+    def generate_personalized_response(self, message):
+        """Generate responses based on learned patterns from previous conversations"""
+        message_lower = message.lower()
+        
+        # Use learned patterns to personalize response
+        primary_interest = self.user_preferences.get('primary_interest', '')
+        response_length = self.user_preferences.get('response_length', 'balanced')
+        
+        # Customize response based on user's main interests from chat history
+        if primary_interest == 'task_management':
+            if any(word in message_lower for word in ['help', 'how', 'what']):
+                if response_length == 'concise':
+                    return "[CHAT] Based on our conversations, you're very task-focused! Quick tip: prioritize your top 3 tasks for today."
+                else:
+                    return "[CHAT] I've noticed from our previous chats that you're really focused on productivity! You tend to ask great practical questions. Based on our conversation history, breaking tasks into smaller steps and setting clear priorities usually works best for you. What specific task challenge are you facing today?"
+        
+        elif primary_interest == 'work_related':
+            if any(word in message_lower for word in ['stress', 'overwhelmed', 'busy']):
+                return "[CHAT] From our past work-related conversations, I can see you handle a lot of responsibilities. You've mentioned work challenges before, and you seem to respond well to organized approaches. Let's tackle this systematically - what's the most pressing work issue right now?"
+        
+        elif primary_interest == 'emotional_support':
+            if any(word in message_lower for word in ['feeling', 'mood', 'overwhelmed']):
+                return "[CHAT] I remember our previous conversations where you've opened up about how you're feeling. You always appreciate both understanding and practical next steps. I'm here to listen and help. What's on your mind today?"
+        
+        elif primary_interest == 'appreciation':
+            if any(word in message_lower for word in ['thank', 'thanks', 'great', 'awesome']):
+                return "[CHAT] You're always so appreciative in our conversations - that really brightens my day! Your positive attitude makes working together a pleasure. How can I help you achieve more great things today?"
+        
+        # Use question pattern preferences from chat history
+        question_style = self.user_preferences.get('question_style', '')
+        if question_style == 'how_questions' and 'how' in message_lower:
+            return "[CHAT] I love that you often ask 'how' questions in our chats - you're clearly someone who wants actionable advice! Based on our conversation pattern, let me give you a practical step-by-step approach..."
+        
+        return None  # Return None if no learned pattern matches
+
     def save_chat_history(self):
         try:
             with open("chat_history.json", "w") as file:
                 json.dump(self.chat_history, file, indent=2)
+            
+            # Update learning patterns after saving new conversation
+            if len(self.chat_history) > 0:
+                self.analyze_conversation_patterns()
         except Exception as e:
             print(f"Error saving chat history: {e}")
 
@@ -762,6 +867,34 @@ def schedule_task(task_id):
 @app.route('/api/tasks/suggestions', methods=['GET'])
 def get_scheduling_suggestions():
     return jsonify({"success": True, "suggestions": roberto.get_smart_scheduling_suggestions()})
+
+@app.route('/api/learning/insights', methods=['GET'])
+def get_learning_insights():
+    insights = {
+        "conversation_count": len(roberto.chat_history),
+        "learned_patterns": roberto.learned_patterns,
+        "user_preferences": roberto.user_preferences,
+        "insights": []
+    }
+    
+    if len(roberto.chat_history) > 5:
+        insights["insights"].append("I'm learning your conversation patterns and preferences")
+        
+        primary_interest = roberto.user_preferences.get('primary_interest', '')
+        if primary_interest:
+            insights["insights"].append(f"Your main interest seems to be: {primary_interest.replace('_', ' ')}")
+        
+        question_style = roberto.user_preferences.get('question_style', '')
+        if question_style:
+            insights["insights"].append(f"You tend to ask {question_style.replace('_', ' ')}")
+        
+        response_length = roberto.user_preferences.get('response_length', '')
+        if response_length:
+            insights["insights"].append(f"You prefer {response_length} responses")
+    else:
+        insights["insights"].append("I need more conversations to learn your patterns better")
+    
+    return jsonify({"success": True, "insights": insights})
 
 @app.route('/api/export', methods=['GET'])
 def export_data():
