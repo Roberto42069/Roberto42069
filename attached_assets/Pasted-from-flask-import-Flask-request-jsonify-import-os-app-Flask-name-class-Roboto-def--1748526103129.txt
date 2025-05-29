@@ -1,0 +1,82 @@
+from flask import Flask, request, jsonify
+import os
+
+app = Flask(__name__)
+
+class Roboto:
+    def __init__(self):
+        self.name = "Roboto"
+        self.version = "2.0"
+        self.creator = "Roberto Villarreal Martinez"
+        self.tasks = self.load_tasks()  # Load tasks from file at initialization
+
+    # Introduce Roboto
+    def introduce(self):
+        return f"== Welcome to {self.name} v{self.version} ==\n" \
+               f"Created by {self.creator}\n" + ("=" * 40)
+
+    # Add tasks to Roboto's schedule
+    def add_task(self, task):
+        if task in self.tasks:
+            return f"[WARNING] Task '{task}' already exists!"
+        self.tasks.append(task)
+        self.save_tasks()  # Save tasks to file after adding
+        return f"[SUCCESS] Task '{task}' added successfully!"
+
+    # Display tasks
+    def show_tasks(self):
+        if not self.tasks:
+            return "[INFO] No tasks available."
+        tasks_str = "Here are my tasks:\n" + "\n".join([f"{i + 1}. {task}" for i, task in enumerate(self.tasks)])
+        return f"[TASK LIST]\n{tasks_str}\n" + ("=" * 40)
+
+    # Chat feature
+    def chat(self, message):
+        if "hello" in message.lower():
+            return "[CHAT] Hello! How can I assist you today?"
+        elif "your creator" in message.lower():
+            return f"[CHAT] My creator is {self.creator}."
+        elif "weather" in message.lower():
+            return "[CHAT] I can't fetch the weather yet, but I'm learning!"
+        else:
+            return "[CHAT] I'm not sure how to respond to that yet, but I'm learning!"
+
+    # Save tasks to a file
+    def save_tasks(self):
+        with open("tasks.txt", "w") as file:
+            for task in self.tasks:
+                file.write(task + "\n")
+
+    # Load tasks from a file
+    def load_tasks(self):
+        if os.path.exists("tasks.txt"):
+            with open("tasks.txt", "r") as file:
+                tasks = file.read().splitlines()
+            return tasks
+        return []
+
+# Instantiate Roboto
+roberto = Roboto()
+
+@app.route('/')
+def index():
+    return roberto.introduce()
+
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    task = request.json.get('task')
+    response = roberto.add_task(task)
+    return jsonify({"message": response})
+
+@app.route('/show_tasks', methods=['GET'])
+def show_tasks():
+    return jsonify({"tasks": roberto.show_tasks()})
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    message = request.json.get('message')
+    response = roberto.chat(message)
+    return jsonify({"response": response})
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
