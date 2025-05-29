@@ -20,12 +20,6 @@ class RobotoApp {
     }
 
     bindEvents() {
-        // Task form submission
-        document.getElementById('addTaskForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addTask();
-        });
-
         // Chat form submission
         document.getElementById('chatForm').addEventListener('submit', (e) => {
             e.preventDefault();
