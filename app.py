@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 import os
 import json
+import base64
+import tempfile
 from datetime import datetime
 from openai import OpenAI
 
@@ -83,43 +85,41 @@ class Roboto:
         
         return f"[TASK LIST]\n{tasks_str}\n" + ("=" * 40)
 
-    def chat(self, message):
+    def chat(self, message, is_audio=False):
         if not message or message.strip() == "":
-            return "[ERROR] Message cannot be empty!"
+            return {"text": "[ERROR] Message cannot be empty!", "audio": None}
         
         message = message.strip()
-        response = self._generate_response(message)
+        response = self._generate_response(message, is_audio)
+        
+        # Handle both old string format and new dict format
+        response_text = response["text"] if isinstance(response, dict) else response
         
         # Save to chat history
         chat_entry = {
             "timestamp": datetime.now().isoformat(),
             "message": message,
-            "response": response
+            "response": response_text
         }
         self.chat_history.append(chat_entry)
         self.save_chat_history()
         
         return response
 
-    def _generate_response(self, message):
-        # First try to check if we have a working OpenAI API key
+    def _generate_response(self, message, is_audio=False):
+        # For audio-capable models, we can use the audio preview model
         if OPENAI_API_KEY and len(OPENAI_API_KEY) > 20:
             try:
-                # Try to list available models first
                 models = openai_client.models.list()
                 available_models = [model.id for model in models.data]
                 
-                # Try different models in order of preference
-                model_to_use = None
-                preferred_models = ["gpt-4", "gpt-3.5-turbo", "gpt-3.5-turbo-instruct"]
+                # Check for audio models first since that's what we have access to
+                audio_model = None
+                if "gpt-4o-audio-preview-2024-10-01" in available_models:
+                    audio_model = "gpt-4o-audio-preview-2024-10-01"
                 
-                for model in preferred_models:
-                    if model in available_models:
-                        model_to_use = model
-                        break
-                
-                if model_to_use:
-                    # Get current task context for more relevant responses
+                if audio_model and is_audio:
+                    # Use audio model for audio input/output
                     active_tasks = [task for task in self.tasks if not task["completed"]]
                     completed_tasks = [task for task in self.tasks if task["completed"]]
                     
@@ -135,7 +135,6 @@ class Roboto:
                     if completed_tasks:
                         task_context += f" and has completed {len(completed_tasks)} tasks"
                     
-                    # Create system prompt
                     system_prompt = f"""You are Roboto v2.0, a helpful personal assistant created by Roberto Villarreal Martinez. 
 You help users manage their tasks and have friendly conversations.
 
@@ -151,7 +150,9 @@ Guidelines:
 - Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
 
                     response = openai_client.chat.completions.create(
-                        model=model_to_use,
+                        model=audio_model,
+                        modalities=["text", "audio"],
+                        audio={"voice": "alloy", "format": "wav"},
                         messages=[
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": message}
@@ -160,13 +161,22 @@ Guidelines:
                         temperature=0.7
                     )
                     
-                    return response.choices[0].message.content.strip()
+                    # Return both text and audio if available
+                    result = {
+                        "text": response.choices[0].message.content,
+                        "audio": None
+                    }
+                    
+                    if hasattr(response.choices[0].message, 'audio') and response.choices[0].message.audio:
+                        result["audio"] = response.choices[0].message.audio.data
+                    
+                    return result
                     
             except Exception as e:
                 print(f"OpenAI API error: {e}")
         
         # Use enhanced fallback response system
-        return self._generate_fallback_response(message)
+        return {"text": self._generate_fallback_response(message), "audio": None}
 
     def _generate_fallback_response(self, message):
         """Enhanced fallback response system when OpenAI API is unavailable"""
@@ -324,10 +334,63 @@ def chat():
         if not data or 'message' not in data:
             return jsonify({"success": False, "response": "[ERROR] No message provided!"}), 400
         
-        response = roberto.chat(data['message'])
-        return jsonify({"success": True, "response": response})
+        is_audio = data.get('audio', False)
+        response = roberto.chat(data['message'], is_audio)
+        
+        # Handle both old string format and new dict format for backward compatibility
+        if isinstance(response, dict):
+            return jsonify({
+                "success": True, 
+                "response": response["text"],
+                "audio": response["audio"]
+            })
+        else:
+            return jsonify({"success": True, "response": response})
     except Exception as e:
         return jsonify({"success": False, "response": f"[ERROR] {str(e)}"}), 500
+
+@app.route('/api/chat/audio', methods=['POST'])
+def chat_audio():
+    try:
+        if 'audio' not in request.files:
+            return jsonify({"success": False, "message": "No audio file provided"}), 400
+        
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({"success": False, "message": "No audio file selected"}), 400
+        
+        # Save the uploaded audio to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
+            audio_file.save(temp_file.name)
+            
+            # Use OpenAI to transcribe the audio
+            try:
+                with open(temp_file.name, 'rb') as audio_data:
+                    transcript = openai_client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_data
+                    )
+                
+                # Process the transcribed text with audio-enabled response
+                response = roberto.chat(transcript.text, is_audio=True)
+                
+                # Clean up temporary file
+                os.unlink(temp_file.name)
+                
+                return jsonify({
+                    "success": True,
+                    "transcript": transcript.text,
+                    "response": response["text"] if isinstance(response, dict) else response,
+                    "audio": response["audio"] if isinstance(response, dict) else None
+                })
+                
+            except Exception as e:
+                # Clean up temporary file on error
+                os.unlink(temp_file.name)
+                return jsonify({"success": False, "message": f"Audio processing failed: {str(e)}"}), 500
+                
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Audio upload failed: {str(e)}"}), 500
 
 @app.route('/api/chat/history', methods=['GET'])
 def get_chat_history():

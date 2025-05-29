@@ -2,6 +2,9 @@ class RobotoApp {
     constructor() {
         this.tasks = [];
         this.chatHistory = [];
+        this.isRecording = false;
+        this.mediaRecorder = null;
+        this.audioChunks = [];
         this.init();
     }
 
@@ -49,6 +52,11 @@ class RobotoApp {
             if (e.target.files.length > 0) {
                 this.importData(e.target.files[0]);
             }
+        });
+
+        // Voice button
+        document.getElementById('voiceBtn').addEventListener('click', () => {
+            this.toggleVoiceRecording();
         });
     }
 
@@ -432,6 +440,121 @@ class RobotoApp {
         } finally {
             // Clear the file input
             document.getElementById('importFileInput').value = '';
+        }
+    }
+
+    async toggleVoiceRecording() {
+        if (!this.isRecording) {
+            await this.startRecording();
+        } else {
+            this.stopRecording();
+        }
+    }
+
+    async startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.audioChunks = [];
+
+            this.mediaRecorder.ondataavailable = (event) => {
+                this.audioChunks.push(event.data);
+            };
+
+            this.mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                this.sendAudioMessage(audioBlob);
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            voiceBtn.classList.remove('btn-outline-secondary');
+            voiceBtn.classList.add('btn-danger');
+            
+            this.showNotification('Recording... Click again to stop', 'info');
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            this.showNotification('Microphone access denied or not available', 'error');
+        }
+    }
+
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.isRecording = false;
+            
+            const voiceBtn = document.getElementById('voiceBtn');
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceBtn.classList.remove('btn-danger');
+            voiceBtn.classList.add('btn-outline-secondary');
+        }
+    }
+
+    async sendAudioMessage(audioBlob) {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+
+        try {
+            this.showNotification('Processing audio...', 'info');
+            
+            const response = await fetch('/api/chat/audio', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Add user message (transcribed text)
+                this.addChatMessage(data.transcript, true);
+                
+                // Add bot response
+                this.addChatMessage(data.response, false);
+                
+                // Play audio response if available
+                if (data.audio) {
+                    this.playAudioResponse(data.audio);
+                }
+                
+                this.showNotification('Voice message processed!', 'success');
+            } else {
+                this.showNotification(data.message || 'Voice processing failed', 'error');
+            }
+        } catch (error) {
+            console.error('Audio message error:', error);
+            this.showNotification('Voice message failed', 'error');
+        }
+    }
+
+    playAudioResponse(audioData) {
+        try {
+            // Convert base64 audio data to blob and play
+            const audioBytes = atob(audioData);
+            const audioArray = new Uint8Array(audioBytes.length);
+            for (let i = 0; i < audioBytes.length; i++) {
+                audioArray[i] = audioBytes.charCodeAt(i);
+            }
+            
+            const audioBlob = new Blob([audioArray], { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            
+            audio.play().then(() => {
+                console.log('Audio response played');
+            }).catch(error => {
+                console.error('Audio playback error:', error);
+            });
+            
+            // Clean up URL after playing
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+            };
+        } catch (error) {
+            console.error('Audio decode error:', error);
         }
     }
 
