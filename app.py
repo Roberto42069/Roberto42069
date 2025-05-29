@@ -150,8 +150,79 @@ Guidelines:
             
         except Exception as e:
             print(f"OpenAI API error: {e}")
-            # Fallback to basic response if API fails
-            return f"[CHAT] I'm having trouble connecting to my AI brain right now, but I'm still here to help! You currently have {len([task for task in self.tasks if not task['completed']])} active tasks."
+            # Enhanced fallback response system
+            return self._generate_fallback_response(message)
+
+    def _generate_fallback_response(self, message):
+        """Enhanced fallback response system when OpenAI API is unavailable"""
+        message_lower = message.lower()
+        active_tasks = [task for task in self.tasks if not task["completed"]]
+        completed_tasks = [task for task in self.tasks if task["completed"]]
+        
+        # Greetings
+        if any(word in message_lower for word in ["hello", "hi", "hey", "greetings"]):
+            if active_tasks:
+                return f"[CHAT] Hello! I'm Roboto, your personal assistant. I see you have {len(active_tasks)} active tasks to work on. How can I help you stay productive today?"
+            else:
+                return "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
+        
+        # Creator questions
+        elif any(phrase in message_lower for phrase in ["creator", "who made you", "who created you"]):
+            return f"[CHAT] I was created by {self.creator}. He's a talented developer who built me to help people stay organized and productive!"
+        
+        # Task-related queries
+        elif any(word in message_lower for word in ["task", "todo", "reminder", "work", "busy"]):
+            if not active_tasks:
+                return "[CHAT] You don't have any active tasks right now. Would you like to add one? I'm here to help you stay organized!"
+            elif len(active_tasks) == 1:
+                return f"[CHAT] You have 1 active task: '{active_tasks[0]['text']}'. Keep up the good work!"
+            else:
+                task_preview = active_tasks[0]['text']
+                return f"[CHAT] You have {len(active_tasks)} active tasks. Your first one is '{task_preview}'. Would you like to focus on completing that first?"
+        
+        # Productivity and motivation
+        elif any(word in message_lower for word in ["focus", "productive", "motivation", "advice"]):
+            if active_tasks:
+                return f"[CHAT] Great question! With {len(active_tasks)} tasks on your list, I'd suggest starting with the most important one. Breaking big tasks into smaller steps can help too!"
+            else:
+                return "[CHAT] You're doing great! Since you don't have any pending tasks, this might be a good time to plan ahead or take a well-deserved break."
+        
+        # Time/date queries
+        elif any(word in message_lower for word in ["time", "date", "today", "when"]):
+            now = datetime.now()
+            task_info = f" You have {len(active_tasks)} active tasks" if active_tasks else " You're all caught up with tasks"
+            return f"[CHAT] Today is {now.strftime('%A, %B %d, %Y')} and it's {now.strftime('%I:%M %p')}.{task_info}!"
+        
+        # Help
+        elif "help" in message_lower:
+            return "[CHAT] I can help you manage tasks, provide productivity advice, and have friendly conversations. Try asking me about your tasks, time management, or just say hello!"
+        
+        # Thank you
+        elif any(word in message_lower for word in ["thank", "thanks"]):
+            return "[CHAT] You're very welcome! I'm always here to help you stay organized and productive. Keep up the great work!"
+        
+        # Goodbye
+        elif any(word in message_lower for word in ["bye", "goodbye", "see you"]):
+            reminder = f" Don't forget about your {len(active_tasks)} active tasks!" if active_tasks else " Keep up the excellent work!"
+            return f"[CHAT] Goodbye! It was great chatting with you.{reminder}"
+        
+        # Status check
+        elif any(word in message_lower for word in ["status", "progress", "how am i doing"]):
+            if completed_tasks and active_tasks:
+                return f"[CHAT] You're doing well! You've completed {len(completed_tasks)} tasks and have {len(active_tasks)} remaining. That's solid progress!"
+            elif completed_tasks and not active_tasks:
+                return f"[CHAT] Excellent! You've completed {len(completed_tasks)} tasks and have nothing pending. You're crushing it!"
+            elif active_tasks and not completed_tasks:
+                return f"[CHAT] You have {len(active_tasks)} tasks to work on. Every journey starts with a single step - let's get started!"
+            else:
+                return "[CHAT] Your task list is clean! This is a perfect time to add new goals or enjoy your productivity."
+        
+        # Default response
+        else:
+            if active_tasks:
+                return f"[CHAT] That's interesting! I'm still learning to respond to everything, but I notice you have {len(active_tasks)} tasks pending. Need help prioritizing them?"
+            else:
+                return "[CHAT] I find that fascinating! While I continue learning new topics, I'm here to help with task management and productivity. What's on your mind?"
 
     def get_chat_history(self):
         return self.chat_history[-20:]  # Return last 20 messages
