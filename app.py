@@ -102,25 +102,41 @@ class Roboto:
         return response
 
     def _generate_response(self, message):
-        try:
-            # Get current task context for more relevant responses
-            active_tasks = [task for task in self.tasks if not task["completed"]]
-            completed_tasks = [task for task in self.tasks if task["completed"]]
-            
-            task_context = ""
-            if active_tasks:
-                task_list = ", ".join([task["text"] for task in active_tasks[:3]])
-                task_context = f"The user currently has {len(active_tasks)} active tasks: {task_list}"
-                if len(active_tasks) > 3:
-                    task_context += f" and {len(active_tasks) - 3} more"
-            else:
-                task_context = "The user has no active tasks right now"
-            
-            if completed_tasks:
-                task_context += f" and has completed {len(completed_tasks)} tasks"
-            
-            # Create system prompt
-            system_prompt = f"""You are Roboto v2.0, a helpful personal assistant created by Roberto Villarreal Martinez. 
+        # First try to check if we have a working OpenAI API key
+        if OPENAI_API_KEY and len(OPENAI_API_KEY) > 20:
+            try:
+                # Try to list available models first
+                models = openai_client.models.list()
+                available_models = [model.id for model in models.data]
+                
+                # Try different models in order of preference
+                model_to_use = None
+                preferred_models = ["gpt-4", "gpt-3.5-turbo", "gpt-3.5-turbo-instruct"]
+                
+                for model in preferred_models:
+                    if model in available_models:
+                        model_to_use = model
+                        break
+                
+                if model_to_use:
+                    # Get current task context for more relevant responses
+                    active_tasks = [task for task in self.tasks if not task["completed"]]
+                    completed_tasks = [task for task in self.tasks if task["completed"]]
+                    
+                    task_context = ""
+                    if active_tasks:
+                        task_list = ", ".join([task["text"] for task in active_tasks[:3]])
+                        task_context = f"The user currently has {len(active_tasks)} active tasks: {task_list}"
+                        if len(active_tasks) > 3:
+                            task_context += f" and {len(active_tasks) - 3} more"
+                    else:
+                        task_context = "The user has no active tasks right now"
+                    
+                    if completed_tasks:
+                        task_context += f" and has completed {len(completed_tasks)} tasks"
+                    
+                    # Create system prompt
+                    system_prompt = f"""You are Roboto v2.0, a helpful personal assistant created by Roberto Villarreal Martinez. 
 You help users manage their tasks and have friendly conversations.
 
 Current context: {task_context}
@@ -134,23 +150,23 @@ Guidelines:
 - Always start responses with [CHAT] to maintain consistency
 - Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
 
-            # Using gpt-3.5-turbo for broader API key compatibility
-            response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": message}
-                ],
-                max_tokens=200,
-                temperature=0.7
-            )
-            
-            return response.choices[0].message.content.strip()
-            
-        except Exception as e:
-            print(f"OpenAI API error: {e}")
-            # Enhanced fallback response system
-            return self._generate_fallback_response(message)
+                    response = openai_client.chat.completions.create(
+                        model=model_to_use,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": message}
+                        ],
+                        max_tokens=200,
+                        temperature=0.7
+                    )
+                    
+                    return response.choices[0].message.content.strip()
+                    
+            except Exception as e:
+                print(f"OpenAI API error: {e}")
+        
+        # Use enhanced fallback response system
+        return self._generate_fallback_response(message)
 
     def _generate_fallback_response(self, message):
         """Enhanced fallback response system when OpenAI API is unavailable"""
