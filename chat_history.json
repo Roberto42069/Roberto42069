@@ -148,5 +148,15 @@
     "timestamp": "2025-05-29T16:39:04.520224",
     "message": "Hey Roboto wassup",
     "response": "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
+  },
+  {
+    "timestamp": "2025-05-29T16:50:07.536029",
+    "message": "Hello, I spoke but transcription failed",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
+  },
+  {
+    "timestamp": "2025-05-29T16:50:24.689523",
+    "message": "Hello, I spoke but transcription failed",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
   }
 ]

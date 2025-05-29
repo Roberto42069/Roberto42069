@@ -5,6 +5,8 @@ class RobotoApp {
         this.isRecording = false;
         this.mediaRecorder = null;
         this.audioChunks = [];
+        this.lastFailedAction = null;
+        this.errorDatabase = this.initializeErrorDatabase();
         this.init();
     }
 
@@ -58,6 +60,51 @@ class RobotoApp {
         document.getElementById('voiceBtn').addEventListener('click', () => {
             this.toggleVoiceRecording();
         });
+
+        // Error retry button
+        document.getElementById('retryErrorAction').addEventListener('click', () => {
+            this.retryLastAction();
+        });
+    }
+
+    initializeErrorDatabase() {
+        return {
+            'network': {
+                explanation: "There's a connection problem between your device and Roboto's servers.",
+                solution: "Check your internet connection and try again. If the problem continues, the server might be temporarily busy.",
+                icon: "wifi"
+            },
+            'api_key': {
+                explanation: "Roboto couldn't access the AI service because of an authentication issue.",
+                solution: "The API key might be invalid or expired. You can still use Roboto's built-in smart responses for task management.",
+                icon: "key"
+            },
+            'model_access': {
+                explanation: "The AI service doesn't have access to the requested feature.",
+                solution: "Roboto will use its built-in intelligent responses instead. All your task management features work perfectly.",
+                icon: "robot"
+            },
+            'file_upload': {
+                explanation: "There was a problem uploading or processing your file.",
+                solution: "Make sure the file is in the correct format (JSON for data, audio files for voice). Try selecting the file again.",
+                icon: "file-upload"
+            },
+            'microphone': {
+                explanation: "Roboto couldn't access your microphone.",
+                solution: "Allow microphone access in your browser settings, or use the text chat instead.",
+                icon: "microphone-slash"
+            },
+            'audio_processing': {
+                explanation: "There was a problem processing your voice message.",
+                solution: "The audio feature has limited access. You can still chat using text, and all your tasks work normally.",
+                icon: "volume-mute"
+            },
+            'generic': {
+                explanation: "Something unexpected happened, but don't worry - it's not your fault.",
+                solution: "Try the action again. If it keeps happening, you can still use all of Roboto's other features.",
+                icon: "exclamation-circle"
+            }
+        };
     }
 
     async loadTasks() {
