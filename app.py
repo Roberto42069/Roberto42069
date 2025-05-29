@@ -2,9 +2,14 @@ from flask import Flask, request, jsonify, render_template
 import os
 import json
 from datetime import datetime
+from openai import OpenAI
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "roboto-secret-key")
+
+# Initialize OpenAI client
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 class Roboto:
     def __init__(self):
@@ -97,50 +102,56 @@ class Roboto:
         return response
 
     def _generate_response(self, message):
-        message_lower = message.lower()
-        
-        # Greetings
-        if any(word in message_lower for word in ["hello", "hi", "hey", "greetings"]):
-            return "[CHAT] Hello! I'm Roboto, your personal assistant. How can I help you today?"
-        
-        # Creator questions
-        elif any(phrase in message_lower for phrase in ["creator", "who made you", "who created you"]):
-            return f"[CHAT] I was created by {self.creator}. He's a talented developer!"
-        
-        # Weather (placeholder for future enhancement)
-        elif "weather" in message_lower:
-            return "[CHAT] I can't fetch the weather yet, but I'm learning! Soon I'll be able to help you with that."
-        
-        # Task-related queries
-        elif any(word in message_lower for word in ["task", "todo", "reminder"]):
-            task_count = len([task for task in self.tasks if not task["completed"]])
-            if task_count == 0:
-                return "[CHAT] You don't have any active tasks right now. Would you like to add one?"
-            elif task_count == 1:
-                return "[CHAT] You have 1 active task. Keep up the good work!"
+        try:
+            # Get current task context for more relevant responses
+            active_tasks = [task for task in self.tasks if not task["completed"]]
+            completed_tasks = [task for task in self.tasks if task["completed"]]
+            
+            task_context = ""
+            if active_tasks:
+                task_list = ", ".join([task["text"] for task in active_tasks[:3]])
+                task_context = f"The user currently has {len(active_tasks)} active tasks: {task_list}"
+                if len(active_tasks) > 3:
+                    task_context += f" and {len(active_tasks) - 3} more"
             else:
-                return f"[CHAT] You have {task_count} active tasks. You're staying busy!"
-        
-        # Time/date queries
-        elif any(word in message_lower for word in ["time", "date", "today"]):
-            now = datetime.now()
-            return f"[CHAT] Today is {now.strftime('%A, %B %d, %Y')} and the current time is {now.strftime('%I:%M %p')}."
-        
-        # Help
-        elif "help" in message_lower:
-            return "[CHAT] I can help you manage tasks, have conversations, and answer questions about myself. Try asking me about tasks, the weather, or just say hello!"
-        
-        # Thank you
-        elif any(word in message_lower for word in ["thank", "thanks"]):
-            return "[CHAT] You're welcome! I'm always here to help you stay organized and productive."
-        
-        # Goodbye
-        elif any(word in message_lower for word in ["bye", "goodbye", "see you"]):
-            return "[CHAT] Goodbye! It was great chatting with you. Don't forget about your tasks!"
-        
-        # Default response
-        else:
-            return "[CHAT] That's interesting! I'm still learning how to respond to different topics. Is there anything specific I can help you with regarding your tasks?"
+                task_context = "The user has no active tasks right now"
+            
+            if completed_tasks:
+                task_context += f" and has completed {len(completed_tasks)} tasks"
+            
+            # Create system prompt
+            system_prompt = f"""You are Roboto v2.0, a helpful personal assistant created by Roberto Villarreal Martinez. 
+You help users manage their tasks and have friendly conversations.
+
+Current context: {task_context}
+
+Guidelines:
+- Be friendly, helpful, and conversational
+- When discussing tasks, refer to the user's actual task list
+- If asked about your creator, mention Roberto Villarreal Martinez
+- Keep responses concise but engaging
+- You can help with general questions, task management advice, and friendly conversation
+- Always start responses with [CHAT] to maintain consistency
+- Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
+
+            # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
+            # do not change this unless explicitly requested by the user
+            response = openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=200,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"OpenAI API error: {e}")
+            # Fallback to basic response if API fails
+            return f"[CHAT] I'm having trouble connecting to my AI brain right now, but I'm still here to help! You currently have {len([task for task in self.tasks if not task['completed']])} active tasks."
 
     def get_chat_history(self):
         return self.chat_history[-20:]  # Return last 20 messages

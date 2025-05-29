@@ -1,0 +1,17 @@
+[
+  {
+    "timestamp": "2025-05-29T13:45:56.984338",
+    "message": "Hi",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. How can I help you today?"
+  },
+  {
+    "timestamp": "2025-05-29T13:46:21.064695",
+    "message": "Who created you",
+    "response": "[CHAT] I was created by Roberto Villarreal Martinez. He's a talented developer!"
+  },
+  {
+    "timestamp": "2025-05-29T13:46:48.201053",
+    "message": "Oh wow thanks. I am him. Nice meeting you",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. How can I help you today?"
+  }
+]
