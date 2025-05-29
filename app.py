@@ -363,25 +363,86 @@ def chat_audio():
         with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
             audio_file.save(temp_file.name)
             
-            # Use OpenAI to transcribe the audio
             try:
-                with open(temp_file.name, 'rb') as audio_data:
-                    transcript = openai_client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_data
-                    )
+                # Get current task context for more relevant responses
+                active_tasks = [task for task in roberto.tasks if not task["completed"]]
+                completed_tasks = [task for task in roberto.tasks if task["completed"]]
                 
-                # Process the transcribed text with audio-enabled response
-                response = roberto.chat(transcript.text, is_audio=True)
+                task_context = ""
+                if active_tasks:
+                    task_list = ", ".join([task["text"] for task in active_tasks[:3]])
+                    task_context = f"The user currently has {len(active_tasks)} active tasks: {task_list}"
+                    if len(active_tasks) > 3:
+                        task_context += f" and {len(active_tasks) - 3} more"
+                else:
+                    task_context = "The user has no active tasks right now"
+                
+                if completed_tasks:
+                    task_context += f" and has completed {len(completed_tasks)} tasks"
+                
+                system_prompt = f"""You are Roboto v2.0, a helpful personal assistant created by Roberto Villarreal Martinez. 
+You help users manage their tasks and have friendly conversations.
+
+Current context: {task_context}
+
+Guidelines:
+- Be friendly, helpful, and conversational
+- When discussing tasks, refer to the user's actual task list
+- If asked about your creator, mention Roberto Villarreal Martinez
+- Keep responses concise but engaging
+- You can help with general questions, task management advice, and friendly conversation
+- Always start responses with [CHAT] to maintain consistency
+- Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
+
+                # Use the audio model for direct speech-to-speech
+                with open(temp_file.name, 'rb') as audio_data:
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4o-audio-preview-2024-10-01",
+                        modalities=["text", "audio"],
+                        audio={"voice": "alloy", "format": "wav"},
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {
+                                "role": "user", 
+                                "content": [
+                                    {
+                                        "type": "input_audio",
+                                        "input_audio": {
+                                            "data": base64.b64encode(audio_data.read()).decode('utf-8'),
+                                            "format": "wav"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        max_tokens=200,
+                        temperature=0.7
+                    )
                 
                 # Clean up temporary file
                 os.unlink(temp_file.name)
                 
+                # Extract response data
+                message_content = response.choices[0].message.content or ""
+                audio_data = None
+                
+                if hasattr(response.choices[0].message, 'audio') and response.choices[0].message.audio:
+                    audio_data = response.choices[0].message.audio.data
+                
+                # Save to chat history
+                chat_entry = {
+                    "timestamp": datetime.now().isoformat(),
+                    "message": "[Voice Message]",
+                    "response": message_content
+                }
+                roberto.chat_history.append(chat_entry)
+                roberto.save_chat_history()
+                
                 return jsonify({
                     "success": True,
-                    "transcript": transcript.text,
-                    "response": response["text"] if isinstance(response, dict) else response,
-                    "audio": response["audio"] if isinstance(response, dict) else None
+                    "transcript": "[Voice Message]",
+                    "response": message_content,
+                    "audio": audio_data
                 })
                 
             except Exception as e:
