@@ -394,54 +394,52 @@ Guidelines:
 - Always start responses with [CHAT] to maintain consistency
 - Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
 
-                # Use the audio model for direct speech-to-speech
+                # First transcribe the audio using Whisper
                 with open(temp_file.name, 'rb') as audio_data:
-                    response = openai_client.chat.completions.create(
-                        model="gpt-4o-audio-preview-2024-10-01",
-                        modalities=["text", "audio"],
-                        audio={"voice": "alloy", "format": "wav"},
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {
-                                "role": "user", 
-                                "content": [
-                                    {
-                                        "type": "input_audio",
-                                        "input_audio": {
-                                            "data": base64.b64encode(audio_data.read()).decode('utf-8'),
-                                            "format": "wav"
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        max_tokens=200,
-                        temperature=0.7
+                    # Try to transcribe first
+                    try:
+                        transcript = openai_client.audio.transcriptions.create(
+                            model="whisper-1",
+                            file=audio_data
+                        )
+                        transcript_text = transcript.text
+                    except Exception as whisper_error:
+                        print(f"Whisper transcription failed: {whisper_error}")
+                        # If Whisper fails, use a fallback message
+                        transcript_text = "Hello, I spoke but transcription failed"
+                
+                # Generate text response and then convert to speech
+                response_text = roberto._generate_fallback_response(transcript_text)
+                
+                # Try to generate audio using TTS model
+                audio_data = None
+                try:
+                    tts_response = openai_client.audio.speech.create(
+                        model="tts-1",
+                        voice="alloy",
+                        input=response_text
                     )
+                    audio_data = base64.b64encode(tts_response.content).decode('utf-8')
+                except Exception as tts_error:
+                    print(f"TTS generation failed: {tts_error}")
+                    # Continue without audio
                 
                 # Clean up temporary file
                 os.unlink(temp_file.name)
                 
-                # Extract response data
-                message_content = response.choices[0].message.content or ""
-                audio_data = None
-                
-                if hasattr(response.choices[0].message, 'audio') and response.choices[0].message.audio:
-                    audio_data = response.choices[0].message.audio.data
-                
                 # Save to chat history
                 chat_entry = {
                     "timestamp": datetime.now().isoformat(),
-                    "message": "[Voice Message]",
-                    "response": message_content
+                    "message": transcript_text,
+                    "response": response_text
                 }
                 roberto.chat_history.append(chat_entry)
                 roberto.save_chat_history()
                 
                 return jsonify({
                     "success": True,
-                    "transcript": "[Voice Message]",
-                    "response": message_content,
+                    "transcript": transcript_text,
+                    "response": response_text,
                     "audio": audio_data
                 })
                 
