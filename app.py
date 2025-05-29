@@ -991,6 +991,63 @@ def get_learning_insights():
     
     return jsonify({"success": True, "insights": insights})
 
+@app.route('/api/predictive_insights')
+def get_predictive_insights():
+    try:
+        # Analyze conversation patterns for predictions
+        insights = []
+        chat_history = roberto.get_chat_history()
+        recent_messages = chat_history[-10:] if len(chat_history) >= 10 else chat_history
+        
+        # Energy pattern analysis
+        energy_keywords = {
+            'high': ['excited', 'pumped', 'energized', 'hyped', 'amazing', 'awesome'],
+            'creative': ['music', 'art', 'create', 'design', 'inspiration', 'idea'],
+            'stressed': ['overwhelmed', 'tired', 'stressed', 'busy', 'deadline'],
+            'focused': ['work', 'project', 'focus', 'concentrate', 'task']
+        }
+        
+        energy_scores = {mood: 0 for mood in energy_keywords}
+        for message in recent_messages:
+            if message.get('user'):
+                msg_text = message.get('message', '').lower()
+                for mood, keywords in energy_keywords.items():
+                    for keyword in keywords:
+                        if keyword in msg_text:
+                            energy_scores[mood] += 1
+        
+        # Predict likely next actions
+        dominant_mood = max(energy_scores.keys(), key=lambda k: energy_scores.get(k, 0))
+        
+        if energy_scores[dominant_mood] > 0:
+            if dominant_mood == 'creative':
+                insights.append("Creative mode detected - consider adding artistic or innovative tasks")
+            elif dominant_mood == 'high':
+                insights.append("High energy detected - perfect time for challenging tasks")
+            elif dominant_mood == 'stressed':
+                insights.append("Stress indicators found - suggest breaking large tasks into smaller ones")
+            elif dominant_mood == 'focused':
+                insights.append("Work focus detected - ideal for deep-work sessions")
+        
+        # Task pattern predictions
+        active_tasks = [task for task in roberto.tasks if not task.get('completed', False)]
+        if len(active_tasks) > 5:
+            insights.append("Task overload detected - consider prioritizing top 3 items")
+        
+        # Time-based predictions
+        from datetime import datetime, timedelta
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        upcoming_tasks = [task for task in active_tasks if task.get('due_date') == tomorrow]
+        if upcoming_tasks:
+            insights.append(f"{len(upcoming_tasks)} tasks due tomorrow - prepare today")
+        
+        return jsonify({
+            'success': True, 
+            'insights': insights if insights else ["All systems running smoothly - ready for your next adventure"]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/export', methods=['GET'])
 def export_data():
     try:

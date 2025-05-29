@@ -7,6 +7,7 @@ class RobotoApp {
         this.audioChunks = [];
         this.lastFailedAction = null;
         this.errorDatabase = this.initializeErrorDatabase();
+        this.notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
         this.init();
     }
 
@@ -71,6 +72,12 @@ class RobotoApp {
         document.getElementById('learningInsightsBtn').addEventListener('click', (e) => {
             e.preventDefault();
             this.showLearningInsights();
+        });
+
+        // Toggle notifications button
+        document.getElementById('toggleNotificationsBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleNotifications();
         });
 
         // File attachment button
@@ -787,6 +794,24 @@ class RobotoApp {
         } catch (error) {
             console.error('Error loading learning insights:', error);
             this.showNotification('Error loading insights', 'error');
+        }
+    }
+
+    toggleNotifications() {
+        this.notificationsEnabled = !this.notificationsEnabled;
+        localStorage.setItem('notificationsEnabled', this.notificationsEnabled);
+        
+        if (this.notificationsEnabled) {
+            this.showNotification('Notifications enabled', 'success');
+        } else {
+            // Show this one even when disabled to confirm the toggle
+            const toast = document.getElementById('notificationToast');
+            const toastBody = document.getElementById('toastBody');
+            toastBody.textContent = 'Notifications disabled';
+            toast.classList.remove('text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
+            toast.classList.add('text-bg-warning');
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
         }
     }
 
