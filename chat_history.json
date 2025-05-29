@@ -128,5 +128,20 @@
     "timestamp": "2025-05-29T15:06:26.439193",
     "message": "What else do you do",
     "response": "[CHAT] I find that fascinating! While I continue learning new topics, I'm here to help with task management and productivity. What's on your mind?"
+  },
+  {
+    "timestamp": "2025-05-29T15:10:55.762319",
+    "message": "Hello",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
+  },
+  {
+    "timestamp": "2025-05-29T15:11:06.133214",
+    "message": "Anything new you learned?",
+    "response": "[CHAT] Hello! I'm Roboto, your personal assistant. You're all caught up with tasks - great work! What would you like to chat about?"
+  },
+  {
+    "timestamp": "2025-05-29T15:11:14.865425",
+    "message": "Capabilities",
+    "response": "[CHAT] I find that fascinating! While I continue learning new topics, I'm here to help with task management and productivity. What's on your mind?"
   }
 ]
