@@ -60,10 +60,7 @@ class RobotoApp {
             }
         });
 
-        // Voice button
-        document.getElementById('voiceBtn').addEventListener('click', () => {
-            this.toggleVoiceRecording();
-        });
+
 
         // Error retry button
         document.getElementById('retryErrorAction').addEventListener('click', () => {
