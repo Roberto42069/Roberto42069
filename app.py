@@ -263,17 +263,28 @@ Guidelines:
 - Always start responses with [CHAT] to maintain consistency
 - Current date/time: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"""
 
-                    response = openai_client.chat.completions.create(
-                        model=audio_model,
-                        modalities=["text", "audio"],
-                        audio={"voice": "alloy", "format": "wav"},
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": message}
-                        ],
-                        max_tokens=200,
-                        temperature=0.7
-                    )
+                    # Try standard text models instead of audio models for regular chat
+                    try:
+                        response = openai_client.chat.completions.create(
+                            model="gpt-3.5-turbo",
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": message}
+                            ],
+                            max_tokens=200,
+                            temperature=0.7
+                        )
+                    except:
+                        # If standard models fail, try audio model without modalities
+                        response = openai_client.chat.completions.create(
+                            model=audio_model,
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": message}
+                            ],
+                            max_tokens=200,
+                            temperature=0.7
+                        )
                     
                     # Return both text and audio if available
                     result = {
