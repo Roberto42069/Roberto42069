@@ -39,7 +39,7 @@
                             <i class="fas fa-robot text-info me-2"></i>
                             Welcome to Roboto
                         </h1>
-                        <p class="card-text text-muted">Your intelligent personal assistant for task management and conversation</p>
+                        <p class="card-text text-muted">Your intelligent conversational assistant with advanced analytics and data insights</p>
                     </div>
                 </div>
             </div>
@@ -47,86 +47,46 @@
 
         <!-- Main Interface -->
         <div class="row">
-            <!-- Task Management Section -->
-            <div class="col-lg-6 mb-4">
+            <!-- Data Analytics Section -->
+            <div class="col-lg-4 mb-4">
                 <div class="card h-100">
-                    <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-secondary">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-tasks me-2"></i>
-                            Task Manager
+                            <i class="fas fa-chart-line me-2"></i>
+                            Analytics & Insights
                         </h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dataMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-database me-1"></i>
-                                Data
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dataMenuDropdown">
-                                <li><a class="dropdown-item" href="#" id="exportDataBtn">
-                                    <i class="fas fa-download me-2"></i>Export Data
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" id="importDataBtn">
-                                    <i class="fas fa-upload me-2"></i>Import Data
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" id="learningInsightsBtn">
-                                    <i class="fas fa-brain me-2"></i>Learning Insights
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" id="predictiveInsightsBtn">
-                                    <i class="fas fa-crystal-ball me-2"></i>Predictive Insights
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" id="toggleNotificationsBtn">
-                                    <i class="fas fa-bell me-2"></i>Toggle Notifications
-                                </a></li>
-                            </ul>
-                        </div>
                     </div>
                     <div class="card-body">
-                        <!-- Add Task Form -->
-                        <form id="addTaskForm" class="mb-3">
-                            <div class="input-group mb-2">
-                                <input type="text" id="taskInput" class="form-control" placeholder="Enter a new task..." required>
-                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#taskOptions" title="More Options">
-                                    <i class="fas fa-cog"></i>
-                                </button>
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Advanced Task Options -->
-                            <div class="collapse" id="taskOptions">
-                                <div class="card card-body bg-secondary">
-                                    <div class="row">
-                                        <div class="col-md-4 mb-2">
-                                            <label for="dueDateInput" class="form-label small text-muted">Due Date</label>
-                                            <input type="date" id="dueDateInput" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="col-md-4 mb-2">
-                                            <label for="reminderTimeInput" class="form-label small text-muted">Reminder Time</label>
-                                            <input type="datetime-local" id="reminderTimeInput" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="col-md-4 mb-2">
-                                            <label for="prioritySelect" class="form-label small text-muted">Priority</label>
-                                            <select id="prioritySelect" class="form-select form-select-sm">
-                                                <option value="low">Low</option>
-                                                <option value="medium" selected>Medium</option>
-                                                <option value="high">High</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                        <!-- Data Management -->
+                        <div class="d-grid gap-2 mb-3">
+                            <button class="btn btn-outline-primary" id="exportDataBtn">
+                                <i class="fas fa-download me-2"></i>Export Data
+                            </button>
+                            <button class="btn btn-outline-primary" id="importDataBtn">
+                                <i class="fas fa-upload me-2"></i>Import Data
+                            </button>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Analytics Features -->
+                        <div class="d-grid gap-2 mb-3">
+                            <button class="btn btn-outline-info" id="learningInsightsBtn">
+                                <i class="fas fa-brain me-2"></i>Learning Insights
+                            </button>
+                            <button class="btn btn-outline-info" id="predictiveInsightsBtn">
+                                <i class="fas fa-crystal-ball me-2"></i>Predictive Insights
+                            </button>
+                        </div>
 
                         <!-- Hidden file input for import -->
                         <input type="file" id="importFileInput" accept=".json" style="display: none;">
-
-                        <!-- Task List -->
-                        <div id="taskList" class="task-list">
-                            <div class="text-center text-muted">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                Loading tasks...
+                        
+                        <!-- Analytics Display Area -->
+                        <div id="analyticsDisplay" class="mt-3">
+                            <div class="text-center text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Use the buttons above to view insights and manage your data
                             </div>
                         </div>
                     </div>
@@ -134,7 +94,7 @@
             </div>
 
             <!-- Chat Section -->
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-8 mb-4">
                 <div class="card h-100">
                     <div class="card-header bg-secondary">
                         <h5 class="card-title mb-0">

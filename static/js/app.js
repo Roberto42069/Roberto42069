@@ -13,12 +13,10 @@ class RobotoApp {
 
     init() {
         this.bindEvents();
-        this.loadTasks();
         this.loadChatHistory();
         
-        // Load scheduling suggestions periodically
-        this.loadSchedulingSuggestions();
-        setInterval(() => this.loadSchedulingSuggestions(), 300000); // Every 5 minutes
+        // Initialize analytics display
+        this.initializeAnalytics();
     }
 
     bindEvents() {
