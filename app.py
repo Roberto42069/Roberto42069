@@ -20,6 +20,10 @@ class Roboto:
         self.creator = "Roberto Villarreal Martinez"
         self.tasks = self.load_tasks()
         self.chat_history = self.load_chat_history()
+        self.learned_patterns = {}
+        self.user_preferences = {}
+        self.conversation_context = {}
+        # Learning system will be initialized after first conversation
 
     def introduce(self):
         return f"== Welcome to {self.name} v{self.version} ==\n" \
