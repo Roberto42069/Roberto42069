@@ -31,6 +31,25 @@ class RobotoApp {
                 this.sendMessage();
             }
         });
+
+        // Export data button
+        document.getElementById('exportDataBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.exportData();
+        });
+
+        // Import data button
+        document.getElementById('importDataBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('importFileInput').click();
+        });
+
+        // File input change for import
+        document.getElementById('importFileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.importData(e.target.files[0]);
+            }
+        });
     }
 
     async loadTasks() {
@@ -349,6 +368,71 @@ class RobotoApp {
         
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
+    }
+
+    async exportData() {
+        try {
+            const response = await fetch('/api/export');
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = response.headers.get('Content-Disposition').split('filename=')[1];
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showNotification('Data exported successfully!', 'success');
+            } else {
+                const error = await response.json();
+                this.showNotification(error.message || 'Export failed', 'error');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showNotification('Export failed', 'error');
+        }
+    }
+
+    async importData(file) {
+        if (!file) {
+            this.showNotification('Please select a file', 'warning');
+            return;
+        }
+
+        if (!file.name.endsWith('.json')) {
+            this.showNotification('Please select a JSON file', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/import', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showNotification(result.message, 'success');
+                // Reload data after successful import
+                await this.loadTasks();
+                await this.loadChatHistory();
+            } else {
+                this.showNotification(result.message || 'Import failed', 'error');
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            this.showNotification('Import failed', 'error');
+        } finally {
+            // Clear the file input
+            document.getElementById('importFileInput').value = '';
+        }
     }
 
     escapeHtml(text) {

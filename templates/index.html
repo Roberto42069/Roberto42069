@@ -50,11 +50,25 @@
             <!-- Task Management Section -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
-                    <div class="card-header bg-secondary">
+                    <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="fas fa-tasks me-2"></i>
                             Task Manager
                         </h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="dataMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-database me-1"></i>
+                                Data
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dataMenuDropdown">
+                                <li><a class="dropdown-item" href="#" id="exportDataBtn">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" id="importDataBtn">
+                                    <i class="fas fa-upload me-2"></i>Import Data
+                                </a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="card-body">
                         <!-- Add Task Form -->
@@ -66,6 +80,9 @@
                                 </button>
                             </div>
                         </form>
+
+                        <!-- Hidden file input for import -->
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;">
 
                         <!-- Task List -->
                         <div id="taskList" class="task-list">

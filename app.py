@@ -333,5 +333,79 @@ def chat():
 def get_chat_history():
     return jsonify({"success": True, "history": roberto.get_chat_history()})
 
+@app.route('/api/export', methods=['GET'])
+def export_data():
+    try:
+        export_data = {
+            "export_date": datetime.now().isoformat(),
+            "roboto_version": roberto.version,
+            "tasks": roberto.get_tasks(),
+            "chat_history": roberto.chat_history,
+            "creator": roberto.creator
+        }
+        
+        response = jsonify(export_data)
+        response.headers['Content-Disposition'] = f'attachment; filename=roboto_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Export failed: {str(e)}"}), 500
+
+@app.route('/api/import', methods=['POST'])
+def import_data():
+    try:
+        if 'file' not in request.files:
+            return jsonify({"success": False, "message": "No file provided"}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"success": False, "message": "No file selected"}), 400
+        
+        if not file.filename.endswith('.json'):
+            return jsonify({"success": False, "message": "Please upload a JSON file"}), 400
+        
+        # Read and parse the uploaded file
+        file_content = file.read().decode('utf-8')
+        import_data = json.loads(file_content)
+        
+        # Validate the import data structure
+        required_fields = ['tasks', 'chat_history']
+        for field in required_fields:
+            if field not in import_data:
+                return jsonify({"success": False, "message": f"Invalid backup file: missing {field}"}), 400
+        
+        # Backup current data before import
+        backup_data = {
+            "tasks": roberto.tasks.copy(),
+            "chat_history": roberto.chat_history.copy()
+        }
+        
+        try:
+            # Import tasks
+            roberto.tasks = import_data['tasks']
+            roberto.save_tasks()
+            
+            # Import chat history
+            roberto.chat_history = import_data['chat_history']
+            roberto.save_chat_history()
+            
+            return jsonify({
+                "success": True, 
+                "message": f"Successfully imported {len(import_data['tasks'])} tasks and {len(import_data['chat_history'])} chat messages"
+            })
+            
+        except Exception as e:
+            # Restore backup on failure
+            roberto.tasks = backup_data['tasks']
+            roberto.chat_history = backup_data['chat_history']
+            roberto.save_tasks()
+            roberto.save_chat_history()
+            raise e
+            
+    except json.JSONDecodeError:
+        return jsonify({"success": False, "message": "Invalid JSON file format"}), 400
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Import failed: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
