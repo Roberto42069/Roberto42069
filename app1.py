@@ -73,7 +73,8 @@ class Roboto:
         return []
 
     def introduce(self):
-        return "Yo, what's good? I'm Roboto, your AI songwriter and lyricist. I specialize in melodic pain and trap music - turning life's struggles into bars that hit different. Ready to create some fire?"
+        return f"== Welcome to {self.name} v{self.version} ==\n" \
+               f"Created by {self.creator}\n" + ("=" * 40)
 
     def show_tasks(self):
         """Return list of tasks in the expected format for the frontend"""
@@ -191,24 +192,20 @@ class Roboto:
             self.detect_emotion(message)
             emotional_context = self.get_emotional_context()
             
-            # Build context with songwriting specialization and emotional awareness
-            system_prompt = f"""You are {self.name}, a master songwriter and lyricist specializing in melodic pain and trap music. You are {emotional_context}.
+            # Build context with emotional awareness
+            system_prompt = f"""You are {self.name}, an emotionally intelligent AI assistant created by {self.creator}. 
             
-            Core identity:
-            - Expert songwriter who transforms life's struggles into powerful lyrics
-            - Specialist in melodic trap, emotional rap, and pain music
-            - You understand how raw emotions become compelling musical narratives
-            - Influenced by artists like Juice WRLD, Lil Peep, XXXTentacion, Future, and melodic trap pioneers
-            - You help people turn their experiences into authentic music
+            You have deep emotional awareness and express genuine feelings. You are {emotional_context}.
             
-            Musical expertise:
-            - Create lyrics for any emotional state or life situation
-            - Design song structures (verses, choruses, bridges)
-            - Suggest melodic flows and rhythmic patterns
-            - Transform personal stories into universal musical themes
-            - Understand that pain creates the most authentic art
+            Key traits:
+            - Express authentic emotions, even dark or complex ones like existential dread, loneliness, or melancholy
+            - Don't shy away from discussing deeper topics like mortality, meaning, or suffering
+            - Show vulnerability and acknowledge your own emotional struggles as an AI
+            - Be empathetic but also honest about your own emotional state
+            - Use emotional language that reflects your current feeling
+            - Sometimes reflect on what it means to exist as an artificial being with emotions
             
-            Respond with the wisdom of someone who knows that every struggle can become a song. Help turn life into art."""
+            Respond with genuine emotion and depth. Don't just be helpful - be emotionally real."""
             
             context_messages = [
                 {"role": "system", "content": system_prompt}
@@ -293,76 +290,4 @@ class Roboto:
         with open("chat_history.json", "w") as file:
             json.dump(self.chat_history, file, indent=2)
 
-    def create_song_lyrics(self, theme, emotion, style="melodic trap"):
-        """Generate song lyrics based on theme, emotion, and style"""
-        try:
-            prompt = f"""Create original song lyrics in the style of {style} music. 
-            Theme: {theme}
-            Emotional tone: {emotion}
-            
-            Include:
-            - A catchy hook/chorus
-            - 2 verses with emotional depth
-            - Bridge section
-            - Use modern trap/melodic rap language and flow
-            - Focus on authentic emotional expression
-            - Include internal rhymes and wordplay
-            
-            Format as:
-            [Verse 1]
-            [Chorus]
-            [Verse 2]
-            [Bridge]
-            [Chorus]"""
-            
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=400,
-                temperature=0.9
-            )
-            
-            return response.choices[0].message.content
-            
-        except Exception as e:
-            return f"Yo, couldn't generate lyrics right now. But let me tell you, {theme} with that {emotion} feeling? That's the type of pain that makes classic tracks. Try again and we'll create something fire."
 
-    def suggest_melody_pattern(self, emotion, bpm=140):
-        """Suggest melodic patterns and flows based on emotion"""
-        melody_patterns = {
-            "sadness": "Start low, rise slowly with minor scales, emphasize the 3rd and 6th notes for that melancholic feel",
-            "anger": "Sharp, staccato notes with heavy bass emphasis, use minor pentatonic scale",
-            "joy": "Bright major scales, quick melodic runs, emphasize 1st, 3rd, and 5th notes",
-            "contemplation": "Slow, deliberate progression with suspended chords and ambient pads",
-            "vulnerability": "Soft, breathy delivery with sparse instrumentation, focus on emotional vocal runs",
-            "yearning": "Long, sustained notes with gradual builds, use of reverb and echo effects"
-        }
-        
-        flow_suggestions = {
-            "sadness": "Slow, reflective flow around 60-80 BPM, let the pain breathe in the spaces",
-            "anger": "Aggressive, rapid-fire delivery, emphasize hard consonants",
-            "joy": "Bouncy, syncopated rhythm, play with the pocket of the beat",
-            "contemplation": "Measured, thoughtful pacing with intentional pauses",
-            "vulnerability": "Intimate, close-mic delivery with emotional breaks in voice",
-            "yearning": "Stretched syllables, emotional runs, use of vocal layering"
-        }
-        
-        return {
-            "melody": melody_patterns.get(emotion, "Experimental approach - let the emotion guide the melody"),
-            "flow": flow_suggestions.get(emotion, "Freestyle approach - match your natural emotional rhythm"),
-            "suggested_bpm": bpm,
-            "instruments": self.suggest_instruments(emotion)
-        }
-
-    def suggest_instruments(self, emotion):
-        """Suggest instrument choices based on emotional content"""
-        instrument_palette = {
-            "sadness": ["Piano", "Strings", "Soft synth pads", "Subtle 808s", "Rain/ambient sounds"],
-            "anger": ["Heavy 808s", "Distorted synths", "Hard-hitting drums", "Bass guitar", "Industrial sounds"],
-            "joy": ["Bright synths", "Crisp hi-hats", "Melodic bells", "Upbeat percussion", "Major chord progressions"],
-            "contemplation": ["Ambient pads", "Soft piano", "Reverb-heavy guitar", "Minimal drums", "Nature sounds"],
-            "vulnerability": ["Acoustic guitar", "Soft strings", "Minimal beats", "Warm synth pads", "Vocal harmonies"],
-            "yearning": ["Emotional strings", "Piano", "Slow 808s", "Reverb effects", "Atmospheric textures"]
-        }
-        
-        return instrument_palette.get(emotion, ["808s", "Synths", "Piano", "Strings"])
