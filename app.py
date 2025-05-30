@@ -163,5 +163,113 @@ def chat():
     except Exception as e:
         return jsonify({"success": False, "response": f"Error: {str(e)}"}), 500
 
+# Memory Management API Endpoints
+@app.route('/api/memory/summary', methods=['GET'])
+def get_memory_summary():
+    try:
+        user_name = request.args.get('user_name')
+        summary = roberto.memory_system.get_memory_summary(user_name)
+        return jsonify({"success": True, "summary": summary})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/user/set', methods=['POST'])
+def set_current_user():
+    try:
+        data = request.get_json()
+        user_name = data.get('user_name')
+        if not user_name:
+            return jsonify({"success": False, "message": "User name required"}), 400
+        
+        roberto.set_current_user(user_name)
+        profile = roberto.memory_system.user_profiles.get(user_name, {})
+        return jsonify({"success": True, "current_user": user_name, "profile": profile})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/search', methods=['POST'])
+def search_memories():
+    try:
+        data = request.get_json()
+        query = data.get('query', '')
+        user_name = data.get('user_name')
+        limit = data.get('limit', 10)
+        
+        memories = roberto.memory_system.retrieve_relevant_memories(query, user_name, limit)
+        return jsonify({"success": True, "memories": memories})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/edit', methods=['POST'])
+def edit_memory():
+    try:
+        data = request.get_json()
+        memory_id = data.get('memory_id')
+        updates = data.get('updates', {})
+        
+        if not memory_id:
+            return jsonify({"success": False, "message": "Memory ID required"}), 400
+        
+        success = roberto.memory_system.edit_memory(memory_id, updates)
+        return jsonify({"success": success, "message": "Memory updated" if success else "Memory not found"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/delete', methods=['POST'])
+def delete_memory():
+    try:
+        data = request.get_json()
+        memory_id = data.get('memory_id')
+        
+        if not memory_id:
+            return jsonify({"success": False, "message": "Memory ID required"}), 400
+        
+        success = roberto.memory_system.remove_memory(memory_id)
+        return jsonify({"success": success, "message": "Memory deleted" if success else "Memory not found"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/reflections', methods=['GET'])
+def get_reflections():
+    try:
+        reflections = roberto.memory_system.self_reflections[-10:]  # Last 10 reflections
+        return jsonify({"success": True, "reflections": reflections})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/emotional-patterns', methods=['GET'])
+def get_emotional_patterns():
+    try:
+        user_name = request.args.get('user_name')
+        if user_name:
+            patterns = roberto.memory_system.emotional_patterns.get(user_name, [])
+            context = roberto.memory_system.get_emotional_context(user_name)
+        else:
+            patterns = []
+            context = {"current_trend": "neutral", "patterns": []}
+        
+        return jsonify({
+            "success": True, 
+            "patterns": patterns[-20:],  # Last 20 patterns
+            "context": context
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/memory/add-reflection', methods=['POST'])
+def add_reflection():
+    try:
+        data = request.get_json()
+        reflection_text = data.get('reflection')
+        trigger_event = data.get('trigger_event')
+        
+        if not reflection_text:
+            return jsonify({"success": False, "message": "Reflection text required"}), 400
+        
+        reflection_id = roberto.memory_system.add_self_reflection(reflection_text, trigger_event)
+        return jsonify({"success": True, "reflection_id": reflection_id})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)  # Using 0.0.0.0 for accessibility
