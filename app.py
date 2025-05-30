@@ -107,8 +107,59 @@ def chat():
             return jsonify({"success": False, "response": "No message provided"}), 400
         
         message = data['message']
-        response = roberto.chat(message)
-        return jsonify({"success": True, "response": response})
+        user_name = data.get('user_name')
+        
+        # Set current user if provided
+        if user_name:
+            roberto.set_current_user(user_name)
+        else:
+            # Check for user introduction in message
+            roberto.check_user_introduction(message)
+        
+        # Get memory context
+        relevant_memories = roberto.memory_system.retrieve_relevant_memories(
+            message, roberto.current_user, limit=3
+        )
+        
+        # Detect emotion and update state
+        roberto.detect_emotion(message)
+        
+        # Generate response with memory integration
+        response = roberto.generate_response(message)
+        
+        # Store interaction in memory system
+        memory_id = roberto.memory_system.add_episodic_memory(
+            message, response, roberto.current_emotion, roberto.current_user
+        )
+        
+        # Add to chat history
+        chat_entry = {
+            "message": message,
+            "response": response,
+            "timestamp": roberto.get_timestamp(),
+            "emotion": roberto.current_emotion,
+            "emotion_intensity": roberto.emotion_intensity,
+            "memory_id": memory_id,
+            "user": roberto.current_user
+        }
+        roberto.chat_history.append(chat_entry)
+        roberto.save_chat_history()
+        
+        # Get updated memory summary
+        memory_summary = roberto.memory_system.get_memory_summary(roberto.current_user)
+        
+        return jsonify({
+            "success": True, 
+            "response": response,
+            "emotion": roberto.current_emotion,
+            "emotion_intensity": roberto.emotion_intensity,
+            "current_user": roberto.current_user,
+            "memory_context": {
+                "relevant_memories": len(relevant_memories),
+                "total_user_memories": memory_summary.get('user_specific_memories', 0),
+                "memory_id": memory_id
+            }
+        })
     except Exception as e:
         return jsonify({"success": False, "response": f"Error: {str(e)}"}), 500
 

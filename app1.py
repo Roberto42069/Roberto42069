@@ -1,13 +1,14 @@
 import json
 import os
 from openai import OpenAI
+from memory_system import AdvancedMemorySystem
 
 
 class Roboto:
 
     def __init__(self):
         self.name = "Roboto"
-        self.version = "1.0"
+        self.version = "2.0"
         self.creator = "Roberto Villarreal Martinez"
         self.tasks = self.load_tasks()
         self.chat_history = self.load_chat_history()
@@ -17,7 +18,11 @@ class Roboto:
         self.conversation_memory = []
         self.user_emotional_state = "neutral"
         self.user_quirks = []
+        self.current_user = None  # Track current user
         self.load_grok_chat_data()
+        
+        # Initialize advanced memory system
+        self.memory_system = AdvancedMemorySystem()
         
         # Emotional system
         self.current_emotion = "curious"
@@ -284,6 +289,33 @@ class Roboto:
             return "I can help you with task management, answer questions, and have conversations. What would you like to do?"
         else:
             return "That's interesting! I'm still learning. Is there anything specific I can help you with?"
+
+    def set_current_user(self, user_name):
+        """Set the current user for personalized interactions"""
+        self.current_user = user_name
+        if user_name:
+            # Update user profile
+            self.memory_system.update_user_profile(user_name, {})
+    
+    def check_user_introduction(self, message):
+        """Check if user is introducing themselves"""
+        intro_patterns = [
+            "my name is", "i'm", "i am", "call me", "this is", 
+            "hi i'm", "hello i'm", "hey i'm"
+        ]
+        
+        message_lower = message.lower()
+        for pattern in intro_patterns:
+            if pattern in message_lower:
+                # Extract potential name
+                parts = message_lower.split(pattern)
+                if len(parts) > 1:
+                    potential_name = parts[1].strip().split()[0]
+                    # Basic validation for name
+                    if potential_name.isalpha() and len(potential_name) > 1:
+                        self.set_current_user(potential_name.capitalize())
+                        return True
+        return False
 
     def save_chat_history(self):
         """Save chat history to file"""
