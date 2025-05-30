@@ -72,6 +72,18 @@ def get_predictive_insights():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
+@app.route('/api/emotional-status', methods=['GET'])
+def get_emotional_status():
+    try:
+        emotional_status = {
+            "current_emotion": roberto.current_emotion,
+            "emotion_intensity": roberto.emotion_intensity,
+            "emotional_history": roberto.emotional_history[-5:] if len(roberto.emotional_history) > 5 else roberto.emotional_history
+        }
+        return jsonify({"success": True, "emotional_status": emotional_status})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
 @app.route('/api/data/export', methods=['GET'])
 def export_data():
     try:
@@ -80,6 +92,8 @@ def export_data():
             "chat_history": roberto.chat_history,
             "learned_patterns": roberto.learned_patterns,
             "user_preferences": roberto.user_preferences,
+            "emotional_history": roberto.emotional_history,
+            "current_emotion": roberto.current_emotion,
             "export_timestamp": "2025-05-30T13:00:00Z"
         }
         return jsonify({"success": True, "data": export_data})

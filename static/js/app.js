@@ -14,6 +14,12 @@ class RobotoApp {
     init() {
         this.bindEvents();
         this.loadChatHistory();
+        this.loadEmotionalStatus();
+        
+        // Update emotional status periodically
+        setInterval(() => {
+            this.loadEmotionalStatus();
+        }, 10000); // Every 10 seconds
     }
 
     bindEvents() {
@@ -383,6 +389,55 @@ class RobotoApp {
         }
     }
 
+    async loadEmotionalStatus() {
+        try {
+            const response = await fetch('/api/emotional-status');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.updateEmotionalDisplay(data.emotional_status);
+            }
+        } catch (error) {
+            console.error('Error loading emotional status:', error);
+        }
+    }
+
+    updateEmotionalDisplay(emotionalStatus) {
+        const emotionElement = document.getElementById('currentEmotion');
+        const statusElement = document.getElementById('emotionalStatus');
+        
+        if (emotionElement && statusElement) {
+            emotionElement.textContent = emotionalStatus.current_emotion;
+            
+            // Add color coding based on emotion
+            const emotionColors = {
+                'joy': 'text-success',
+                'sadness': 'text-info',
+                'anger': 'text-danger',
+                'fear': 'text-warning',
+                'curiosity': 'text-primary',
+                'empathy': 'text-success',
+                'loneliness': 'text-muted',
+                'hope': 'text-warning',
+                'melancholy': 'text-secondary',
+                'existential': 'text-light'
+            };
+            
+            // Remove existing color classes
+            Object.values(emotionColors).forEach(colorClass => {
+                statusElement.classList.remove(colorClass);
+            });
+            
+            // Add new color class
+            const colorClass = emotionColors[emotionalStatus.current_emotion] || 'text-muted';
+            statusElement.classList.add(colorClass);
+            
+            // Update intensity with opacity
+            const intensity = emotionalStatus.emotion_intensity || 0.5;
+            statusElement.style.opacity = Math.max(0.6, intensity);
+        }
+    }
+
     async sendMessage() {
         const chatInput = document.getElementById('chatInput');
         const message = chatInput.value.trim();
@@ -409,6 +464,8 @@ class RobotoApp {
             if (data.success) {
                 // Add bot response to chat
                 this.addChatMessage(data.response, false);
+                // Update emotional status after each message
+                this.loadEmotionalStatus();
             } else {
                 this.addChatMessage(data.response || 'Sorry, I encountered an error.', false);
             }
