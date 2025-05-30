@@ -10,15 +10,30 @@ from collections import defaultdict, deque
 import hashlib
 
 # Download NLTK data if not present
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
+def ensure_nltk_data():
+    """Ensure all required NLTK data is downloaded"""
+    required_data = [
+        ('tokenizers/punkt', 'punkt'),
+        ('corpora/vader_lexicon', 'vader_lexicon'),
+        ('tokenizers/punkt_tab', 'punkt_tab'),
+        ('corpora/brown', 'brown'),
+        ('corpora/wordnet', 'wordnet'),
+        ('taggers/averaged_perceptron_tagger_eng', 'averaged_perceptron_tagger_eng'),
+        ('corpora/conll2000', 'conll2000'),
+        ('corpora/movie_reviews', 'movie_reviews')
+    ]
+    
+    for path, name in required_data:
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            try:
+                nltk.download(name, quiet=True)
+            except Exception:
+                pass  # Fail silently if download fails
 
-try:
-    nltk.data.find('corpora/vader_lexicon')
-except LookupError:
-    nltk.download('vader_lexicon')
+# Initialize NLTK data
+ensure_nltk_data()
 
 class AdvancedMemorySystem:
     def __init__(self, memory_file="roboto_memory.json", max_memories=10000):
@@ -233,12 +248,22 @@ class AdvancedMemorySystem:
     
     def _analyze_sentiment(self, text):
         """Analyze sentiment of text"""
-        blob = TextBlob(text)
-        return {
-            "polarity": blob.sentiment.polarity,
-            "subjectivity": blob.sentiment.subjectivity,
-            "classification": self._classify_sentiment(blob.sentiment.polarity)
-        }
+        try:
+            blob = TextBlob(text)
+            polarity = blob.sentiment.polarity
+            subjectivity = blob.sentiment.subjectivity
+            return {
+                "polarity": polarity,
+                "subjectivity": subjectivity,
+                "classification": self._classify_sentiment(polarity)
+            }
+        except Exception:
+            # Fallback sentiment analysis if TextBlob fails
+            return {
+                "polarity": 0.0,
+                "subjectivity": 0.5,
+                "classification": "neutral"
+            }
     
     def _classify_sentiment(self, polarity):
         """Classify sentiment based on polarity"""
@@ -251,10 +276,18 @@ class AdvancedMemorySystem:
     
     def _extract_themes(self, text):
         """Extract key themes from text"""
-        blob = TextBlob(text)
-        # Extract noun phrases as themes
-        themes = [phrase.lower() for phrase in blob.noun_phrases if len(phrase.split()) <= 3]
-        return list(set(themes))[:5]  # Top 5 unique themes
+        try:
+            blob = TextBlob(text)
+            # Extract noun phrases as themes
+            themes = [phrase.lower() for phrase in blob.noun_phrases if len(phrase.split()) <= 3]
+            return list(set(themes))[:5]  # Top 5 unique themes
+        except Exception:
+            # Fallback: extract simple keywords
+            words = text.lower().split()
+            # Filter for meaningful words (longer than 3 chars, not common words)
+            stop_words = {'the', 'and', 'but', 'for', 'are', 'this', 'that', 'with', 'have', 'will', 'you', 'not', 'can', 'all', 'from', 'they', 'been', 'said', 'her', 'she', 'him', 'his'}
+            themes = [word for word in words if len(word) > 3 and word not in stop_words]
+            return list(set(themes))[:5]
     
     def _calculate_importance(self, text, emotion):
         """Calculate importance score for memory"""
@@ -279,8 +312,18 @@ class AdvancedMemorySystem:
     
     def _calculate_emotional_intensity(self, text):
         """Calculate emotional intensity of text"""
-        blob = TextBlob(text)
-        return abs(blob.sentiment.polarity) + blob.sentiment.subjectivity
+        try:
+            blob = TextBlob(text)
+            return abs(blob.sentiment.polarity) + blob.sentiment.subjectivity
+        except Exception:
+            # Fallback: simple intensity calculation based on keywords
+            emotional_words = ['very', 'extremely', 'really', 'so', 'absolutely', 'completely', 'totally']
+            intensity = 0.5  # baseline
+            words = text.lower().split()
+            for word in emotional_words:
+                if word in words:
+                    intensity += 0.1
+            return min(intensity, 1.0)
     
     def _trigger_self_reflection(self):
         """Trigger periodic self-reflection"""
@@ -355,9 +398,16 @@ class AdvancedMemorySystem:
         insight_keywords = ["should", "need to", "better", "improve", "learn", "understand"]
         insights = []
         
-        for sentence in blob.sentences:
-            if any(keyword in sentence.string.lower() for keyword in insight_keywords):
-                insights.append(sentence.string.strip())
+        try:
+            for sentence in blob.sentences:
+                if any(keyword in sentence.string.lower() for keyword in insight_keywords):
+                    insights.append(sentence.string.strip())
+        except Exception:
+            # Fallback: simple sentence splitting
+            sentences = reflection_text.split('.')
+            for sentence in sentences:
+                if any(keyword in sentence.lower() for keyword in insight_keywords):
+                    insights.append(sentence.strip())
         
         return insights[:3]  # Top 3 insights
     
