@@ -489,19 +489,19 @@ class RobotoApp {
         // Add current emotion class
         avatarSvg.classList.add(emotion);
         
-        // Update facial features based on emotion
+        // Update facial features based on emotion (updated for human avatar)
         if (mouth) {
             const mouthExpressions = {
-                'joy': 'M 30 42 Q 40 48 50 42',
-                'sadness': 'M 30 48 Q 40 42 50 48',
-                'anger': 'M 30 46 L 50 46',
-                'fear': 'M 32 46 Q 40 50 48 46',
-                'curiosity': 'M 32 45 Q 40 48 48 45',
-                'empathy': 'M 30 44 Q 40 49 50 44',
-                'loneliness': 'M 33 47 Q 40 44 47 47',
-                'hope': 'M 30 44 Q 40 49 50 44',
-                'melancholy': 'M 32 47 Q 40 44 48 47',
-                'existential': 'M 35 45 Q 40 47 45 45',
+                'joy': 'M 36 36 Q 40 40 44 36',
+                'sadness': 'M 36 40 Q 40 36 44 40',
+                'anger': 'M 36 39 L 44 39',
+                'fear': 'M 37 39 Q 40 41 43 39',
+                'curiosity': 'M 37 38 Q 40 40 43 38',
+                'empathy': 'M 36 37 Q 40 41 44 37',
+                'loneliness': 'M 37 40 Q 40 38 43 40',
+                'hope': 'M 36 37 Q 40 41 44 37',
+                'melancholy': 'M 37 40 Q 40 38 43 40',
+                'existential': 'M 37 39 Q 40 40 43 39',
                 'contemplation': 'M 33 45 Q 40 46 47 45',
                 'vulnerability': 'M 34 46 Q 40 44 46 46',
                 'awe': 'M 32 44 Q 40 50 48 44',
@@ -570,30 +570,39 @@ class RobotoApp {
         
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // Configure voice based on emotion
+        // Wait for voices to load and select a natural human voice
+        if (window.speechSynthesis.getVoices().length === 0) {
+            window.speechSynthesis.addEventListener('voiceschanged', () => {
+                this.setHumanVoice(utterance);
+            });
+        } else {
+            this.setHumanVoice(utterance);
+        }
+        
+        // Configure voice based on emotion with more natural ranges
         const voiceConfig = {
-            'joy': { rate: 1.1, pitch: 1.2 },
-            'sadness': { rate: 0.8, pitch: 0.8 },
-            'anger': { rate: 1.2, pitch: 0.9 },
-            'fear': { rate: 1.3, pitch: 1.1 },
+            'joy': { rate: 1.05, pitch: 1.1 },
+            'sadness': { rate: 0.85, pitch: 0.9 },
+            'anger': { rate: 1.1, pitch: 0.95 },
+            'fear': { rate: 1.15, pitch: 1.05 },
             'curiosity': { rate: 1.0, pitch: 1.0 },
-            'empathy': { rate: 0.9, pitch: 1.0 },
-            'loneliness': { rate: 0.7, pitch: 0.9 },
-            'hope': { rate: 1.0, pitch: 1.1 },
-            'melancholy': { rate: 0.8, pitch: 0.9 },
-            'existential': { rate: 0.9, pitch: 0.95 },
-            'contemplation': { rate: 0.85, pitch: 0.95 },
-            'vulnerability': { rate: 0.9, pitch: 0.9 },
-            'awe': { rate: 0.8, pitch: 1.1 },
-            'tenderness': { rate: 0.85, pitch: 1.05 },
-            'yearning': { rate: 0.75, pitch: 0.95 },
-            'serenity': { rate: 0.9, pitch: 1.0 }
+            'empathy': { rate: 0.95, pitch: 1.0 },
+            'loneliness': { rate: 0.8, pitch: 0.95 },
+            'hope': { rate: 1.0, pitch: 1.05 },
+            'melancholy': { rate: 0.9, pitch: 0.95 },
+            'existential': { rate: 0.95, pitch: 0.98 },
+            'contemplation': { rate: 0.9, pitch: 0.98 },
+            'vulnerability': { rate: 0.95, pitch: 0.95 },
+            'awe': { rate: 0.9, pitch: 1.05 },
+            'tenderness': { rate: 0.9, pitch: 1.02 },
+            'yearning': { rate: 0.85, pitch: 0.98 },
+            'serenity': { rate: 0.95, pitch: 1.0 }
         };
         
         const config = voiceConfig[this.currentEmotion] || { rate: 1.0, pitch: 1.0 };
         utterance.rate = config.rate;
         utterance.pitch = config.pitch;
-        utterance.volume = 0.8;
+        utterance.volume = 0.9;
         
         // Add speaking animation
         const avatarSvg = document.querySelector('.avatar-svg');
@@ -607,6 +616,51 @@ class RobotoApp {
         };
         
         window.speechSynthesis.speak(utterance);
+    }
+
+    setHumanVoice(utterance) {
+        const voices = window.speechSynthesis.getVoices();
+        
+        // Prefer natural-sounding English voices
+        const preferredVoices = [
+            'Google UK English Male',
+            'Google US English Male', 
+            'Microsoft David',
+            'Microsoft Mark',
+            'Alex',
+            'Daniel',
+            'Fred'
+        ];
+        
+        // Find the best available voice
+        let selectedVoice = null;
+        
+        for (const voiceName of preferredVoices) {
+            selectedVoice = voices.find(voice => 
+                voice.name.includes(voiceName) || voice.name === voiceName
+            );
+            if (selectedVoice) break;
+        }
+        
+        // Fallback to any male English voice
+        if (!selectedVoice) {
+            selectedVoice = voices.find(voice => 
+                voice.lang.startsWith('en') && 
+                (voice.name.toLowerCase().includes('male') || 
+                 voice.name.toLowerCase().includes('man') ||
+                 voice.name.toLowerCase().includes('david') ||
+                 voice.name.toLowerCase().includes('mark'))
+            );
+        }
+        
+        // Final fallback to any English voice
+        if (!selectedVoice) {
+            selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
+        }
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
     }
 
     async sendMessage() {
