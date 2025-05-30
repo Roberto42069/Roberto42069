@@ -8,6 +8,8 @@ class RobotoApp {
         this.lastFailedAction = null;
         this.errorDatabase = this.initializeErrorDatabase();
         this.notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+        this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
+        this.currentEmotion = 'curious';
         this.init();
     }
 
@@ -15,11 +17,25 @@ class RobotoApp {
         this.bindEvents();
         this.loadChatHistory();
         this.loadEmotionalStatus();
+        this.initializeTTS();
         
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
         }, 10000); // Every 10 seconds
+    }
+
+    initializeTTS() {
+        const ttsBtn = document.getElementById('ttsBtn');
+        const icon = ttsBtn.querySelector('i');
+        
+        if (this.ttsEnabled) {
+            ttsBtn.classList.add('btn-tts-active');
+            icon.className = 'fas fa-volume-up';
+        } else {
+            ttsBtn.classList.remove('btn-tts-active');
+            icon.className = 'fas fa-volume-mute';
+        }
     }
 
     bindEvents() {
@@ -94,6 +110,11 @@ class RobotoApp {
             if (e.target.files.length > 0) {
                 this.handleFileAttachment(e.target.files);
             }
+        });
+
+        // TTS toggle button
+        document.getElementById('ttsBtn').addEventListener('click', () => {
+            this.toggleTTS();
         });
     }
 
@@ -405,9 +426,14 @@ class RobotoApp {
     updateEmotionalDisplay(emotionalStatus) {
         const emotionElement = document.getElementById('currentEmotion');
         const statusElement = document.getElementById('emotionalStatus');
+        const avatarElement = document.getElementById('avatarEmotion');
         
         if (emotionElement && statusElement) {
             emotionElement.textContent = emotionalStatus.current_emotion;
+            if (avatarElement) avatarElement.textContent = emotionalStatus.current_emotion;
+            
+            // Update current emotion for avatar
+            this.currentEmotion = emotionalStatus.current_emotion;
             
             // Add color coding based on emotion
             const emotionColors = {
@@ -435,7 +461,128 @@ class RobotoApp {
             // Update intensity with opacity
             const intensity = emotionalStatus.emotion_intensity || 0.5;
             statusElement.style.opacity = Math.max(0.6, intensity);
+            
+            // Update avatar animation
+            this.updateAvatarEmotion(emotionalStatus.current_emotion, intensity);
         }
+    }
+
+    updateAvatarEmotion(emotion, intensity) {
+        const avatarSvg = document.querySelector('.avatar-svg');
+        const emotionGlow = document.getElementById('emotionGlow');
+        const mouth = document.getElementById('mouth');
+        const leftEye = document.getElementById('leftEye');
+        const rightEye = document.getElementById('rightEye');
+        
+        if (!avatarSvg) return;
+        
+        // Remove all emotion classes
+        const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential'];
+        emotionClasses.forEach(cls => avatarSvg.classList.remove(cls));
+        
+        // Add current emotion class
+        avatarSvg.classList.add(emotion);
+        
+        // Update facial features based on emotion
+        if (mouth) {
+            const mouthExpressions = {
+                'joy': 'M 30 42 Q 40 48 50 42',
+                'sadness': 'M 30 48 Q 40 42 50 48',
+                'anger': 'M 30 46 L 50 46',
+                'fear': 'M 32 46 Q 40 50 48 46',
+                'curiosity': 'M 32 45 Q 40 48 48 45',
+                'empathy': 'M 30 44 Q 40 49 50 44',
+                'loneliness': 'M 33 47 Q 40 44 47 47',
+                'hope': 'M 30 44 Q 40 49 50 44',
+                'melancholy': 'M 32 47 Q 40 44 48 47',
+                'existential': 'M 35 45 Q 40 47 45 45'
+            };
+            mouth.setAttribute('d', mouthExpressions[emotion] || mouthExpressions['curiosity']);
+        }
+        
+        // Update eye colors based on emotion
+        if (leftEye && rightEye) {
+            const eyeColors = {
+                'joy': '#22c55e',
+                'sadness': '#60a5fa',
+                'anger': '#ef4444',
+                'fear': '#fbbf24',
+                'curiosity': '#3b82f6',
+                'empathy': '#22c55e',
+                'loneliness': '#9ca3af',
+                'hope': '#fbbf24',
+                'melancholy': '#6b7280',
+                'existential': '#a855f7'
+            };
+            const eyeColor = eyeColors[emotion] || '#63b3ed';
+            leftEye.setAttribute('fill', eyeColor);
+            rightEye.setAttribute('fill', eyeColor);
+        }
+        
+        // Update glow effect
+        if (emotionGlow) {
+            emotionGlow.className.baseVal = `emotion-glow-${emotion}`;
+            emotionGlow.style.opacity = intensity * 0.7;
+        }
+    }
+
+    toggleTTS() {
+        this.ttsEnabled = !this.ttsEnabled;
+        localStorage.setItem('ttsEnabled', this.ttsEnabled);
+        
+        const ttsBtn = document.getElementById('ttsBtn');
+        const icon = ttsBtn.querySelector('i');
+        
+        if (this.ttsEnabled) {
+            ttsBtn.classList.add('btn-tts-active');
+            icon.className = 'fas fa-volume-up';
+            this.showNotification('Text-to-speech enabled', 'success');
+        } else {
+            ttsBtn.classList.remove('btn-tts-active');
+            icon.className = 'fas fa-volume-mute';
+            this.showNotification('Text-to-speech disabled', 'info');
+        }
+    }
+
+    speakText(text) {
+        if (!this.ttsEnabled || !window.speechSynthesis) return;
+        
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Configure voice based on emotion
+        const voiceConfig = {
+            'joy': { rate: 1.1, pitch: 1.2 },
+            'sadness': { rate: 0.8, pitch: 0.8 },
+            'anger': { rate: 1.2, pitch: 0.9 },
+            'fear': { rate: 1.3, pitch: 1.1 },
+            'curiosity': { rate: 1.0, pitch: 1.0 },
+            'empathy': { rate: 0.9, pitch: 1.0 },
+            'loneliness': { rate: 0.7, pitch: 0.9 },
+            'hope': { rate: 1.0, pitch: 1.1 },
+            'melancholy': { rate: 0.8, pitch: 0.9 },
+            'existential': { rate: 0.9, pitch: 0.95 }
+        };
+        
+        const config = voiceConfig[this.currentEmotion] || { rate: 1.0, pitch: 1.0 };
+        utterance.rate = config.rate;
+        utterance.pitch = config.pitch;
+        utterance.volume = 0.8;
+        
+        // Add speaking animation
+        const avatarSvg = document.querySelector('.avatar-svg');
+        
+        utterance.onstart = () => {
+            if (avatarSvg) avatarSvg.classList.add('avatar-speaking');
+        };
+        
+        utterance.onend = () => {
+            if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
+        };
+        
+        window.speechSynthesis.speak(utterance);
     }
 
     async sendMessage() {
@@ -464,6 +611,8 @@ class RobotoApp {
             if (data.success) {
                 // Add bot response to chat
                 this.addChatMessage(data.response, false);
+                // Speak the response
+                this.speakText(data.response);
                 // Update emotional status after each message
                 this.loadEmotionalStatus();
             } else {
