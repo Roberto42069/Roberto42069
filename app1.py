@@ -119,9 +119,9 @@ class Roboto:
             # Add current message
             context_messages.append({"role": "user", "content": message})
             
-            # Call OpenAI API
+            # Call OpenAI API with a more widely available model
             response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=context_messages,
                 max_tokens=150,
                 temperature=0.7
