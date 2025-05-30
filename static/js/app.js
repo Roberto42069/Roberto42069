@@ -66,11 +66,14 @@ class RobotoApp {
             this.showLearningInsights();
         });
 
-        // Toggle notifications button
-        document.getElementById('toggleNotificationsBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleNotifications();
-        });
+        // Toggle notifications button (check if exists)
+        const toggleNotificationsBtn = document.getElementById('toggleNotificationsBtn');
+        if (toggleNotificationsBtn) {
+            toggleNotificationsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleNotifications();
+            });
+        }
 
         // Predictive insights button
         document.getElementById('predictiveInsightsBtn').addEventListener('click', (e) => {
@@ -512,14 +515,16 @@ class RobotoApp {
 
     async exportData() {
         try {
-            const response = await fetch('/api/export');
+            const response = await fetch('/api/data/export');
+            const data = await response.json();
             
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+            if (data.success) {
+                const dataStr = JSON.stringify(data.data, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = window.URL.createObjectURL(dataBlob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = response.headers.get('Content-Disposition').split('filename=')[1];
+                a.download = `roboto-data-export-${new Date().toISOString().split('T')[0]}.json`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -527,8 +532,7 @@ class RobotoApp {
                 
                 this.showNotification('Data exported successfully!', 'success');
             } else {
-                const error = await response.json();
-                this.showNotification(error.message || 'Export failed', 'error');
+                this.showNotification(data.message || 'Export failed', 'error');
             }
         } catch (error) {
             console.error('Export error:', error);
@@ -755,39 +759,39 @@ class RobotoApp {
 
     async showLearningInsights() {
         try {
-            const response = await fetch('/api/learning/insights');
+            const response = await fetch('/api/analytics/learning-insights');
             const data = await response.json();
             
             if (data.success) {
                 const insights = data.insights;
-                let message = `🧠 Roboto's Learning Progress\n\n`;
-                message += `Conversations: ${insights.conversation_count}\n\n`;
+                const analyticsDisplay = document.getElementById('analyticsDisplay');
                 
-                if (insights.insights.length > 0) {
-                    message += "What I've learned about you:\n";
-                    insights.insights.forEach(insight => {
-                        message += `• ${insight}\n`;
-                    });
-                } else {
-                    message += "Keep chatting with me to help me learn your preferences!";
-                }
+                let html = '<div class="learning-insights">';
+                html += '<h6 class="text-info mb-3"><i class="fas fa-brain me-2"></i>Learning Insights</h6>';
                 
-                if (insights.learned_patterns && Object.keys(insights.learned_patterns).length > 0) {
-                    message += "\nDetailed patterns:\n";
-                    if (insights.learned_patterns.favorite_topics) {
-                        const topics = Object.entries(insights.learned_patterns.favorite_topics)
-                            .sort(([,a], [,b]) => b - a)
-                            .slice(0, 3);
-                        if (topics.length > 0) {
-                            message += `Most discussed topics: ${topics.map(([topic, count]) => 
-                                `${topic.replace('_', ' ')} (${count})`).join(', ')}\n`;
-                        }
+                // Conversation stats
+                html += `<div class="mb-3">
+                    <small class="text-muted">Total Messages:</small> <strong>${insights.conversation_stats.total_messages}</strong><br>
+                    <small class="text-muted">Total Tasks:</small> <strong>${insights.conversation_stats.total_tasks}</strong>
+                </div>`;
+                
+                // Patterns
+                if (Object.keys(insights.patterns).length > 0) {
+                    html += '<div class="mb-3"><small class="text-muted">Learned Patterns:</small><br>';
+                    for (const [key, value] of Object.entries(insights.patterns)) {
+                        html += `<span class="badge bg-secondary me-1">${key}: ${value}</span>`;
                     }
+                    html += '</div>';
+                } else {
+                    html += '<div class="text-muted small mb-3">Keep chatting to help me learn your preferences!</div>';
                 }
                 
-                alert(message);
+                html += '</div>';
+                analyticsDisplay.innerHTML = html;
+                
+                this.showNotification('Learning insights loaded!', 'success');
             } else {
-                this.showNotification('Could not load learning insights', 'error');
+                this.showNotification(data.message || 'Could not load learning insights', 'error');
             }
         } catch (error) {
             console.error('Error loading learning insights:', error);
@@ -815,18 +819,48 @@ class RobotoApp {
 
     async showPredictiveInsights() {
         try {
-            const response = await fetch('/api/predictive_insights');
+            const response = await fetch('/api/analytics/predictive-insights');
             const data = await response.json();
             
             if (data.success) {
-                let message = "🔮 Predictive Insights:\n\n";
-                data.insights.forEach(insight => {
-                    message += `✨ ${insight}\n`;
-                });
+                const predictions = data.predictions;
+                const analyticsDisplay = document.getElementById('analyticsDisplay');
                 
-                alert(message);
+                let html = '<div class="predictive-insights">';
+                html += '<h6 class="text-warning mb-3"><i class="fas fa-crystal-ball me-2"></i>Predictive Insights</h6>';
+                
+                html += `<div class="mb-3">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-info">Productivity Trends</h6>
+                            <p class="card-text small">${predictions.task_completion_trend}</p>
+                        </div>
+                    </div>
+                </div>`;
+                
+                html += `<div class="mb-3">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-info">Conversation Patterns</h6>
+                            <p class="card-text small">${predictions.conversation_patterns}</p>
+                        </div>
+                    </div>
+                </div>`;
+                
+                if (predictions.suggested_improvements && predictions.suggested_improvements.length > 0) {
+                    html += '<div class="mb-3"><h6 class="text-success">Suggested Improvements</h6><ul class="list-unstyled">';
+                    predictions.suggested_improvements.forEach(improvement => {
+                        html += `<li class="small text-muted mb-1"><i class="fas fa-lightbulb text-warning me-2"></i>${improvement}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                html += '</div>';
+                analyticsDisplay.innerHTML = html;
+                
+                this.showNotification('Predictive insights loaded!', 'success');
             } else {
-                this.showNotification('Could not load predictive insights', 'error');
+                this.showNotification(data.message || 'Could not load predictive insights', 'error');
             }
         } catch (error) {
             console.error('Error loading predictive insights:', error);
