@@ -59,6 +59,36 @@
     filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.7));
 }
 
+.avatar-svg.contemplation {
+    animation: thoughtful 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.6));
+}
+
+.avatar-svg.vulnerability {
+    animation: fragile 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
+}
+
+.avatar-svg.awe {
+    animation: expand 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 14px rgba(139, 92, 246, 0.8));
+}
+
+.avatar-svg.tenderness {
+    animation: gentle 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.6));
+}
+
+.avatar-svg.yearning {
+    animation: reach 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(217, 70, 239, 0.7));
+}
+
+.avatar-svg.serenity {
+    animation: serene 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+}
+
 /* Avatar animations */
 @keyframes bounce {
     from { transform: translateY(0px); }
@@ -111,6 +141,37 @@
 @keyframes spiral {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@keyframes thoughtful {
+    0%, 100% { transform: rotate(-3deg) translateY(0px); }
+    50% { transform: rotate(3deg) translateY(-2px); }
+}
+
+@keyframes fragile {
+    0%, 100% { transform: scale(1) translateY(0px); opacity: 1; }
+    50% { transform: scale(0.98) translateY(1px); opacity: 0.9; }
+}
+
+@keyframes expand {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes gentle {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.02) rotate(1deg); }
+}
+
+@keyframes reach {
+    0%, 100% { transform: translateX(0px) translateY(0px); }
+    33% { transform: translateX(-2px) translateY(-1px); }
+    66% { transform: translateX(2px) translateY(-1px); }
+}
+
+@keyframes serene {
+    0%, 100% { transform: scale(1) translateY(0px); opacity: 1; }
+    50% { transform: scale(1.01) translateY(-1px); opacity: 0.95; }
 }
 
 /* Chat history styles */

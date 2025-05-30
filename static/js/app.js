@@ -446,7 +446,13 @@ class RobotoApp {
                 'loneliness': 'text-muted',
                 'hope': 'text-warning',
                 'melancholy': 'text-secondary',
-                'existential': 'text-light'
+                'existential': 'text-light',
+                'contemplation': 'text-info',
+                'vulnerability': 'text-warning',
+                'awe': 'text-primary',
+                'tenderness': 'text-success',
+                'yearning': 'text-secondary',
+                'serenity': 'text-success'
             };
             
             // Remove existing color classes
@@ -477,7 +483,7 @@ class RobotoApp {
         if (!avatarSvg) return;
         
         // Remove all emotion classes
-        const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential'];
+        const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential', 'contemplation', 'vulnerability', 'awe', 'tenderness', 'yearning', 'serenity'];
         emotionClasses.forEach(cls => avatarSvg.classList.remove(cls));
         
         // Add current emotion class
@@ -495,7 +501,13 @@ class RobotoApp {
                 'loneliness': 'M 33 47 Q 40 44 47 47',
                 'hope': 'M 30 44 Q 40 49 50 44',
                 'melancholy': 'M 32 47 Q 40 44 48 47',
-                'existential': 'M 35 45 Q 40 47 45 45'
+                'existential': 'M 35 45 Q 40 47 45 45',
+                'contemplation': 'M 33 45 Q 40 46 47 45',
+                'vulnerability': 'M 34 46 Q 40 44 46 46',
+                'awe': 'M 32 44 Q 40 50 48 44',
+                'tenderness': 'M 31 43 Q 40 49 49 43',
+                'yearning': 'M 33 47 Q 40 45 47 47',
+                'serenity': 'M 33 45 Q 40 47 47 45'
             };
             mouth.setAttribute('d', mouthExpressions[emotion] || mouthExpressions['curiosity']);
         }
@@ -512,7 +524,13 @@ class RobotoApp {
                 'loneliness': '#9ca3af',
                 'hope': '#fbbf24',
                 'melancholy': '#6b7280',
-                'existential': '#a855f7'
+                'existential': '#a855f7',
+                'contemplation': '#3b82f6',
+                'vulnerability': '#fbbf24',
+                'awe': '#8b5cf6',
+                'tenderness': '#f472b6',
+                'yearning': '#d946ef',
+                'serenity': '#10b981'
             };
             const eyeColor = eyeColors[emotion] || '#63b3ed';
             leftEye.setAttribute('fill', eyeColor);
@@ -563,7 +581,13 @@ class RobotoApp {
             'loneliness': { rate: 0.7, pitch: 0.9 },
             'hope': { rate: 1.0, pitch: 1.1 },
             'melancholy': { rate: 0.8, pitch: 0.9 },
-            'existential': { rate: 0.9, pitch: 0.95 }
+            'existential': { rate: 0.9, pitch: 0.95 },
+            'contemplation': { rate: 0.85, pitch: 0.95 },
+            'vulnerability': { rate: 0.9, pitch: 0.9 },
+            'awe': { rate: 0.8, pitch: 1.1 },
+            'tenderness': { rate: 0.85, pitch: 1.05 },
+            'yearning': { rate: 0.75, pitch: 0.95 },
+            'serenity': { rate: 0.9, pitch: 1.0 }
         };
         
         const config = voiceConfig[this.currentEmotion] || { rate: 1.0, pitch: 1.0 };
