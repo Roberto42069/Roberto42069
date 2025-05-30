@@ -49,4 +49,68 @@ class Roboto:
         return f"== Welcome to {self.name} v{self.version} ==\n" \
                f"Created by {self.creator}\n" + ("=" * 40)
 
-    # Add your other methods like add_task, show_tasks, chat, etc.
+    def show_tasks(self):
+        """Return list of tasks in the expected format for the frontend"""
+        task_list = []
+        for i, task in enumerate(self.tasks):
+            task_list.append({
+                "id": i,
+                "text": task,
+                "completed": False
+            })
+        return task_list
+
+    def add_task(self, task_text):
+        """Add a new task"""
+        try:
+            self.tasks.append(task_text)
+            self.save_tasks()
+            return {"success": True, "message": "Task added successfully!"}
+        except Exception as e:
+            return {"success": False, "message": f"Error adding task: {str(e)}"}
+
+    def save_tasks(self):
+        """Save tasks to file"""
+        with open("tasks.txt", "w") as file:
+            for task in self.tasks:
+                file.write(task + "\n")
+
+    def chat(self, message):
+        """Handle chat messages"""
+        if not message:
+            return "Please provide a message to chat."
+        
+        # Store the user message
+        chat_entry = {
+            "message": message,
+            "response": "",
+            "timestamp": ""
+        }
+        
+        # Simple response logic (you can enhance this with OpenAI later)
+        response = self.generate_response(message)
+        chat_entry["response"] = response
+        
+        # Add to chat history
+        self.chat_history.append(chat_entry)
+        self.save_chat_history()
+        
+        return response
+
+    def generate_response(self, message):
+        """Generate a response to user message"""
+        message_lower = message.lower()
+        
+        if "hello" in message_lower or "hi" in message_lower:
+            return "Hello! I'm Roboto, your personal assistant. How can I help you today?"
+        elif "task" in message_lower:
+            return "I can help you manage your tasks! You can add new tasks or view your current ones."
+        elif "help" in message_lower:
+            return "I can help you with task management, answer questions, and have conversations. What would you like to do?"
+        else:
+            return "That's interesting! I'm still learning. Is there anything specific I can help you with?"
+
+    def save_chat_history(self):
+        """Save chat history to file"""
+        with open("chat_history.json", "w") as file:
+            json.dump(self.chat_history, file, indent=2)
