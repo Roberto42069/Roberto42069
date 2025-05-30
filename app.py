@@ -2,6 +2,7 @@ from app1 import Roboto
 from flask import Flask, request, jsonify, render_template
 import os
 from openai import OpenAI
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "roboto-secret-key")
@@ -136,7 +137,7 @@ def chat():
         chat_entry = {
             "message": message,
             "response": response,
-            "timestamp": roberto.get_timestamp(),
+            "timestamp": datetime.now().isoformat(),
             "emotion": roberto.current_emotion,
             "emotion_intensity": roberto.emotion_intensity,
             "memory_id": memory_id,
