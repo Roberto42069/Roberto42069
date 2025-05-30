@@ -1,21 +1,56 @@
-from app1 import Roboto
-from flask import Flask, request, jsonify, render_template
 import os
-from openai import OpenAI
+from flask import Flask, request, jsonify, render_template, session
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+from werkzeug.middleware.proxy_fix import ProxyFix
+from app1 import Roboto
 
+class Base(DeclarativeBase):
+    pass
+
+# Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "roboto-secret-key")
+app.secret_key = os.environ.get("SESSION_SECRET")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Initialize OpenAI client
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+# Configure the database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+
+# Initialize the database
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+
+# Initialize models with the database instance
+import models
+models.init_db(db)
+
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 roberto = Roboto()
 
+# Import and register the authentication blueprint
+from replit_auth import make_replit_blueprint, require_login
+from flask_login import current_user
+
+app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
+
+# Make session permanent
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return render_template('index.html', user=current_user)
+    else:
+        return render_template('landing.html')
 
 @app.route('/api/intro')
 def intro():
