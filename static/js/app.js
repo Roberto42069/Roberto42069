@@ -14,9 +14,6 @@ class RobotoApp {
     init() {
         this.bindEvents();
         this.loadChatHistory();
-        
-        // Initialize analytics display
-        this.initializeAnalytics();
     }
 
     bindEvents() {

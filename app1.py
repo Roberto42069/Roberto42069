@@ -1,5 +1,6 @@
 import json
 import os
+from openai import OpenAI
 
 
 class Roboto:
@@ -17,6 +18,9 @@ class Roboto:
         self.user_emotional_state = "neutral"
         self.user_quirks = []
         self.load_grok_chat_data()
+        
+        # Initialize OpenAI client
+        self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
     def load_grok_chat_data(self):
         try:
@@ -98,7 +102,40 @@ class Roboto:
         return response
 
     def generate_response(self, message):
-        """Generate a response to user message"""
+        """Generate a response to user message using OpenAI"""
+        try:
+            # Build context from recent conversation history
+            context_messages = [
+                {"role": "system", "content": f"You are {self.name}, a helpful personal assistant created by {self.creator}. You help users with task management, conversations, and provide intelligent assistance. Keep responses conversational and helpful."}
+            ]
+            
+            # Add recent chat history for context (last 5 messages)
+            recent_history = self.chat_history[-5:] if len(self.chat_history) > 5 else self.chat_history
+            for entry in recent_history:
+                if 'message' in entry and 'response' in entry:
+                    context_messages.append({"role": "user", "content": entry['message']})
+                    context_messages.append({"role": "assistant", "content": entry['response']})
+            
+            # Add current message
+            context_messages.append({"role": "user", "content": message})
+            
+            # Call OpenAI API
+            response = self.openai_client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=context_messages,
+                max_tokens=150,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"OpenAI API error: {e}")
+            # Fallback to simple response if OpenAI fails
+            return self.simple_response(message)
+    
+    def simple_response(self, message):
+        """Simple fallback response when OpenAI is unavailable"""
         message_lower = message.lower()
         
         if "hello" in message_lower or "hi" in message_lower:
