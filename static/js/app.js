@@ -324,7 +324,7 @@ class RobotoApp {
         }
         
         // Category badge
-        const categoryBadge = task.category ? `<span class="badge bg-dark me-1">${task.category}</span>` : '';
+        const categoryBadge = task.category ? `<span class="badge bg-dark me-1">${this.escapeHtml(task.category)}</span>` : '';
         
         return `
             <div class="task-item d-flex align-items-center p-2 mb-2 border rounded ${priorityClass} ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}">
