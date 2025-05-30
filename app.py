@@ -24,9 +24,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-# Initialize models with the database instance
-import models
-models.init_db(db)
+# Create model classes
+from models import create_models
+User, OAuth = create_models(db)
 
 # Create database tables
 with app.app_context():
@@ -34,7 +34,12 @@ with app.app_context():
 
 roberto = Roboto()
 
-# Import and register the authentication blueprint
+# Set up authentication after models are created
+import replit_auth
+replit_auth.User = User
+replit_auth.OAuth = OAuth
+replit_auth.db = db
+
 from replit_auth import make_replit_blueprint, require_login
 from flask_login import current_user
 
