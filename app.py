@@ -43,7 +43,7 @@ class Roboto:
                 return {"success": False, "message": f"[WARNING] Task '{task}' already exists!"}
         
         new_task = {
-            "id": len(self.tasks) + 1,
+            "id": len(self.tasks) + 1,"
             "text": task,
             "completed": False,
             "created_at": datetime.now().isoformat(),
