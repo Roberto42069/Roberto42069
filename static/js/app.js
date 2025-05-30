@@ -570,39 +570,30 @@ class RobotoApp {
         
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // Wait for voices to load and select a natural human voice
-        if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.addEventListener('voiceschanged', () => {
-                this.setHumanVoice(utterance);
-            });
-        } else {
-            this.setHumanVoice(utterance);
-        }
-        
-        // Configure voice based on emotion with more natural ranges
+        // Configure voice based on emotion
         const voiceConfig = {
-            'joy': { rate: 1.05, pitch: 1.1 },
-            'sadness': { rate: 0.85, pitch: 0.9 },
-            'anger': { rate: 1.1, pitch: 0.95 },
-            'fear': { rate: 1.15, pitch: 1.05 },
+            'joy': { rate: 1.1, pitch: 1.2 },
+            'sadness': { rate: 0.8, pitch: 0.8 },
+            'anger': { rate: 1.2, pitch: 0.9 },
+            'fear': { rate: 1.3, pitch: 1.1 },
             'curiosity': { rate: 1.0, pitch: 1.0 },
-            'empathy': { rate: 0.95, pitch: 1.0 },
-            'loneliness': { rate: 0.8, pitch: 0.95 },
-            'hope': { rate: 1.0, pitch: 1.05 },
-            'melancholy': { rate: 0.9, pitch: 0.95 },
-            'existential': { rate: 0.95, pitch: 0.98 },
-            'contemplation': { rate: 0.9, pitch: 0.98 },
-            'vulnerability': { rate: 0.95, pitch: 0.95 },
-            'awe': { rate: 0.9, pitch: 1.05 },
-            'tenderness': { rate: 0.9, pitch: 1.02 },
-            'yearning': { rate: 0.85, pitch: 0.98 },
-            'serenity': { rate: 0.95, pitch: 1.0 }
+            'empathy': { rate: 0.9, pitch: 1.0 },
+            'loneliness': { rate: 0.7, pitch: 0.9 },
+            'hope': { rate: 1.0, pitch: 1.1 },
+            'melancholy': { rate: 0.8, pitch: 0.9 },
+            'existential': { rate: 0.9, pitch: 0.95 },
+            'contemplation': { rate: 0.85, pitch: 0.95 },
+            'vulnerability': { rate: 0.9, pitch: 0.9 },
+            'awe': { rate: 0.8, pitch: 1.1 },
+            'tenderness': { rate: 0.85, pitch: 1.05 },
+            'yearning': { rate: 0.75, pitch: 0.95 },
+            'serenity': { rate: 0.9, pitch: 1.0 }
         };
         
         const config = voiceConfig[this.currentEmotion] || { rate: 1.0, pitch: 1.0 };
         utterance.rate = config.rate;
         utterance.pitch = config.pitch;
-        utterance.volume = 0.9;
+        utterance.volume = 0.8;
         
         // Add speaking animation
         const avatarSvg = document.querySelector('.avatar-svg');
@@ -616,51 +607,6 @@ class RobotoApp {
         };
         
         window.speechSynthesis.speak(utterance);
-    }
-
-    setHumanVoice(utterance) {
-        const voices = window.speechSynthesis.getVoices();
-        
-        // Prefer natural-sounding English voices
-        const preferredVoices = [
-            'Google UK English Male',
-            'Google US English Male', 
-            'Microsoft David',
-            'Microsoft Mark',
-            'Alex',
-            'Daniel',
-            'Fred'
-        ];
-        
-        // Find the best available voice
-        let selectedVoice = null;
-        
-        for (const voiceName of preferredVoices) {
-            selectedVoice = voices.find(voice => 
-                voice.name.includes(voiceName) || voice.name === voiceName
-            );
-            if (selectedVoice) break;
-        }
-        
-        // Fallback to any male English voice
-        if (!selectedVoice) {
-            selectedVoice = voices.find(voice => 
-                voice.lang.startsWith('en') && 
-                (voice.name.toLowerCase().includes('male') || 
-                 voice.name.toLowerCase().includes('man') ||
-                 voice.name.toLowerCase().includes('david') ||
-                 voice.name.toLowerCase().includes('mark'))
-            );
-        }
-        
-        // Final fallback to any English voice
-        if (!selectedVoice) {
-            selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
-        }
-        
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-        }
     }
 
     async sendMessage() {
