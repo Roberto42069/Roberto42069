@@ -1,10 +1,12 @@
 import json
 import os
 
+
 class Roboto:
+
     def __init__(self):
         self.name = "Roboto"
-        self.version = "2.0"
+        self.version = "1.0"
         self.creator = "Roberto Villarreal Martinez"
         self.tasks = self.load_tasks()
         self.chat_history = self.load_chat_history()
@@ -23,7 +25,10 @@ class Roboto:
                 for item in grok_data['part0']:
                     message = item['grokChatItem']['message']
                     sender = item['grokChatItem']['sender']['name']
-                    self.chat_history.append({"sender": sender, "message": message})
+                    self.chat_history.append({
+                        "sender": sender,
+                        "message": message
+                    })
         except Exception as e:
             print(f"Error loading Grok chat data: {e}")
 
