@@ -1,0 +1,222 @@
+import os
+import re
+import json
+import hashlib
+from datetime import datetime
+from collections import defaultdict
+from textblob import TextBlob
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+class AdvancedMemorySystem:
+    def __init__(self, memory_file="roboto_memory.json", max_memories=10000):
+        self.memory_file = memory_file
+        self.max_memories = max_memories
+
+        self.episodic_memories = []
+        self.semantic_memories = {}
+        self.emotional_patterns = defaultdict(list)
+        self.user_profiles = {}
+        self.self_reflections = []
+        self.compressed_learnings = {}
+
+        self.vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+        self.memory_vectors = None
+
+        self.load_memory()
+
+    def _generate_memory_id(self, text: str) -> str:
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+    def _calculate_importance(self, text, emotion):
+        return 0.5 + 0.5 * (1 if emotion in ("joy", "anger", "fear") else 0)
+
+    def _analyze_sentiment(self, text):
+        return TextBlob(text).sentiment.polarity
+
+    def _calculate_emotional_intensity(self, text):
+        return min(1.0, abs(TextBlob(text).sentiment.polarity))
+
+    def _extract_themes(self, text):
+        return list(set(TextBlob(text).noun_phrases))
+
+    def extract_personal_info(self, text: str) -> dict:
+        personal_info = {}
+        lower = text.lower()
+
+        # Birthday
+        if "birthday" in lower or "born" in lower:
+            match = re.search(r"(?:born on|birthday(?: is|:)?|born)\s*(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)", text, re.IGNORECASE)
+            if match:
+                personal_info["birthday"] = match.group(1).strip()
+
+        # Location
+        loc_patterns = [
+            r"(?:i (?:am|’m|'m) from)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",
+            r"(?:i live in)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)"
+        ]
+        for pattern in loc_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                personal_info["location"] = match.group(1).strip()
+                break
+
+        # Zodiac sign
+        zodiac_match = re.search(r"i(?: am|'m|’m)? a ([A-Z][a-z]+)\b", text)
+        if zodiac_match and zodiac_match.group(1).capitalize() in [
+            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra",
+            "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+        ]:
+            personal_info["zodiac_sign"] = zodiac_match.group(1).capitalize()
+
+        # Ethnicity
+        eth_match = re.search(r"i(?: am|'m|’m)? (a[n]?)? ([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)", text)
+        if eth_match:
+            candidate = eth_match.group(2).strip()
+            if "american" in candidate.lower():
+                personal_info["ethnicity"] = candidate
+
+        # Hobbies
+        hobbies = []
+        hobby_patterns = [
+            r"i (?:like|enjoy|love) ([a-zA-Z\s]+?)(?:\.|,|$)",
+            r"my hobby is ([a-zA-Z\s]+?)(?:\.|,|$)",
+            r"hobbies are ([a-zA-Z\s,]+)"
+        ]
+        for pattern in hobby_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                items = [item.strip() for item in match.group(1).split(",")]
+                hobbies.extend(items)
+        if hobbies:
+            personal_info["hobbies"] = list(set(hobbies))
+
+        # Favorites
+        favorites = {}
+        fav_patterns = {
+            "food": r"favorite food(?: is|:)? ([a-zA-Z\s]+)",
+            "movie": r"favorite movie(?: is|:)? ([a-zA-Z\s]+)",
+            "color": r"favorite color(?: is|:)? ([a-zA-Z\s]+)",
+            "song": r"favorite song(?: is|:)? ([a-zA-Z\s]+)",
+            "artist": r"favorite artist(?: is|:)? ([a-zA-Z\s]+)"
+        }
+        for key, pattern in fav_patterns.items():
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                favorites[key] = match.group(1).strip()
+        if favorites:
+            personal_info["favorites"] = favorites
+
+        return personal_info
+
+    def add_episodic_memory(self, user_input, roboto_response, emotion, user_name=None):
+        memory = {
+            "id": self._generate_memory_id(user_input + roboto_response),
+            "timestamp": datetime.now().isoformat(),
+            "user_input": user_input,
+            "roboto_response": roboto_response,
+            "emotion": emotion,
+            "user_name": user_name,
+            "importance": self._calculate_importance(user_input, emotion),
+            "sentiment": self._analyze_sentiment(user_input),
+            "key_themes": self._extract_themes(user_input),
+            "emotional_intensity": self._calculate_emotional_intensity(user_input)
+        }
+
+        self.episodic_memories.append(memory)
+
+        if user_name:
+            extracted = self.extract_personal_info(user_input)
+            if user_name not in self.user_profiles:
+                self.user_profiles[user_name] = {}
+            self.user_profiles[user_name].update(extracted)
+
+            self.emotional_patterns[user_name].append({
+                "emotion": emotion,
+                "sentiment": memory["sentiment"],
+                "timestamp": memory["timestamp"],
+                "intensity": memory["emotional_intensity"]
+            })
+
+        if len(self.episodic_memories) % 10 == 0:
+            self._trigger_self_reflection()
+
+        if len(self.episodic_memories) > self.max_memories:
+            self.archive_old_memories()
+
+        self.save_memory()
+        return memory["id"]
+
+    def archive_old_memories(self):
+        archive_file = self.memory_file.replace(".json", ".archive.json")
+        scored = sorted(
+            self.episodic_memories,
+            key=lambda m: m["importance"] * m["emotional_intensity"]
+        )
+        archived = scored[:len(scored) - self.max_memories]
+        self.episodic_memories = scored[-self.max_memories:]
+
+        try:
+            if os.path.exists(archive_file):
+                with open(archive_file, 'r') as f:
+                    existing = json.load(f)
+            else:
+                existing = []
+            with open(archive_file, 'w') as f:
+                json.dump(existing + archived, f, indent=2)
+        except Exception as e:
+            print(f"Error archiving memories: {e}")
+
+    def summarize_user_profile(self, user_name: str) -> str:
+        profile = self.user_profiles.get(user_name)
+        if not profile:
+            return f"I don’t have any personal info saved for {user_name} yet."
+
+        lines = [f"Here's what I know about {user_name}:"]
+        if "birthday" in profile:
+            lines.append(f"• Their birthday is {profile['birthday']}.")
+        if "zodiac_sign" in profile:
+            lines.append(f"• Their zodiac sign is {profile['zodiac_sign']}.")
+        if "ethnicity" in profile:
+            lines.append(f"• They are {profile['ethnicity']}.")
+        if "location" in profile:
+            lines.append(f"• They live in {profile['location']}.")
+        if "hobbies" in profile and profile["hobbies"]:
+            hobbies = profile["hobbies"]
+            hobby_str = ", ".join(hobbies[:-1]) + f", and {hobbies[-1]}" if len(hobbies) > 1 else hobbies[0]
+            lines.append(f"• They enjoy {hobby_str}.")
+        if "favorites" in profile:
+            for key, val in profile["favorites"].items():
+                lines.append(f"• Their favorite {key} is {val}.")
+
+        return "\n".join(lines)
+
+    def save_memory(self):
+        memory_data = {
+            "episodic_memories": self.episodic_memories,
+            "semantic_memories": self.semantic_memories,
+            "emotional_patterns": dict(self.emotional_patterns),
+            "user_profiles": self.user_profiles,
+            "self_reflections": self.self_reflections,
+            "compressed_learnings": self.compressed_learnings,
+            "last_saved": datetime.now().isoformat()
+        }
+        try:
+            with open(self.memory_file, 'w') as f:
+                json.dump(memory_data, f, indent=2)
+        except Exception as e:
+            print(f"Error saving memory: {e}")
+
+    def load_memory(self):
+        if not os.path.exists(self.memory_file):
+            return
+        try:
+            with open(self.memory_file, 'r') as f:
+                memory_data = json.load(f)
+            self.episodic_memories = memory_data.get("episodic_memories", [])
+            self.semantic_memories = memory_data.get("semantic_memories", {})
+            self.emotional_patterns = defaultdict(list, memory_data.get("emotional_patterns", {}))
+            self.user_profiles = memory_data.get("user_profiles", {})
+            self.self_reflections = memory_data.get("self_reflections", [])
+            self.compressed_learnings = memory_data.get("compressed_learnings", {})
+        except Exception as e:
+            print(f"Error loading memory: {e}")

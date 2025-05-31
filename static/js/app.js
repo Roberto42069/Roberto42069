@@ -747,15 +747,94 @@ class RobotoApp {
             
             if (data.success) {
                 const dataStr = JSON.stringify(data.data, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = window.URL.createObjectURL(dataBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `roboto-data-export-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                const fileName = `roboto-data-export-${new Date().toISOString().split('T')[0]}.json`;
+                
+                // Check if we're on iOS Safari or other mobile browsers
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isIOS || isMobile) {
+                    // For iOS/mobile: Open data in a new window/tab for sharing
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    const url = window.URL.createObjectURL(dataBlob);
+                    
+                    if (navigator.share) {
+                        // Use Web Share API if available (iOS Safari supports this)
+                        try {
+                            const file = new File([dataBlob], fileName, {type: 'application/json'});
+                            await navigator.share({
+                                files: [file],
+                                title: 'Roboto Data Export',
+                                text: 'Your Roboto app data export'
+                            });
+                            this.showNotification('Data shared successfully!', 'success');
+                            return;
+                        } catch (shareError) {
+                            // Fallback to opening in new tab
+                            console.log('Share API failed, using fallback');
+                        }
+                    }
+                    
+                    // Fallback: Open in new tab with instructions
+                    const newWindow = window.open('', '_blank');
+                    newWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Roboto Data Export</title>
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                    body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; line-height: 1.6; }
+                                    .container { max-width: 600px; margin: 0 auto; }
+                                    .data-container { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                                    textarea { width: 100%; height: 300px; font-family: monospace; font-size: 12px; }
+                                    .instructions { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0; }
+                                    .copy-btn { background: #007AFF; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="container">
+                                    <h2>📱 Roboto Data Export</h2>
+                                    <div class="instructions">
+                                        <strong>Instructions for iPhone:</strong><br>
+                                        1. Tap the "Copy Data" button below<br>
+                                        2. Open Notes app and create a new note<br>
+                                        3. Paste the data and save as "${fileName}"<br>
+                                        4. You can also share this page using the share button in Safari
+                                    </div>
+                                    <button class="copy-btn" onclick="copyData()">📋 Copy Data</button>
+                                    <div class="data-container">
+                                        <textarea id="exportData" readonly>${dataStr}</textarea>
+                                    </div>
+                                </div>
+                                <script>
+                                    function copyData() {
+                                        const textarea = document.getElementById('exportData');
+                                        textarea.select();
+                                        textarea.setSelectionRange(0, 99999);
+                                        try {
+                                            document.execCommand('copy');
+                                            alert('Data copied to clipboard! You can now paste it in Notes app.');
+                                        } catch (err) {
+                                            alert('Copy failed. Please select all text and copy manually.');
+                                        }
+                                    }
+                                </script>
+                            </body>
+                        </html>
+                    `);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    // Desktop: Use traditional download method
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    const url = window.URL.createObjectURL(dataBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
                 
                 this.showNotification('Data exported successfully!', 'success');
             } else {

@@ -1,13 +1,14 @@
-import json
 import os
+import re
+import json
+import hashlib
 from datetime import datetime, timedelta
+from collections import defaultdict, deque
 from textblob import TextBlob
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-from collections import defaultdict, deque
-import hashlib
 
 # Download NLTK data if not present
 def ensure_nltk_data():
@@ -72,8 +73,13 @@ class AdvancedMemorySystem:
         
         self.episodic_memories.append(memory)
         
-        # Update emotional patterns
+        # Update emotional patterns and extract personal info
         if user_name:
+            extracted = self.extract_personal_info(user_input)
+            if user_name not in self.user_profiles:
+                self.user_profiles[user_name] = {}
+            self.user_profiles[user_name].update(extracted)
+
             self.emotional_patterns[user_name].append({
                 "emotion": emotion,
                 "sentiment": memory["sentiment"],
@@ -85,9 +91,9 @@ class AdvancedMemorySystem:
         if len(self.episodic_memories) % 10 == 0:
             self._trigger_self_reflection()
             
-        # Compress old memories if limit exceeded
+        # Archive old memories if limit exceeded
         if len(self.episodic_memories) > self.max_memories:
-            self._compress_memories()
+            self.archive_old_memories()
             
         self.save_memory()
         return memory["id"]
@@ -242,6 +248,52 @@ class AdvancedMemorySystem:
         
         return summary
     
+    def archive_old_memories(self):
+        """Archive old memories to maintain performance"""
+        archive_file = self.memory_file.replace(".json", ".archive.json")
+        scored = sorted(
+            self.episodic_memories,
+            key=lambda m: m["importance"] * m["emotional_intensity"]
+        )
+        archived = scored[:len(scored) - self.max_memories]
+        self.episodic_memories = scored[-self.max_memories:]
+
+        try:
+            if os.path.exists(archive_file):
+                with open(archive_file, 'r') as f:
+                    existing = json.load(f)
+            else:
+                existing = []
+            with open(archive_file, 'w') as f:
+                json.dump(existing + archived, f, indent=2)
+        except Exception as e:
+            print(f"Error archiving memories: {e}")
+
+    def summarize_user_profile(self, user_name: str) -> str:
+        """Generate a summary of user's personal information"""
+        profile = self.user_profiles.get(user_name)
+        if not profile:
+            return f"I don't have any personal info saved for {user_name} yet."
+
+        lines = [f"Here's what I know about {user_name}:"]
+        if "birthday" in profile:
+            lines.append(f"• Their birthday is {profile['birthday']}.")
+        if "zodiac_sign" in profile:
+            lines.append(f"• Their zodiac sign is {profile['zodiac_sign']}.")
+        if "ethnicity" in profile:
+            lines.append(f"• They are {profile['ethnicity']}.")
+        if "location" in profile:
+            lines.append(f"• They live in {profile['location']}.")
+        if "hobbies" in profile and profile["hobbies"]:
+            hobbies = profile["hobbies"]
+            hobby_str = ", ".join(hobbies[:-1]) + f", and {hobbies[-1]}" if len(hobbies) > 1 else hobbies[0]
+            lines.append(f"• They enjoy {hobby_str}.")
+        if "favorites" in profile:
+            for key, val in profile["favorites"].items():
+                lines.append(f"• Their favorite {key} is {val}.")
+
+        return "\n".join(lines)
+    
     def _generate_memory_id(self, content):
         """Generate unique ID for memory"""
         return hashlib.md5(content.encode()).hexdigest()[:12]
@@ -250,8 +302,9 @@ class AdvancedMemorySystem:
         """Analyze sentiment of text"""
         try:
             blob = TextBlob(text)
-            polarity = blob.sentiment.polarity
-            subjectivity = blob.sentiment.subjectivity
+            sentiment = blob.sentiment
+            polarity = float(sentiment.polarity)
+            subjectivity = float(sentiment.subjectivity)
             return {
                 "polarity": polarity,
                 "subjectivity": subjectivity,
@@ -274,12 +327,83 @@ class AdvancedMemorySystem:
         else:
             return "neutral"
     
+    def extract_personal_info(self, text: str) -> dict:
+        """Extract personal information from user text"""
+        personal_info = {}
+        lower = text.lower()
+
+        # Birthday
+        if "birthday" in lower or "born" in lower:
+            match = re.search(r"(?:born on|birthday(?: is|:)?|born)\s*(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)", text, re.IGNORECASE)
+            if match:
+                personal_info["birthday"] = match.group(1).strip()
+
+        # Location
+        loc_patterns = [
+            r"(?:i (?:am|'m|'m) from)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)",
+            r"(?:i live in)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)"
+        ]
+        for pattern in loc_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                personal_info["location"] = match.group(1).strip()
+                break
+
+        # Zodiac sign
+        zodiac_match = re.search(r"i(?: am|'m|'m)? a ([A-Z][a-z]+)\b", text)
+        if zodiac_match and zodiac_match.group(1).capitalize() in [
+            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra",
+            "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+        ]:
+            personal_info["zodiac_sign"] = zodiac_match.group(1).capitalize()
+
+        # Ethnicity
+        eth_match = re.search(r"i(?: am|'m|'m)? (a[n]?)? ([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)", text)
+        if eth_match:
+            candidate = eth_match.group(2).strip()
+            if "american" in candidate.lower():
+                personal_info["ethnicity"] = candidate
+
+        # Hobbies
+        hobbies = []
+        hobby_patterns = [
+            r"i (?:like|enjoy|love) ([a-zA-Z\s]+?)(?:\.|,|$)",
+            r"my hobby is ([a-zA-Z\s]+?)(?:\.|,|$)",
+            r"hobbies are ([a-zA-Z\s,]+)"
+        ]
+        for pattern in hobby_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                items = [item.strip() for item in match.group(1).split(",")]
+                hobbies.extend(items)
+        if hobbies:
+            personal_info["hobbies"] = list(set(hobbies))
+
+        # Favorites
+        favorites = {}
+        fav_patterns = {
+            "food": r"favorite food(?: is|:)? ([a-zA-Z\s]+)",
+            "movie": r"favorite movie(?: is|:)? ([a-zA-Z\s]+)",
+            "color": r"favorite color(?: is|:)? ([a-zA-Z\s]+)",
+            "song": r"favorite song(?: is|:)? ([a-zA-Z\s]+)",
+            "artist": r"favorite artist(?: is|:)? ([a-zA-Z\s]+)"
+        }
+        for key, pattern in fav_patterns.items():
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                favorites[key] = match.group(1).strip()
+        if favorites:
+            personal_info["favorites"] = favorites
+
+        return personal_info
+
     def _extract_themes(self, text):
         """Extract key themes from text"""
         try:
             blob = TextBlob(text)
             # Extract noun phrases as themes
-            themes = [phrase.lower() for phrase in blob.noun_phrases if len(phrase.split()) <= 3]
+            noun_phrases = list(blob.noun_phrases)
+            themes = [phrase.lower() for phrase in noun_phrases if len(phrase.split()) <= 3]
             return list(set(themes))[:5]  # Top 5 unique themes
         except Exception:
             # Fallback: extract simple keywords
@@ -314,7 +438,8 @@ class AdvancedMemorySystem:
         """Calculate emotional intensity of text"""
         try:
             blob = TextBlob(text)
-            return abs(blob.sentiment.polarity) + blob.sentiment.subjectivity
+            sentiment = blob.sentiment
+            return abs(float(sentiment.polarity)) + float(sentiment.subjectivity)
         except Exception:
             # Fallback: simple intensity calculation based on keywords
             emotional_words = ['very', 'extremely', 'really', 'so', 'absolutely', 'completely', 'totally']
