@@ -1,21 +1,89 @@
 from app1 import Roboto
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 import os
 from openai import OpenAI
 from datetime import datetime
+from sqlalchemy.orm import DeclarativeBase
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+# Database setup
+class Base(DeclarativeBase):
+    pass
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "roboto-secret-key")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+# Database configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    'pool_pre_ping': True,
+    "pool_recycle": 300,
+}
+
+db = SQLAlchemy(app, model_class=Base)
 
 # Initialize OpenAI client
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
-roberto = Roboto()
+# Initialize authentication
+from replit_auth import require_login, make_replit_blueprint
+from flask_login import current_user
+from models import UserData
+
+app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
+
+# Make session permanent
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
+# Create database tables
+with app.app_context():
+    db.create_all()
+
+# Global Roboto instance - will be user-specific
+roberto = None
+
+def get_user_roberto():
+    """Get or create a Roboto instance for the current user"""
+    global roberto
+    if not current_user.is_authenticated:
+        # For anonymous users, use a temporary instance
+        if roberto is None:
+            roberto = Roboto()
+        return roberto
+    
+    # For authenticated users, load their data
+    user_data = UserData.query.filter_by(user_id=current_user.id).first()
+    if not user_data:
+        # Create new user data
+        user_data = UserData(user_id=current_user.id)
+        db.session.add(user_data)
+        db.session.commit()
+    
+    # Create Roboto instance with user data
+    roberto = Roboto()
+    roberto.load_user_data(user_data)
+    return roberto
+
+def save_user_data():
+    """Save current Roboto state to database for authenticated users"""
+    if current_user.is_authenticated and roberto:
+        user_data = UserData.query.filter_by(user_id=current_user.id).first()
+        if user_data:
+            roberto.save_user_data(user_data)
+            db.session.commit()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        return render_template('app.html', user=current_user)
+    else:
+        return render_template('landing.html')
 
 @app.route('/api/intro')
 def intro():
@@ -23,7 +91,10 @@ def intro():
 
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
-    return jsonify({"success": True, "tasks": roberto.show_tasks()})  # Adjusted line
+    roberto = get_user_roberto()
+    tasks = roberto.show_tasks()
+    save_user_data()
+    return jsonify({"success": True, "tasks": tasks})
 
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
@@ -32,7 +103,9 @@ def add_task():
         if not data or 'task' not in data:
             return jsonify({"success": False, "message": "[ERROR] No task provided!"}), 400
 
+        roberto = get_user_roberto()
         result = roberto.add_task(data['task'])
+        save_user_data()
         return jsonify(result)
     except Exception as e:
         return jsonify({"success": False, "message": f"[ERROR] {str(e)}"}), 500
@@ -40,7 +113,9 @@ def add_task():
 @app.route('/api/chat/history', methods=['GET'])
 def get_chat_history():
     try:
+        roberto = get_user_roberto()
         history = roberto.chat_history
+        save_user_data()
         return jsonify({"success": True, "history": history})
     except Exception as e:
         return jsonify({"success": False, "history": [], "message": f"Error: {str(e)}"}), 500

@@ -22,8 +22,15 @@
                 <i class="fas fa-robot me-2 text-danger"></i>
                 <span class="fw-bold">Roboto</span>
             </a>
-            <div class="navbar-text small text-muted">
-                Created by Roberto Villarreal Martinez
+            <div class="navbar-nav ms-auto">
+                <div class="d-flex align-items-center">
+                    <span class="navbar-text me-3">
+                        <small>Welcome back!</small>
+                    </span>
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('replit_auth.logout') }}">
+                        <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
