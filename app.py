@@ -87,6 +87,7 @@ def get_emotional_status():
 @app.route('/api/data/export', methods=['GET'])
 def export_data():
     try:
+        # Include enhanced memory system data
         export_data = {
             "tasks": roberto.tasks,
             "chat_history": roberto.chat_history,
@@ -94,7 +95,17 @@ def export_data():
             "user_preferences": roberto.user_preferences,
             "emotional_history": roberto.emotional_history,
             "current_emotion": roberto.current_emotion,
-            "export_timestamp": "2025-05-30T13:00:00Z"
+            "current_user": roberto.current_user,
+            "memory_system": {
+                "episodic_memories": roberto.memory_system.episodic_memories,
+                "semantic_memories": roberto.memory_system.semantic_memories,
+                "emotional_patterns": dict(roberto.memory_system.emotional_patterns),
+                "user_profiles": roberto.memory_system.user_profiles,
+                "self_reflections": roberto.memory_system.self_reflections,
+                "compressed_learnings": roberto.memory_system.compressed_learnings
+            },
+            "export_timestamp": datetime.now().isoformat(),
+            "export_version": "2.0"
         }
         return jsonify({"success": True, "data": export_data})
     except Exception as e:
