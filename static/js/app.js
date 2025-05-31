@@ -15,6 +15,15 @@ class RobotoApp {
         this.isSpeaking = false;
         this.speechRecognition = null;
         this.continuousListening = false;
+        
+        // Enhanced voice features
+        this.voiceActivationSensitivity = 0.7;
+        this.silenceTimeout = null;
+        this.isListeningActive = false;
+        this.voiceBuffer = [];
+        this.lastSpeechTime = 0;
+        this.adaptiveListening = true;
+        
         this.init();
     }
 
