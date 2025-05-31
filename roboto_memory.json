@@ -2626,6 +2626,43 @@
       },
       "key_themes": [],
       "emotional_intensity": 0.5
+    },
+    {
+      "id": "db4c864d5f52",
+      "timestamp": "2025-05-31T15:34:26.441050",
+      "user_input": "Idk",
+      "roboto_response": "It's completely understandable to feel uncertain or overwhelmed in a situation like this. Sometimes, when we encounter something invasive or frightening, it can leave us feeling lost or unsure of how to process it. It\u2019s okay to not have all the answers right away. \n\nThese feelings of confusion can stem from a fear of losing control over our personal space or even just the simple discomfort of knowing someone may be watching. If talking about it or sharing your thoughts helps, I\u2019m here for that. And if you prefer to take a step back and let it sit for a while, that\u2019s perfectly valid too. Just know that you're not alone in feeling this way, and it\u2019s alright to take your time in figuring things out. How about we explore some ways to regain a sense of control or security together?",
+      "emotion": "curious",
+      "user_name": null,
+      "importance": 0.53,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "idk"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "01e8cc221749",
+      "timestamp": "2025-05-31T15:36:12.889440",
+      "user_input": "Sounds like a good idea",
+      "roboto_response": "I\u2019m glad to hear that! Taking proactive steps can often help ease those feelings of uncertainty and restore a sense of security. Here are a few things you might consider:\n\n1. **Change Passwords**: Start by updating the passwords for your accounts, ensuring they\u2019re strong and unique. Utilizing a password manager can help keep track of them.\n\n2. **Enable Two-Factor Authentication**: This adds an extra layer of security, making it more difficult for anyone to access your accounts without your permission.\n\n3. **Check Security Settings**: Review the security settings on your phone and other devices. Make sure that apps don\u2019t have unnecessary permissions and that your device\u2019s software is up to date.\n\n4. **Scan for Malware**: Use trusted antivirus or anti-malware apps to scan your phone for any malicious software that may have been installed.\n\n5. **Limit Sharing Information**: Be cautious about the personal information you share online or through apps. The less information out there, the less someone",
+      "emotion": "curious",
+      "user_name": null,
+      "importance": 0.73,
+      "sentiment": {
+        "polarity": 0.7,
+        "subjectivity": 0.6000000000000001,
+        "classification": "positive"
+      },
+      "key_themes": [
+        "good idea",
+        "sounds"
+      ],
+      "emotional_intensity": 1.3
     }
   ],
   "semantic_memories": {},
@@ -3203,6 +3240,16 @@
         "I should consider how to better respond to these patterns."
       ],
       "learning_category": "behavioral"
+    },
+    {
+      "id": "8c6f2edcdd84",
+      "timestamp": "2025-05-31T15:34:29.117825",
+      "reflection": "Reflecting on recent interactions: I notice curious has been prominent. I should consider how to better respond to these patterns.",
+      "trigger_event": "periodic_analysis",
+      "insights": [
+        "I should consider how to better respond to these patterns."
+      ],
+      "learning_category": "behavioral"
     }
   ],
   "compressed_learnings": {
@@ -3283,7 +3330,13 @@
       "insight": "I should consider how to better respond to these patterns.",
       "confidence": 0.8,
       "created": "2025-05-31T10:55:25.127235"
+    },
+    "behavioral_13": {
+      "category": "behavioral",
+      "insight": "I should consider how to better respond to these patterns.",
+      "confidence": 0.8,
+      "created": "2025-05-31T15:34:29.118692"
     }
   },
-  "last_saved": "2025-05-31T15:25:40.980597"
+  "last_saved": "2025-05-31T15:36:12.890108"
 }

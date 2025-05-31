@@ -632,8 +632,15 @@ class RobotoApp {
             this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
             
+            // Restart continuous listening after speaking if it was active
+            if (this.continuousListening) {
+                setTimeout(() => {
+                    this.startContinuousListening();
+                }, 500);
+            }
+            
             // Auto-listen after response in voice conversation mode
-            if (this.voiceConversationMode && this.autoListenAfterResponse) {
+            if (this.voiceConversationMode && this.autoListenAfterResponse && !this.continuousListening) {
                 setTimeout(() => {
                     this.startVoiceListening();
                 }, 500); // Small delay to avoid audio interference
@@ -1304,7 +1311,7 @@ class RobotoApp {
         if (this.continuousListening) {
             continuousListenBtn.classList.add('btn-listen-active');
             continuousListenBtn.querySelector('i').className = 'fas fa-ear-listen';
-            this.showNotification('Continuous listening enabled - say "Hey Roboto" to start', 'success');
+            this.showNotification('Continuous listening enabled - speak anytime', 'success');
             this.startContinuousListening();
         } else {
             continuousListenBtn.classList.remove('btn-listen-active');
@@ -1318,24 +1325,28 @@ class RobotoApp {
         if (!this.speechRecognition || !this.continuousListening) return;
         
         this.speechRecognition.continuous = true;
-        this.speechRecognition.interimResults = true;
+        this.speechRecognition.interimResults = false;
         
         this.speechRecognition.onresult = (event) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
+            const lastResult = event.results[event.results.length - 1];
+            if (lastResult.isFinal) {
+                const transcript = lastResult[0].transcript.trim();
+                if (transcript) {
+                    this.handleVoiceInput(transcript);
+                }
             }
-            
-            // Check for wake word
-            if (transcript.toLowerCase().includes('hey roboto') || 
-                transcript.toLowerCase().includes('hi roboto')) {
-                this.handleVoiceInput(transcript);
-                this.speechRecognition.stop();
+        };
+        
+        this.speechRecognition.onend = () => {
+            // Restart listening if continuous mode is still active
+            if (this.continuousListening && !this.isSpeaking) {
                 setTimeout(() => {
-                    if (this.continuousListening) {
+                    try {
                         this.speechRecognition.start();
+                    } catch (error) {
+                        console.error('Failed to restart continuous listening:', error);
                     }
-                }, 1000);
+                }, 100);
             }
         };
         
@@ -1351,6 +1362,7 @@ class RobotoApp {
             this.speechRecognition.continuous = false;
             this.speechRecognition.stop();
         }
+        this.continuousListening = false;
     }
 
     startVoiceListening() {
@@ -1384,6 +1396,11 @@ class RobotoApp {
     async handleVoiceInput(transcript) {
         if (!transcript.trim()) return;
         
+        // Stop continuous listening temporarily to avoid feedback
+        if (this.continuousListening) {
+            this.speechRecognition.stop();
+        }
+        
         // Add user message to chat
         this.addChatMessage(transcript, true);
         
@@ -1405,13 +1422,28 @@ class RobotoApp {
                 // Speak the response if TTS is enabled
                 if (this.ttsEnabled) {
                     this.speakText(data.response);
+                } else if (this.continuousListening) {
+                    // If not speaking, restart listening immediately
+                    setTimeout(() => {
+                        this.startContinuousListening();
+                    }, 100);
                 }
             } else {
                 this.showNotification(data.message || 'Chat failed', 'error');
+                if (this.continuousListening) {
+                    setTimeout(() => {
+                        this.startContinuousListening();
+                    }, 100);
+                }
             }
         } catch (error) {
             console.error('Voice chat error:', error);
             this.showNotification('Voice chat failed', 'error');
+            if (this.continuousListening) {
+                setTimeout(() => {
+                    this.startContinuousListening();
+                }, 100);
+            }
         }
     }
 
