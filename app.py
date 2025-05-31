@@ -68,14 +68,15 @@ def get_user_roberto():
     
     # Create Roboto instance with user data
     roberto = Roboto()
-    roberto.load_user_data(user_data)
+    if hasattr(roberto, 'load_user_data'):
+        roberto.load_user_data(user_data)
     return roberto
 
 def save_user_data():
     """Save current Roboto state to database for authenticated users"""
     if current_user.is_authenticated and roberto:
         user_data = UserData.query.filter_by(user_id=current_user.id).first()
-        if user_data:
+        if user_data and hasattr(roberto, 'save_user_data'):
             roberto.save_user_data(user_data)
             db.session.commit()
 

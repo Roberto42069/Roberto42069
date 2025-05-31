@@ -1325,35 +1325,145 @@ class RobotoApp {
         if (!this.speechRecognition || !this.continuousListening) return;
         
         this.speechRecognition.continuous = true;
-        this.speechRecognition.interimResults = false;
-        
-        this.speechRecognition.onresult = (event) => {
-            const lastResult = event.results[event.results.length - 1];
-            if (lastResult.isFinal) {
-                const transcript = lastResult[0].transcript.trim();
-                if (transcript) {
-                    this.handleVoiceInput(transcript);
-                }
-            }
-        };
-        
-        this.speechRecognition.onend = () => {
-            // Restart listening if continuous mode is still active
-            if (this.continuousListening && !this.isSpeaking) {
-                setTimeout(() => {
-                    try {
-                        this.speechRecognition.start();
-                    } catch (error) {
-                        console.error('Failed to restart continuous listening:', error);
-                    }
-                }, 100);
-            }
-        };
+        this.speechRecognition.interimResults = true;
         
         try {
             this.speechRecognition.start();
+            this.showNotification('Enhanced continuous listening enabled - optimized for active use', 'success');
         } catch (error) {
             console.error('Failed to start continuous listening:', error);
+            this.showNotification('Could not start continuous listening', 'error');
+        }
+    }
+
+    pauseContinuousListening() {
+        if (this.speechRecognition && this.isListeningActive) {
+            this.speechRecognition.stop();
+            this.isListeningActive = false;
+            this.updateListeningIndicator(false);
+        }
+    }
+
+    resumeContinuousListening() {
+        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+            setTimeout(() => {
+                this.startContinuousListening();
+            }, 500);
+        }
+    }
+
+    handleSpeechResults(event) {
+        let finalTranscript = '';
+        let interimTranscript = '';
+        
+        // Process all results
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript;
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+        
+        // Update visual feedback for interim results
+        if (interimTranscript) {
+            this.updateInterimTranscript(interimTranscript);
+        }
+        
+        // Process final transcript
+        if (finalTranscript.trim()) {
+            this.clearInterimTranscript();
+            this.processFinalTranscript(finalTranscript.trim());
+        }
+    }
+
+    processFinalTranscript(transcript) {
+        const now = Date.now();
+        this.lastSpeechTime = now;
+        
+        // Clear any existing silence timeout
+        if (this.silenceTimeout) {
+            clearTimeout(this.silenceTimeout);
+        }
+        
+        // Add to voice buffer for batching short phrases
+        this.voiceBuffer.push({
+            text: transcript,
+            timestamp: now,
+            confidence: this.getLastConfidence()
+        });
+        
+        // Set timeout to process buffered speech
+        this.silenceTimeout = setTimeout(() => {
+            this.processVoiceBuffer();
+        }, 1500); // Wait 1.5 seconds for additional speech
+    }
+
+    processVoiceBuffer() {
+        if (this.voiceBuffer.length === 0) return;
+        
+        // Combine buffered speech into one message
+        const combinedText = this.voiceBuffer.map(item => item.text).join(' ').trim();
+        const avgConfidence = this.voiceBuffer.reduce((sum, item) => sum + item.confidence, 0) / this.voiceBuffer.length;
+        
+        // Clear buffer
+        this.voiceBuffer = [];
+        
+        // Only process if confidence is above threshold
+        if (avgConfidence >= this.voiceActivationSensitivity && combinedText.length > 2) {
+            this.handleVoiceInput(combinedText);
+        }
+    }
+
+    getLastConfidence() {
+        // Fallback confidence if not available
+        return 0.8;
+    }
+
+    updateInterimTranscript(text) {
+        const indicator = document.getElementById('listeningIndicator');
+        if (indicator) {
+            indicator.textContent = `Listening: "${text}"`;
+            indicator.style.opacity = '0.7';
+        }
+    }
+
+    clearInterimTranscript() {
+        const indicator = document.getElementById('listeningIndicator');
+        if (indicator) {
+            indicator.textContent = 'Listening...';
+            indicator.style.opacity = '1';
+        }
+    }
+
+    handleSpeechError(event) {
+        if (event.error === 'no-speech') {
+            // Normal - just restart
+            if (this.continuousListening) {
+                setTimeout(() => this.resumeContinuousListening(), 100);
+            }
+        } else if (event.error === 'aborted') {
+            // Normal stop
+            this.isListeningActive = false;
+        } else {
+            // Actual error - try to restart after delay
+            if (this.continuousListening) {
+                setTimeout(() => this.resumeContinuousListening(), 1000);
+            }
+        }
+    }
+
+    handleSpeechEnd() {
+        this.isListeningActive = false;
+        this.updateListeningIndicator(false);
+        
+        // Auto-restart if continuous listening is enabled and not speaking
+        if (this.continuousListening && !this.isSpeaking && !document.hidden) {
+            setTimeout(() => {
+                this.resumeContinuousListening();
+            }, 300);
         }
     }
 
@@ -1396,15 +1506,15 @@ class RobotoApp {
     async handleVoiceInput(transcript) {
         if (!transcript.trim()) return;
         
-        // Stop continuous listening temporarily to avoid feedback
-        if (this.continuousListening) {
-            this.speechRecognition.stop();
-        }
+        // Temporarily pause listening to avoid feedback
+        this.pauseContinuousListening();
+        
+        // Show processing indicator
+        this.showVoiceProcessing(true);
         
         // Add user message to chat
         this.addChatMessage(transcript, true);
         
-        // Send to chat API
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -1419,31 +1529,122 @@ class RobotoApp {
             if (data.success) {
                 this.addChatMessage(data.response, false);
                 
-                // Speak the response if TTS is enabled
+                // Enhanced TTS with emotional context
                 if (this.ttsEnabled) {
-                    this.speakText(data.response);
-                } else if (this.continuousListening) {
-                    // If not speaking, restart listening immediately
-                    setTimeout(() => {
-                        this.startContinuousListening();
-                    }, 100);
+                    this.speakTextWithEmotion(data.response, data.emotion);
+                } else {
+                    // Resume listening if not speaking
+                    this.resumeListeningAfterResponse();
                 }
             } else {
                 this.showNotification(data.message || 'Chat failed', 'error');
-                if (this.continuousListening) {
-                    setTimeout(() => {
-                        this.startContinuousListening();
-                    }, 100);
-                }
+                this.resumeListeningAfterResponse();
             }
         } catch (error) {
             console.error('Voice chat error:', error);
             this.showNotification('Voice chat failed', 'error');
-            if (this.continuousListening) {
-                setTimeout(() => {
-                    this.startContinuousListening();
-                }, 100);
+            this.resumeListeningAfterResponse();
+        } finally {
+            this.showVoiceProcessing(false);
+        }
+    }
+
+    speakTextWithEmotion(text, emotion) {
+        if (!this.ttsEnabled || !text) return;
+        
+        this.isSpeaking = true;
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Adjust voice parameters based on emotion
+        const emotionVoiceSettings = {
+            'joy': { rate: 1.1, pitch: 1.2, volume: 0.9 },
+            'sadness': { rate: 0.8, pitch: 0.8, volume: 0.7 },
+            'anger': { rate: 1.2, pitch: 0.9, volume: 1.0 },
+            'fear': { rate: 1.1, pitch: 1.1, volume: 0.8 },
+            'curiosity': { rate: 1.0, pitch: 1.0, volume: 0.8 },
+            'empathy': { rate: 0.9, pitch: 0.9, volume: 0.8 },
+            'serenity': { rate: 0.8, pitch: 0.9, volume: 0.7 }
+        };
+        
+        const settings = emotionVoiceSettings[emotion] || { rate: 1.0, pitch: 1.0, volume: 0.8 };
+        
+        utterance.rate = settings.rate;
+        utterance.pitch = settings.pitch;
+        utterance.volume = settings.volume;
+        
+        // Visual feedback
+        const avatarSvg = document.querySelector('.avatar-container svg');
+        if (avatarSvg) avatarSvg.classList.add('avatar-speaking');
+        
+        utterance.onstart = () => {
+            this.updateListeningIndicator(false, 'Speaking...');
+        };
+        
+        utterance.onend = () => {
+            this.isSpeaking = false;
+            if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
+            this.resumeListeningAfterResponse();
+        };
+        
+        utterance.onerror = () => {
+            this.isSpeaking = false;
+            if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
+            this.resumeListeningAfterResponse();
+        };
+        
+        speechSynthesis.speak(utterance);
+    }
+
+    resumeListeningAfterResponse() {
+        if (this.continuousListening || this.voiceConversationMode) {
+            setTimeout(() => {
+                this.resumeContinuousListening();
+            }, 500); // Brief pause before resuming
+        }
+    }
+
+    showVoiceProcessing(show) {
+        const indicator = document.getElementById('listeningIndicator');
+        if (indicator) {
+            if (show) {
+                indicator.textContent = 'Processing...';
+                indicator.className = 'listening-indicator processing';
+            } else {
+                this.updateListeningIndicator(this.isListeningActive);
             }
+        }
+    }
+
+    updateListeningIndicator(isListening, customText = null) {
+        const indicator = document.getElementById('listeningIndicator');
+        if (!indicator) {
+            // Create indicator if it doesn't exist
+            this.createListeningIndicator();
+            return;
+        }
+        
+        if (customText) {
+            indicator.textContent = customText;
+            indicator.className = 'listening-indicator custom';
+        } else if (isListening) {
+            indicator.textContent = 'Listening...';
+            indicator.className = 'listening-indicator active';
+        } else {
+            indicator.textContent = 'Voice Ready';
+            indicator.className = 'listening-indicator inactive';
+        }
+    }
+
+    createListeningIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'listeningIndicator';
+        indicator.className = 'listening-indicator inactive';
+        indicator.textContent = 'Voice Ready';
+        
+        // Add to chat container
+        const chatContainer = document.getElementById('chatContainer');
+        if (chatContainer) {
+            chatContainer.insertBefore(indicator, chatContainer.firstChild);
         }
     }
 
