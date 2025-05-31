@@ -61,7 +61,8 @@ def get_user_roberto():
     user_data = UserData.query.filter_by(user_id=current_user.id).first()
     if not user_data:
         # Create new user data
-        user_data = UserData(user_id=current_user.id)
+        user_data = UserData()
+        user_data.user_id = current_user.id
         db.session.add(user_data)
         db.session.commit()
     
@@ -87,7 +88,10 @@ def index():
 
 @app.route('/api/intro')
 def intro():
-    return jsonify({"message": roberto.introduce()})
+    roberto = get_user_roberto()
+    message = roberto.introduce()
+    save_user_data()
+    return jsonify({"message": message})
 
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():

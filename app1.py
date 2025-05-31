@@ -321,5 +321,47 @@ class Roboto:
         """Save chat history to file"""
         with open("chat_history.json", "w") as file:
             json.dump(self.chat_history, file, indent=2)
+    
+    def load_user_data(self, user_data):
+        """Load user-specific data from database"""
+        if user_data.tasks:
+            self.tasks = user_data.tasks
+        if user_data.chat_history:
+            self.chat_history = user_data.chat_history
+        if user_data.learned_patterns:
+            self.learned_patterns = user_data.learned_patterns
+        if user_data.user_preferences:
+            self.user_preferences = user_data.user_preferences
+        if user_data.emotional_history:
+            self.emotional_history = user_data.emotional_history
+        if user_data.memory_system_data:
+            # Load memory system data
+            for key, value in user_data.memory_system_data.items():
+                if hasattr(self.memory_system, key):
+                    setattr(self.memory_system, key, value)
+        
+        self.current_emotion = user_data.current_emotion or "curious"
+        self.current_user = user_data.current_user_name
+    
+    def save_user_data(self, user_data):
+        """Save current state to user database record"""
+        user_data.tasks = self.tasks
+        user_data.chat_history = self.chat_history
+        user_data.learned_patterns = self.learned_patterns
+        user_data.user_preferences = self.user_preferences
+        user_data.emotional_history = self.emotional_history
+        user_data.current_emotion = self.current_emotion
+        user_data.current_user_name = self.current_user
+        
+        # Save memory system data
+        memory_data = {
+            'episodic_memories': self.memory_system.episodic_memories,
+            'semantic_memories': self.memory_system.semantic_memories,
+            'emotional_patterns': dict(self.memory_system.emotional_patterns),
+            'user_profiles': self.memory_system.user_profiles,
+            'self_reflections': self.memory_system.self_reflections,
+            'compressed_learnings': self.memory_system.compressed_learnings
+        }
+        user_data.memory_system_data = memory_data
 
 
