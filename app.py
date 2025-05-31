@@ -127,6 +127,7 @@ def get_chat_history():
 @app.route('/api/analytics/learning-insights', methods=['GET'])
 def get_learning_insights():
     try:
+        roberto = get_user_roberto()
         insights = {
             "patterns": roberto.learned_patterns,
             "preferences": roberto.user_preferences,
@@ -135,6 +136,7 @@ def get_learning_insights():
                 "total_tasks": len(roberto.tasks)
             }
         }
+        save_user_data()
         return jsonify({"success": True, "insights": insights})
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
@@ -154,11 +156,13 @@ def get_predictive_insights():
 @app.route('/api/emotional-status', methods=['GET'])
 def get_emotional_status():
     try:
+        roberto = get_user_roberto()
         emotional_status = {
             "current_emotion": roberto.current_emotion,
             "emotion_intensity": roberto.emotion_intensity,
             "emotional_history": roberto.emotional_history[-5:] if len(roberto.emotional_history) > 5 else roberto.emotional_history
         }
+        save_user_data()
         return jsonify({"success": True, "emotional_status": emotional_status})
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
@@ -166,6 +170,7 @@ def get_emotional_status():
 @app.route('/api/data/export', methods=['GET'])
 def export_data():
     try:
+        roberto = get_user_roberto()
         # Include enhanced memory system data
         export_data = {
             "tasks": roberto.tasks,
@@ -199,6 +204,8 @@ def chat():
         
         message = data['message']
         user_name = data.get('user_name')
+        
+        roberto = get_user_roberto()
         
         # Set current user if provided
         if user_name:
@@ -235,6 +242,9 @@ def chat():
         }
         roberto.chat_history.append(chat_entry)
         roberto.save_chat_history()
+        
+        # Save user data
+        save_user_data()
         
         # Get updated memory summary
         memory_summary = roberto.memory_system.get_memory_summary(roberto.current_user)
