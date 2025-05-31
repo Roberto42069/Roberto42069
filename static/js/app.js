@@ -1333,15 +1333,24 @@ class RobotoApp {
     startContinuousListening() {
         if (!this.speechRecognition || !this.continuousListening) return;
         
+        // Check if already listening to prevent conflicts
+        if (this.isListeningActive) return;
+        
         this.speechRecognition.continuous = true;
         this.speechRecognition.interimResults = true;
         
         try {
             this.speechRecognition.start();
-            this.showNotification('Enhanced continuous listening enabled - optimized for active use', 'success');
+            this.showNotification('Continuous listening enabled - click to speak first', 'success');
         } catch (error) {
             console.error('Failed to start continuous listening:', error);
-            this.showNotification('Could not start continuous listening', 'error');
+            if (error.message.includes('already-listening')) {
+                this.showNotification('Voice recognition already active', 'info');
+            } else {
+                this.showNotification('Microphone permission needed for voice features', 'warning');
+                this.continuousListening = false;
+                this.updateContinuousListenButton();
+            }
         }
     }
 
@@ -1354,10 +1363,19 @@ class RobotoApp {
     }
 
     resumeContinuousListening() {
-        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking && !document.hidden) {
+            // Add a longer delay to prevent rapid restart attempts
             setTimeout(() => {
-                this.startContinuousListening();
-            }, 500);
+                if (this.continuousListening && !this.isListeningActive) {
+                    try {
+                        this.speechRecognition.start();
+                    } catch (error) {
+                        if (!error.message.includes('already-listening')) {
+                            console.log('Could not resume listening:', error.message);
+                        }
+                    }
+                }
+            }, 1000);
         }
     }
 
@@ -1448,18 +1466,29 @@ class RobotoApp {
     }
 
     handleSpeechError(event) {
+        this.isListeningActive = false;
+        this.updateListeningIndicator(false);
+        
         if (event.error === 'no-speech') {
             // Normal - just restart
             if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 100);
+                setTimeout(() => this.resumeContinuousListening(), 2000);
             }
         } else if (event.error === 'aborted') {
-            // Normal stop
-            this.isListeningActive = false;
+            // Normal stop - don't restart
+            console.log('Speech recognition stopped');
+        } else if (event.error === 'audio-capture') {
+            this.showNotification('Microphone access denied. Enable microphone permissions to use voice features.', 'error');
+            this.continuousListening = false;
+            this.updateContinuousListenButton();
+        } else if (event.error === 'not-allowed') {
+            this.showNotification('Microphone permission denied. Please allow microphone access and try again.', 'error');
+            this.continuousListening = false;
+            this.updateContinuousListenButton();
         } else {
-            // Actual error - try to restart after delay
+            console.error('Speech recognition error:', event.error);
             if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 1000);
+                setTimeout(() => this.resumeContinuousListening(), 3000);
             }
         }
     }
