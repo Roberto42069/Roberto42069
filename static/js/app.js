@@ -10,6 +10,11 @@ class RobotoApp {
         this.notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
         this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
         this.currentEmotion = 'curious';
+        this.voiceConversationMode = localStorage.getItem('voiceConversationMode') === 'true';
+        this.autoListenAfterResponse = localStorage.getItem('autoListenAfterResponse') === 'true';
+        this.isSpeaking = false;
+        this.speechRecognition = null;
+        this.continuousListening = false;
         this.init();
     }
 
@@ -18,6 +23,8 @@ class RobotoApp {
         this.loadChatHistory();
         this.loadEmotionalStatus();
         this.initializeTTS();
+        this.initializeSpeechRecognition();
+        this.initializeVoiceConversationMode();
         
         // Update emotional status periodically
         setInterval(() => {
@@ -91,6 +98,24 @@ class RobotoApp {
             toggleNotificationsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.toggleNotifications();
+            });
+        }
+
+        // Voice conversation mode toggle
+        const voiceConversationBtn = document.getElementById('voiceConversationBtn');
+        if (voiceConversationBtn) {
+            voiceConversationBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleVoiceConversationMode();
+            });
+        }
+
+        // Continuous listening toggle
+        const continuousListenBtn = document.getElementById('continuousListenBtn');
+        if (continuousListenBtn) {
+            continuousListenBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleContinuousListening();
             });
         }
 
@@ -567,6 +592,7 @@ class RobotoApp {
         
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
+        this.isSpeaking = true;
         
         const utterance = new SpeechSynthesisUtterance(text);
         
@@ -603,6 +629,19 @@ class RobotoApp {
         };
         
         utterance.onend = () => {
+            this.isSpeaking = false;
+            if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
+            
+            // Auto-listen after response in voice conversation mode
+            if (this.voiceConversationMode && this.autoListenAfterResponse) {
+                setTimeout(() => {
+                    this.startVoiceListening();
+                }, 500); // Small delay to avoid audio interference
+            }
+        };
+        
+        utterance.onerror = () => {
+            this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
         };
         
@@ -1189,6 +1228,191 @@ class RobotoApp {
         
         // Clear file input for next use
         document.getElementById('fileInput').value = '';
+    }
+
+    initializeSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.speechRecognition = new SpeechRecognition();
+            
+            this.speechRecognition.continuous = false;
+            this.speechRecognition.interimResults = false;
+            this.speechRecognition.lang = 'en-US';
+            
+            this.speechRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.handleVoiceInput(transcript);
+            };
+            
+            this.speechRecognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'no-speech') {
+                    this.showNotification('No speech detected. Try again.', 'warning');
+                } else {
+                    this.showNotification('Voice recognition failed', 'error');
+                }
+                this.stopVoiceListening();
+            };
+            
+            this.speechRecognition.onend = () => {
+                this.stopVoiceListening();
+            };
+        }
+    }
+
+    initializeVoiceConversationMode() {
+        const voiceConversationBtn = document.getElementById('voiceConversationBtn');
+        if (voiceConversationBtn) {
+            if (this.voiceConversationMode) {
+                voiceConversationBtn.classList.add('btn-voice-active');
+                voiceConversationBtn.querySelector('i').className = 'fas fa-comments';
+            }
+        }
+    }
+
+    toggleVoiceConversationMode() {
+        this.voiceConversationMode = !this.voiceConversationMode;
+        localStorage.setItem('voiceConversationMode', this.voiceConversationMode);
+        
+        const voiceConversationBtn = document.getElementById('voiceConversationBtn');
+        if (this.voiceConversationMode) {
+            voiceConversationBtn.classList.add('btn-voice-active');
+            voiceConversationBtn.querySelector('i').className = 'fas fa-comments';
+            this.showNotification('Voice conversation mode enabled', 'success');
+            
+            // Enable TTS automatically in voice mode
+            if (!this.ttsEnabled) {
+                this.toggleTTS();
+            }
+        } else {
+            voiceConversationBtn.classList.remove('btn-voice-active');
+            voiceConversationBtn.querySelector('i').className = 'far fa-comments';
+            this.showNotification('Voice conversation mode disabled', 'info');
+            this.stopContinuousListening();
+        }
+    }
+
+    toggleContinuousListening() {
+        if (!this.speechRecognition) {
+            this.showNotification('Speech recognition not supported', 'error');
+            return;
+        }
+
+        this.continuousListening = !this.continuousListening;
+        
+        const continuousListenBtn = document.getElementById('continuousListenBtn');
+        if (this.continuousListening) {
+            continuousListenBtn.classList.add('btn-listen-active');
+            continuousListenBtn.querySelector('i').className = 'fas fa-ear-listen';
+            this.showNotification('Continuous listening enabled - say "Hey Roboto" to start', 'success');
+            this.startContinuousListening();
+        } else {
+            continuousListenBtn.classList.remove('btn-listen-active');
+            continuousListenBtn.querySelector('i').className = 'far fa-ear-listen';
+            this.showNotification('Continuous listening disabled', 'info');
+            this.stopContinuousListening();
+        }
+    }
+
+    startContinuousListening() {
+        if (!this.speechRecognition || !this.continuousListening) return;
+        
+        this.speechRecognition.continuous = true;
+        this.speechRecognition.interimResults = true;
+        
+        this.speechRecognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            
+            // Check for wake word
+            if (transcript.toLowerCase().includes('hey roboto') || 
+                transcript.toLowerCase().includes('hi roboto')) {
+                this.handleVoiceInput(transcript);
+                this.speechRecognition.stop();
+                setTimeout(() => {
+                    if (this.continuousListening) {
+                        this.speechRecognition.start();
+                    }
+                }, 1000);
+            }
+        };
+        
+        try {
+            this.speechRecognition.start();
+        } catch (error) {
+            console.error('Failed to start continuous listening:', error);
+        }
+    }
+
+    stopContinuousListening() {
+        if (this.speechRecognition) {
+            this.speechRecognition.continuous = false;
+            this.speechRecognition.stop();
+        }
+    }
+
+    startVoiceListening() {
+        if (!this.speechRecognition) {
+            this.showNotification('Speech recognition not supported', 'error');
+            return;
+        }
+
+        if (this.isSpeaking) {
+            this.showNotification('Please wait for me to finish speaking', 'warning');
+            return;
+        }
+
+        try {
+            this.speechRecognition.continuous = false;
+            this.speechRecognition.interimResults = false;
+            this.speechRecognition.start();
+            this.showNotification('Listening... Speak now', 'info');
+        } catch (error) {
+            console.error('Failed to start voice listening:', error);
+            this.showNotification('Voice recognition failed to start', 'error');
+        }
+    }
+
+    stopVoiceListening() {
+        if (this.speechRecognition) {
+            this.speechRecognition.stop();
+        }
+    }
+
+    async handleVoiceInput(transcript) {
+        if (!transcript.trim()) return;
+        
+        // Add user message to chat
+        this.addChatMessage(transcript, true);
+        
+        // Send to chat API
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: transcript })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.addChatMessage(data.response, false);
+                
+                // Speak the response if TTS is enabled
+                if (this.ttsEnabled) {
+                    this.speakText(data.response);
+                }
+            } else {
+                this.showNotification(data.message || 'Chat failed', 'error');
+            }
+        } catch (error) {
+            console.error('Voice chat error:', error);
+            this.showNotification('Voice chat failed', 'error');
+        }
     }
 
     escapeHtml(text) {
