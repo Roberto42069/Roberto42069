@@ -54,6 +54,39 @@
 
         <!-- Main Interface -->
         <div class="row">
+            <!-- Task Management Section -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-secondary">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tasks me-2"></i>
+                            Task Management
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Add Task Form -->
+                        <form id="taskForm" class="mb-3">
+                            <div class="input-group">
+                                <input type="text" id="taskInput" class="form-control" placeholder="Add a new task..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <!-- Hidden RECAPTCHA container -->
+                            <div id="task-recaptcha" style="display: none;"></div>
+                        </form>
+                        
+                        <!-- Task List -->
+                        <div id="taskList" class="task-list">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Loading tasks...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Data Analytics Section -->
             <div class="col-lg-4 mb-4">
                 <div class="card h-100">
@@ -196,6 +229,8 @@
                                 </button>
                             </div>
                             <input type="file" id="fileInput" style="display: none;" multiple accept="*/*">
+                            <!-- Hidden RECAPTCHA containers -->
+                            <div id="chat-recaptcha" style="display: none;"></div>
                         </form>
                     </div>
                 </div>
