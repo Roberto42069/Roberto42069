@@ -34,6 +34,52 @@ db = SQLAlchemy(app, model_class=Base)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
+# Global variables for video capture
+camera = None
+camera_lock = threading.Lock()
+video_active = False
+
+def initialize_camera():
+    global camera
+    try:
+        camera = cv2.VideoCapture(0)
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        camera.set(cv2.CAP_PROP_FPS, 30)
+        return camera.isOpened()
+    except Exception as e:
+        print(f"Camera initialization failed: {e}")
+        return False
+
+def generate_frames():
+    global camera, video_active
+    while video_active:
+        with camera_lock:
+            if camera is None or not camera.isOpened():
+                if not initialize_camera():
+                    time.sleep(1)
+                    continue
+            
+            success, frame = camera.read()
+            if not success:
+                time.sleep(0.1)
+                continue
+            else:
+                # Add timestamp overlay
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                cv2.putText(frame, timestamp, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                
+                # Add Roboto status overlay
+                cv2.putText(frame, "Roboto Live Video", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # Encode frame to JPEG
+                ret, buffer = cv2.imencode('.jpg', frame)
+                if ret:
+                    frame_bytes = buffer.tobytes()
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        time.sleep(0.033)  # ~30 FPS
+
 # Initialize authentication
 from replit_auth import require_login, make_replit_blueprint
 from flask_login import current_user
@@ -488,6 +534,94 @@ def modify_code():
         
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    global video_active
+    video_active = True
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/start_video')
+def start_video():
+    """Start video capture"""
+    global video_active
+    video_active = True
+    if initialize_camera():
+        return jsonify({'success': True, 'message': 'Video started'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to initialize camera'})
+
+@app.route('/stop_video')
+def stop_video():
+    """Stop video capture"""
+    global video_active, camera
+    video_active = False
+    with camera_lock:
+        if camera:
+            camera.release()
+            camera = None
+    return jsonify({'success': True, 'message': 'Video stopped'})
+
+@app.route('/speech_to_speech', methods=['POST'])
+def speech_to_speech():
+    """Process audio input and return audio response using OpenAI's API"""
+    try:
+        # Get audio data from request
+        if 'audio' not in request.files:
+            return jsonify({'success': False, 'message': 'No audio file provided'})
+        
+        audio_file = request.files['audio']
+        
+        # Save temporary audio file
+        temp_audio_path = f"temp_audio_{datetime.now().timestamp()}.webm"
+        audio_file.save(temp_audio_path)
+        
+        # Transcribe audio using OpenAI Whisper
+        with open(temp_audio_path, 'rb') as audio:
+            transcript = openai_client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio
+            )
+        
+        # Get text response from Roboto
+        roboto = get_user_roberto()
+        if roboto:
+            response_text = roboto.chat(transcript.text)
+        else:
+            response_text = "I'm sorry, I couldn't process your request."
+        
+        # Generate speech from text using OpenAI TTS
+        speech_response = openai_client.audio.speech.create(
+            model="tts-1",
+            voice="nova",
+            input=response_text,
+            response_format="mp3"
+        )
+        
+        # Save speech to temporary file
+        temp_speech_path = f"temp_speech_{datetime.now().timestamp()}.mp3"
+        speech_response.stream_to_file(temp_speech_path)
+        
+        # Convert audio to base64 for transmission
+        with open(temp_speech_path, 'rb') as audio_file:
+            audio_data = base64.b64encode(audio_file.read()).decode()
+        
+        # Clean up temporary files
+        os.remove(temp_audio_path)
+        os.remove(temp_speech_path)
+        
+        return jsonify({
+            'success': True,
+            'transcript': transcript.text,
+            'response': response_text,
+            'audio': audio_data
+        })
+        
+    except Exception as e:
+        print(f"Speech-to-speech error: {e}")
+        return jsonify({'success': False, 'message': str(e)})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)  # Using 0.0.0.0 for accessibility
