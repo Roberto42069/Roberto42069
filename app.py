@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
-# Temporarily disable auth to fix circular import
+from flask_login import LoginManager, current_user, login_required
 import logging
 
 # Set up logging
@@ -33,6 +33,20 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize the app with the extension
 db.init_app(app)
+
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(user_id)
+
+# Register authentication blueprint
+from replit_auth import make_replit_blueprint
+app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
 with app.app_context():
     import models
@@ -122,10 +136,19 @@ def save_user_data():
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return render_template('index.html')
+    else:
+        return render_template('landing.html')
+
+@app.route('/app')
+@login_required
+def app_main():
     make_session_permanent()
     return render_template('index.html')
 
 @app.route('/intro')
+@login_required
 def intro():
     roberto = get_user_roberto()
     if roberto:
@@ -134,6 +157,7 @@ def intro():
     return jsonify({"success": False, "message": "System not ready"})
 
 @app.route('/api/tasks', methods=['GET'])
+@login_required
 def get_tasks():
     try:
         roberto = get_user_roberto()
@@ -147,6 +171,7 @@ def get_tasks():
         return jsonify({"success": False, "tasks": []}), 500
 
 @app.route('/api/tasks', methods=['POST'])
+@login_required
 def add_task():
     try:
         data = request.get_json()
@@ -170,6 +195,7 @@ def add_task():
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
 @app.route('/api/chat/history', methods=['GET'])
+@login_required
 def get_chat_history():
     try:
         roberto = get_user_roberto()
@@ -221,6 +247,7 @@ def get_predictive_insights():
         return jsonify({"success": False, "insights": []}), 500
 
 @app.route('/api/emotional-status', methods=['GET'])
+@login_required
 def get_emotional_status():
     try:
         roberto = get_user_roberto()
@@ -240,6 +267,7 @@ def get_emotional_status():
         return jsonify({"success": False, "emotion": "curious", "intensity": 0.5}), 500
 
 @app.route('/api/export', methods=['GET'])
+@login_required
 def export_data():
     try:
         roberto = get_user_roberto()
@@ -345,6 +373,7 @@ def handle_file_upload():
         return jsonify({"success": False, "response": f"Error processing image: {str(e)}"}), 500
 
 @app.route('/api/chat', methods=['POST'])
+@login_required
 def chat():
     try:
         # Check if this is a file upload or regular chat

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Roboto</title>
+    <title>Roboto - AI Assistant</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
@@ -23,8 +23,8 @@
                 <span class="fw-bold">Roboto</span>
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="btn btn-outline-danger" href="{{ url_for('replit_auth.login') }}">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                <a href="{{ url_for('replit_auth.login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-1"></i>Login
                 </a>
             </div>
         </div>
@@ -36,79 +36,116 @@
             <div class="col-lg-8 text-center">
                 <div class="card bg-dark border-secondary">
                     <div class="card-body p-5">
-                        <div class="mb-4">
-                            <i class="fas fa-robot text-danger" style="font-size: 4rem;"></i>
-                        </div>
-                        <h1 class="display-4 fw-bold mb-4">Welcome to Roboto</h1>
+                        <h1 class="display-4 mb-4">
+                            <i class="fas fa-robot text-danger me-3"></i>
+                            Welcome to Roboto
+                        </h1>
                         <p class="lead mb-4">
-                            Your intelligent personal assistant with advanced AI, emotional awareness, 
-                            and seamless voice conversations. Built with cutting-edge memory systems 
-                            and personalized learning capabilities.
+                            Your intelligent conversational assistant with advanced analytics, 
+                            continuous speech recognition, and emotional intelligence
                         </p>
                         
-                        <!-- Features -->
-                        <div class="row text-start mb-5">
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-brain text-info me-3"></i>
-                                    <div>
-                                        <h6 class="mb-1">Advanced Memory</h6>
-                                        <small class="text-muted">Remembers your conversations and preferences</small>
-                                    </div>
+                        <!-- Features Grid -->
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                                    <h5>Smart Conversations</h5>
+                                    <p class="text-muted">Engage in natural, emotionally-aware conversations with advanced AI</p>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-microphone text-success me-3"></i>
-                                    <div>
-                                        <h6 class="mb-1">Voice Conversations</h6>
-                                        <small class="text-muted">Natural speech recognition and responses</small>
-                                    </div>
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fas fa-microphone-alt fa-3x text-success mb-3"></i>
+                                    <h5>Voice Recognition</h5>
+                                    <p class="text-muted">Advanced speech-to-text with continuous listening capabilities</p>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-3"></i>
-                                    <div>
-                                        <h6 class="mb-1">Emotional Intelligence</h6>
-                                        <small class="text-muted">Understands and responds to emotions</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-tasks text-primary me-3"></i>
-                                    <div>
-                                        <h6 class="mb-1">Task Management</h6>
-                                        <small class="text-muted">Organize and track your daily tasks</small>
-                                    </div>
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                                    <h5>Analytics & Insights</h5>
+                                    <p class="text-muted">Track patterns, get predictive insights, and manage tasks intelligently</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+
+                        <!-- Call to Action -->
+                        <div class="d-grid gap-2 d-md-block">
                             <a href="{{ url_for('replit_auth.login') }}" class="btn btn-danger btn-lg px-5">
-                                <i class="fas fa-rocket me-2"></i>Get Started
+                                <i class="fas fa-rocket me-2"></i>
+                                Get Started
                             </a>
                         </div>
-                        
-                        <p class="text-muted mt-4 mb-0">
-                            <small>Sign in with your Replit account to access your personalized AI assistant</small>
-                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Footer -->
-        <div class="row mt-5">
-            <div class="col-12 text-center">
-                <p class="text-muted">
-                    <small>Created by Roberto Villarreal Martinez</small>
-                </p>
+    </div>
+
+    <!-- Additional Features Section -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h3 class="text-center mb-4">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            Key Features
+                        </h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-brain text-info me-3 mt-1"></i>
+                                    <div>
+                                        <h6>Emotional Intelligence</h6>
+                                        <p class="text-muted small mb-0">Roboto understands and responds to emotional context in conversations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-memory text-success me-3 mt-1"></i>
+                                    <div>
+                                        <h6>Advanced Memory System</h6>
+                                        <p class="text-muted small mb-0">Learns from interactions and provides personalized responses</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-tasks text-primary me-3 mt-1"></i>
+                                    <div>
+                                        <h6>Task Management</h6>
+                                        <p class="text-muted small mb-0">Intelligent task scheduling and completion tracking</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-shield-alt text-danger me-3 mt-1"></i>
+                                    <div>
+                                        <h6>Secure & Private</h6>
+                                        <p class="text-muted small mb-0">Your data is protected with enterprise-grade security</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 border-top">
+        <div class="container text-center">
+            <p class="text-muted mb-0">
+                <i class="fas fa-robot me-1"></i>
+                Roboto - Your Personal AI Assistant
+            </p>
+        </div>
+    </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -25,11 +25,11 @@
             <div class="navbar-nav ms-auto">
                 <div class="d-flex align-items-center">
                     <span class="navbar-text me-3">
-                        <small>Welcome back!</small>
+                        <small>Welcome back, {{ current_user.first_name or 'User' }}!</small>
                     </span>
-                    <button class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-user me-1"></i>Authenticated
-                    </button>
+                    <a href="{{ url_for('replit_auth.logout') }}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </a>
                 </div>
             </div>
         </div>
