@@ -22,6 +22,14 @@
     animation: pulse-voice 2s infinite;
 }
 
+/* Muted Speech Recognition Button */
+.btn-muted {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    animation: pulse-muted 2s infinite;
+}
+
 /* Continuous Listening Button Active State */
 .btn-listen-active {
     background-color: #ffc107 !important;
@@ -42,6 +50,13 @@
     0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
     70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
     100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+/* Muted Speech Recognition Pulse Animation */
+@keyframes pulse-muted {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
 }
 
 /* Avatar Speaking Animation */
