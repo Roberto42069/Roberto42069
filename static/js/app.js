@@ -54,14 +54,7 @@ class RobotoApp {
         // Detect if running on iPhone/mobile for optimized behavior
         this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
-        // Simpler periodic check for mobile devices
-        if (this.isMobile) {
-            setInterval(() => {
-                if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
-                    this.resumeContinuousListening();
-                }
-            }, 3000); // More frequent checks on mobile
-        }
+        // Disable automatic restart for mobile devices - use tap-to-talk instead
         
         // Handle page visibility changes to maintain background listening
         document.addEventListener('visibilitychange', () => {
@@ -177,12 +170,16 @@ class RobotoApp {
             }
         });
 
-        // Speech button - handles both speech input and TTS
+        // Speech button - tap to talk for iPhone compatibility
         const speechBtn = document.getElementById('speechBtn');
         if (speechBtn) {
             speechBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.toggleSpeechMode();
+                if (this.continuousListening) {
+                    this.startSingleListening();
+                } else {
+                    this.toggleSpeechMode();
+                }
             });
         }
     }
@@ -712,22 +709,17 @@ class RobotoApp {
         chatInput.value = '';
 
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
+            // Simpler fetch for iPhone compatibility
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message }),
-                signal: controller.signal
+                body: JSON.stringify({ message })
             });
 
-            clearTimeout(timeoutId);
-
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Network error: ${response.status}`);
             }
 
             const data = await response.json();
@@ -1387,27 +1379,18 @@ class RobotoApp {
         }
     }
 
-    startContinuousListening() {
-        if (!this.speechRecognition || !this.continuousListening) return;
-        
-        // Check if already listening to prevent conflicts
-        if (this.isListeningActive) return;
-        
-        this.speechRecognition.continuous = true;
-        this.speechRecognition.interimResults = true;
+    startSingleListening() {
+        if (!this.speechRecognition || this.isListeningActive) return;
         
         try {
+            // Simple one-time listening for iPhone
+            this.speechRecognition.continuous = false;
+            this.speechRecognition.interimResults = false;
             this.speechRecognition.start();
-            this.showNotification('Continuous listening started - speak anytime', 'success');
+            this.showNotification('Listening... speak now', 'info');
         } catch (error) {
-            console.error('Failed to start continuous listening:', error);
-            if (error.message && error.message.includes('already-listening')) {
-                this.showNotification('Voice recognition already active', 'info');
-            } else {
-                this.showNotification('Microphone permission needed for voice features', 'warning');
-                this.continuousListening = false;
-                this.updateContinuousListenButton();
-            }
+            console.error('Failed to start listening:', error);
+            this.showNotification('Could not start microphone. Please try again.', 'error');
         }
     }
 
@@ -1585,12 +1568,9 @@ class RobotoApp {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
         
-        // Auto-restart immediately for continuous background listening
-        if (this.continuousListening && !this.isSpeaking && !document.hidden) {
-            // Immediate restart for seamless background operation
-            setTimeout(() => {
-                this.resumeContinuousListening();
-            }, 100);
+        // For iPhone: don't auto-restart, wait for user to tap again
+        if (this.isMobile) {
+            this.showNotification('Tap microphone to speak again', 'info');
         }
     }
 
@@ -1812,7 +1792,7 @@ class RobotoApp {
 
     toggleSpeechMode() {
         if (!this.speechRecognition) {
-            this.showNotification('Speech recognition not supported', 'error');
+            this.showNotification('Speech not supported on this device', 'error');
             return;
         }
 
@@ -1820,20 +1800,15 @@ class RobotoApp {
         const icon = speechBtn.querySelector('i');
 
         if (!this.continuousListening) {
-            // Enable speech mode with continuous listening like ChatGPT
+            // Enable one-time speech mode for iPhone
             this.continuousListening = true;
             this.ttsEnabled = true;
             
             speechBtn.classList.add('btn-listen-active');
             icon.className = 'fas fa-microphone-alt';
-            speechBtn.title = 'Speech Mode Active - Always Listening';
+            speechBtn.title = 'Speech Mode - Tap to Talk';
             
-            // Configure for continuous background listening
-            this.speechRecognition.continuous = true;
-            this.speechRecognition.interimResults = true;
-            
-            this.startContinuousListening();
-            this.showNotification('Speech mode enabled - always listening in background', 'success');
+            this.showNotification('Speech mode enabled - click microphone to talk', 'success');
             
             // Store preferences
             localStorage.setItem('continuousListening', true);
