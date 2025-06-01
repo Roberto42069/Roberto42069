@@ -1361,14 +1361,13 @@ class RobotoApp {
     }
 
     initializeSpeechRecognition() {
-        // Enhanced iPhone/mobile compatibility
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.speechRecognition = new SpeechRecognition();
             
-            // iPhone-optimized settings
-            this.speechRecognition.continuous = false; // iPhone works better with non-continuous
-            this.speechRecognition.interimResults = false;
+            // Settings for continuous listening
+            this.speechRecognition.continuous = true;
+            this.speechRecognition.interimResults = true;
             this.speechRecognition.lang = 'en-US';
             this.speechRecognition.maxAlternatives = 1;
             
@@ -1509,27 +1508,15 @@ class RobotoApp {
     }
 
     resumeContinuousListening() {
-        if (!this.continuousListening || this.isListeningActive || this.isSpeaking) {
+        if (this.isMuted || this.isListeningActive) {
             return;
         }
 
-        // iPhone-optimized restart logic
         setTimeout(() => {
-            if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
-                try {
-                    // Use non-continuous mode for iPhone compatibility
-                    this.speechRecognition.continuous = false;
-                    this.speechRecognition.interimResults = false;
-                    this.speechRecognition.start();
-                } catch (error) {
-                    if (!error.message.includes('already-listening') && !error.message.includes('started')) {
-                        console.log('Speech restart failed:', error.message);
-                        // Retry after longer delay for iPhone
-                        setTimeout(() => this.resumeContinuousListening(), 2000);
-                    }
-                }
+            if (!this.isMuted && !this.isListeningActive) {
+                this.startContinuousListening();
             }
-        }, 1000);
+        }, 500);
     }
 
     handleSpeechResults(event) {
@@ -1623,24 +1610,28 @@ class RobotoApp {
         this.updateListeningIndicator(false);
         
         if (event.error === 'no-speech') {
-            // Normal - just restart silently for background listening
-            if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 1000);
+            // Normal - just restart silently
+            if (!this.isMuted) {
+                setTimeout(() => this.startContinuousListening(), 1000);
             }
         } else if (event.error === 'aborted') {
-            // Normal stop - don't restart
-            console.log('Speech recognition stopped');
+            // Normal stop - restart unless muted
+            if (!this.isMuted) {
+                setTimeout(() => this.startContinuousListening(), 500);
+            }
         } else if (event.error === 'audio-capture') {
             this.showNotification('Microphone access denied. Please enable microphone permissions.', 'error');
-            this.disableSpeechMode();
+            this.isMuted = true;
+            this.updateMuteButton();
         } else if (event.error === 'not-allowed') {
             this.showNotification('Microphone permission denied. Please allow microphone access and try again.', 'error');
-            this.disableSpeechMode();
+            this.isMuted = true;
+            this.updateMuteButton();
         } else {
             console.error('Speech recognition error:', event.error);
-            // Keep trying to restart for background listening
-            if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 2000);
+            // Keep trying to restart unless muted
+            if (!this.isMuted) {
+                setTimeout(() => this.startContinuousListening(), 2000);
             }
         }
     }
@@ -1661,9 +1652,11 @@ class RobotoApp {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
         
-        // For iPhone: don't auto-restart, wait for user to tap again
-        if (this.isMobile) {
-            this.showNotification('Tap microphone to speak again', 'info');
+        // Always restart speech recognition unless muted
+        if (!this.isMuted) {
+            setTimeout(() => {
+                this.startContinuousListening();
+            }, 500);
         }
     }
 
