@@ -156,43 +156,7 @@ def intro():
         return jsonify({"success": True, "message": intro_message})
     return jsonify({"success": False, "message": "System not ready"})
 
-@app.route('/api/tasks', methods=['GET'])
-@login_required
-def get_tasks():
-    try:
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({"success": False, "tasks": []}), 500
-        
-        tasks = roberto.show_tasks()
-        return jsonify({"success": True, "tasks": tasks})
-    except Exception as e:
-        app.logger.error(f"Error getting tasks: {e}")
-        return jsonify({"success": False, "tasks": []}), 500
 
-@app.route('/api/tasks', methods=['POST'])
-@login_required
-def add_task():
-    try:
-        data = request.get_json()
-        if not data or 'task' not in data:
-            return jsonify({"success": False, "message": "No task provided"}), 400
-        
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({"success": False, "message": "System not ready"}), 500
-        
-        task_text = data['task'].strip()
-        if not task_text:
-            return jsonify({"success": False, "message": "Empty task"}), 400
-        
-        result = roberto.add_task(task_text)
-        save_user_data()
-        
-        return jsonify({"success": True, "message": result, "tasks": roberto.show_tasks()})
-    except Exception as e:
-        app.logger.error(f"Error adding task: {e}")
-        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
 @app.route('/api/chat/history', methods=['GET'])
 @login_required
@@ -208,43 +172,7 @@ def get_chat_history():
         app.logger.error(f"Error getting chat history: {e}")
         return jsonify({"success": False, "history": []}), 500
 
-@app.route('/api/insights/learning', methods=['GET'])
-def get_learning_insights():
-    try:
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({"success": False, "insights": []}), 500
-        
-        insights = []
-        if hasattr(roberto, 'memory_system') and roberto.memory_system:
-            memory_summary = roberto.memory_system.get_memory_summary()
-            insights.append(f"Total memories stored: {memory_summary.get('total_memories', 0)}")
-            recent_patterns = memory_summary.get('recent_patterns', [])
-            if isinstance(recent_patterns, list):
-                insights.append(f"Recent learning patterns identified: {len(recent_patterns)}")
-        
-        return jsonify({"success": True, "insights": insights})
-    except Exception as e:
-        return jsonify({"success": False, "insights": []}), 500
 
-@app.route('/api/insights/predictive', methods=['GET'])
-def get_predictive_insights():
-    try:
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({"success": False, "insights": []}), 500
-        
-        insights = []
-        if hasattr(roberto, 'emotional_history'):
-            recent_emotions = roberto.emotional_history[-5:]
-            if recent_emotions:
-                dominant_emotion = max(set([e.get('emotion', 'neutral') for e in recent_emotions]), 
-                                     key=[e.get('emotion', 'neutral') for e in recent_emotions].count)
-                insights.append(f"Recent emotional trend: {dominant_emotion}")
-        
-        return jsonify({"success": True, "insights": insights})
-    except Exception as e:
-        return jsonify({"success": False, "insights": []}), 500
 
 @app.route('/api/emotional-status', methods=['GET'])
 @login_required

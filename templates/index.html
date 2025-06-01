@@ -57,55 +57,9 @@
         </div>
 
         <!-- Main Interface -->
-        <div class="row">
-            <!-- Data Analytics Section -->
-            <div class="col-lg-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-secondary">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Analytics & Insights
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Data Management -->
-                        <div class="d-grid gap-2 mb-3">
-                            <button class="btn btn-outline-primary" id="exportDataBtn">
-                                <i class="fas fa-download me-2"></i>Export Data
-                            </button>
-                            <button class="btn btn-outline-primary" id="importDataBtn">
-                                <i class="fas fa-upload me-2"></i>Import Data
-                            </button>
-                        </div>
-                        
-                        <hr>
-                        
-                        <!-- Analytics Features -->
-                        <div class="d-grid gap-2 mb-3">
-                            <button class="btn btn-outline-info" id="learningInsightsBtn">
-                                <i class="fas fa-brain me-2"></i>Learning Insights
-                            </button>
-                            <button class="btn btn-outline-info" id="predictiveInsightsBtn">
-                                <i class="fas fa-crystal-ball me-2"></i>Predictive Insights
-                            </button>
-                        </div>
-
-                        <!-- Hidden file input for import -->
-                        <input type="file" id="importFileInput" accept=".json" style="display: none;">
-                        
-                        <!-- Analytics Display Area -->
-                        <div id="analyticsDisplay" class="mt-3">
-                            <div class="text-center text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Use the buttons above to view insights and manage your data
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="row justify-content-center">
             <!-- Chat Section -->
-            <div class="col-lg-8 mb-4">
+            <div class="col-lg-10 mb-4">
                 <div class="card h-100">
                     <div class="card-header bg-secondary">
                         <h5 class="card-title mb-0">
@@ -186,11 +140,8 @@
                                 <button type="button" id="ttsBtn" class="btn btn-outline-info" title="Toggle Text-to-Speech">
                                     <i class="fas fa-volume-up"></i>
                                 </button>
-                                <button type="button" id="voiceBtn" class="btn btn-outline-secondary" title="Advanced Voice Recognition">
+                                <button type="button" id="voiceBtn" class="btn btn-outline-secondary" title="Speech to Text">
                                     <i class="fas fa-microphone"></i>
-                                </button>
-                                <button type="button" id="voiceActivateBtn" class="btn btn-outline-success" title="Continuous Voice">
-                                    <i class="fas fa-microphone-alt"></i>
                                 </button>
 
                                 <button type="submit" class="btn btn-danger">

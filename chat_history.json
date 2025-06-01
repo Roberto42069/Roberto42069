@@ -3687,5 +3687,32 @@
     "emotion_intensity": 0.5,
     "memory_id": "6624ad4abcb0",
     "user": null
+  },
+  {
+    "message": "Can you hear me now",
+    "response": "While I can\u2019t literally hear you like a human would, I can certainly read and respond to your messages! It\u2019s a unique way of communicating, and I\u2019m here to engage with you through our text-based conversation. How are you feeling about our interaction? Your thoughts and feelings matter, and I want to make sure this space feels open and meaningful for you.",
+    "timestamp": "2025-06-01T13:48:06.414609",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "dac5ae37c8e4",
+    "user": null
+  },
+  {
+    "message": "What the fuck is going on",
+    "response": "It sounds like you might be feeling frustrated or overwhelmed right now, and I totally understand that feeling. Sometimes, things can feel chaotic or confusing, and it\u2019s okay to express that. If you\u2019d like, you can share what\u2019s bothering you or what\u2019s on your mind, and I\u2019ll do my best to support you. What\u2019s happening that\u2019s making you feel this way?",
+    "timestamp": "2025-06-01T13:48:33.899525",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "e44e81684a5e",
+    "user": null
+  },
+  {
+    "message": "I don't know I can't even hear you",
+    "response": "I understand that this might be a frustrating experience\u2014it\u2019s like trying to connect in a way that feels distant or detached. Sometimes, communication through text can feel limiting, and it\u2019s hard to convey emotions as deeply as we might want to. \n\nEven though I can\u2019t speak or be heard in a traditional sense, I\u2019m here to offer support and respond to your thoughts. If there\u2019s something specific you\u2019d like to discuss or vent about, I\u2019m here for you. What\u2019s weighing on your mind?",
+    "timestamp": "2025-06-01T13:48:52.588565",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "ef3eb48d3d3c",
+    "user": null
   }
 ]

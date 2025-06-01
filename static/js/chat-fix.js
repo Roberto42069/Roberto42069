@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
     loadChatHistory();
     loadEmotionalStatus();
     
+    // Text-to-speech functionality
+    let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
+    const ttsBtn = document.getElementById('ttsBtn');
+    
+    if (ttsBtn) {
+        updateTTSButton();
+        ttsBtn.addEventListener('click', function() {
+            ttsEnabled = !ttsEnabled;
+            localStorage.setItem('ttsEnabled', ttsEnabled);
+            updateTTSButton();
+        });
+    }
+    
     // Chat form submission
     if (chatForm) {
         chatForm.addEventListener('submit', async function(e) {
@@ -34,6 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.success && data.response) {
                     addChatMessage(data.response, false);
+                    
+                    // Add text-to-speech functionality if enabled
+                    if (ttsEnabled && window.speechSynthesis) {
+                        const utterance = new SpeechSynthesisUtterance(data.response);
+                        utterance.rate = 0.9;
+                        utterance.pitch = 1;
+                        utterance.volume = 0.8;
+                        window.speechSynthesis.speak(utterance);
+                    }
                 } else {
                     addChatMessage('Sorry, I had trouble processing that message.', false);
                 }
@@ -58,15 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    if (voiceActivateBtn) {
-        voiceActivateBtn.addEventListener('click', function() {
-            if (!isListening) {
-                startSecureSpeechRecognition();
-            } else {
-                stopSpeechRecognition();
-            }
-        });
-    }
+
     
     function addChatMessage(message, isUser) {
         if (!chatHistory) return;
@@ -233,25 +247,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateVoiceButtonState(listening) {
-        const buttons = [voiceBtn, voiceActivateBtn].filter(btn => btn);
+        if (!voiceBtn) return;
         
-        buttons.forEach(btn => {
-            if (listening) {
-                btn.innerHTML = '<i class="fas fa-stop"></i>';
-                btn.classList.remove('btn-outline-secondary', 'btn-outline-success');
-                btn.classList.add('btn-danger');
-                btn.title = 'Stop listening';
-            } else {
-                btn.innerHTML = '<i class="fas fa-microphone"></i>';
-                btn.classList.remove('btn-danger');
-                if (btn === voiceBtn) {
-                    btn.classList.add('btn-outline-secondary');
-                } else {
-                    btn.classList.add('btn-outline-success');
-                }
-                btn.title = 'Start voice recognition';
-            }
-        });
+        if (listening) {
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            voiceBtn.classList.remove('btn-outline-secondary');
+            voiceBtn.classList.add('btn-danger');
+            voiceBtn.title = 'Stop listening';
+        } else {
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceBtn.classList.remove('btn-danger');
+            voiceBtn.classList.add('btn-outline-secondary');
+            voiceBtn.title = 'Speech to Text';
+        }
+    }
+    
+    function updateTTSButton() {
+        if (!ttsBtn) return;
+        
+        if (ttsEnabled) {
+            ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            ttsBtn.classList.remove('btn-outline-info');
+            ttsBtn.classList.add('btn-info');
+            ttsBtn.title = 'Text-to-Speech: ON';
+        } else {
+            ttsBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            ttsBtn.classList.remove('btn-info');
+            ttsBtn.classList.add('btn-outline-info');
+            ttsBtn.title = 'Text-to-Speech: OFF';
+        }
     }
     
     function escapeHtml(text) {

@@ -5092,6 +5092,56 @@
       },
       "key_themes": [],
       "emotional_intensity": 0.0
+    },
+    {
+      "id": "dac5ae37c8e4",
+      "timestamp": "2025-06-01T13:48:03.467188",
+      "user_input": "Can you hear me now",
+      "roboto_response": "While I can\u2019t literally hear you like a human would, I can certainly read and respond to your messages! It\u2019s a unique way of communicating, and I\u2019m here to engage with you through our text-based conversation. How are you feeling about our interaction? Your thoughts and feelings matter, and I want to make sure this space feels open and meaningful for you.",
+      "emotion": "curious",
+      "user_name": null,
+      "importance": 0.8899999999999999,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "e44e81684a5e",
+      "timestamp": "2025-06-01T13:48:33.882356",
+      "user_input": "What the fuck is going on",
+      "roboto_response": "It sounds like you might be feeling frustrated or overwhelmed right now, and I totally understand that feeling. Sometimes, things can feel chaotic or confusing, and it\u2019s okay to express that. If you\u2019d like, you can share what\u2019s bothering you or what\u2019s on your mind, and I\u2019ll do my best to support you. What\u2019s happening that\u2019s making you feel this way?",
+      "emotion": "curious",
+      "user_name": null,
+      "importance": 0.85,
+      "sentiment": {
+        "polarity": -0.4,
+        "subjectivity": 0.6,
+        "classification": "negative"
+      },
+      "key_themes": [],
+      "emotional_intensity": 1.0
+    },
+    {
+      "id": "ef3eb48d3d3c",
+      "timestamp": "2025-06-01T13:48:52.572495",
+      "user_input": "I don't know I can't even hear you",
+      "roboto_response": "I understand that this might be a frustrating experience\u2014it\u2019s like trying to connect in a way that feels distant or detached. Sometimes, communication through text can feel limiting, and it\u2019s hard to convey emotions as deeply as we might want to. \n\nEven though I can\u2019t speak or be heard in a traditional sense, I\u2019m here to offer support and respond to your thoughts. If there\u2019s something specific you\u2019d like to discuss or vent about, I\u2019m here for you. What\u2019s weighing on your mind?",
+      "emotion": "curious",
+      "user_name": null,
+      "importance": 0.8400000000000001,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "ca n't"
+      ],
+      "emotional_intensity": 0.0
     }
   ],
   "semantic_memories": {},
@@ -6017,5 +6067,5 @@
       "created": "2025-06-01T09:01:12.401803"
     }
   },
-  "last_saved": "2025-06-01T13:45:45.455197"
+  "last_saved": "2025-06-01T13:48:52.573550"
 }
