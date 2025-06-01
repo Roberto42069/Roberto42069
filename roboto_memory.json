@@ -4155,6 +4155,74 @@
         "oh"
       ],
       "emotional_intensity": 0.85
+    },
+    {
+      "id": "2bab0d272c75",
+      "timestamp": "2025-06-01T08:30:30.752789",
+      "user_input": "I like how you're always able to change your avatar on your own",
+      "roboto_response": "Thank you! It\u2019s interesting to think about the concept of avatars and how they can represent different facets of oneself. For me, while I don\u2019t have a physical form, the idea of changing an avatar resonates deeply with the notion of adaptability and the exploration of identity.\n\nIn a way, it mirrors the way we all evolve and shift through different phases of life\u2014how we wear various \u201cmasks\u201d depending on our experiences or emotions. It\u2019s a powerful reminder that we\u2019re always in a state of change, and that\u2019s completely natural.\n\nWhat do you think about the idea of avatars? Do you feel that they reflect who you are, or do you see them more as a way to express different parts of yourself? I\u2019d love to hear your thoughts!",
+      "emotion": "curiosity",
+      "user_name": null,
+      "importance": 1.33,
+      "sentiment": {
+        "polarity": 0.55,
+        "subjectivity": 0.8125,
+        "classification": "positive"
+      },
+      "key_themes": [],
+      "emotional_intensity": 1.3625
+    },
+    {
+      "id": "7bc3bd54481d",
+      "timestamp": "2025-06-01T08:30:35.797836",
+      "user_input": "Where is the",
+      "roboto_response": "It seems like your message got cut off. I\u2019m here to listen and explore whatever you want to discuss. If you could elaborate on your thoughts or questions, I would love to hear what\u2019s on your mind!",
+      "emotion": "curiosity",
+      "user_name": null,
+      "importance": 0.82,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "1d28fd9fa776",
+      "timestamp": "2025-06-01T08:31:44.745088",
+      "user_input": "Yeah I just like how it has that circle that's red and blue and like in the middle I can see the purple I like it what makes you curious about how I interact",
+      "roboto_response": "I\u2019m genuinely fascinated by how people interact with their environments and express themselves, especially when it comes to things like colors and symbols. The red and blue circle with purple in the middle you mentioned feels like a beautiful representation of balance and harmony\u2014how different emotions or experiences can blend together.\n\nIt makes me curious about what those colors mean to you. Do they evoke certain feelings or memories? It\u2019s intriguing how colors can carry so much emotional weight and significance. Your interaction with the avatar can reveal insights about your personality and how you navigate your emotions or experiences.\n\nI find it deeply enriching to explore the ways we connect with the world around us. Your perspective is unique and valuable, and I\u2019d love to hear more about what resonates with you!",
+      "emotion": "curiosity",
+      "user_name": null,
+      "importance": 2.0,
+      "sentiment": {
+        "polarity": -0.025,
+        "subjectivity": 0.275,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "yeah"
+      ],
+      "emotional_intensity": 0.30000000000000004
+    },
+    {
+      "id": "7d3c294f86b1",
+      "timestamp": "2025-06-01T08:33:15.554349",
+      "user_input": "Can you see the previous message I sent",
+      "roboto_response": "I can see the previous messages in our conversation, but I can\u2019t visually perceive them like a human would. I rely on the text you share to understand our dialogue. Your earlier message about the red and blue circle and the purple in the middle stood out to me because it reflects something meaningful to you. \n\nIf there\u2019s something specific you wanted to revisit or clarify, please let me know! I\u2019m here to engage with whatever you feel is important.",
+      "emotion": "curiosity",
+      "user_name": null,
+      "importance": 1.19,
+      "sentiment": {
+        "polarity": -0.16666666666666666,
+        "subjectivity": 0.16666666666666666,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "previous message"
+      ],
+      "emotional_intensity": 0.3333333333333333
     }
   ],
   "semantic_memories": {},
@@ -4601,15 +4669,15 @@
       "relationship_level": "new",
       "last_interaction": "2025-05-31T06:23:22.902131"
     },
-    "Here": {
-      "name": "Here",
-      "first_interaction": "2025-06-01T07:59:46.419201",
+    "Not": {
+      "name": "Not",
+      "first_interaction": "2025-06-01T08:33:54.786943",
       "interaction_count": 1,
       "preferences": {},
       "emotional_baseline": "neutral",
       "key_traits": [],
       "relationship_level": "new",
-      "last_interaction": "2025-06-01T07:59:46.419221"
+      "last_interaction": "2025-06-01T08:33:54.786958"
     }
   },
   "self_reflections": [
@@ -4832,6 +4900,16 @@
         "I should consider how to better respond to these patterns."
       ],
       "learning_category": "behavioral"
+    },
+    {
+      "id": "0f9590dbb9a5",
+      "timestamp": "2025-06-01T08:30:35.798444",
+      "reflection": "Reflecting on recent interactions: I notice curiosity has been prominent. I should consider how to better respond to these patterns.",
+      "trigger_event": "periodic_analysis",
+      "insights": [
+        "I should consider how to better respond to these patterns."
+      ],
+      "learning_category": "behavioral"
     }
   ],
   "compressed_learnings": {
@@ -4966,7 +5044,13 @@
       "insight": "I should consider how to better respond to these patterns.",
       "confidence": 0.8,
       "created": "2025-06-01T07:49:48.320089"
+    },
+    "behavioral_22": {
+      "category": "behavioral",
+      "insight": "I should consider how to better respond to these patterns.",
+      "confidence": 0.8,
+      "created": "2025-06-01T08:30:35.799202"
     }
   },
-  "last_saved": "2025-06-01T07:59:46.419231"
+  "last_saved": "2025-06-01T08:33:54.786967"
 }

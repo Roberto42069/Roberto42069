@@ -51,13 +51,17 @@ class RobotoApp {
             this.loadEmotionalStatus();
         }, 10000); // Every 10 seconds
         
-        // Periodic check to maintain continuous listening (like ChatGPT)
-        setInterval(() => {
-            if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
-                console.log('Periodic check: restarting speech recognition');
-                this.resumeContinuousListening();
-            }
-        }, 5000); // Check every 5 seconds
+        // Detect if running on iPhone/mobile for optimized behavior
+        this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        // Simpler periodic check for mobile devices
+        if (this.isMobile) {
+            setInterval(() => {
+                if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+                    this.resumeContinuousListening();
+                }
+            }, 3000); // More frequent checks on mobile
+        }
         
         // Handle page visibility changes to maintain background listening
         document.addEventListener('visibilitychange', () => {
@@ -708,13 +712,23 @@ class RobotoApp {
         chatInput.value = '';
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ message }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
             
@@ -733,8 +747,12 @@ class RobotoApp {
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            this.addChatMessage('Chat connection failed. Please try again.', false);
-            this.showNotification('Chat failed - check your connection', 'error');
+            if (error.name === 'AbortError') {
+                this.addChatMessage('Request timed out. Please try again.', false);
+            } else {
+                this.addChatMessage('Connection error. Please check your network and try again.', false);
+            }
+            this.showNotification('Chat failed - please try again', 'error');
         }
     }
 
@@ -1282,18 +1300,21 @@ class RobotoApp {
     }
 
     initializeSpeechRecognition() {
+        // Enhanced iPhone/mobile compatibility
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.speechRecognition = new SpeechRecognition();
             
-            this.speechRecognition.continuous = true;
-            this.speechRecognition.interimResults = true;
+            // iPhone-optimized settings
+            this.speechRecognition.continuous = false; // iPhone works better with non-continuous
+            this.speechRecognition.interimResults = false;
             this.speechRecognition.lang = 'en-US';
             this.speechRecognition.maxAlternatives = 1;
             
             this.speechRecognition.onstart = () => {
                 this.isListeningActive = true;
                 this.updateListeningIndicator(true);
+                console.log('Speech recognition started');
             };
             
             this.speechRecognition.onresult = (event) => {
@@ -1307,6 +1328,8 @@ class RobotoApp {
             this.speechRecognition.onend = () => {
                 this.handleSpeechEnd();
             };
+        } else {
+            console.log('Speech recognition not supported on this device');
         }
     }
 
@@ -1410,37 +1433,27 @@ class RobotoApp {
     }
 
     resumeContinuousListening() {
-        const now = Date.now();
-        
-        // Reset restart attempts every 30 seconds
-        if (now - this.lastRestartTime > 30000) {
-            this.restartAttempts = 0;
+        if (!this.continuousListening || this.isListeningActive || this.isSpeaking) {
+            return;
         }
-        
-        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
-            // Continue even when page is in background (like ChatGPT)
-            if (this.restartAttempts < this.maxRestartAttempts) {
-                setTimeout(() => {
-                    if (this.continuousListening && !this.isListeningActive) {
-                        try {
-                            this.speechRecognition.continuous = true;
-                            this.speechRecognition.interimResults = true;
-                            this.speechRecognition.start();
-                            this.restartAttempts++;
-                            this.lastRestartTime = now;
-                        } catch (error) {
-                            if (!error.message.includes('already-listening')) {
-                                console.log('Could not resume listening:', error.message);
-                                this.restartAttempts++;
-                                // Exponential backoff for failed attempts
-                                const delay = Math.min(2000 * Math.pow(1.5, this.restartAttempts), 10000);
-                                setTimeout(() => this.resumeContinuousListening(), delay);
-                            }
-                        }
+
+        // iPhone-optimized restart logic
+        setTimeout(() => {
+            if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+                try {
+                    // Use non-continuous mode for iPhone compatibility
+                    this.speechRecognition.continuous = false;
+                    this.speechRecognition.interimResults = false;
+                    this.speechRecognition.start();
+                } catch (error) {
+                    if (!error.message.includes('already-listening') && !error.message.includes('started')) {
+                        console.log('Speech restart failed:', error.message);
+                        // Retry after longer delay for iPhone
+                        setTimeout(() => this.resumeContinuousListening(), 2000);
                     }
-                }, 300);
+                }
             }
-        }
+        }, 1000);
     }
 
     handleSpeechResults(event) {
