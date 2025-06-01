@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize chat
     loadChatHistory();
     loadEmotionalStatus();
+    loadPersonalProfile();
     
     // Text-to-speech functionality
     let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
@@ -56,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         utterance.volume = 0.8;
                         window.speechSynthesis.speak(utterance);
                     }
+                    
+                    // Update personal profile after each interaction
+                    setTimeout(loadPersonalProfile, 1000);
                 } else {
                     addChatMessage('Sorry, I had trouble processing that message.', false);
                 }
@@ -307,6 +311,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.log('Voice insights update in progress...');
+        }
+    }
+    
+    async function loadPersonalProfile() {
+        try {
+            const response = await fetch('/api/personal-profile');
+            const data = await response.json();
+            
+            const profileElement = document.getElementById('personalProfile');
+            if (profileElement && data.success) {
+                profileElement.textContent = data.profile;
+            }
+        } catch (error) {
+            console.log('Personal profile update in progress...');
         }
     }
     

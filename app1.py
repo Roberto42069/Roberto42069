@@ -21,8 +21,23 @@ class Roboto:
         self.current_user = None  # Track current user
         # self.load_grok_chat_data()  # Disabled to prevent errors
         
-        # Initialize advanced memory system
+        # Initialize advanced memory system focused on primary user
         self.memory_system = AdvancedMemorySystem()
+        self.primary_user_profile = {
+            'name': None,
+            'personal_details': {},
+            'preferences': {},
+            'interests': set(),
+            'emotional_baseline': 'curious',
+            'communication_style': {},
+            'life_events': [],
+            'relationships': {},
+            'goals': [],
+            'dislikes': [],
+            'habits': [],
+            'first_interaction': None,
+            'total_interactions': 0
+        }
         
         # Emotional system
         self.current_emotion = "curious"
