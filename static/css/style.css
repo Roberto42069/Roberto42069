@@ -59,6 +59,34 @@
     100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
 }
 
+/* Speech-to-Speech Recording Button */
+.btn-recording {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    animation: pulse-recording 1s infinite;
+}
+
+@keyframes pulse-recording {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* Video Feed Styles */
+#videoFeed {
+    border: 2px solid #28a745;
+    border-radius: 8px;
+}
+
+#videoPlaceholder {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Avatar Speaking Animation */
 .avatar-speaking {
     animation: avatar-speak 0.5s ease-in-out infinite alternate;

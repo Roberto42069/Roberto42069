@@ -220,6 +220,31 @@ class RobotoApp {
             });
         }
 
+        // Speech-to-speech button
+        const speechToSpeechBtn = document.getElementById('speechToSpeechBtn');
+        if (speechToSpeechBtn) {
+            speechToSpeechBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.startSpeechToSpeech();
+            });
+        }
+
+        // Video control buttons
+        const startVideoBtn = document.getElementById('startVideoBtn');
+        const stopVideoBtn = document.getElementById('stopVideoBtn');
+        
+        if (startVideoBtn) {
+            startVideoBtn.addEventListener('click', () => {
+                this.startVideo();
+            });
+        }
+        
+        if (stopVideoBtn) {
+            stopVideoBtn.addEventListener('click', () => {
+                this.stopVideo();
+            });
+        }
+
 
     }
 
@@ -1935,6 +1960,145 @@ class RobotoApp {
     }
 
 
+
+    async startSpeechToSpeech() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            this.showNotification('Microphone access not supported', 'error');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            const audioChunks = [];
+
+            const speechBtn = document.getElementById('speechToSpeechBtn');
+            speechBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            speechBtn.classList.add('btn-recording');
+            
+            this.showNotification('Recording... Click the button again to stop', 'info');
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await this.processSpeechToSpeech(audioBlob);
+                
+                // Reset button
+                speechBtn.innerHTML = '<i class="fas fa-robot"></i>';
+                speechBtn.classList.remove('btn-recording');
+                
+                // Stop all tracks
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+
+            // Stop recording when button is clicked again
+            speechBtn.onclick = () => {
+                mediaRecorder.stop();
+                speechBtn.onclick = null;
+            };
+
+        } catch (error) {
+            console.error('Microphone access error:', error);
+            this.showNotification('Microphone access denied. Please allow microphone permissions.', 'error');
+        }
+    }
+
+    async processSpeechToSpeech(audioBlob) {
+        try {
+            this.showNotification('Processing speech...', 'info');
+            
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'audio.webm');
+
+            const response = await fetch('/speech_to_speech', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Display transcript and response
+                this.addChatMessage(data.transcript, true);
+                this.addChatMessage(data.response, false);
+                
+                // Play audio response
+                if (data.audio) {
+                    const audioData = `data:audio/mp3;base64,${data.audio}`;
+                    const audio = new Audio(audioData);
+                    audio.play().catch(e => console.error('Audio playback error:', e));
+                }
+                
+                this.showNotification('Speech-to-speech completed!', 'success');
+            } else {
+                this.showNotification(data.message || 'Speech processing failed', 'error');
+            }
+        } catch (error) {
+            console.error('Speech-to-speech error:', error);
+            this.showNotification('Speech processing failed', 'error');
+        }
+    }
+
+    async startVideo() {
+        try {
+            const response = await fetch('/start_video');
+            const data = await response.json();
+            
+            if (data.success) {
+                const videoFeed = document.getElementById('videoFeed');
+                const videoPlaceholder = document.getElementById('videoPlaceholder');
+                const startBtn = document.getElementById('startVideoBtn');
+                const stopBtn = document.getElementById('stopVideoBtn');
+                
+                videoFeed.src = '/video_feed';
+                videoFeed.style.display = 'block';
+                videoPlaceholder.style.display = 'none';
+                
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                this.showNotification('Live video started', 'success');
+            } else {
+                this.showNotification(data.message || 'Failed to start video', 'error');
+            }
+        } catch (error) {
+            console.error('Video start error:', error);
+            this.showNotification('Failed to start video feed', 'error');
+        }
+    }
+
+    async stopVideo() {
+        try {
+            const response = await fetch('/stop_video');
+            const data = await response.json();
+            
+            if (data.success) {
+                const videoFeed = document.getElementById('videoFeed');
+                const videoPlaceholder = document.getElementById('videoPlaceholder');
+                const startBtn = document.getElementById('startVideoBtn');
+                const stopBtn = document.getElementById('stopVideoBtn');
+                
+                videoFeed.src = '';
+                videoFeed.style.display = 'none';
+                videoPlaceholder.style.display = 'block';
+                
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                
+                this.showNotification('Live video stopped', 'info');
+            } else {
+                this.showNotification(data.message || 'Failed to stop video', 'error');
+            }
+        } catch (error) {
+            console.error('Video stop error:', error);
+            this.showNotification('Failed to stop video feed', 'error');
+        }
+    }
 
     escapeHtml(text) {
         const div = document.createElement('div');
