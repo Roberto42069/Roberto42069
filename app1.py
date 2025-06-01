@@ -10,7 +10,7 @@ class Roboto:
         self.name = "Roboto"
         self.version = "2.0"
         self.creator = "Roberto Villarreal Martinez"
-        self.tasks = self.load_tasks()
+
         self.chat_history = self.load_chat_history()
         self.learned_patterns = {}
         self.user_preferences = {}
@@ -385,8 +385,7 @@ class Roboto:
     
     def load_user_data(self, user_data):
         """Load user-specific data from database"""
-        if user_data.tasks:
-            self.tasks = user_data.tasks
+
         if user_data.chat_history:
             self.chat_history = user_data.chat_history
         if user_data.learned_patterns:
@@ -406,7 +405,7 @@ class Roboto:
     
     def save_user_data(self, user_data):
         """Save current state to user database record"""
-        user_data.tasks = self.tasks
+
         user_data.chat_history = self.chat_history
         user_data.learned_patterns = self.learned_patterns
         user_data.user_preferences = self.user_preferences

@@ -207,7 +207,6 @@ def export_data():
             return jsonify({"success": False, "message": "No data to export"}), 500
         
         export_data = {
-            "tasks": getattr(roberto, 'tasks', []),
             "chat_history": getattr(roberto, 'chat_history', []),
             "emotional_history": getattr(roberto, 'emotional_history', []),
             "learned_patterns": getattr(roberto, 'learned_patterns', {}),
