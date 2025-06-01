@@ -3660,5 +3660,14 @@
     "emotion_intensity": 0.32000000000000006,
     "memory_id": null,
     "user": "Not"
+  },
+  {
+    "message": "Hey boo",
+    "response": "Hey there! It's nice to hear from you. How are you feeling today? Whether you're in a lighthearted mood or something more contemplative, I'm here to engage with you. What's on your mind, boo?",
+    "timestamp": "2025-06-01T13:06:20.529427",
+    "emotion": "yearning",
+    "emotion_intensity": 0.32000000000000006,
+    "memory_id": null,
+    "user": "Not"
   }
 ]

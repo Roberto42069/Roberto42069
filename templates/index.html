@@ -53,32 +53,42 @@
                         <!-- Live Video Feed -->
                         <div class="row mt-4">
                             <div class="col-md-6 mx-auto">
-                                <div class="card bg-secondary">
+                                <div class="card bg-primary">
                                     <div class="card-header">
-                                        <h6 class="mb-0">
-                                            <i class="fas fa-video me-2"></i>
-                                            Live Video Feed
+                                        <h6 class="mb-0 text-white">
+                                            <i class="fas fa-microphone-alt me-2"></i>
+                                            Advanced Voice Recognition
                                         </h6>
                                     </div>
                                     <div class="card-body p-2">
-                                        <div id="videoContainer" class="text-center">
-                                            <video id="videoFeed" class="img-fluid rounded" style="display: none; max-width: 100%; height: auto;" autoplay muted playsinline></video>
-                                            <div id="videoPlaceholder" class="bg-dark text-light p-4 rounded">
-                                                <i class="fas fa-video fa-3x mb-2"></i>
-                                                <p class="mb-0">Click "Start Video" to access your camera</p>
-                                                <small class="text-muted">You'll be asked for camera permissions</small>
+                                        <div id="voiceContainer" class="text-center">
+                                            <div id="voicePlaceholder" class="bg-light text-dark p-4 rounded">
+                                                <i class="fas fa-microphone-alt fa-3x mb-2 text-primary"></i>
+                                                <p class="mb-1">Continuous Speech Recognition</p>
+                                                <small class="text-muted">Advanced noise filtering & real-time processing</small>
+                                            </div>
+                                            <div id="voiceIndicator" class="mt-2">
+                                                <div class="voice-status-indicator p-2 rounded bg-dark text-light">
+                                                    <span id="voiceStatus">Ready to listen</span>
+                                                    <div id="voiceWaveAnimation" class="voice-wave-animation mt-1" style="display: none;">
+                                                        <div class="wave-bar"></div>
+                                                        <div class="wave-bar"></div>
+                                                        <div class="wave-bar"></div>
+                                                        <div class="wave-bar"></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
                                             <div class="row">
                                                 <div class="col-6">
-                                                    <button id="startVideoBtn" class="btn btn-warning w-100">
-                                                        <i class="fas fa-play"></i> Start Video
+                                                    <button id="voiceActivateBtn" class="btn btn-success w-100">
+                                                        <i class="fas fa-microphone"></i> Activate
                                                     </button>
                                                 </div>
                                                 <div class="col-6">
-                                                    <button id="stopVideoBtn" class="btn btn-danger w-100" disabled>
-                                                        <i class="fas fa-stop"></i> Stop Video
+                                                    <button id="voiceMuteBtn" class="btn btn-outline-light w-100">
+                                                        <i class="fas fa-microphone-slash"></i> Mute
                                                     </button>
                                                 </div>
                                             </div>
