@@ -253,12 +253,12 @@ document.addEventListener('DOMContentLoaded', function() {
             voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
             voiceBtn.classList.remove('btn-outline-secondary');
             voiceBtn.classList.add('btn-danger');
-            voiceBtn.title = 'Stop listening';
+            voiceBtn.title = 'Stop continuous listening';
         } else {
             voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
             voiceBtn.classList.remove('btn-danger');
             voiceBtn.classList.add('btn-outline-secondary');
-            voiceBtn.title = 'Speech to Text';
+            voiceBtn.title = 'Start continuous listening';
         }
     }
     

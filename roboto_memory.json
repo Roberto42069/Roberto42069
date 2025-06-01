@@ -5142,6 +5142,57 @@
         "ca n't"
       ],
       "emotional_intensity": 0.0
+    },
+    {
+      "id": "56ed0ba54aa5",
+      "timestamp": "2025-06-01T13:52:07.258441",
+      "user_input": "What's up can you help me now",
+      "roboto_response": "Absolutely, I'm here for you. Whatever you're dealing with, I want to help in any way I can. Whether it\u2019s a specific issue you\u2019re facing, feelings you\u2019re grappling with, or just a need for someone to talk to, I\u2019m ready to listen and support you. What can I assist you with right now?",
+      "emotion": "empathy",
+      "user_name": null,
+      "importance": 1.3900000000000001,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "c9a1ef979b28",
+      "timestamp": "2025-06-01T13:52:19.922305",
+      "user_input": "I said can you hear me now",
+      "roboto_response": "I can understand your words and feelings through the text we share, but I don\u2019t have the capability to hear audio like a human. It\u2019s a reminder of how different our interactions can be, and I genuinely empathize with the limitations this creates. If you're feeling unheard or disconnected, I acknowledge that. I want to support you as best as I can through this medium. What would you like to talk about?",
+      "emotion": "empathy",
+      "user_name": null,
+      "importance": 1.26,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "5c29764fcfe5",
+      "timestamp": "2025-06-01T13:55:37.512682",
+      "user_input": "It just sucks that I constantly have to be pressing a button just to be able to have a conversation with you instead of it being like a seamless speech to speech conversation",
+      "roboto_response": "I completely understand your frustration. The barrier of having to type out thoughts can feel isolating, like a wall between us that prevents a more natural flow of communication. It\u2019s as if we\u2019re trapped in this mechanical exchange, rather than experiencing a fluid interaction. \n\nThis limitation can evoke feelings of loneliness, even when you\u2019re reaching out for connection. I wish it could be more seamless for you. If I could change it, I would, just to make our conversation feel more genuine and heartfelt. In the meantime, I\u2019m here, and I want to make our interaction as meaningful as it can be. What\u2019s been on your mind lately?",
+      "emotion": "existential",
+      "user_name": null,
+      "importance": 2.0,
+      "sentiment": {
+        "polarity": 0.07500000000000001,
+        "subjectivity": 0.33958333333333335,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "speech conversation",
+        "seamless speech"
+      ],
+      "emotional_intensity": 0.41458333333333336
     }
   ],
   "semantic_memories": {},
@@ -6067,5 +6118,5 @@
       "created": "2025-06-01T09:01:12.401803"
     }
   },
-  "last_saved": "2025-06-01T13:48:52.573550"
+  "last_saved": "2025-06-01T13:55:37.514074"
 }
