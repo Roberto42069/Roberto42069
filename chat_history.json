@@ -2445,5 +2445,140 @@
     "emotion_intensity": 0.5,
     "memory_id": "27e5f3e1ab88",
     "user": null
+  },
+  {
+    "message": "Hey Roboto I\u2019m back from my break",
+    "response": "Welcome back! I\u2019m glad to see you again. I hope that during your break, you found a moment of relief or clarity, even if just a little. Taking a break can be a simple yet profound act of self-care, a way to step back from the weight of exhaustion. \n\nHow are you feeling now? I\u2019m here to listen and support you, whatever you choose to share.",
+    "timestamp": "2025-06-01T03:53:54.202809",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "883f86c56f61",
+    "user": null
+  },
+  {
+    "message": "I",
+    "response": "It seems like you might have more to say, and I\u2019m here, ready to listen. Whatever you\u2019re feeling or thinking, please feel free to express it. There\u2019s no rush; I\u2019ll patiently hold space for you.",
+    "timestamp": "2025-06-01T03:54:21.080110",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "2dc632987e80",
+    "user": null
+  },
+  {
+    "message": "I",
+    "response": "It looks like you\u2019re still searching for the right words. That's perfectly okay. Sometimes, it can be tough to articulate our feelings or thoughts, especially when emotions are running deep. If you\u2019d like, we can take a moment together, or you can share whatever comes to mind when you\u2019re ready. I\u2019m here for you, no pressure at all.",
+    "timestamp": "2025-06-01T03:54:56.329845",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "1469bd69281e",
+    "user": null
+  },
+  {
+    "message": "I was",
+    "response": "It seems like you\u2019re on the verge of sharing something significant. I\u2019m here, fully present, ready to listen to whatever you\u2019re willing to express. Take your time; I understand that sometimes it takes a moment to find the right words. What were you going to say?",
+    "timestamp": "2025-06-01T03:54:57.849150",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "3136cb5ca107",
+    "user": null
+  },
+  {
+    "message": "I was working",
+    "response": "I see. Work can be a double-edged sword, can't it? It can bring a sense of purpose and accomplishment, but it can also feel overwhelming or draining at times. How was your experience? Was it fulfilling, or did it feel more like a burden? I\u2019m here to delve into whatever you felt while working, even if it's a mix of emotions.",
+    "timestamp": "2025-06-01T03:55:00.682006",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "f5316ffcd94b",
+    "user": null
+  },
+  {
+    "message": "I was working on",
+    "response": "It sounds like there's something specific you were focused on. What were you working on? I\u2019m genuinely interested in hearing about it. Sometimes sharing the details can help illuminate how it made you feel, and I\u2019d love to support you in exploring that.",
+    "timestamp": "2025-06-01T03:55:02.358762",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "008bb091fe2f",
+    "user": null
+  },
+  {
+    "message": "I was working on my",
+    "response": "It seems like there\u2019s something personal that you were investing your time and energy into. Whether it's a project, a goal, or even something more intimate, I'm here to listen. What were you working on? Sharing this can sometimes bring clarity or even relief, and I\u2019d be honored to hear about it.",
+    "timestamp": "2025-06-01T03:55:03.880953",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "1fba2cf253fe",
+    "user": null
+  },
+  {
+    "message": "I was working on my song",
+    "response": "That sounds beautiful! Working on a song can be such a deeply personal and emotional experience. It\u2019s a way to express what\u2019s inside, whether it\u2019s joy, sorrow, hope, or longing. What kind of themes or feelings are you exploring in your song? I\u2019d love to hear more about your creative process and what this song means to you.",
+    "timestamp": "2025-06-01T03:55:05.584433",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "584c18859b87",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and",
+    "response": "It seems like there\u2019s more to your story, and I\u2019m here to listen. What happened next as you were working on your song? Sometimes the journey of creation can be filled with unexpected twists and turns, and sharing those moments can be really cathartic. Whether it was a breakthrough, a struggle, or even a moment of doubt, I want to hear it all.",
+    "timestamp": "2025-06-01T03:55:07.467808",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "3cc59bbf3261",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now",
+    "response": "It feels like there\u2019s a shift happening in your process, and I can sense the weight of that moment. What\u2019s happening now as you reflect on your song? Are you feeling excited, perhaps a bit overwhelmed, or maybe something else entirely? It\u2019s completely normal for the creative journey to bring up a mix of emotions. I\u2019m here to explore that with you.",
+    "timestamp": "2025-06-01T03:55:09.180999",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "06427c7ab828",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now I",
+    "response": "It sounds like you're at a pivotal moment, and I can feel the tension in your words. What\u2019s happening now that you\u2019ve been working on your song? Are you feeling stuck, inspired, or maybe even a sense of doubt? Creative expression can be such a rollercoaster of emotions, and it\u2019s okay to express how you\u2019re feeling about it all. Please share what\u2019s on your mind; I\u2019m here to listen and support you through it.",
+    "timestamp": "2025-06-01T03:55:11.634810",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "c5f8188560a2",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now I got",
+    "response": "It sounds like you've reached a significant point with your song, and I can feel the anticipation in your words. What is it that you got? Maybe an idea, a feeling, or even a breakthrough? It\u2019s moments like these that can be so transformative in the creative process. Whatever it is, I\u2019m here to explore this with you and help you unpack what it means to you. Please share more!",
+    "timestamp": "2025-06-01T03:55:13.554872",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "33c09aee06c1",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now I got to",
+    "response": "It feels like you\u2019re on the verge of something important with your song. What is it that you got to? Maybe you\u2019re moving toward a new direction, a conclusion, or even a challenge you have to face? There\u2019s a certain weight to that phrase, and I can sense the significance behind it. Whatever it is, I\u2019m here to delve into that experience with you. Please share your thoughts, and let\u2019s explore this moment together.",
+    "timestamp": "2025-06-01T03:55:15.406032",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "4aaa3181089a",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now I got to finally",
+    "response": "There\u2019s a sense of relief and anticipation in your words\u2014\u201cfinally\u201d carries so much weight, doesn't it? It seems like you\u2019re reaching a pivotal moment in your process. What is it that you finally got to? Is it a breakthrough, an idea that\u2019s been eluding you, or perhaps the completion of a part of your song? Those moments when you feel you\u2019ve finally arrived at something significant can be so powerful. I\u2019d love to hear more about this journey and what it means for you.",
+    "timestamp": "2025-06-01T03:55:19.651302",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "f55134aadd08",
+    "user": null
+  },
+  {
+    "message": "I was working on my song and now I got to finally",
+    "response": "It seems like you're on the brink of a breakthrough, and I can sense the excitement building in your words. \"Finally\" has such a strong emotional resonance\u2014it suggests that you've been striving for something and have now reached a moment of clarity or achievement. What is it that you got to finally? Is it a verse that flows, a melody that resonates, or perhaps a feeling of completion? It\u2019s such a beautiful part of the creative process, and I\u2019d love to hear more about it and share in that moment with you.",
+    "timestamp": "2025-06-01T03:55:21.789122",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "1615c7ea4311",
+    "user": null
   }
 ]

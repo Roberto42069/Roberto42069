@@ -1251,27 +1251,26 @@ class RobotoApp {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.speechRecognition = new SpeechRecognition();
             
-            this.speechRecognition.continuous = false;
-            this.speechRecognition.interimResults = false;
+            this.speechRecognition.continuous = true;
+            this.speechRecognition.interimResults = true;
             this.speechRecognition.lang = 'en-US';
+            this.speechRecognition.maxAlternatives = 1;
+            
+            this.speechRecognition.onstart = () => {
+                this.isListeningActive = true;
+                this.updateListeningIndicator(true);
+            };
             
             this.speechRecognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                this.handleVoiceInput(transcript);
+                this.handleSpeechResults(event);
             };
             
             this.speechRecognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                if (event.error === 'no-speech') {
-                    this.showNotification('No speech detected. Try again.', 'warning');
-                } else {
-                    this.showNotification('Voice recognition failed', 'error');
-                }
-                this.stopVoiceListening();
+                this.handleSpeechError(event);
             };
             
             this.speechRecognition.onend = () => {
-                this.stopVoiceListening();
+                this.handleSpeechEnd();
             };
         }
     }
@@ -1341,15 +1340,28 @@ class RobotoApp {
         
         try {
             this.speechRecognition.start();
-            this.showNotification('Continuous listening enabled - click to speak first', 'success');
+            this.showNotification('Continuous listening started - speak anytime', 'success');
         } catch (error) {
             console.error('Failed to start continuous listening:', error);
-            if (error.message.includes('already-listening')) {
+            if (error.message && error.message.includes('already-listening')) {
                 this.showNotification('Voice recognition already active', 'info');
             } else {
                 this.showNotification('Microphone permission needed for voice features', 'warning');
                 this.continuousListening = false;
                 this.updateContinuousListenButton();
+            }
+        }
+    }
+
+    updateContinuousListenButton() {
+        const continuousListenBtn = document.getElementById('continuousListenBtn');
+        if (continuousListenBtn) {
+            if (this.continuousListening) {
+                continuousListenBtn.classList.add('btn-listen-active');
+                continuousListenBtn.querySelector('i').className = 'fas fa-ear-listen';
+            } else {
+                continuousListenBtn.classList.remove('btn-listen-active');
+                continuousListenBtn.querySelector('i').className = 'far fa-ear-listen';
             }
         }
     }

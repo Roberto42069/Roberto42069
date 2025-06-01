@@ -52,17 +52,22 @@ class Roboto:
 
     def load_grok_chat_data(self):
         try:
-            with open("attached_assets/grok-chat-item.js", "r") as file:
-                grok_data = json.load(file)
-                for item in grok_data['part0']:
-                    message = item['grokChatItem']['message']
-                    sender = item['grokChatItem']['sender']['name']
-                    self.chat_history.append({
-                        "sender": sender,
-                        "message": message
-                    })
+            # Check if the file exists before trying to load it
+            if os.path.exists("attached_assets/grok-chat-item.js"):
+                with open("attached_assets/grok-chat-item.js", "r") as file:
+                    grok_data = json.load(file)
+                    for item in grok_data['part0']:
+                        message = item['grokChatItem']['message']
+                        sender = item['grokChatItem']['sender']['name']
+                        self.chat_history.append({
+                            "sender": sender,
+                            "message": message
+                        })
+            # If file doesn't exist, silently continue without loading Grok data
         except Exception as e:
-            print(f"Error loading Grok chat data: {e}")
+            # Only print error if file exists but has issues
+            if os.path.exists("attached_assets/grok-chat-item.js"):
+                print(f"Error loading Grok chat data: {e}")
 
     def load_tasks(self):
         if os.path.exists("tasks.txt"):
