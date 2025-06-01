@@ -1362,49 +1362,9 @@ class RobotoApp {
         }
     }
 
-    toggleVoiceConversationMode() {
-        this.voiceConversationMode = !this.voiceConversationMode;
-        localStorage.setItem('voiceConversationMode', this.voiceConversationMode);
-        
-        const voiceConversationBtn = document.getElementById('voiceConversationBtn');
-        if (this.voiceConversationMode) {
-            voiceConversationBtn.classList.add('btn-voice-active');
-            voiceConversationBtn.querySelector('i').className = 'fas fa-comments';
-            this.showNotification('Voice conversation mode enabled', 'success');
-            
-            // Enable TTS automatically in voice mode
-            if (!this.ttsEnabled) {
-                this.toggleTTS();
-            }
-        } else {
-            voiceConversationBtn.classList.remove('btn-voice-active');
-            voiceConversationBtn.querySelector('i').className = 'far fa-comments';
-            this.showNotification('Voice conversation mode disabled', 'info');
-            this.stopContinuousListening();
-        }
-    }
 
-    toggleContinuousListening() {
-        if (!this.speechRecognition) {
-            this.showNotification('Speech recognition not supported', 'error');
-            return;
-        }
 
-        this.continuousListening = !this.continuousListening;
-        
-        const continuousListenBtn = document.getElementById('continuousListenBtn');
-        if (this.continuousListening) {
-            continuousListenBtn.classList.add('btn-listen-active');
-            continuousListenBtn.querySelector('i').className = 'fas fa-ear-listen';
-            this.showNotification('Continuous listening enabled - speak anytime', 'success');
-            this.startContinuousListening();
-        } else {
-            continuousListenBtn.classList.remove('btn-listen-active');
-            continuousListenBtn.querySelector('i').className = 'far fa-ear-listen';
-            this.showNotification('Continuous listening disabled', 'info');
-            this.stopContinuousListening();
-        }
-    }
+
 
     startVoiceListening() {
         if (!this.speechRecognition) {
@@ -1608,13 +1568,7 @@ class RobotoApp {
         }
     }
 
-    stopContinuousListening() {
-        if (this.speechRecognition) {
-            this.speechRecognition.continuous = false;
-            this.speechRecognition.stop();
-        }
-        this.continuousListening = false;
-    }
+
 
     startVoiceListening() {
         if (!this.speechRecognition) {
