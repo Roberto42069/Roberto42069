@@ -1958,61 +1958,6 @@ class RobotoApp {
 
 
 
-    async startSpeechToSpeech() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            this.showNotification('Microphone access not supported', 'error');
-            return;
-        }
-
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            
-            // Store permission granted state
-            localStorage.setItem('permissionsGranted', 'true');
-            this.permissionsGranted = true;
-            
-            const mediaRecorder = new MediaRecorder(stream);
-            const audioChunks = [];
-
-            const speechBtn = document.getElementById('speechToSpeechBtn');
-            speechBtn.innerHTML = '<i class="fas fa-stop"></i>';
-            speechBtn.classList.add('btn-recording');
-            
-            this.showNotification('Recording... Click the button again to stop', 'info');
-
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
-
-            mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                await this.processSpeechToSpeech(audioBlob);
-                
-                // Reset button
-                speechBtn.innerHTML = '<i class="fas fa-robot"></i>';
-                speechBtn.classList.remove('btn-recording');
-                
-                // Stop all tracks
-                stream.getTracks().forEach(track => track.stop());
-            };
-
-            mediaRecorder.start();
-
-            // Stop recording when button is clicked again
-            speechBtn.onclick = () => {
-                mediaRecorder.stop();
-                speechBtn.onclick = null;
-            };
-
-        } catch (error) {
-            console.error('Microphone access error:', error);
-            if (error.name === 'NotAllowedError') {
-                this.showNotification('Microphone access denied. Please allow microphone permissions in your browser and refresh the page.', 'error');
-            } else {
-                this.showNotification('Microphone access failed: ' + error.message, 'error');
-            }
-        }
-    }
 
     async processSpeechToSpeech(audioBlob) {
         try {
