@@ -1536,10 +1536,45 @@ class RobotoApp {
             return;
         }
 
+        // Stop continuous listening temporarily if active
+        if (this.continuousListening) {
+            this.speechRecognition.stop();
+        }
+
         try {
-            this.speechRecognition.continuous = false;
-            this.speechRecognition.interimResults = false;
-            this.speechRecognition.start();
+            // Create a new instance for single use
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const singleUseRecognition = new SpeechRecognition();
+            
+            singleUseRecognition.continuous = false;
+            singleUseRecognition.interimResults = false;
+            singleUseRecognition.lang = 'en-US';
+            
+            singleUseRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.handleVoiceInput(transcript);
+            };
+            
+            singleUseRecognition.onerror = (event) => {
+                if (event.error === 'no-speech') {
+                    this.showNotification('No speech detected. Try again.', 'warning');
+                } else {
+                    this.showNotification('Voice recognition failed', 'error');
+                }
+                // Restart continuous listening if it was active
+                if (this.continuousListening) {
+                    setTimeout(() => this.startContinuousListening(), 1000);
+                }
+            };
+            
+            singleUseRecognition.onend = () => {
+                // Restart continuous listening if it was active
+                if (this.continuousListening) {
+                    setTimeout(() => this.startContinuousListening(), 500);
+                }
+            };
+            
+            singleUseRecognition.start();
             this.showNotification('Listening... Speak now', 'info');
         } catch (error) {
             console.error('Failed to start voice listening:', error);
