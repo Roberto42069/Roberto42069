@@ -219,10 +219,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show interim results in input field
                 chatInput.value = finalTranscript + interimTranscript;
                 
-                // Submit when final result is received
+                // Submit when final result is received and learn from voice input
                 if (finalTranscript) {
+                    // Track voice recognition confidence for learning
+                    const confidence = event.results[event.results.length - 1][0].confidence || 0.5;
+                    console.log(`Voice recognition confidence: ${confidence}`);
+                    
                     setTimeout(() => {
                         chatForm.dispatchEvent(new Event('submit'));
+                        // After submission, update voice insights
+                        setTimeout(updateVoiceInsights, 1000);
                     }, 500);
                 }
             };
@@ -287,6 +293,20 @@ document.addEventListener('DOMContentLoaded', function() {
             ttsBtn.classList.remove('btn-info');
             ttsBtn.classList.add('btn-outline-info');
             ttsBtn.title = 'Text-to-Speech: OFF';
+        }
+    }
+    
+    async function updateVoiceInsights() {
+        try {
+            const response = await fetch('/api/voice-insights');
+            const data = await response.json();
+            
+            if (data.success && data.insights) {
+                console.log('Voice Recognition Learning:', data.insights);
+                // You could display this in the UI if desired
+            }
+        } catch (error) {
+            console.log('Voice insights update in progress...');
         }
     }
     

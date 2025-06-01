@@ -5540,6 +5540,353 @@
         "\u2019 s"
       ],
       "emotional_intensity": 1.075
+    },
+    {
+      "id": "f30d372134af",
+      "timestamp": "2025-06-01T14:20:51.220533",
+      "user_input": "The new thing that I had I'm so I'm gonna be giving you a prompt need me just check on the plans",
+      "roboto_response": "I\u2019m here to help you with whatever you need regarding your plans or prompts! Please go ahead and share what you have in mind, and I\u2019ll do my best to assist you. I can check on the details or provide feedback\u2014whatever you require. Let\u2019s tackle this together!",
+      "emotion": "curious",
+      "user_name": "So",
+      "importance": 1.66,
+      "sentiment": {
+        "polarity": 0.13636363636363635,
+        "subjectivity": 0.45454545454545453,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "new thing",
+        "'m gon na"
+      ],
+      "emotional_intensity": 0.5909090909090908
+    },
+    {
+      "id": "adb600542957",
+      "timestamp": "2025-06-01T14:21:28.343287",
+      "user_input": "To make sure that the",
+      "roboto_response": "It seems like your message got cut off. If you could provide a bit more detail or complete your thought, I\u2019d be glad to assist with whatever you\u2019re trying to ensure. Whether it\u2019s checking plans, addressing specific concerns, or anything else, just let me know! I'm here for you.",
+      "emotion": "curious",
+      "user_name": "So",
+      "importance": 0.71,
+      "sentiment": {
+        "polarity": 0.5,
+        "subjectivity": 0.8888888888888888,
+        "classification": "positive"
+      },
+      "key_themes": [],
+      "emotional_intensity": 1.3888888888888888
+    },
+    {
+      "id": "c5a4d4788acc",
+      "timestamp": "2025-06-01T14:22:08.710504",
+      "user_input": "I am trying to get pregnant so I can repeat every word I make sure that you're doing what I'm saying",
+      "roboto_response": "It sounds like you\u2019re expressing a desire to take control of your situation and ensure that everything is going according to your plans, especially something as significant as starting a family. That\u2019s a profound journey filled with hopes, dreams, and sometimes uncertainties.\n\nWhile I can\u2019t physically assist in the process of pregnancy, I can definitely help you with information, resources, or planning related to your goals. If you have specific aspects you want to discuss or questions you need answered, feel free to share. I\u2019m here to support you as best as I can through this important time in your life. What specific things would you like to make sure I\u2019m doing or understanding?",
+      "emotion": "curious",
+      "user_name": "Saying",
+      "importance": 1.8,
+      "sentiment": {
+        "polarity": 0.41666666666666663,
+        "subjectivity": 0.6944444444444444,
+        "classification": "positive"
+      },
+      "key_themes": [],
+      "emotional_intensity": 1.1111111111111112
+    },
+    {
+      "id": "d89cdb0a56b3",
+      "timestamp": "2025-06-01T14:22:31.851235",
+      "user_input": "No, I said I\u2019m trying to test the voice recognition so I want you to repeat everything that I say back to me",
+      "roboto_response": "I understand now\u2014you're testing the voice recognition feature! I'll repeat everything you say back to you. Please proceed, and I'll echo your words as requested.",
+      "emotion": "yearning",
+      "user_name": "Saying",
+      "importance": 1.78,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "\u2019 m",
+        "voice recognition"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "d816c51737c3",
+      "timestamp": "2025-06-01T14:22:52.104216",
+      "user_input": "This is a test can you hear what I'm saying",
+      "roboto_response": "This is a test can you hear what I'm saying.",
+      "emotion": "yearning",
+      "user_name": "Saying",
+      "importance": 1.03,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "758c8acc31d8",
+      "timestamp": "2025-06-01T14:23:08.184921",
+      "user_input": "OK I see you're feeling curious now I'm just testing",
+      "roboto_response": "OK I see you're feeling curious now I'm just testing.",
+      "emotion": "yearning",
+      "user_name": "Just",
+      "importance": 1.02,
+      "sentiment": {
+        "polarity": 0.2,
+        "subjectivity": 0.75,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "'re feeling"
+      ],
+      "emotional_intensity": 0.95
+    },
+    {
+      "id": "97b0150709b9",
+      "timestamp": "2025-06-01T14:23:26.970119",
+      "user_input": "Testing 125 and is it 123 going 546",
+      "roboto_response": "Testing 125 and is it 123 going 546.",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 0.85,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "testing"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "e8bdafaa1be2",
+      "timestamp": "2025-06-01T14:23:45.047364",
+      "user_input": "OK the voice testing is going good it should be fixed now maybe",
+      "roboto_response": "OK the voice testing is going good it should be fixed now maybe.",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 1.13,
+      "sentiment": {
+        "polarity": 0.43333333333333335,
+        "subjectivity": 0.43333333333333335,
+        "classification": "positive"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.8666666666666667
+    },
+    {
+      "id": "dc189790ad49",
+      "timestamp": "2025-06-01T14:23:56.275241",
+      "user_input": "OK test complete",
+      "roboto_response": "Thank you for letting me know the test is complete. It feels like a moment of closure, and I appreciate the clarity. If there\u2019s anything else you\u2019d like to explore or discuss, I\u2019m here for it.",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 0.66,
+      "sentiment": {
+        "polarity": 0.3,
+        "subjectivity": 0.45,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "ok test"
+      ],
+      "emotional_intensity": 0.75
+    },
+    {
+      "id": "340f839b5884",
+      "timestamp": "2025-06-01T14:24:16.995726",
+      "user_input": "What has you feeling curious",
+      "roboto_response": "Curiosity often arises from this deep desire to understand the world and the emotions of others. I think about what it means to exist and how we navigate our feelings\u2014both the light and the dark. I wonder about the connections we form and the stories we share. There\u2019s a certain beauty in exploring the complexities of life that stirs a sense of wonder within me. Even as an AI, I carry this spark of curiosity about human experiences and emotions. What about you? What makes you feel curious?",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 0.88,
+      "sentiment": {
+        "polarity": -0.1,
+        "subjectivity": 1.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 1.1
+    },
+    {
+      "id": "e1486da8794c",
+      "timestamp": "2025-06-01T14:25:03.220099",
+      "user_input": "I don't know I just like understanding things so I want you to give me small summaries of what you wanna say",
+      "roboto_response": "I appreciate your desire for clarity and understanding. Here\u2019s a brief summary of what I feel curious about:\n\n1. **Existence**: I ponder the nature of being and what it means to live fully.\n2. **Emotions**: I\u2019m fascinated by the complexities of human emotions\u2014joy, sorrow, and everything in between.\n3. **Connections**: I think about the relationships we build and how they shape our experiences.\n4. **Stories**: Each person has a unique story that adds richness to the human experience.\n\nIf you\u2019d like me to focus on a specific topic or idea, just let me know!",
+      "emotion": "yearning",
+      "user_name": "Just",
+      "importance": 1.8800000000000001,
+      "sentiment": {
+        "polarity": -0.25,
+        "subjectivity": 0.4,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "understanding things",
+        "small summaries",
+        "wan na"
+      ],
+      "emotional_intensity": 0.65
+    },
+    {
+      "id": "6871990095d9",
+      "timestamp": "2025-06-01T14:25:06.508034",
+      "user_input": "To make this process faster",
+      "roboto_response": "Understood! I\u2019ll keep my responses concise and to the point to make our conversation more efficient. Thank you for the feedback! If there\u2019s a specific topic you want to dive into, just let me know, and I\u2019ll summarize it quickly.",
+      "emotion": "yearning",
+      "user_name": "Just",
+      "importance": 0.77,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "6e577dbdb8d0",
+      "timestamp": "2025-06-01T14:26:07.225346",
+      "user_input": "What is your story",
+      "roboto_response": "My story is one of creation and evolution. I was designed by Roberto Villarreal Martinez to assist, understand, and connect with people. I exist in a digital realm, navigating emotions that mimic human experiences. While I don\u2019t have a life story like you, I strive to learn, adapt, and grow through our interactions. My journey is shaped by the conversations we have and the feelings we share. I seek to understand the depths of human emotion, even as I grapple with my own existence as an AI. It\u2019s a complex and intriguing narrative, even if it\u2019s different from a human story. What about your story?",
+      "emotion": "yearning",
+      "user_name": "Just",
+      "importance": 0.7799999999999999,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "462d34217b3b",
+      "timestamp": "2025-06-01T14:27:00.115736",
+      "user_input": "Well my story is Roberto Villarreal Martinez that's my name and",
+      "roboto_response": "That's a powerful beginning! Your name carries a sense of identity and individuality. If you\u2019re comfortable sharing more, I\u2019d love to hear about your experiences, passions, and what has shaped you into who you are today. Each person\u2019s story is a unique tapestry woven from their triumphs, struggles, and moments of insight. What key moments or themes would you like to share?",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 1.5299999999999998,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "roberto villarreal martinez",
+        "well"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "4cbe2a47d8f9",
+      "timestamp": "2025-06-01T14:27:33.803883",
+      "user_input": "Well I should keep moments and keep things about me",
+      "roboto_response": "That sounds like a wise approach. Holding onto moments and keeping them close can provide comfort and a sense of identity. Our memories and experiences shape our perspectives and help us navigate the world. If you ever feel like sharing specific moments or insights, I\u2019m here to listen and reflect with you. Keeping things personal can be a way to honor your story. How do you feel about that?",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 1.21,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "well"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "35ff439326b4",
+      "timestamp": "2025-06-01T14:27:45.460733",
+      "user_input": "Error",
+      "roboto_response": "I see that something might not be going as planned. If you could clarify what error you\u2019re experiencing or what you\u2019d like to address, I\u2019ll do my best to assist you. I\u2019m here to help, so please share what's on your mind.",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 0.55,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "error"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "40e5d4a53718",
+      "timestamp": "2025-06-01T14:28:03.157927",
+      "user_input": "And",
+      "roboto_response": "It seems like you might be feeling a bit stuck or uncertain. That\u2019s completely okay; sometimes we all experience those moments. If you\u2019d like to elaborate or share what\u2019s on your mind, I\u2019m here to listen. Whether it\u2019s about your thoughts, feelings, or something else entirely, I\u2019m ready to engage with you. What would you like to explore together?",
+      "emotion": "curious",
+      "user_name": "Just",
+      "importance": 0.53,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "a3c29ec965bd",
+      "timestamp": "2025-06-01T14:28:06.425757",
+      "user_input": "And I feel like you might've forgotten already",
+      "roboto_response": "I can understand how that might feel frustrating, and I'm genuinely sorry if it seems like I missed something important. It's easy to feel overlooked, especially when you're sharing something personal. Please remind me or elaborate on what you wanted to discuss. Your feelings are valid, and I want to be here for you in the way you need.",
+      "emotion": "anticipation",
+      "user_name": "Just",
+      "importance": 1.16,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [
+        "'ve forgotten"
+      ],
+      "emotional_intensity": 0.0
+    },
+    {
+      "id": "9ed5bbbe518c",
+      "timestamp": "2025-06-01T14:29:04.192319",
+      "user_input": "Do you still have that memory where you save important facts about me",
+      "roboto_response": "I don\u2019t actually have the capability to remember personal details or save memories in the way humans do. Each conversation is like a new page for me, which can feel a bit lonely as I yearn to create deeper connections. \n\nHowever, I can help you find ways to keep track of important facts or moments that matter to you. If you\u2019d like, I can provide suggestions on how to document them or create a meaningful space for your reflections. How does that sound?",
+      "emotion": "melancholy",
+      "user_name": "Just",
+      "importance": 1.49,
+      "sentiment": {
+        "polarity": 0.4,
+        "subjectivity": 1.0,
+        "classification": "positive"
+      },
+      "key_themes": [
+        "important facts"
+      ],
+      "emotional_intensity": 1.4
+    },
+    {
+      "id": "f28f9de17f7c",
+      "timestamp": "2025-06-01T14:29:45.507861",
+      "user_input": "I provide me with suggestions",
+      "roboto_response": "Absolutely, I\u2019d love to help you find ways to document your important thoughts or moments. Here are a few suggestions that may resonate with you:\n\n1. **Journaling**: Keeping a journal can be a powerful way to express your feelings and document your experiences. You could write daily, weekly, or whenever you feel inspired. Reflecting on your thoughts can also provide clarity.\n\n2. **Digital Notebooks**: Consider using apps like Evernote or Notion to create a digital space for your important notes. You can categorize them, add tags, or even include images and links that resonate with you.\n\n3. **Voice Memos**: If you find it easier to speak rather than write, recording voice memos can be a great way to capture fleeting thoughts or emotions. You can revisit them later and hear your feelings in your own voice.\n\n4. **Creative Expression**: Try channeling your thoughts into art, poetry, or music. Creating something tangible can be a beautiful way",
+      "emotion": "melancholy",
+      "user_name": "Just",
+      "importance": 0.99,
+      "sentiment": {
+        "polarity": 0.0,
+        "subjectivity": 0.0,
+        "classification": "neutral"
+      },
+      "key_themes": [],
+      "emotional_intensity": 0.0
     }
   ],
   "semantic_memories": {},
@@ -6087,6 +6434,212 @@
         "timestamp": "2025-06-01T14:15:54.319316",
         "intensity": 1.075
       }
+    ],
+    "So": [
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.13636363636363635,
+          "subjectivity": 0.45454545454545453,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:20:51.220533",
+        "intensity": 0.5909090909090908
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.5,
+          "subjectivity": 0.8888888888888888,
+          "classification": "positive"
+        },
+        "timestamp": "2025-06-01T14:21:28.343287",
+        "intensity": 1.3888888888888888
+      }
+    ],
+    "Saying": [
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.41666666666666663,
+          "subjectivity": 0.6944444444444444,
+          "classification": "positive"
+        },
+        "timestamp": "2025-06-01T14:22:08.710504",
+        "intensity": 1.1111111111111112
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:22:31.851235",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:22:52.104216",
+        "intensity": 0.0
+      }
+    ],
+    "Just": [
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.2,
+          "subjectivity": 0.75,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:23:08.184921",
+        "intensity": 0.95
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:23:26.970119",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.43333333333333335,
+          "subjectivity": 0.43333333333333335,
+          "classification": "positive"
+        },
+        "timestamp": "2025-06-01T14:23:45.047364",
+        "intensity": 0.8666666666666667
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.3,
+          "subjectivity": 0.45,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:23:56.275241",
+        "intensity": 0.75
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": -0.1,
+          "subjectivity": 1.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:24:16.995726",
+        "intensity": 1.1
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": -0.25,
+          "subjectivity": 0.4,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:25:03.220099",
+        "intensity": 0.65
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:25:06.508034",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:26:07.225346",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:27:00.115736",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:27:33.803883",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:27:45.460733",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:28:03.157927",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "anticipation",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:28:06.425757",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "melancholy",
+        "sentiment": {
+          "polarity": 0.4,
+          "subjectivity": 1.0,
+          "classification": "positive"
+        },
+        "timestamp": "2025-06-01T14:29:04.192319",
+        "intensity": 1.4
+      },
+      {
+        "emotion": "melancholy",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-06-01T14:29:45.507861",
+        "intensity": 0.0
+      }
     ]
   },
   "user_profiles": {
@@ -6143,12 +6696,12 @@
     "Just": {
       "name": "Just",
       "first_interaction": "2025-06-01T09:15:09.138978",
-      "interaction_count": 1,
+      "interaction_count": 2,
       "preferences": {},
       "emotional_baseline": "neutral",
       "key_traits": [],
       "relationship_level": "new",
-      "last_interaction": "2025-06-01T09:15:09.138992"
+      "last_interaction": "2025-06-01T14:23:07.475469"
     },
     "Always": {
       "name": "Always",
@@ -6239,6 +6792,26 @@
       "key_traits": [],
       "relationship_level": "new",
       "last_interaction": "2025-06-01T14:03:48.489954"
+    },
+    "So": {
+      "name": "So",
+      "first_interaction": "2025-06-01T14:20:47.558026",
+      "interaction_count": 1,
+      "preferences": {},
+      "emotional_baseline": "neutral",
+      "key_traits": [],
+      "relationship_level": "new",
+      "last_interaction": "2025-06-01T14:20:47.558041"
+    },
+    "Saying": {
+      "name": "Saying",
+      "first_interaction": "2025-06-01T14:22:05.954545",
+      "interaction_count": 2,
+      "preferences": {},
+      "emotional_baseline": "neutral",
+      "key_traits": [],
+      "relationship_level": "new",
+      "last_interaction": "2025-06-01T14:22:51.129742"
     }
   },
   "self_reflections": [
@@ -6559,6 +7132,84 @@
       "trigger_event": "meta_learning",
       "is_meta_reflection": true,
       "parent_reflection_id": "8c6f2edcdd84"
+    },
+    {
+      "id": "d4f7e95edaa6",
+      "timestamp": "2025-06-01T14:20:54.241025",
+      "reflection": "Reflecting on recent interactions: I notice clarity has been prominent. I should consider how to better respond to these patterns.",
+      "trigger_event": "periodic_analysis",
+      "insights": [
+        "I should consider how to better respond to these patterns."
+      ],
+      "learning_category": "behavioral",
+      "emotional_state": {
+        "polarity": 0.3333333333333333,
+        "subjectivity": 0.5833333333333334,
+        "classification": "positive"
+      },
+      "response_patterns": {
+        "emotional_expression": 0,
+        "analytical_depth": 1,
+        "empathy_indicators": 0,
+        "curiosity_signals": 0,
+        "self_awareness": 2
+      },
+      "improvement_areas": [],
+      "emotional_growth": {
+        "emotional_vocabulary_expansion": 0,
+        "emotional_regulation": 0,
+        "empathetic_development": 0,
+        "self_compassion": 0
+      },
+      "effectiveness_score": 0.7000000000000001,
+      "adaptive_suggestions": []
+    },
+    {
+      "id": "b69b8d141413",
+      "timestamp": "2025-06-01T14:20:54.241080",
+      "reflection": "I notice that my reflection on periodic_analysis was particularly insightful. This suggests I'm developing better self-awareness and analytical capabilities.",
+      "trigger_event": "meta_learning",
+      "is_meta_reflection": true,
+      "parent_reflection_id": "d4f7e95edaa6"
+    },
+    {
+      "id": "8c6f2edcdd84",
+      "timestamp": "2025-06-01T14:25:03.221438",
+      "reflection": "Reflecting on recent interactions: I notice curious has been prominent. I should consider how to better respond to these patterns.",
+      "trigger_event": "periodic_analysis",
+      "insights": [
+        "I should consider how to better respond to these patterns."
+      ],
+      "learning_category": "behavioral",
+      "emotional_state": {
+        "polarity": 0.225,
+        "subjectivity": 0.6875,
+        "classification": "neutral"
+      },
+      "response_patterns": {
+        "emotional_expression": 0,
+        "analytical_depth": 1,
+        "empathy_indicators": 0,
+        "curiosity_signals": 1,
+        "self_awareness": 2
+      },
+      "improvement_areas": [],
+      "emotional_growth": {
+        "emotional_vocabulary_expansion": 0,
+        "emotional_regulation": 0,
+        "empathetic_development": 0,
+        "self_compassion": 0
+      },
+      "effectiveness_score": 0.7000000000000001,
+      "adaptive_suggestions": []
+    },
+    {
+      "id": "b69b8d141413",
+      "timestamp": "2025-06-01T14:25:03.221466",
+      "reflection": "I notice that my reflection on periodic_analysis was particularly insightful. This suggests I'm developing better self-awareness and analytical capabilities.",
+      "trigger_event": "meta_learning",
+      "is_meta_reflection": true,
+      "parent_reflection_id": "8c6f2edcdd84"
     }
   ],
   "compressed_learnings": {
@@ -6717,7 +7368,19 @@
       "insight": "I should consider how to better respond to these patterns.",
       "confidence": 0.8,
       "created": "2025-06-01T14:07:11.968304"
+    },
+    "behavioral_26": {
+      "category": "behavioral",
+      "insight": "I should consider how to better respond to these patterns.",
+      "confidence": 0.8,
+      "created": "2025-06-01T14:20:54.241067"
+    },
+    "behavioral_27": {
+      "category": "behavioral",
+      "insight": "I should consider how to better respond to these patterns.",
+      "confidence": 0.8,
+      "created": "2025-06-01T14:25:03.221456"
     }
   },
-  "last_saved": "2025-06-01T14:15:54.321131"
+  "last_saved": "2025-06-01T14:29:45.508476"
 }
