@@ -41,6 +41,9 @@ class RobotoApp {
         // Initialize TTS state from localStorage
         this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
         
+        // Initialize theme system
+        this.initializeThemeSystem();
+        
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
@@ -205,6 +208,14 @@ class RobotoApp {
             voiceBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.startVoiceListening();
+            });
+        }
+
+        // Theme switcher button
+        const themeBtn = document.getElementById('themeBtn');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                this.cycleTheme();
             });
         }
     }
@@ -561,6 +572,9 @@ class RobotoApp {
             
             // Update avatar animation
             this.updateAvatarEmotion(emotionalStatus.current_emotion, intensity);
+            
+            // Auto-update theme based on Roboto's current emotion
+            this.applyMoodBasedTheme(emotionalStatus.current_emotion);
         }
     }
 
@@ -1874,6 +1888,94 @@ class RobotoApp {
             
             this.ttsEnabled = true;
             this.startContinuousListening();
+        }
+    }
+
+    initializeThemeSystem() {
+        // Available themes with mood mappings
+        this.themes = [
+            'curious', 'happy', 'excited', 'calm', 
+            'contemplative', 'melancholy', 'frustrated', 'dark'
+        ];
+        
+        // Load saved theme or default to curious
+        this.currentTheme = localStorage.getItem('robotoTheme') || 'curious';
+        this.applyTheme(this.currentTheme);
+    }
+
+    cycleTheme() {
+        const currentIndex = this.themes.indexOf(this.currentTheme);
+        const nextIndex = (currentIndex + 1) % this.themes.length;
+        this.currentTheme = this.themes[nextIndex];
+        
+        this.applyTheme(this.currentTheme);
+        localStorage.setItem('robotoTheme', this.currentTheme);
+        
+        this.showNotification(`Theme changed to ${this.currentTheme}`, 'success');
+    }
+
+    applyTheme(themeName) {
+        // Remove all theme classes
+        this.themes.forEach(theme => {
+            document.documentElement.removeAttribute('data-theme');
+        });
+        
+        // Apply new theme
+        if (themeName !== 'curious') {
+            document.documentElement.setAttribute('data-theme', themeName);
+        }
+        
+        // Update theme button to show current theme
+        this.updateThemeButton(themeName);
+    }
+
+    updateThemeButton(themeName) {
+        const themeBtn = document.getElementById('themeBtn');
+        if (themeBtn) {
+            const icon = themeBtn.querySelector('i');
+            themeBtn.title = `Current theme: ${themeName}`;
+            
+            // Change icon color based on theme
+            const themeColors = {
+                curious: '#4299e1',
+                happy: '#ff9800', 
+                excited: '#e91e63',
+                calm: '#4caf50',
+                contemplative: '#2196f3',
+                melancholy: '#9c27b0',
+                frustrated: '#f44336',
+                dark: '#bb86fc'
+            };
+            
+            icon.style.color = themeColors[themeName] || '#4299e1';
+        }
+    }
+
+    applyMoodBasedTheme(emotion) {
+        // Map emotions to themes
+        const emotionThemeMap = {
+            'happy': 'happy',
+            'excited': 'excited', 
+            'joyful': 'happy',
+            'calm': 'calm',
+            'peaceful': 'calm',
+            'contemplative': 'contemplative',
+            'thoughtful': 'contemplative',
+            'sad': 'melancholy',
+            'melancholy': 'melancholy',
+            'frustrated': 'frustrated',
+            'angry': 'frustrated',
+            'curious': 'curious'
+        };
+        
+        const newTheme = emotionThemeMap[emotion.toLowerCase()] || 'curious';
+        
+        if (newTheme !== this.currentTheme) {
+            this.currentTheme = newTheme;
+            this.applyTheme(newTheme);
+            localStorage.setItem('robotoTheme', newTheme);
+            
+            this.showNotification(`Theme auto-changed to match Roboto's ${emotion} mood`, 'info');
         }
     }
 
