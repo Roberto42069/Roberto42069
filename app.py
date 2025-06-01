@@ -254,9 +254,97 @@ def export_data():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
+def handle_file_upload():
+    """Handle file uploads including images"""
+    try:
+        file = request.files['file']
+        if not file or file.filename == '':
+            return jsonify({"success": False, "response": "No file selected"}), 400
+        
+        # Check if it's an image file
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
+        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        
+        if file_extension not in allowed_extensions:
+            return jsonify({"success": False, "response": f"Invalid file format. Supported formats: {', '.join(allowed_extensions)}"}), 400
+        
+        # Read and encode the image
+        file_content = file.read()
+        base64_image = base64.b64encode(file_content).decode('utf-8')
+        
+        # Get OpenAI client
+        openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        
+        # Analyze the image using OpenAI's vision model
+        response = openai_client.chat.completions.create(
+            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Analyze this image in detail. Describe what you see, the context, any notable elements, emotions conveyed, and provide insights about what might be happening in the image. Be thorough and engaging in your analysis."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/{file_extension};base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=500
+        )
+        
+        analysis = response.choices[0].message.content
+        
+        # Get Roberto instance and process the interaction
+        roberto = get_user_roberto()
+        if roberto:
+            # Create a message indicating an image was shared
+            image_message = f"📷 Shared an image: {file.filename}"
+            
+            # Add to chat history
+            chat_entry = {
+                "message": image_message,
+                "response": analysis,
+                "timestamp": datetime.now().isoformat(),
+                "emotion": getattr(roberto, 'current_emotion', 'curious'),
+                "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
+                "user": getattr(roberto, 'current_user', None),
+                "image_analysis": True
+            }
+            roberto.chat_history.append(chat_entry)
+            roberto.save_chat_history()
+            
+            # Store in memory system
+            if roberto.memory_system:
+                roberto.memory_system.add_episodic_memory(
+                    image_message, analysis, roberto.current_emotion, roberto.current_user
+                )
+            
+            save_user_data()
+        
+        return jsonify({
+            "success": True,
+            "response": analysis,
+            "emotion": getattr(roberto, 'current_emotion', 'curious'),
+            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5)
+        })
+        
+    except Exception as e:
+        app.logger.error(f"File upload error: {e}")
+        return jsonify({"success": False, "response": f"Error processing image: {str(e)}"}), 500
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
+        # Check if this is a file upload or regular chat
+        if 'file' in request.files:
+            return handle_file_upload()
+        
         # Validate request
         data = request.get_json()
         if not data or 'message' not in data:
@@ -264,7 +352,9 @@ def chat():
             return jsonify({"success": False, "response": "No message provided"}), 400
         
         message = data['message'].strip()
-        if not message:
+        image_data = data.get('image')  # Check for base64 image data
+        
+        if not message and not image_data:
             return jsonify({"success": False, "response": "Empty message"}), 400
             
         user_name = data.get('user_name')
@@ -581,7 +671,14 @@ def speech_to_speech():
         
         audio_file = request.files['audio']
         
-        # Save temporary audio file
+        # Check if we have OpenAI API key
+        if not os.environ.get("OPENAI_API_KEY"):
+            return jsonify({'success': False, 'message': 'OpenAI API key not configured'})
+        
+        # Get OpenAI client
+        openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        
+        # Save temporary audio file with proper extension for Whisper
         temp_audio_path = f"temp_audio_{datetime.now().timestamp()}.webm"
         audio_file.save(temp_audio_path)
         
