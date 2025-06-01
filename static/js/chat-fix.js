@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize speech recognition with security measures
             recognition = new SpeechRecognition();
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             recognition.maxAlternatives = 1;
@@ -186,9 +186,21 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             recognition.onend = function() {
-                isListening = false;
-                updateVoiceButtonState(false);
                 console.log('Speech recognition ended');
+                // Restart automatically if still supposed to be listening
+                if (isListening) {
+                    setTimeout(() => {
+                        if (isListening && recognition) {
+                            try {
+                                recognition.start();
+                            } catch (error) {
+                                console.error('Error restarting recognition:', error);
+                            }
+                        }
+                    }, 100);
+                } else {
+                    updateVoiceButtonState(false);
+                }
             };
             
             recognition.onresult = function(event) {
