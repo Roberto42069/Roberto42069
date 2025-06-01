@@ -526,24 +526,26 @@ class RobotoApp {
             const data = await response.json();
             
             if (data.success) {
-                this.updateEmotionalDisplay(data.emotional_status);
+                this.updateEmotionalDisplay(data);
             }
         } catch (error) {
             console.error('Error loading emotional status:', error);
         }
     }
 
-    updateEmotionalDisplay(emotionalStatus) {
+    updateEmotionalDisplay(emotionalData) {
         const emotionElement = document.getElementById('currentEmotion');
         const statusElement = document.getElementById('emotionalStatus');
         const avatarElement = document.getElementById('avatarEmotion');
         
+        if (!emotionalData || !emotionalData.emotion) return;
+        
         if (emotionElement && statusElement) {
-            emotionElement.textContent = emotionalStatus.current_emotion;
-            if (avatarElement) avatarElement.textContent = emotionalStatus.current_emotion;
+            emotionElement.textContent = emotionalData.emotion;
+            if (avatarElement) avatarElement.textContent = emotionalData.emotion;
             
             // Update current emotion for avatar
-            this.currentEmotion = emotionalStatus.current_emotion;
+            this.currentEmotion = emotionalData.emotion;
             
             // Add color coding based on emotion
             const emotionColors = {
@@ -571,15 +573,15 @@ class RobotoApp {
             });
             
             // Add new color class
-            const colorClass = emotionColors[emotionalStatus.current_emotion] || 'text-muted';
+            const colorClass = emotionColors[emotionalData.emotion] || 'text-muted';
             statusElement.classList.add(colorClass);
             
             // Update intensity with opacity
-            const intensity = emotionalStatus.emotion_intensity || 0.5;
+            const intensity = emotionalData.intensity || 0.5;
             statusElement.style.opacity = Math.max(0.6, intensity);
             
             // Update avatar animation
-            this.updateAvatarEmotion(emotionalStatus.current_emotion, intensity);
+            this.updateAvatarEmotion(emotionalData.emotion, intensity);
         }
     }
 

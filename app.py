@@ -378,7 +378,9 @@ def chat():
                 if hasattr(roberto, 'set_current_user'):
                     roberto.set_current_user(user_name)
                 if hasattr(roberto, 'memory_system') and roberto.memory_system:
-                    roberto.memory_system.current_user = user_name
+                    # Set user for memory system if it supports it
+                    if hasattr(roberto.memory_system, 'current_user'):
+                        roberto.memory_system.current_user = user_name
             else:
                 roberto.check_user_introduction(message)
         except Exception as e:
