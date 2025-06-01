@@ -161,21 +161,7 @@ def logged_in(blueprint, token):
             else:
                 raise Exception("JWKS URI not found in OpenID configuration")
         else:
-            # Fallback: For Replit's OAuth, we can verify the token was obtained through proper OAuth flow
-            # Since we received it directly from OAuth callback, we can decode without signature verification
-            # but validate other claims
-            user_claims = jwt.decode(
-                token['id_token'],
-                options={"verify_signature": False, "verify_aud": False}
-            )
-            
-            # Validate the token came from the expected issuer
-            if user_claims.get('iss') != issuer_url:
-                raise Exception(f"Invalid issuer: expected {issuer_url}, got {user_claims.get('iss')}")
-            
-            # Validate the audience if present
-            if 'aud' in user_claims and user_claims['aud'] != os.environ['REPL_ID']:
-                raise Exception(f"Invalid audience: expected {os.environ['REPL_ID']}, got {user_claims['aud']}")
+            raise Exception("Unable to retrieve JWKS for token verification")
                 
     except Exception as e:
         app.logger.error(f"JWT verification failed: {e}")
