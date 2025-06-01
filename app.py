@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
-# from replit_auth import require_login, get_next_navigation_url
+# Temporarily disable auth to fix circular import
 import logging
 
 # Set up logging
