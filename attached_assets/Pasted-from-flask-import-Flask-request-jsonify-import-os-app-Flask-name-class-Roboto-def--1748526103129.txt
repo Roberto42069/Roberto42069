@@ -14,21 +14,7 @@ class Roboto:
     def introduce(self):
         return f"== Welcome to {self.name} v{self.version} ==\n" \
                f"Created by {self.creator}\n" + ("=" * 40)
-
-    # Add tasks to Roboto's schedule
-    def add_task(self, task):
-        if task in self.tasks:
-            return f"[WARNING] Task '{task}' already exists!"
-        self.tasks.append(task)
-        self.save_tasks()  # Save tasks to file after adding
-        return f"[SUCCESS] Task '{task}' added successfully!"
-
-    # Display tasks
-    def show_tasks(self):
-        if not self.tasks:
-            return "[INFO] No tasks available."
-        tasks_str = "Here are my tasks:\n" + "\n".join([f"{i + 1}. {task}" for i, task in enumerate(self.tasks)])
-        return f"[TASK LIST]\n{tasks_str}\n" + ("=" * 40)
+"
 
     # Chat feature
     def chat(self, message):
@@ -39,22 +25,8 @@ class Roboto:
         elif "weather" in message.lower():
             return "[CHAT] I can't fetch the weather yet, but I'm learning!"
         else:
-            return "[CHAT] I'm not sure how to respond to that yet, but I'm learning!"
-
-    # Save tasks to a file
-    def save_tasks(self):
-        with open("tasks.txt", "w") as file:
-            for task in self.tasks:
-                file.write(task + "\n")
-
-    # Load tasks from a file
-    def load_tasks(self):
-        if os.path.exists("tasks.txt"):
-            with open("tasks.txt", "r") as file:
-                tasks = file.read().splitlines()
-            return tasks
-        return []
-
+            return "[CHAT] I'm not sure how to respond to that yet, but I'm learning
+ 
 # Instantiate Roboto
 roberto = Roboto()
 

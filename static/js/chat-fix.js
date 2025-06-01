@@ -360,18 +360,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Data Management Functions
-    function initializeDataManagement() {
+    window.initializeDataManagement = function() {
+        console.log('Initializing data management...');
         const exportBtn = document.getElementById('export-data-btn');
         const importBtn = document.getElementById('import-data-btn');
         const importInput = document.getElementById('import-file-input');
         
+        console.log('Export button:', exportBtn);
+        console.log('Import button:', importBtn);
+        
         if (exportBtn) {
-            exportBtn.addEventListener('click', exportData);
+            exportBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Export button clicked');
+                exportData();
+            });
         }
         
         if (importBtn) {
-            importBtn.addEventListener('click', () => {
-                importInput.click();
+            importBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Import button clicked');
+                if (importInput) {
+                    importInput.click();
+                }
             });
         }
         
@@ -480,4 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 3000);
     }
+
+    // Initialize data management when DOM is loaded
+    initializeDataManagement();
 });
