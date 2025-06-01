@@ -41,6 +41,10 @@ class RobotoApp {
         // Initialize TTS state from localStorage
         this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
         
+        // Initialize continuous listening state
+        this.continuousListening = false;
+        this.isListeningActive = false;
+        
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
@@ -199,12 +203,12 @@ class RobotoApp {
             });
         }
 
-        // Voice recording button
+        // Voice recording button - always on mode
         const voiceBtn = document.getElementById('voiceBtn');
         if (voiceBtn) {
             voiceBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.startVoiceListening();
+                this.toggleContinuousListening();
             });
         }
 
@@ -1409,25 +1413,63 @@ class RobotoApp {
 
 
 
-    startVoiceListening() {
+    toggleContinuousListening() {
         if (!this.speechRecognition) {
             this.showNotification('Speech recognition not supported', 'error');
             return;
         }
 
-        if (this.isListeningActive) {
-            this.showNotification('Already listening...', 'warning');
-            return;
+        this.continuousListening = !this.continuousListening;
+        
+        const voiceBtn = document.getElementById('voiceBtn');
+        const icon = voiceBtn.querySelector('i');
+        
+        if (this.continuousListening) {
+            voiceBtn.classList.add('btn-voice-active');
+            icon.className = 'fas fa-microphone';
+            this.showNotification('Continuous listening enabled - speak anytime', 'success');
+            this.startContinuousListening();
+        } else {
+            voiceBtn.classList.remove('btn-voice-active');
+            icon.className = 'fas fa-microphone-slash';
+            this.showNotification('Continuous listening disabled', 'info');
+            this.stopContinuousListening();
         }
+    }
 
+    startContinuousListening() {
+        if (!this.speechRecognition || this.isListeningActive) return;
+        
         try {
-            this.speechRecognition.continuous = false;
-            this.speechRecognition.interimResults = false;
+            this.speechRecognition.continuous = true;
+            this.speechRecognition.interimResults = true;
             this.speechRecognition.start();
-            this.showNotification('Listening... speak now', 'info');
+            this.isListeningActive = true;
         } catch (error) {
-            console.error('Failed to start voice listening:', error);
+            console.error('Failed to start continuous listening:', error);
             this.showNotification('Could not start microphone', 'error');
+        }
+    }
+
+    stopContinuousListening() {
+        if (this.speechRecognition && this.isListeningActive) {
+            this.speechRecognition.stop();
+            this.isListeningActive = false;
+        }
+    }
+
+    updateVoiceButton() {
+        const voiceBtn = document.getElementById('voiceBtn');
+        const icon = voiceBtn.querySelector('i');
+        
+        if (this.continuousListening) {
+            voiceBtn.classList.add('btn-voice-active');
+            icon.className = 'fas fa-microphone';
+            voiceBtn.title = 'Continuous listening ON - Click to turn off';
+        } else {
+            voiceBtn.classList.remove('btn-voice-active');
+            icon.className = 'fas fa-microphone-slash';
+            voiceBtn.title = 'Click to enable continuous listening';
         }
     }
 
