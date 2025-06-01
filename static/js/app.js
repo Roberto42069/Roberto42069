@@ -24,12 +24,6 @@ class RobotoApp {
         this.lastSpeechTime = 0;
         this.adaptiveListening = true;
         
-        // RECAPTCHA integration
-        this.recaptchaEnabled = window.RECAPTCHA_ENABLED || false;
-        this.recaptchaSiteKey = window.RECAPTCHA_SITE_KEY || '';
-        this.lastRecaptchaResponse = null;
-        this.recaptchaExpired = false;
-        
         this.init();
     }
 
@@ -40,111 +34,11 @@ class RobotoApp {
         this.initializeTTS();
         this.initializeSpeechRecognition();
         this.initializeVoiceConversationMode();
-        this.initializeRecaptcha();
         
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
         }, 10000); // Every 10 seconds
-    }
-
-    initializeRecaptcha() {
-        if (this.recaptchaEnabled && window.grecaptcha) {
-            // Initialize RECAPTCHA when ready
-            window.addEventListener('load', () => {
-                if (typeof grecaptcha !== 'undefined') {
-                    this.renderRecaptchaWidgets();
-                }
-            });
-        }
-    }
-
-    renderRecaptchaWidgets() {
-        if (!this.recaptchaEnabled || !window.grecaptcha) return;
-
-        // Create hidden RECAPTCHA widgets for programmatic use
-        const chatRecaptcha = document.createElement('div');
-        chatRecaptcha.id = 'chat-recaptcha';
-        chatRecaptcha.style.display = 'none';
-        document.body.appendChild(chatRecaptcha);
-
-        const taskRecaptcha = document.createElement('div');
-        taskRecaptcha.id = 'task-recaptcha';
-        taskRecaptcha.style.display = 'none';
-        document.body.appendChild(taskRecaptcha);
-
-        // Render invisible RECAPTCHA widgets
-        try {
-            this.chatRecaptchaId = grecaptcha.render('chat-recaptcha', {
-                'sitekey': this.recaptchaSiteKey,
-                'size': 'invisible',
-                'callback': (response) => this.onRecaptchaSuccess('chat', response),
-                'expired-callback': () => this.onRecaptchaExpired('chat')
-            });
-
-            this.taskRecaptchaId = grecaptcha.render('task-recaptcha', {
-                'sitekey': this.recaptchaSiteKey,
-                'size': 'invisible',
-                'callback': (response) => this.onRecaptchaSuccess('task', response),
-                'expired-callback': () => this.onRecaptchaExpired('task')
-            });
-        } catch (error) {
-            console.warn('RECAPTCHA initialization failed:', error);
-            this.recaptchaEnabled = false;
-        }
-    }
-
-    onRecaptchaSuccess(type, response) {
-        this.lastRecaptchaResponse = response;
-        this.recaptchaExpired = false;
-        
-        // Execute pending action
-        if (type === 'chat' && this.pendingChatMessage) {
-            this.executeChatMessage(this.pendingChatMessage);
-            this.pendingChatMessage = null;
-        } else if (type === 'task' && this.pendingTaskData) {
-            this.executeAddTask(this.pendingTaskData);
-            this.pendingTaskData = null;
-        }
-    }
-
-    onRecaptchaExpired(type) {
-        this.recaptchaExpired = true;
-        this.lastRecaptchaResponse = null;
-        this.showNotification('Security verification expired. Please try again.', 'warning');
-    }
-
-    async verifyRecaptcha(type) {
-        if (!this.recaptchaEnabled) return true;
-
-        if (this.lastRecaptchaResponse && !this.recaptchaExpired) {
-            return true;
-        }
-
-        return new Promise((resolve) => {
-            try {
-                if (type === 'chat' && this.chatRecaptchaId !== undefined) {
-                    grecaptcha.execute(this.chatRecaptchaId);
-                } else if (type === 'task' && this.taskRecaptchaId !== undefined) {
-                    grecaptcha.execute(this.taskRecaptchaId);
-                } else {
-                    resolve(true); // Fallback if RECAPTCHA not available
-                }
-                
-                // Wait for RECAPTCHA response
-                const checkResponse = () => {
-                    if (this.lastRecaptchaResponse && !this.recaptchaExpired) {
-                        resolve(true);
-                    } else {
-                        setTimeout(checkResponse, 100);
-                    }
-                };
-                checkResponse();
-            } catch (error) {
-                console.warn('RECAPTCHA verification failed:', error);
-                resolve(true); // Allow through on RECAPTCHA failure
-            }
-        });
     }
 
     initializeTTS() {
@@ -342,39 +236,13 @@ class RobotoApp {
             taskData.reminder_time = reminderTimeInput.value + ':00';
         }
 
-        // Handle RECAPTCHA verification
-        if (this.recaptchaEnabled) {
-            this.pendingTaskData = taskData;
-            const verified = await this.verifyRecaptcha('task');
-            if (!verified) {
-                this.showNotification('Security verification required. Please try again.', 'warning');
-                return;
-            }
-        }
-
-        this.executeAddTask(taskData);
-    }
-
-    async executeAddTask(taskData) {
-        const taskInput = document.getElementById('taskInput');
-        const dueDateInput = document.getElementById('dueDateInput');
-        const reminderTimeInput = document.getElementById('reminderTimeInput');
-        const prioritySelect = document.getElementById('prioritySelect');
-
         try {
-            const requestBody = { ...taskData };
-            if (this.recaptchaEnabled && this.lastRecaptchaResponse) {
-                requestBody.recaptcha_response = this.lastRecaptchaResponse;
-                // Reset RECAPTCHA response after use
-                this.lastRecaptchaResponse = null;
-            }
-
             const response = await fetch('/api/tasks', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify(taskData)
             });
 
             const data = await response.json();
@@ -396,11 +264,7 @@ class RobotoApp {
                 
                 this.showNotification(data.message, 'success');
             } else {
-                if (data.recaptcha_required) {
-                    this.showNotification('Security verification failed. Please try again.', 'warning');
-                } else {
-                    this.showNotification(data.message, 'warning');
-                }
+                this.showNotification(data.message, 'warning');
             }
         } catch (error) {
             console.error('Error adding task:', error);
@@ -812,34 +676,13 @@ class RobotoApp {
         this.addChatMessage(message, true);
         chatInput.value = '';
 
-        // Handle RECAPTCHA verification
-        if (this.recaptchaEnabled) {
-            this.pendingChatMessage = message;
-            const verified = await this.verifyRecaptcha('chat');
-            if (!verified) {
-                this.addChatMessage('Security verification required. Please try again.', false);
-                return;
-            }
-        }
-
-        this.executeChatMessage(message);
-    }
-
-    async executeChatMessage(message) {
         try {
-            const requestBody = { message };
-            if (this.recaptchaEnabled && this.lastRecaptchaResponse) {
-                requestBody.recaptcha_response = this.lastRecaptchaResponse;
-                // Reset RECAPTCHA response after use
-                this.lastRecaptchaResponse = null;
-            }
-
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({ message })
             });
 
             const data = await response.json();
@@ -852,11 +695,7 @@ class RobotoApp {
                 // Update emotional status after each message
                 this.loadEmotionalStatus();
             } else {
-                if (data.recaptcha_required) {
-                    this.addChatMessage('Security verification failed. Please try again.', false);
-                } else {
-                    this.addChatMessage(data.response || 'Sorry, I encountered an error.', false);
-                }
+                this.addChatMessage(data.response || 'Sorry, I encountered an error.', false);
             }
         } catch (error) {
             console.error('Error sending message:', error);
