@@ -146,10 +146,14 @@ class RobotoApp {
             }
         });
 
-        // TTS toggle button
-        document.getElementById('ttsBtn').addEventListener('click', () => {
-            this.toggleTTS();
-        });
+        // Speech button - handles both speech input and TTS
+        const speechBtn = document.getElementById('speechBtn');
+        if (speechBtn) {
+            speechBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleSpeechMode();
+            });
+        }
     }
 
     initializeErrorDatabase() {
@@ -1730,6 +1734,48 @@ class RobotoApp {
         const chatContainer = document.getElementById('chatContainer');
         if (chatContainer) {
             chatContainer.insertBefore(indicator, chatContainer.firstChild);
+        }
+    }
+
+    toggleSpeechMode() {
+        if (!this.speechRecognition) {
+            this.showNotification('Speech recognition not supported', 'error');
+            return;
+        }
+
+        const speechBtn = document.getElementById('speechBtn');
+        const icon = speechBtn.querySelector('i');
+
+        if (!this.continuousListening) {
+            // Enable speech mode
+            this.continuousListening = true;
+            this.ttsEnabled = true;
+            
+            speechBtn.classList.add('btn-listen-active');
+            icon.className = 'fas fa-microphone-alt';
+            speechBtn.title = 'Speech Mode Active - Click to Disable';
+            
+            this.startContinuousListening();
+            this.showNotification('Speech mode enabled - talk to Roboto anytime', 'success');
+            
+            // Store preferences
+            localStorage.setItem('continuousListening', true);
+            localStorage.setItem('ttsEnabled', true);
+        } else {
+            // Disable speech mode
+            this.continuousListening = false;
+            this.ttsEnabled = false;
+            
+            speechBtn.classList.remove('btn-listen-active');
+            icon.className = 'fas fa-microphone';
+            speechBtn.title = 'Speech Mode - Talk to Roboto';
+            
+            this.stopContinuousListening();
+            this.showNotification('Speech mode disabled', 'info');
+            
+            // Store preferences
+            localStorage.setItem('continuousListening', false);
+            localStorage.setItem('ttsEnabled', false);
         }
     }
 
