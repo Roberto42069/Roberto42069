@@ -227,23 +227,6 @@ class RobotoApp {
 
 
         // Video control buttons
-        const startVideoBtn = document.getElementById('startVideoBtn');
-        const stopVideoBtn = document.getElementById('stopVideoBtn');
-        
-        if (startVideoBtn) {
-            startVideoBtn.addEventListener('click', () => {
-                this.startVideo();
-            });
-        }
-        
-        if (stopVideoBtn) {
-            stopVideoBtn.addEventListener('click', () => {
-                this.stopVideo();
-            });
-        }
-
-
-    }
 
     initializeErrorDatabase() {
         return {
@@ -1995,86 +1978,7 @@ class RobotoApp {
         }
     }
 
-    async startVideo() {
-        try {
-            // Request camera access from browser
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { width: 640, height: 480 }, 
-                audio: false 
-            });
-            
-            const videoFeed = document.getElementById('videoFeed');
-            const videoPlaceholder = document.getElementById('videoPlaceholder');
-            const startBtn = document.getElementById('startVideoBtn');
-            const stopBtn = document.getElementById('stopVideoBtn');
-            
-            // Create video element if using img tag
-            if (videoFeed.tagName === 'IMG') {
-                const videoElement = document.createElement('video');
-                videoElement.id = 'videoFeed';
-                videoElement.className = videoFeed.className;
-                videoElement.style.cssText = videoFeed.style.cssText;
-                videoElement.autoplay = true;
-                videoElement.muted = true;
-                videoFeed.parentNode.replaceChild(videoElement, videoFeed);
-            }
-            
-            const video = document.getElementById('videoFeed');
-            video.srcObject = stream;
-            video.style.display = 'block';
-            videoPlaceholder.style.display = 'none';
-            
-            this.currentVideoStream = stream;
-            
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            
-            this.showNotification('Live video started', 'success');
-            
-        } catch (error) {
-            console.error('Camera access error:', error);
-            if (error.name === 'NotAllowedError') {
-                this.showNotification('Camera access denied. Please allow camera permissions and try again.', 'error');
-            } else if (error.name === 'NotFoundError') {
-                this.showNotification('No camera found. Please connect a camera and try again.', 'error');
-            } else {
-                this.showNotification('Failed to access camera: ' + error.message, 'error');
-            }
-        }
-    }
 
-    async stopVideo() {
-        try {
-            // Stop the video stream
-            if (this.currentVideoStream) {
-                this.currentVideoStream.getTracks().forEach(track => track.stop());
-                this.currentVideoStream = null;
-            }
-            
-            const videoFeed = document.getElementById('videoFeed');
-            const videoPlaceholder = document.getElementById('videoPlaceholder');
-            const startBtn = document.getElementById('startVideoBtn');
-            const stopBtn = document.getElementById('stopVideoBtn');
-            
-            if (videoFeed) {
-                videoFeed.srcObject = null;
-                videoFeed.style.display = 'none';
-            }
-            
-            if (videoPlaceholder) {
-                videoPlaceholder.style.display = 'block';
-            }
-            
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            
-            this.showNotification('Live video stopped', 'info');
-            
-        } catch (error) {
-            console.error('Video stop error:', error);
-            this.showNotification('Failed to stop video feed', 'error');
-        }
-    }
 
     escapeHtml(text) {
         const div = document.createElement('div');
@@ -2087,3 +1991,229 @@ class RobotoApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new RobotoApp();
 });
+
+    // Advanced Voice Recognition System
+    initializeAdvancedVoice() {
+        this.advancedVoiceActive = false;
+        this.noiseThreshold = 0.8;
+        this.minPhraseLength = 3;
+        this.silenceTimeout = 1500;
+        this.voiceBuffer = [];
+        this.lastSpeechTime = 0;
+        this.isProcessingVoice = false;
+        
+        const voiceActivateBtn = document.getElementById('voiceActivateBtn');
+        const voiceMuteBtn = document.getElementById('voiceMuteBtn');
+        
+        if (voiceActivateBtn && !voiceActivateBtn.hasAttribute('data-listener')) {
+            voiceActivateBtn.setAttribute('data-listener', 'true');
+            voiceActivateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.activateAdvancedVoice();
+            });
+        }
+        
+        if (voiceMuteBtn && !voiceMuteBtn.hasAttribute('data-listener')) {
+            voiceMuteBtn.setAttribute('data-listener', 'true');
+            voiceMuteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.muteAdvancedVoice();
+            });
+        }
+    }
+
+    async activateAdvancedVoice() {
+        if (!this.speechRecognition) {
+            this.initializeSpeechRecognition();
+        }
+        
+        if (!this.speechRecognition) {
+            this.showNotification('Speech recognition not supported', 'error');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            
+            this.advancedVoiceActive = true;
+            this.updateAdvancedVoiceUI(true);
+            this.startAdvancedListening();
+            this.showNotification('Advanced voice recognition activated', 'success');
+            
+        } catch (error) {
+            this.showNotification('Microphone access required', 'error');
+        }
+    }
+
+    muteAdvancedVoice() {
+        this.advancedVoiceActive = false;
+        this.stopAdvancedListening();
+        this.updateAdvancedVoiceUI(false);
+        this.showNotification('Voice recognition muted', 'info');
+    }
+
+    startAdvancedListening() {
+        if (!this.speechRecognition || !this.advancedVoiceActive) return;
+
+        this.speechRecognition.continuous = true;
+        this.speechRecognition.interimResults = true;
+        this.speechRecognition.lang = 'en-US';
+        this.speechRecognition.maxAlternatives = 3;
+        
+        this.speechRecognition.onresult = (event) => {
+            this.handleAdvancedSpeechResults(event);
+        };
+        
+        this.speechRecognition.onerror = (event) => {
+            if (event.error !== 'no-speech') {
+                console.error('Speech error:', event.error);
+            }
+        };
+        
+        this.speechRecognition.onend = () => {
+            if (this.advancedVoiceActive) {
+                setTimeout(() => {
+                    if (this.advancedVoiceActive) {
+                        this.speechRecognition.start();
+                    }
+                }, 100);
+            }
+        };
+        
+        this.speechRecognition.start();
+        this.updateVoiceStatus('Listening...', true);
+    }
+
+    stopAdvancedListening() {
+        if (this.speechRecognition) {
+            this.speechRecognition.stop();
+        }
+        this.updateVoiceStatus('Ready', false);
+    }
+
+    handleAdvancedSpeechResults(event) {
+        let finalTranscript = '';
+        let interimTranscript = '';
+        let maxConfidence = 0;
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            const transcript = result[0].transcript;
+            const confidence = result[0].confidence || 0.9;
+            
+            if (result.isFinal) {
+                if (confidence >= this.noiseThreshold) {
+                    finalTranscript += transcript;
+                    maxConfidence = Math.max(maxConfidence, confidence);
+                }
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+        
+        if (interimTranscript.trim()) {
+            this.updateVoiceStatus(`"${interimTranscript.trim()}"`, true);
+        }
+        
+        if (finalTranscript.trim()) {
+            this.processAdvancedTranscript(finalTranscript.trim(), maxConfidence);
+        }
+    }
+
+    processAdvancedTranscript(transcript, confidence) {
+        if (transcript.length < this.minPhraseLength || confidence < this.noiseThreshold) {
+            return;
+        }
+        
+        const now = Date.now();
+        this.voiceBuffer.push({
+            text: transcript,
+            confidence: confidence,
+            timestamp: now
+        });
+        
+        this.voiceBuffer = this.voiceBuffer.filter(item => 
+            now - item.timestamp < this.silenceTimeout
+        );
+        
+        clearTimeout(this.voiceProcessTimeout);
+        this.voiceProcessTimeout = setTimeout(() => {
+            this.processVoiceBuffer();
+        }, this.silenceTimeout);
+    }
+
+    processVoiceBuffer() {
+        if (this.voiceBuffer.length === 0 || this.isProcessingVoice) return;
+        
+        const combinedText = this.voiceBuffer.map(item => item.text).join(' ').trim();
+        const avgConfidence = this.voiceBuffer.reduce((sum, item) => sum + item.confidence, 0) / this.voiceBuffer.length;
+        
+        this.voiceBuffer = [];
+        
+        if (combinedText.length >= this.minPhraseLength && avgConfidence >= this.noiseThreshold) {
+            this.sendAdvancedVoiceMessage(combinedText);
+        }
+        
+        this.updateVoiceStatus('Listening...', true);
+    }
+
+    async sendAdvancedVoiceMessage(transcript) {
+        if (this.isProcessingVoice) return;
+        
+        this.isProcessingVoice = true;
+        this.updateVoiceStatus('Processing...', true);
+        
+        try {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.value = transcript;
+                await this.sendMessage();
+                chatInput.value = '';
+            }
+            
+        } catch (error) {
+            this.showNotification('Failed to send voice message', 'error');
+        } finally {
+            this.isProcessingVoice = false;
+            setTimeout(() => {
+                this.updateVoiceStatus('Listening...', true);
+            }, 1000);
+        }
+    }
+
+    updateAdvancedVoiceUI(active) {
+        const voiceActivateBtn = document.getElementById('voiceActivateBtn');
+        const voiceMuteBtn = document.getElementById('voiceMuteBtn');
+        const voiceWaveAnimation = document.getElementById('voiceWaveAnimation');
+        
+        if (voiceActivateBtn) {
+            if (active) {
+                voiceActivateBtn.classList.remove('btn-success');
+                voiceActivateBtn.classList.add('btn-warning');
+                voiceActivateBtn.innerHTML = '<i class="fas fa-microphone"></i> Active';
+            } else {
+                voiceActivateBtn.classList.remove('btn-warning');
+                voiceActivateBtn.classList.add('btn-success');
+                voiceActivateBtn.innerHTML = '<i class="fas fa-microphone"></i> Activate';
+            }
+        }
+        
+        if (voiceMuteBtn) {
+            voiceMuteBtn.classList.toggle('btn-danger', active);
+            voiceMuteBtn.classList.toggle('btn-outline-light', !active);
+        }
+        
+        if (voiceWaveAnimation) {
+            voiceWaveAnimation.style.display = active ? 'flex' : 'none';
+        }
+    }
+
+    updateVoiceStatus(message, active) {
+        const voiceStatus = document.getElementById('voiceStatus');
+        if (voiceStatus) {
+            voiceStatus.textContent = message;
+            voiceStatus.style.color = active ? '#28a745' : '#6c757d';
+        }
+    }
+}
