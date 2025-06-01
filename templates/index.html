@@ -62,61 +62,90 @@
             <div class="col-lg-4 mb-4">
                 <div class="card h-100">
                     <div class="card-header bg-secondary">
-                        <ul class="nav nav-pills card-header-pills" id="analyticsTabsList" role="tablist">
+                        <ul class="nav nav-tabs card-header-tabs" id="analyticsTabsList" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active btn-sm text-white" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics-content" type="button" role="tab">
+                                <button class="nav-link active text-white" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics-content" type="button" role="tab" aria-controls="analytics-content" aria-selected="true">
                                     <i class="fas fa-chart-line me-1"></i>Analytics
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link btn-sm text-white" id="data-tab" data-bs-toggle="pill" data-bs-target="#data-content" type="button" role="tab">
+                                <button class="nav-link text-white" id="data-tab" data-bs-toggle="tab" data-bs-target="#data-content" type="button" role="tab" aria-controls="data-content" aria-selected="false">
                                     <i class="fas fa-database me-1"></i>Data
                                 </button>
                             </li>
                         </ul>
                     </div>
                     <div class="card-body">
-                        <!-- Personal Profile Display -->
-                        <div class="mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="fas fa-user me-2"></i>Personal Profile:
-                            </h6>
-                            <div class="small text-info" id="personalProfile">
-                                Learning about you through our conversations...
+                        <div class="tab-content" id="analyticsTabsContent">
+                            <!-- Analytics Tab -->
+                            <div class="tab-pane fade show active" id="analytics-content" role="tabpanel" aria-labelledby="analytics-tab">
+                                <!-- Personal Profile Display -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-user me-2"></i>Personal Profile:
+                                    </h6>
+                                    <div class="small text-info" id="personalProfile">
+                                        Learning about you through our conversations...
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <!-- Voice Recognition Insights -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-microphone me-2"></i>Voice Learning:
+                                    </h6>
+                                    <div class="small text-success" id="voiceInsights">
+                                        Voice recognition learning system initializing...
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <!-- Memory & Learning Insights -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-brain me-2"></i>Memory Insights:
+                                    </h6>
+                                    <div class="small text-warning" id="memoryInsights">
+                                        Building memory patterns...
+                                    </div>
+                                </div>
+                                
+                                <!-- Emotional Status -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-heart me-2"></i>Emotional State:
+                                    </h6>
+                                    <div class="small text-danger">
+                                        Current: <span id="emotionalStatus">curious</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <hr>
-                        
-                        <!-- Voice Recognition Insights -->
-                        <div class="mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="fas fa-microphone me-2"></i>Voice Learning:
-                            </h6>
-                            <div class="small text-success" id="voiceInsights">
-                                Voice recognition learning system initializing...
-                            </div>
-                        </div>
-                        
-                        <hr>
-                        
-                        <!-- Memory & Learning Insights -->
-                        <div class="mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="fas fa-brain me-2"></i>Memory Insights:
-                            </h6>
-                            <div class="small text-warning" id="memoryInsights">
-                                Building memory patterns...
-                            </div>
-                        </div>
-                        
-                        <!-- Emotional Status -->
-                        <div class="mb-3">
-                            <h6 class="text-muted mb-2">
-                                <i class="fas fa-heart me-2"></i>Emotional State:
-                            </h6>
-                            <div class="small text-danger">
-                                Current: <span id="emotionalStatus">curious</span>
+
+                            <!-- Data Export/Import Tab -->
+                            <div class="tab-pane fade" id="data-content" role="tabpanel" aria-labelledby="data-tab">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-database me-2"></i>Data Management
+                                        </h6>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-outline-success btn-sm" id="export-data-btn">
+                                                <i class="fas fa-download me-2"></i>Export My Data
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info btn-sm" id="import-data-btn">
+                                                <i class="fas fa-upload me-2"></i>Import Data
+                                            </button>
+                                            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="data-status" class="small text-muted">
+                                        Export your conversations and memories, or import previous data
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
