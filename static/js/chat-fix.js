@@ -358,4 +358,126 @@ document.addEventListener('DOMContentLoaded', function() {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Data Management Functions
+    function initializeDataManagement() {
+        const exportBtn = document.getElementById('export-data-btn');
+        const importBtn = document.getElementById('import-data-btn');
+        const importInput = document.getElementById('import-file-input');
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', exportData);
+        }
+        
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                importInput.click();
+            });
+        }
+        
+        if (importInput) {
+            importInput.addEventListener('change', handleImportFile);
+        }
+    }
+
+    async function exportData() {
+        const statusDiv = document.getElementById('data-status');
+        
+        try {
+            statusDiv.textContent = 'Exporting data...';
+            statusDiv.className = 'small text-info text-center';
+            
+            const response = await fetch('/api/export');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Create download
+                const blob = new Blob([JSON.stringify(data.data, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                statusDiv.textContent = 'Data exported successfully!';
+                statusDiv.className = 'small text-success text-center';
+            } else {
+                statusDiv.textContent = 'Export failed: ' + data.message;
+                statusDiv.className = 'small text-danger text-center';
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            statusDiv.textContent = 'Export failed. Please try again.';
+            statusDiv.className = 'small text-danger text-center';
+        }
+        
+        // Reset status after 3 seconds
+        setTimeout(() => {
+            statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+            statusDiv.className = 'small text-muted text-center';
+        }, 3000);
+    }
+
+    async function handleImportFile(event) {
+        const file = event.target.files[0];
+        const statusDiv = document.getElementById('data-status');
+        
+        if (!file) return;
+        
+        try {
+            statusDiv.textContent = 'Importing data...';
+            statusDiv.className = 'small text-info text-center';
+            
+            const text = await file.text();
+            const importData = JSON.parse(text);
+            
+            // Validate import data structure
+            if (!importData.chat_history && !importData.emotional_history && !importData.learned_patterns) {
+                throw new Error('Invalid data format');
+            }
+            
+            const formData = new FormData();
+            formData.append('import_data', JSON.stringify(importData));
+            
+            const response = await fetch('/api/import', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                statusDiv.textContent = 'Data imported successfully! Refreshing...';
+                statusDiv.className = 'small text-success text-center';
+                
+                // Refresh the page to load new data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                statusDiv.textContent = 'Import failed: ' + result.message;
+                statusDiv.className = 'small text-danger text-center';
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            statusDiv.textContent = 'Import failed. Please check your file format.';
+            statusDiv.className = 'small text-danger text-center';
+        }
+        
+        // Reset file input
+        event.target.value = '';
+        
+        // Reset status after 3 seconds (if not successful)
+        setTimeout(() => {
+            if (!statusDiv.textContent.includes('successfully')) {
+                statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+                statusDiv.className = 'small text-muted text-center';
+            }
+        }, 3000);
+    }
 });

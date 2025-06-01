@@ -219,6 +219,51 @@ def export_data():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
+@app.route('/api/import', methods=['POST'])
+@login_required
+def import_data():
+    try:
+        import_data_str = request.form.get('import_data')
+        if not import_data_str:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+        
+        import_data = json.loads(import_data_str)
+        
+        # Get current user's Roboto instance
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({"success": False, "message": "System not ready"}), 500
+        
+        # Import data into Roboto instance
+        if 'chat_history' in import_data:
+            roberto.chat_history.extend(import_data['chat_history'])
+        
+        if 'emotional_history' in import_data:
+            roberto.emotional_history.extend(import_data['emotional_history'])
+        
+        if 'learned_patterns' in import_data:
+            roberto.learned_patterns.update(import_data['learned_patterns'])
+        
+        if 'user_preferences' in import_data:
+            roberto.user_preferences.update(import_data['user_preferences'])
+        
+        if 'current_emotion' in import_data:
+            roberto.current_emotion = import_data['current_emotion']
+        
+        # Save imported data to database
+        save_user_data()
+        
+        return jsonify({
+            "success": True, 
+            "message": f"Successfully imported {len(import_data.get('chat_history', []))} conversations and related data"
+        })
+        
+    except json.JSONDecodeError:
+        return jsonify({"success": False, "message": "Invalid JSON format"}), 400
+    except Exception as e:
+        app.logger.error(f"Import error: {e}")
+        return jsonify({"success": False, "message": f"Import failed: {str(e)}"}), 500
+
 def handle_file_upload():
     """Handle file uploads including images"""
     try:
