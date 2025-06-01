@@ -113,7 +113,7 @@ def save_user_data():
             }
             roberto.save_user_data(user_data)
             
-            # Update database
+            # Update database (no tasks field)
             current_user.roboto_data.chat_history = user_data['chat_history']
             current_user.roboto_data.learned_patterns = user_data['learned_patterns']
             current_user.roboto_data.user_preferences = user_data['user_preferences']

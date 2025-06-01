@@ -41,7 +41,7 @@ class UserData(db.Model):
     user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
     
     # JSON fields for Roboto data
-    tasks = db.Column(db.JSON, default=list)
+    # tasks = db.Column(db.JSON, default=list)  # Removed task functionality
     chat_history = db.Column(db.JSON, default=list)
     learned_patterns = db.Column(db.JSON, default=dict)
     user_preferences = db.Column(db.JSON, default=dict)
