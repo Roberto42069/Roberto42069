@@ -694,12 +694,15 @@ class RobotoApp {
             if (data.success) {
                 // Add bot response to chat
                 this.addChatMessage(data.response, false);
-                // Speak the response
-                this.speakText(data.response);
+                // Speak the response if TTS is enabled
+                if (this.ttsEnabled) {
+                    this.speakText(data.response);
+                }
                 // Update emotional status after each message
                 this.loadEmotionalStatus();
             } else {
                 this.addChatMessage(data.response || 'Sorry, I encountered an error.', false);
+                console.error('Chat API error:', data);
             }
         } catch (error) {
             console.error('Error sending message:', error);
@@ -1380,18 +1383,22 @@ class RobotoApp {
 
     resumeContinuousListening() {
         if (this.continuousListening && !this.isListeningActive && !this.isSpeaking && !document.hidden) {
-            // Add a longer delay to prevent rapid restart attempts
+            // Shorter delay for more responsive listening like ChatGPT
             setTimeout(() => {
                 if (this.continuousListening && !this.isListeningActive) {
                     try {
+                        this.speechRecognition.continuous = true;
+                        this.speechRecognition.interimResults = true;
                         this.speechRecognition.start();
                     } catch (error) {
                         if (!error.message.includes('already-listening')) {
                             console.log('Could not resume listening:', error.message);
+                            // Try again after a brief pause
+                            setTimeout(() => this.resumeContinuousListening(), 2000);
                         }
                     }
                 }
-            }, 1000);
+            }, 500);
         }
     }
 
@@ -1524,11 +1531,12 @@ class RobotoApp {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
         
-        // Auto-restart if continuous listening is enabled and not speaking
+        // Auto-restart immediately for continuous background listening
         if (this.continuousListening && !this.isSpeaking && !document.hidden) {
+            // Immediate restart for seamless background operation
             setTimeout(() => {
                 this.resumeContinuousListening();
-            }, 300);
+            }, 100);
         }
     }
 
