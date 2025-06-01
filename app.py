@@ -120,13 +120,14 @@ def save_user_data():
             
             # Update database safely (no tasks field)
             try:
-                current_user.roboto_data.chat_history = user_data['chat_history']
-                current_user.roboto_data.learned_patterns = user_data['learned_patterns']
-                current_user.roboto_data.user_preferences = user_data['user_preferences']
-                current_user.roboto_data.emotional_history = user_data['emotional_history']
-                current_user.roboto_data.memory_system_data = user_data['memory_system_data']
-                current_user.roboto_data.current_emotion = user_data['current_emotion']
-                current_user.roboto_data.current_user_name = user_data['current_user_name']
+                if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
+                    current_user.roboto_data.chat_history = user_data.get('chat_history', [])
+                    current_user.roboto_data.learned_patterns = user_data.get('learned_patterns', {})
+                    current_user.roboto_data.user_preferences = user_data.get('user_preferences', {})
+                    current_user.roboto_data.emotional_history = user_data.get('emotional_history', [])
+                    current_user.roboto_data.memory_system_data = user_data.get('memory_system_data', {})
+                    current_user.roboto_data.current_emotion = user_data.get('current_emotion', 'curious')
+                    current_user.roboto_data.current_user_name = user_data.get('current_user_name', None)
             except Exception as e:
                 app.logger.warning(f"Error updating user data fields: {e}")
             

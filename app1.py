@@ -385,23 +385,37 @@ class Roboto:
     
     def load_user_data(self, user_data):
         """Load user-specific data from database"""
-
-        if user_data.chat_history:
-            self.chat_history = user_data.chat_history
-        if user_data.learned_patterns:
-            self.learned_patterns = user_data.learned_patterns
-        if user_data.user_preferences:
-            self.user_preferences = user_data.user_preferences
-        if user_data.emotional_history:
-            self.emotional_history = user_data.emotional_history
-        if user_data.memory_system_data:
+        try:
+            # Handle both dict and object types
+            if isinstance(user_data, dict):
+                self.chat_history = user_data.get('chat_history', []) or []
+                self.learned_patterns = user_data.get('learned_patterns', {}) or {}
+                self.user_preferences = user_data.get('user_preferences', {}) or {}
+                self.emotional_history = user_data.get('emotional_history', []) or []
+                self.current_emotion = user_data.get('current_emotion', 'curious') or 'curious'
+                self.current_user = user_data.get('current_user_name', None)
+                memory_data = user_data.get('memory_system_data', {}) or {}
+            else:
+                # Handle object with attributes
+                self.chat_history = getattr(user_data, 'chat_history', []) or []
+                self.learned_patterns = getattr(user_data, 'learned_patterns', {}) or {}
+                self.user_preferences = getattr(user_data, 'user_preferences', {}) or {}
+                self.emotional_history = getattr(user_data, 'emotional_history', []) or []
+                self.current_emotion = getattr(user_data, 'current_emotion', 'curious') or 'curious'
+                self.current_user = getattr(user_data, 'current_user_name', None)
+                memory_data = getattr(user_data, 'memory_system_data', {}) or {}
+            
             # Load memory system data
-            for key, value in user_data.memory_system_data.items():
-                if hasattr(self.memory_system, key):
-                    setattr(self.memory_system, key, value)
-        
-        self.current_emotion = user_data.current_emotion or "curious"
-        self.current_user = user_data.current_user_name
+            if memory_data and hasattr(self, 'memory_system') and self.memory_system:
+                try:
+                    for key, value in memory_data.items():
+                        if hasattr(self.memory_system, key):
+                            setattr(self.memory_system, key, value)
+                except Exception as e:
+                    print(f"Error loading memory system data: {e}")
+                    
+        except Exception as e:
+            print(f"Error in load_user_data: {e}")
     
     def save_user_data(self, user_data):
         """Save current state to user database record"""
