@@ -73,13 +73,13 @@ def get_user_roberto():
             if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
                 if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
                     user_data = {
-                        'chat_history': current_user.roboto_data.chat_history or [],
-                        'learned_patterns': current_user.roboto_data.learned_patterns or {},
-                        'user_preferences': current_user.roboto_data.user_preferences or {},
-                        'emotional_history': current_user.roboto_data.emotional_history or [],
-                        'memory_system_data': current_user.roboto_data.memory_system_data or {},
-                        'current_emotion': current_user.roboto_data.current_emotion or 'curious',
-                        'current_user_name': current_user.roboto_data.current_user_name
+                        'chat_history': getattr(current_user.roboto_data, 'chat_history', []) or [],
+                        'learned_patterns': getattr(current_user.roboto_data, 'learned_patterns', {}) or {},
+                        'user_preferences': getattr(current_user.roboto_data, 'user_preferences', {}) or {},
+                        'emotional_history': getattr(current_user.roboto_data, 'emotional_history', []) or [],
+                        'memory_system_data': getattr(current_user.roboto_data, 'memory_system_data', {}) or {},
+                        'current_emotion': getattr(current_user.roboto_data, 'current_emotion', 'curious') or 'curious',
+                        'current_user_name': getattr(current_user.roboto_data, 'current_user_name', None)
                     }
                     roberto.load_user_data(user_data)
                     app.logger.info(f"Loaded user data for authenticated user: {current_user.id}")
