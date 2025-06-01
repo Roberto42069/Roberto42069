@@ -391,26 +391,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Import button clicked');
-                    // Use both click and programmatic trigger for mobile compatibility
-                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                        // Mobile-friendly approach
-                        const event = new MouseEvent('click', {
-                            view: window,
-                            bubbles: true,
-                            cancelable: true
-                        });
-                        importInput.dispatchEvent(event);
-                    } else {
-                        importInput.click();
-                    }
+                    console.log('About to trigger file picker');
+                    
+                    // Clear any previous value
+                    importInput.value = '';
+                    
+                    // Trigger the file picker
+                    importInput.click();
+                    
+                    console.log('File picker triggered');
                 });
                 console.log('Import button listener added');
             }
             
             if (importInput) {
                 importInput.removeEventListener('change', handleImportFile);
-                importInput.addEventListener('change', handleImportFile);
-                console.log('Import input listener added');
+                importInput.addEventListener('change', function(e) {
+                    console.log('File input change event triggered');
+                    console.log('Files selected:', e.target.files.length);
+                    handleImportFile(e);
+                });
+                
+                // Also add input event as backup for mobile
+                importInput.addEventListener('input', function(e) {
+                    console.log('File input event triggered');
+                    if (e.target.files.length > 0) {
+                        handleImportFile(e);
+                    }
+                });
+                console.log('Import input listeners added');
             }
         }, 500);
     }
