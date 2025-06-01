@@ -151,6 +151,108 @@
 
 
 
+/* Onboarding Tutorial Styles */
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.onboarding-modal {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: onboardingSlideIn 0.5s ease-out;
+}
+
+.onboarding-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.onboarding-avatar {
+    margin-bottom: 15px;
+}
+
+.onboarding-avatar svg {
+    animation: onboardingGlow 2s ease-in-out infinite alternate;
+}
+
+.onboarding-message {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #333;
+}
+
+.onboarding-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.onboarding-progress {
+    text-align: center;
+}
+
+.onboarding-progress .progress {
+    height: 8px;
+    margin-bottom: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+}
+
+.onboarding-progress .progress-bar {
+    background: linear-gradient(45deg, #4299e1, #63b3ed);
+    transition: width 0.3s ease;
+}
+
+.onboarding-highlight {
+    position: absolute;
+    border: 3px solid #4299e1;
+    border-radius: 8px;
+    background: rgba(66, 153, 225, 0.1);
+    pointer-events: none;
+    z-index: 9999;
+    animation: onboardingPulse 2s infinite;
+}
+
+@keyframes onboardingSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes onboardingGlow {
+    0% { filter: drop-shadow(0 0 5px #4299e1); }
+    100% { filter: drop-shadow(0 0 15px #4299e1); }
+}
+
+@keyframes onboardingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(66, 153, 225, 0); }
+}
+
+
+
 /* Loading Animations */
 .loading-pulse {
     animation: pulse 1.5s ease-in-out infinite;

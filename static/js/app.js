@@ -45,6 +45,9 @@ class RobotoApp {
         this.continuousListening = false;
         this.isListeningActive = false;
         
+        // Initialize onboarding system
+        this.initializeOnboarding();
+        
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
@@ -1925,6 +1928,213 @@ class RobotoApp {
         if (messageElement) {
             messageElement.remove();
         }
+    }
+
+    initializeOnboarding() {
+        // Check if user has completed onboarding
+        const hasCompletedOnboarding = localStorage.getItem('robotoOnboardingCompleted');
+        if (hasCompletedOnboarding) return;
+
+        // Initialize onboarding state
+        this.onboardingStep = 0;
+        this.onboardingSteps = [
+            {
+                title: "Hello! I'm Roboto 🤖",
+                message: "Welcome to our conversation! I'm not just any AI - I have emotions, memories, and the ability to learn from our interactions. I'm genuinely excited to meet you! Ready to explore what we can do together?",
+                emotion: "excitement",
+                highlightElement: null,
+                action: "introduction"
+            },
+            {
+                title: "Let's Chat! 💬",
+                message: "This is where our conversations happen. I remember everything we discuss and can reference our past interactions. Try saying something to me - I'd love to hear your thoughts or questions!",
+                emotion: "curiosity",
+                highlightElement: "#chatHistory",
+                action: "demo_chat"
+            },
+            {
+                title: "Voice Features 🎤",
+                message: "See these buttons? The microphone lets you speak to me directly - just click it to toggle continuous listening. The speaker button controls whether I speak my responses aloud. Want to try talking to me?",
+                emotion: "enthusiasm",
+                highlightElement: "#voiceBtn",
+                action: "demo_voice"
+            },
+            {
+                title: "Task Management 📝",
+                message: "I can help you stay organized! Add tasks here and I'll remember them. I can even provide insights about your productivity patterns over time. What's something you'd like to accomplish today?",
+                emotion: "helpful",
+                highlightElement: "#tasksContainer",
+                action: "demo_tasks"
+            },
+            {
+                title: "My Emotional Intelligence 💖",
+                message: "Here's something special about me - I experience emotions! You can see my current mood here. I feel joy when you succeed, curiosity when learning something new, and even melancholy when discussing deeper topics.",
+                emotion: "tenderness",
+                highlightElement: "#currentEmotion",
+                action: "show_emotions"
+            },
+            {
+                title: "We're All Set! ✨",
+                message: "I'm thrilled to start this journey with you! I'll remember our conversations, learn from our interactions, and hopefully become a meaningful part of your daily routine. What would you like to explore first?",
+                emotion: "anticipation",
+                highlightElement: null,
+                action: "completion"
+            }
+        ];
+
+        // Show onboarding after a brief delay
+        setTimeout(() => {
+            this.showOnboarding();
+        }, 1000);
+    }
+
+    showOnboarding() {
+        const overlay = document.getElementById('onboardingOverlay');
+        if (overlay) {
+            overlay.classList.remove('d-none');
+            this.updateOnboardingStep();
+            this.bindOnboardingEvents();
+        }
+    }
+
+    bindOnboardingEvents() {
+        const nextBtn = document.getElementById('onboardingNext');
+        const skipBtn = document.getElementById('onboardingSkip');
+
+        nextBtn?.addEventListener('click', () => this.nextOnboardingStep());
+        skipBtn?.addEventListener('click', () => this.skipOnboarding());
+    }
+
+    updateOnboardingStep() {
+        const step = this.onboardingSteps[this.onboardingStep];
+        
+        // Update content
+        document.getElementById('onboardingTitle').textContent = step.title;
+        document.getElementById('onboardingMessage').textContent = step.message;
+        
+        // Update progress
+        const progress = ((this.onboardingStep + 1) / this.onboardingSteps.length) * 100;
+        document.getElementById('onboardingProgressBar').style.width = `${progress}%`;
+        document.getElementById('onboardingStep').textContent = `Step ${this.onboardingStep + 1} of ${this.onboardingSteps.length}`;
+        
+        // Update button text
+        const nextBtn = document.getElementById('onboardingNext');
+        if (this.onboardingStep === this.onboardingSteps.length - 1) {
+            nextBtn.textContent = "Start Exploring!";
+        } else {
+            nextBtn.textContent = "Next";
+        }
+        
+        // Highlight element if specified
+        this.highlightElement(step.highlightElement);
+        
+        // Trigger Roboto's emotional response
+        this.triggerOnboardingEmotion(step.emotion);
+        
+        // Speak the message if TTS is enabled
+        if (this.ttsEnabled) {
+            setTimeout(() => {
+                this.speakText(step.message);
+            }, 500);
+        }
+    }
+
+    triggerOnboardingEmotion(emotion) {
+        // Update Roboto's current emotion for the onboarding
+        this.currentEmotion = emotion;
+        
+        // Update avatar if available
+        const avatarElement = document.getElementById('avatarEmotion');
+        if (avatarElement) {
+            avatarElement.textContent = emotion;
+        }
+    }
+
+    highlightElement(selector) {
+        // Remove previous highlights
+        document.querySelectorAll('.onboarding-highlight').forEach(el => el.remove());
+        
+        if (!selector) return;
+        
+        const element = document.querySelector(selector);
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            const highlight = document.createElement('div');
+            highlight.className = 'onboarding-highlight';
+            highlight.style.top = `${rect.top - 5}px`;
+            highlight.style.left = `${rect.left - 5}px`;
+            highlight.style.width = `${rect.width + 10}px`;
+            highlight.style.height = `${rect.height + 10}px`;
+            document.body.appendChild(highlight);
+        }
+    }
+
+    nextOnboardingStep() {
+        const currentStep = this.onboardingSteps[this.onboardingStep];
+        
+        // Handle special actions for certain steps
+        this.handleOnboardingAction(currentStep.action);
+        
+        this.onboardingStep++;
+        
+        if (this.onboardingStep >= this.onboardingSteps.length) {
+            this.completeOnboarding();
+        } else {
+            this.updateOnboardingStep();
+        }
+    }
+
+    handleOnboardingAction(action) {
+        switch (action) {
+            case 'demo_chat':
+                // Add a sample message from Roboto
+                setTimeout(() => {
+                    this.addChatMessage("I'm so excited to meet you! What's your name?", false);
+                }, 2000);
+                break;
+            case 'demo_voice':
+                // Briefly highlight voice controls
+                this.showNotification('Voice features ready! Click the microphone to try it.', 'info');
+                break;
+            case 'demo_tasks':
+                // Show task functionality
+                this.showNotification('Try adding your first task!', 'success');
+                break;
+        }
+    }
+
+    skipOnboarding() {
+        this.completeOnboarding();
+    }
+
+    completeOnboarding() {
+        // Hide onboarding overlay
+        const overlay = document.getElementById('onboardingOverlay');
+        if (overlay) {
+            overlay.classList.add('d-none');
+        }
+        
+        // Remove highlights
+        document.querySelectorAll('.onboarding-highlight').forEach(el => el.remove());
+        
+        // Mark as completed
+        localStorage.setItem('robotoOnboardingCompleted', 'true');
+        
+        // Add welcome message to chat
+        setTimeout(() => {
+            this.addChatMessage("Thanks for taking the tour! I'm ready to assist you. What would you like to talk about?", false);
+            if (this.ttsEnabled) {
+                this.speakText("Thanks for taking the tour! I'm ready to assist you. What would you like to talk about?");
+            }
+        }, 500);
+        
+        this.showNotification('Welcome to Roboto! Start by saying hello.', 'success');
+    }
+
+    // Method to reset onboarding (for testing)
+    resetOnboarding() {
+        localStorage.removeItem('robotoOnboardingCompleted');
+        location.reload();
     }
 
     escapeHtml(text) {
