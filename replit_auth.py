@@ -121,6 +121,21 @@ def make_replit_blueprint():
     return replit_bp
 
 def save_user(user_claims):
+    # Check if user is authorized (Roberto Villarreal Martinez only)
+    user_email = user_claims.get('email', '').lower()
+    first_name = user_claims.get('first_name', '')
+    last_name = user_claims.get('last_name', '')
+    
+    # Allow access only for Roberto Villarreal Martinez
+    is_authorized = (
+        (first_name and 'roberto' in first_name.lower()) or
+        (user_email and any(domain in user_email for domain in ['roberto', 'villarreal'])) or
+        user_claims['sub'] == '43249775'  # Specific user ID if known
+    )
+    
+    if not is_authorized:
+        raise Exception("Access restricted to authorized users only")
+    
     user = User()
     user.id = user_claims['sub']
     user.email = user_claims.get('email')
@@ -190,6 +205,16 @@ def logged_in(blueprint, token):
 @oauth_error.connect
 def handle_error(blueprint, error, error_description=None, error_uri=None):
     return redirect(url_for('replit_auth.error'))
+
+@oauth_authorized.connect
+def check_authorization_on_login(blueprint, token):
+    """Additional authorization check on login"""
+    try:
+        user_claims = jwt.decode(token['id_token'], options={"verify_signature": False})
+        save_user(user_claims)  # This will raise exception if not authorized
+    except Exception as e:
+        app.logger.warning(f"Authorization failed: {e}")
+        return redirect(url_for('replit_auth.error'))
 
 def require_login(f):
     @wraps(f)
