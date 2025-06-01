@@ -73,7 +73,6 @@ def get_user_roberto():
             if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
                 if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
                     user_data = {
-                        'tasks': current_user.roboto_data.tasks or [],
                         'chat_history': current_user.roboto_data.chat_history or [],
                         'learned_patterns': current_user.roboto_data.learned_patterns or {},
                         'user_preferences': current_user.roboto_data.user_preferences or {},
@@ -104,7 +103,6 @@ def save_user_data():
         
         if roberto:
             user_data = {
-                'tasks': getattr(roberto, 'tasks', []),
                 'chat_history': getattr(roberto, 'chat_history', []),
                 'learned_patterns': getattr(roberto, 'learned_patterns', {}),
                 'user_preferences': getattr(roberto, 'user_preferences', {}),
@@ -116,7 +114,6 @@ def save_user_data():
             roberto.save_user_data(user_data)
             
             # Update database
-            current_user.roboto_data.tasks = user_data['tasks']
             current_user.roboto_data.chat_history = user_data['chat_history']
             current_user.roboto_data.learned_patterns = user_data['learned_patterns']
             current_user.roboto_data.user_preferences = user_data['user_preferences']
