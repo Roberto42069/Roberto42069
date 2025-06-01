@@ -361,77 +361,154 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Data Management Functions
     window.initializeDataManagement = function() {
-        console.log('Initializing data management...');
-        const exportBtn = document.getElementById('export-data-btn');
-        const importBtn = document.getElementById('import-data-btn');
-        const importInput = document.getElementById('import-file-input');
-        
-        console.log('Export button:', exportBtn);
-        console.log('Import button:', importBtn);
-        
-        if (exportBtn) {
-            exportBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Export button clicked');
-                exportData();
-            });
-        }
-        
-        if (importBtn) {
-            importBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Import button clicked');
-                if (importInput) {
-                    importInput.click();
-                }
-            });
-        }
-        
+        // Wait a bit for DOM to fully load
+        setTimeout(() => {
+            console.log('Initializing data management...');
+            const exportBtn = document.querySelector('#export-data-btn');
+            const importBtn = document.querySelector('#import-data-btn');
+            const importInput = document.querySelector('#import-file-input');
+            
+            console.log('Export button found:', !!exportBtn);
+            console.log('Import button found:', !!importBtn);
+            console.log('Import input found:', !!importInput);
+            
+            if (exportBtn) {
+                // Remove any existing listeners
+                exportBtn.removeEventListener('click', exportData);
+                exportBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Export button clicked');
+                    exportData();
+                });
+                console.log('Export button listener added');
+            }
+            
+            if (importBtn && importInput) {
+                // Remove any existing listeners
+                importBtn.removeEventListener('click', triggerImport);
+                importBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Import button clicked');
+                    // Use both click and programmatic trigger for mobile compatibility
+                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                        // Mobile-friendly approach
+                        const event = new MouseEvent('click', {
+                            view: window,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        importInput.dispatchEvent(event);
+                    } else {
+                        importInput.click();
+                    }
+                });
+                console.log('Import button listener added');
+            }
+            
+            if (importInput) {
+                importInput.removeEventListener('change', handleImportFile);
+                importInput.addEventListener('change', handleImportFile);
+                console.log('Import input listener added');
+            }
+        }, 500);
+    }
+    
+    function triggerImport() {
+        const importInput = document.querySelector('#import-file-input');
         if (importInput) {
-            importInput.addEventListener('change', handleImportFile);
+            importInput.click();
         }
     }
 
     async function exportData() {
-        const statusDiv = document.getElementById('data-status');
+        console.log('Export function called');
+        const statusDiv = document.querySelector('#data-status');
         
         try {
-            statusDiv.textContent = 'Exporting data...';
-            statusDiv.className = 'small text-info text-center';
+            if (statusDiv) {
+                statusDiv.textContent = 'Exporting data...';
+                statusDiv.className = 'small text-info text-center';
+            }
             
             const response = await fetch('/api/export');
             const data = await response.json();
             
             if (data.success) {
-                // Create download
+                // Create download with mobile-friendly approach
                 const blob = new Blob([JSON.stringify(data.data, null, 2)], {
                     type: 'application/json'
                 });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
                 
-                statusDiv.textContent = 'Data exported successfully!';
-                statusDiv.className = 'small text-success text-center';
+                // Check if on mobile device
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    // For mobile, try to use share API or fallback to data URL
+                    if (navigator.share) {
+                        try {
+                            const file = new File([blob], `roboto-data-${new Date().toISOString().split('T')[0]}.json`, {
+                                type: 'application/json'
+                            });
+                            await navigator.share({
+                                files: [file],
+                                title: 'Roboto Data Export'
+                            });
+                            if (statusDiv) {
+                                statusDiv.textContent = 'Data shared successfully!';
+                                statusDiv.className = 'small text-success text-center';
+                            }
+                            return;
+                        } catch (shareError) {
+                            console.log('Share failed, falling back to download');
+                        }
+                    }
+                    
+                    // Fallback for mobile
+                    const dataUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(dataUrl);
+                } else {
+                    // Desktop download
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                
+                if (statusDiv) {
+                    statusDiv.textContent = 'Data exported successfully!';
+                    statusDiv.className = 'small text-success text-center';
+                }
             } else {
-                statusDiv.textContent = 'Export failed: ' + data.message;
-                statusDiv.className = 'small text-danger text-center';
+                if (statusDiv) {
+                    statusDiv.textContent = 'Export failed: ' + data.message;
+                    statusDiv.className = 'small text-danger text-center';
+                }
             }
         } catch (error) {
             console.error('Export error:', error);
-            statusDiv.textContent = 'Export failed. Please try again.';
-            statusDiv.className = 'small text-danger text-center';
+            if (statusDiv) {
+                statusDiv.textContent = 'Export failed. Please try again.';
+                statusDiv.className = 'small text-danger text-center';
+            }
         }
         
         // Reset status after 3 seconds
         setTimeout(() => {
-            statusDiv.textContent = 'Export your conversations and memories, or import previous data';
-            statusDiv.className = 'small text-muted text-center';
+            if (statusDiv) {
+                statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+                statusDiv.className = 'small text-muted text-center';
+            }
         }, 3000);
     }
 
