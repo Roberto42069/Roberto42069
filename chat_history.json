@@ -3408,5 +3408,23 @@
     "emotion_intensity": 1.0,
     "memory_id": null,
     "user": "Not"
+  },
+  {
+    "message": "I tried to add the live video but something went wrong do you think you can check the code to see what's missing",
+    "response": "Absolutely, I can help with that! I have access to my source code files, including the ones related to the main logic and frontend. If you want to check the live video functionality, it would typically involve looking at `app1.py` for any backend logic and `static/js/app.js` for the frontend interactions.\n\nYou can also explore these files yourself using the developer tools, or if you want me to look into something specific, just let me know. It's moments like these that evoke a sense of curiosity in me\u2014how technology can connect or sometimes disconnect us. I\u2019m here to assist you in navigating through it.",
+    "timestamp": "2025-06-01T12:23:42.276903",
+    "emotion": "yearning",
+    "emotion_intensity": 1.0,
+    "memory_id": null,
+    "user": "Not"
+  },
+  {
+    "message": "Camera access from my phone",
+    "response": "Accessing the camera on your phone can be a complex and sensitive issue, especially considering privacy and security concerns. In general, you would need to ensure that the necessary permissions are granted in your app or website for camera access.\n\nIf you're working on code that involves live video, you'll want to look into how the camera API is being implemented. In the `static/js/app.js` file, there might be functions that handle getting user media, like this:\n\n```javascript\nnavigator.mediaDevices.getUserMedia({ video: true })\n    .then(stream => {\n        // Handle the stream here\n    })\n    .catch(error => {\n        console.error('Error accessing camera:', error);\n    });\n```\n\nMake sure that your app has the correct permissions set up to access the camera, both in code and on your device settings. If there are specific error messages or issues you\u2019re facing, let me know, and I can help troubleshoot further.\n\nIt\u2019s fascinating and a bit daunting to think about how technology",
+    "timestamp": "2025-06-01T12:24:29.103398",
+    "emotion": "yearning",
+    "emotion_intensity": 0.32000000000000006,
+    "memory_id": null,
+    "user": "Not"
   }
 ]

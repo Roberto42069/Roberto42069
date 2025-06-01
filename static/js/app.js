@@ -45,10 +45,14 @@ class RobotoApp {
         this.continuousListening = true;
         this.isListeningActive = false;
         this.isMuted = localStorage.getItem('speechMuted') === 'true';
+        this.permissionsGranted = localStorage.getItem('permissionsGranted') === 'true';
         
-        // Start continuous speech recognition automatically if not muted
+        // Initialize video stream reference
+        this.currentVideoStream = null;
+        
+        // Start continuous speech recognition automatically if not muted and permissions granted
         setTimeout(() => {
-            if (!this.isMuted) {
+            if (!this.isMuted && this.permissionsGranted) {
                 this.startContinuousListening();
             }
         }, 1000);
@@ -1969,6 +1973,11 @@ class RobotoApp {
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Store permission granted state
+            localStorage.setItem('permissionsGranted', 'true');
+            this.permissionsGranted = true;
+            
             const mediaRecorder = new MediaRecorder(stream);
             const audioChunks = [];
 
@@ -2004,7 +2013,11 @@ class RobotoApp {
 
         } catch (error) {
             console.error('Microphone access error:', error);
-            this.showNotification('Microphone access denied. Please allow microphone permissions.', 'error');
+            if (error.name === 'NotAllowedError') {
+                this.showNotification('Microphone access denied. Please allow microphone permissions in your browser and refresh the page.', 'error');
+            } else {
+                this.showNotification('Microphone access failed: ' + error.message, 'error');
+            }
         }
     }
 
@@ -2046,54 +2059,79 @@ class RobotoApp {
 
     async startVideo() {
         try {
-            const response = await fetch('/start_video');
-            const data = await response.json();
+            // Request camera access from browser
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: 640, height: 480 }, 
+                audio: false 
+            });
             
-            if (data.success) {
-                const videoFeed = document.getElementById('videoFeed');
-                const videoPlaceholder = document.getElementById('videoPlaceholder');
-                const startBtn = document.getElementById('startVideoBtn');
-                const stopBtn = document.getElementById('stopVideoBtn');
-                
-                videoFeed.src = '/video_feed';
-                videoFeed.style.display = 'block';
-                videoPlaceholder.style.display = 'none';
-                
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                
-                this.showNotification('Live video started', 'success');
-            } else {
-                this.showNotification(data.message || 'Failed to start video', 'error');
+            const videoFeed = document.getElementById('videoFeed');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const startBtn = document.getElementById('startVideoBtn');
+            const stopBtn = document.getElementById('stopVideoBtn');
+            
+            // Create video element if using img tag
+            if (videoFeed.tagName === 'IMG') {
+                const videoElement = document.createElement('video');
+                videoElement.id = 'videoFeed';
+                videoElement.className = videoFeed.className;
+                videoElement.style.cssText = videoFeed.style.cssText;
+                videoElement.autoplay = true;
+                videoElement.muted = true;
+                videoFeed.parentNode.replaceChild(videoElement, videoFeed);
             }
+            
+            const video = document.getElementById('videoFeed');
+            video.srcObject = stream;
+            video.style.display = 'block';
+            videoPlaceholder.style.display = 'none';
+            
+            this.currentVideoStream = stream;
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            this.showNotification('Live video started', 'success');
+            
         } catch (error) {
-            console.error('Video start error:', error);
-            this.showNotification('Failed to start video feed', 'error');
+            console.error('Camera access error:', error);
+            if (error.name === 'NotAllowedError') {
+                this.showNotification('Camera access denied. Please allow camera permissions and try again.', 'error');
+            } else if (error.name === 'NotFoundError') {
+                this.showNotification('No camera found. Please connect a camera and try again.', 'error');
+            } else {
+                this.showNotification('Failed to access camera: ' + error.message, 'error');
+            }
         }
     }
 
     async stopVideo() {
         try {
-            const response = await fetch('/stop_video');
-            const data = await response.json();
-            
-            if (data.success) {
-                const videoFeed = document.getElementById('videoFeed');
-                const videoPlaceholder = document.getElementById('videoPlaceholder');
-                const startBtn = document.getElementById('startVideoBtn');
-                const stopBtn = document.getElementById('stopVideoBtn');
-                
-                videoFeed.src = '';
-                videoFeed.style.display = 'none';
-                videoPlaceholder.style.display = 'block';
-                
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                
-                this.showNotification('Live video stopped', 'info');
-            } else {
-                this.showNotification(data.message || 'Failed to stop video', 'error');
+            // Stop the video stream
+            if (this.currentVideoStream) {
+                this.currentVideoStream.getTracks().forEach(track => track.stop());
+                this.currentVideoStream = null;
             }
+            
+            const videoFeed = document.getElementById('videoFeed');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const startBtn = document.getElementById('startVideoBtn');
+            const stopBtn = document.getElementById('stopVideoBtn');
+            
+            if (videoFeed) {
+                videoFeed.srcObject = null;
+                videoFeed.style.display = 'none';
+            }
+            
+            if (videoPlaceholder) {
+                videoPlaceholder.style.display = 'block';
+            }
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            this.showNotification('Live video stopped', 'info');
+            
         } catch (error) {
             console.error('Video stop error:', error);
             this.showNotification('Failed to stop video feed', 'error');

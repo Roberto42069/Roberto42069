@@ -42,11 +42,18 @@ video_active = False
 def initialize_camera():
     global camera
     try:
-        camera = cv2.VideoCapture(0)
-        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        camera.set(cv2.CAP_PROP_FPS, 30)
-        return camera.isOpened()
+        # Try multiple camera indices
+        for i in range(5):
+            camera = cv2.VideoCapture(i)
+            if camera.isOpened():
+                camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+                camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                camera.set(cv2.CAP_PROP_FPS, 30)
+                return True
+            camera.release()
+        
+        # If no camera found, create a placeholder
+        return False
     except Exception as e:
         print(f"Camera initialization failed: {e}")
         return False
