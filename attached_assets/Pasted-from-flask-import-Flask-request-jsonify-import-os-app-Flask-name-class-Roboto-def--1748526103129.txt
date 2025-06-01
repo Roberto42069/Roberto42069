@@ -6,7 +6,8 @@ app = Flask(__name__)
 class Roboto:
     def __init__(self):
         self.name = "Roboto"
-        self.version = "2.0"
+        self.version = "2.1"
+        
         self.creator = "Roberto Villarreal Martinez"
         self.tasks = self.load_tasks()  # Load tasks from file at initialization
 

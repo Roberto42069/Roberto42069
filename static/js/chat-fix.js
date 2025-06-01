@@ -560,6 +560,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: formData
             });
             
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const result = await response.json();
             console.log('Import result:', result);
             
