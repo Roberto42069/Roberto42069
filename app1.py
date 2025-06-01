@@ -19,7 +19,7 @@ class Roboto:
         self.user_emotional_state = "neutral"
         self.user_quirks = []
         self.current_user = None  # Track current user
-        self.load_grok_chat_data()
+        # self.load_grok_chat_data()  # Disabled to prevent errors
         
         # Initialize advanced memory system
         self.memory_system = AdvancedMemorySystem()
