@@ -2,7 +2,7 @@ modules = ["postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "openssl", "pkg-config", "postgresql", "rustc"]
+packages = ["cargo", "glibcLocales", "libGL", "libGLU", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "postgresql", "rustc", "alsa-lib", "pulseaudio", "ffmpeg"]
 
 [deployment]
 deploymentTarget = "autoscale"
