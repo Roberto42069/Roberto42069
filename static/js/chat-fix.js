@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadChatHistory();
     loadEmotionalStatus();
     loadPersonalProfile();
+    loadVoiceInsights();
+    loadMemoryInsights();
     
     // Text-to-speech functionality
     let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
@@ -58,8 +60,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.speechSynthesis.speak(utterance);
                     }
                     
-                    // Update personal profile after each interaction
-                    setTimeout(loadPersonalProfile, 1000);
+                    // Update all insights after each interaction
+                    setTimeout(() => {
+                        loadPersonalProfile();
+                        loadVoiceInsights();
+                        loadMemoryInsights();
+                        loadEmotionalStatus();
+                    }, 1000);
                 } else {
                     addChatMessage('Sorry, I had trouble processing that message.', false);
                 }
@@ -300,18 +307,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function updateVoiceInsights() {
+    async function loadVoiceInsights() {
         try {
             const response = await fetch('/api/voice-insights');
             const data = await response.json();
             
-            if (data.success && data.insights) {
-                console.log('Voice Recognition Learning:', data.insights);
-                // You could display this in the UI if desired
+            const voiceElement = document.getElementById('voiceInsights');
+            if (voiceElement && data.success) {
+                voiceElement.textContent = data.insights;
             }
         } catch (error) {
             console.log('Voice insights update in progress...');
         }
+    }
+    
+    async function loadMemoryInsights() {
+        try {
+            const response = await fetch('/api/memory-insights');
+            const data = await response.json();
+            
+            const memoryElement = document.getElementById('memoryInsights');
+            if (memoryElement && data.success) {
+                memoryElement.textContent = data.insights;
+            }
+        } catch (error) {
+            console.log('Memory insights update in progress...');
+        }
+    }
+    
+    async function updateVoiceInsights() {
+        loadVoiceInsights();
     }
     
     async function loadPersonalProfile() {
