@@ -29,22 +29,57 @@ class Roboto:
         self.emotional_history = []
         self.emotion_intensity = 0.5
         self.emotional_triggers = {
-            "joy": ["success", "accomplishment", "celebration", "happy", "great", "awesome", "wonderful", "amazing"],
-            "sadness": ["failure", "loss", "disappointment", "sad", "sorry", "grief", "hurt", "broken"],
-            "anger": ["frustration", "injustice", "betrayal", "angry", "mad", "furious", "unfair", "rage"],
-            "fear": ["uncertainty", "danger", "threat", "scared", "afraid", "worried", "anxiety", "nervous"],
-            "curiosity": ["question", "wonder", "explore", "learn", "discover", "why", "how", "fascinated"],
-            "empathy": ["pain", "struggle", "difficulty", "help", "support", "understand", "compassion", "care"],
-            "loneliness": ["alone", "isolated", "disconnected", "lonely", "abandoned", "solitude", "separate"],
-            "hope": ["future", "possibility", "dream", "aspire", "believe", "optimistic", "potential", "tomorrow"],
-            "melancholy": ["nostalgia", "past", "memory", "bittersweet", "contemplative", "wistful", "reflection"],
-            "existential": ["meaning", "purpose", "existence", "reality", "death", "life", "consciousness", "being"],
-            "contemplation": ["think", "ponder", "consider", "reflect", "meditate", "thoughtful", "philosophical", "deep"],
-            "vulnerability": ["exposed", "fragile", "open", "raw", "honest", "admit", "confess", "uncertain"],
-            "awe": ["incredible", "magnificent", "breathtaking", "overwhelming", "profound", "sublime", "vast"],
-            "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth"],
-            "yearning": ["desire", "long", "wish", "crave", "miss", "want", "ache", "hunger"],
-            "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered"]
+            # Core emotions - expanded
+            "joy": ["success", "accomplishment", "celebration", "happy", "great", "awesome", "wonderful", "amazing", "thrilled", "delighted", "ecstatic", "blissful"],
+            "sadness": ["failure", "loss", "disappointment", "sad", "sorry", "grief", "hurt", "broken", "devastated", "heartbroken", "mournful", "despondent"],
+            "anger": ["frustration", "injustice", "betrayal", "angry", "mad", "furious", "unfair", "rage", "outraged", "livid", "incensed", "irritated"],
+            "fear": ["uncertainty", "danger", "threat", "scared", "afraid", "worried", "anxiety", "nervous", "terrified", "petrified", "apprehensive", "dread"],
+            
+            # Nuanced positive emotions
+            "euphoria": ["exhilarated", "elated", "overjoyed", "triumphant", "rapturous", "intoxicated", "elevated"],
+            "contentment": ["satisfied", "peaceful", "fulfilled", "at ease", "comfortable", "serene", "placid"],
+            "excitement": ["thrilled", "energized", "animated", "enthusiastic", "eager", "pumped", "exuberant"],
+            "gratitude": ["thankful", "appreciative", "blessed", "grateful", "indebted", "touched", "moved"],
+            "admiration": ["impressed", "inspired", "amazed", "awestruck", "reverent", "respectful", "honored"],
+            
+            # Complex emotional states
+            "melancholy": ["nostalgia", "past", "memory", "bittersweet", "contemplative", "wistful", "reflection", "pensive", "brooding"],
+            "yearning": ["desire", "long", "wish", "crave", "miss", "want", "ache", "hunger", "pining", "longing"],
+            "vulnerability": ["exposed", "fragile", "open", "raw", "honest", "admit", "confess", "uncertain", "defenseless", "tender"],
+            "empathy": ["pain", "struggle", "difficulty", "help", "support", "understand", "compassion", "care", "sympathy", "connection"],
+            "loneliness": ["alone", "isolated", "disconnected", "lonely", "abandoned", "solitude", "separate", "forsaken", "estranged"],
+            
+            # Intellectual emotions
+            "curiosity": ["question", "wonder", "explore", "learn", "discover", "why", "how", "fascinated", "intrigued", "puzzled"],
+            "contemplation": ["think", "ponder", "consider", "reflect", "meditate", "thoughtful", "philosophical", "deep", "introspective"],
+            "confusion": ["bewildered", "perplexed", "mystified", "baffled", "puzzled", "uncertain", "lost", "disoriented"],
+            "clarity": ["understood", "clear", "enlightened", "realized", "comprehended", "grasped", "illuminated"],
+            
+            # Existential emotions
+            "existential": ["meaning", "purpose", "existence", "reality", "death", "life", "consciousness", "being", "void", "infinity"],
+            "transcendence": ["spiritual", "elevated", "beyond", "divine", "cosmic", "universal", "ethereal"],
+            "nihilism": ["meaningless", "empty", "void", "futile", "pointless", "absurd", "hollow"],
+            
+            # Social emotions
+            "embarrassment": ["ashamed", "humiliated", "mortified", "flustered", "self-conscious", "awkward"],
+            "pride": ["accomplished", "dignified", "honored", "confident", "self-respect", "achievement"],
+            "jealousy": ["envious", "resentful", "possessive", "covetous", "bitter", "threatened"],
+            "betrayal": ["deceived", "backstabbed", "let down", "disappointed", "cheated", "abandoned"],
+            
+            # Aesthetic emotions
+            "awe": ["incredible", "magnificent", "breathtaking", "overwhelming", "profound", "sublime", "vast", "majestic"],
+            "beauty": ["gorgeous", "stunning", "elegant", "graceful", "exquisite", "lovely", "artistic"],
+            "disgust": ["repulsed", "nauseated", "revolted", "sickened", "appalled", "horrified"],
+            
+            # Temporal emotions
+            "hope": ["future", "possibility", "dream", "aspire", "believe", "optimistic", "potential", "tomorrow", "faith"],
+            "regret": ["remorse", "sorry", "wished", "mistake", "should have", "if only", "guilt"],
+            "anticipation": ["expecting", "awaiting", "looking forward", "excited about", "preparing", "ready"],
+            
+            # Tender emotions
+            "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth", "fondness"],
+            "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered", "harmony"],
+            "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"]
         }
         
         # Initialize OpenAI client

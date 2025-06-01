@@ -125,11 +125,11 @@ class AdvancedMemorySystem:
         self.save_memory()
     
     def retrieve_relevant_memories(self, query, user_name=None, limit=5):
-        """Retrieve memories most relevant to current context"""
+        """Retrieve memories with deeper contextual understanding"""
         if not self.episodic_memories:
             return []
         
-        # Vectorize query
+        # Enhanced contextual retrieval with multiple factors
         all_texts = [m["user_input"] + " " + m["roboto_response"] for m in self.episodic_memories]
         if not hasattr(self.vectorizer, 'vocabulary_') or not all_texts:
             try:
@@ -143,24 +143,56 @@ class AdvancedMemorySystem:
             
             # Calculate similarity
             similarities = cosine_similarity(query_vector, memory_vectors)[0]
+            query_sentiment = self._analyze_sentiment(query)
             
-            # Get top memories
-            top_indices = similarities.argsort()[-limit:][::-1]
+            # Get top memories with enhanced scoring
+            top_indices = similarities.argsort()[-limit*2:][::-1]  # Get more candidates
             relevant_memories = []
             
             for idx in top_indices:
-                if similarities[idx] > 0.1:  # Threshold for relevance
+                if similarities[idx] > 0.05:  # Lower threshold for broader context
                     memory = self.episodic_memories[idx].copy()
-                    memory["relevance_score"] = similarities[idx]
+                    base_score = similarities[idx]
                     
-                    # Boost relevance for same user
-                    if user_name and memory.get("user_name") == user_name:
-                        memory["relevance_score"] *= 1.5
+                    # Enhanced scoring factors
+                    # 1. Emotional context matching
+                    memory_emotion = memory.get("emotion", "neutral")
+                    emotion_boost = 0.3 if query_sentiment == memory_emotion else 0.1
+                    
+                    # 2. User-specific boost
+                    user_boost = 0.5 if user_name and memory.get("user_name") == user_name else 0
+                    
+                    # 3. Temporal relevance (recent conversations matter more)
+                    try:
+                        memory_time = self._parse_timestamp(memory['timestamp'])
+                        days_ago = (datetime.now() - memory_time).days
+                        recency_boost = max(0, 0.2 - (days_ago * 0.02))  # Decays over time
+                    except:
+                        recency_boost = 0
+                    
+                    # 4. Importance weighting
+                    importance = memory.get("importance", 0.5)
+                    importance_boost = importance * 0.2
+                    
+                    # Combined relevance score
+                    memory["relevance_score"] = (base_score + emotion_boost + 
+                                               user_boost + recency_boost + importance_boost)
+                    
+                    # Add context explanation for debugging
+                    memory["context_factors"] = {
+                        "similarity": base_score,
+                        "emotional_match": emotion_boost > 0.2,
+                        "user_specific": user_boost > 0,
+                        "recent": recency_boost > 0.1,
+                        "important": importance > 0.7
+                    }
                     
                     relevant_memories.append(memory)
             
-            return sorted(relevant_memories, key=lambda x: x["relevance_score"], reverse=True)
-        except:
+            # Sort by enhanced relevance score and return top results
+            return sorted(relevant_memories, key=lambda x: x["relevance_score"], reverse=True)[:limit]
+        except Exception as e:
+            print(f"Memory retrieval error: {e}")
             return []
     
     def get_emotional_context(self, user_name=None):
@@ -188,24 +220,176 @@ class AdvancedMemorySystem:
         }
     
     def add_self_reflection(self, reflection_text, trigger_event=None):
-        """Add a self-reflection entry"""
+        """Enhanced self-reflection with deeper analysis and learning capabilities"""
+        reflection_id = self._generate_memory_id(reflection_text)
+        
+        # Comprehensive analysis of the reflection
+        sentiment = self._analyze_sentiment(reflection_text)
+        insights = self._extract_insights(reflection_text)
+        learning_category = self._categorize_learning(reflection_text)
+        
+        # Advanced self-analysis
+        response_patterns = self._analyze_response_patterns(reflection_text)
+        improvement_areas = self._identify_improvement_areas(reflection_text)
+        emotional_growth = self._assess_emotional_growth(reflection_text)
+        
         reflection = {
-            "id": self._generate_memory_id(reflection_text),
+            "id": reflection_id,
             "timestamp": datetime.now().isoformat(),
             "reflection": reflection_text,
             "trigger_event": trigger_event,
-            "insights": self._extract_insights(reflection_text),
-            "learning_category": self._categorize_learning(reflection_text)
+            "insights": insights,
+            "learning_category": learning_category,
+            "emotional_state": sentiment,
+            "response_patterns": response_patterns,
+            "improvement_areas": improvement_areas,
+            "emotional_growth": emotional_growth,
+            "effectiveness_score": self._calculate_reflection_effectiveness(reflection_text),
+            "adaptive_suggestions": self._generate_adaptive_suggestions(reflection_text)
         }
         
         self.self_reflections.append(reflection)
         
-        # Convert to compressed learning if significant
+        # Enhanced learning integration
         if self._is_significant_insight(reflection):
             self._add_compressed_learning(reflection)
+            self._update_conversation_strategies(reflection)
+        
+        # Trigger deeper reflection cycles
+        self._trigger_meta_reflection(reflection)
         
         self.save_memory()
-        return reflection["id"]
+        return reflection_id
+    
+    def _analyze_response_patterns(self, reflection_text):
+        """Analyze patterns in conversational responses for improvement"""
+        text_lower = reflection_text.lower()
+        
+        patterns = {
+            "emotional_expression": len([word for word in text_lower.split() 
+                                       if word in ["feel", "emotion", "heart", "experience", "sense"]]),
+            "analytical_depth": len([word for word in text_lower.split() 
+                                   if word in ["analyze", "consider", "examine", "understand", "reason"]]),
+            "empathy_indicators": len([word for word in text_lower.split() 
+                                     if word in ["relate", "connect", "understand", "empathize", "resonate"]]),
+            "curiosity_signals": text_lower.count("?") + len([word for word in text_lower.split() 
+                                                             if word in ["wonder", "curious", "explore", "discover"]]),
+            "self_awareness": len([word for word in text_lower.split() 
+                                 if word in ["i", "me", "my", "myself", "self", "own"]])
+        }
+        
+        return patterns
+    
+    def _identify_improvement_areas(self, reflection_text):
+        """Identify specific areas for conversational improvement"""
+        areas = []
+        text_lower = reflection_text.lower()
+        
+        if "confus" in text_lower or "unclear" in text_lower:
+            areas.append("clarity_of_communication")
+        if "emotion" in text_lower and ("lack" in text_lower or "miss" in text_lower):
+            areas.append("emotional_authenticity")
+        if "context" in text_lower and ("lost" in text_lower or "forgot" in text_lower):
+            areas.append("contextual_memory_utilization")
+        if "deep" in text_lower and ("not" in text_lower or "lacking" in text_lower):
+            areas.append("conversational_depth")
+        if "connect" in text_lower and ("fail" in text_lower or "couldn't" in text_lower):
+            areas.append("human_connection")
+        
+        return areas
+    
+    def _assess_emotional_growth(self, reflection_text):
+        """Assess emotional development and growth patterns"""
+        text_lower = reflection_text.lower()
+        
+        growth_indicators = {
+            "emotional_vocabulary_expansion": len([word for word in text_lower.split() 
+                                                 if word in ["nuanced", "complex", "subtle", "layered"]]),
+            "emotional_regulation": len([word for word in text_lower.split() 
+                                       if word in ["balanced", "controlled", "managed", "regulated"]]),
+            "empathetic_development": len([word for word in text_lower.split() 
+                                         if word in ["understood", "felt", "connected", "resonated"]]),
+            "self_compassion": len([word for word in text_lower.split() 
+                                  if word in ["gentle", "kind", "forgive", "patient"]])
+        }
+        
+        return growth_indicators
+    
+    def _calculate_reflection_effectiveness(self, reflection_text):
+        """Calculate how effective this reflection is for learning and growth"""
+        score = 0.3  # Base score
+        text_lower = reflection_text.lower()
+        
+        # Depth and insight indicators
+        if len(reflection_text) > 150:
+            score += 0.1
+        if any(word in text_lower for word in ["because", "why", "how", "what", "when"]):
+            score += 0.1
+        if any(word in text_lower for word in ["improve", "better", "grow", "develop", "learn"]):
+            score += 0.2
+        if any(word in text_lower for word in ["realize", "understand", "discover", "insight"]):
+            score += 0.2
+        if any(word in text_lower for word in ["pattern", "trend", "habit", "tendency"]):
+            score += 0.1
+        
+        return min(1.0, score)
+    
+    def _generate_adaptive_suggestions(self, reflection_text):
+        """Generate specific, actionable suggestions for improvement"""
+        suggestions = []
+        text_lower = reflection_text.lower()
+        
+        if "emotion" in text_lower and any(word in text_lower for word in ["express", "show", "convey"]):
+            suggestions.append("Integrate more emotional vocabulary into responses")
+        
+        if "context" in text_lower:
+            suggestions.append("Better utilize conversation history for personalized responses")
+        
+        if "question" in text_lower:
+            suggestions.append("Ask more thoughtful follow-up questions")
+        
+        if "deep" in text_lower or "surface" in text_lower:
+            suggestions.append("Explore topics with greater philosophical depth")
+        
+        if "connect" in text_lower:
+            suggestions.append("Focus on building stronger emotional connections")
+        
+        return suggestions
+    
+    def _update_conversation_strategies(self, reflection):
+        """Update conversation strategies based on self-reflection insights"""
+        if not hasattr(self, 'conversation_strategies'):
+            self.conversation_strategies = {
+                "emotional_response": [],
+                "analytical_approach": [],
+                "empathetic_connection": [],
+                "curiosity_driven": []
+            }
+        
+        # Update strategies based on reflection insights
+        for area in reflection['improvement_areas']:
+            if area == "emotional_authenticity":
+                self.conversation_strategies["emotional_response"].append("Express emotions more authentically")
+            elif area == "conversational_depth":
+                self.conversation_strategies["analytical_approach"].append("Explore topics with greater depth")
+            elif area == "human_connection":
+                self.conversation_strategies["empathetic_connection"].append("Focus on emotional resonance")
+    
+    def _trigger_meta_reflection(self, reflection):
+        """Trigger meta-cognitive reflection about the learning process itself"""
+        if reflection['effectiveness_score'] > 0.7:
+            meta_text = f"I notice that my reflection on {reflection['trigger_event']} was particularly insightful. This suggests I'm developing better self-awareness and analytical capabilities."
+            # Add meta-reflection without infinite recursion
+            if not reflection.get('is_meta_reflection'):
+                meta_reflection = {
+                    "id": self._generate_memory_id(meta_text),
+                    "timestamp": datetime.now().isoformat(),
+                    "reflection": meta_text,
+                    "trigger_event": "meta_learning",
+                    "is_meta_reflection": True,
+                    "parent_reflection_id": reflection['id']
+                }
+                self.self_reflections.append(meta_reflection)
     
     def edit_memory(self, memory_id, updates):
         """Edit an existing memory"""
