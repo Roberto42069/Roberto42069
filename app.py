@@ -84,7 +84,8 @@ def save_user_data():
         
         if not hasattr(current_user, 'roboto_data') or current_user.roboto_data is None:
             from models import UserData
-            current_user.roboto_data = UserData(user_id=current_user.id)
+            current_user.roboto_data = UserData()
+            current_user.roboto_data.user_id = current_user.id
             db.session.add(current_user.roboto_data)
         
         if roberto:
@@ -192,7 +193,9 @@ def get_learning_insights():
         if hasattr(roberto, 'memory_system') and roberto.memory_system:
             memory_summary = roberto.memory_system.get_memory_summary()
             insights.append(f"Total memories stored: {memory_summary.get('total_memories', 0)}")
-            insights.append(f"Recent learning patterns identified: {len(memory_summary.get('recent_patterns', []))}")
+            recent_patterns = memory_summary.get('recent_patterns', [])
+            if isinstance(recent_patterns, list):
+                insights.append(f"Recent learning patterns identified: {len(recent_patterns)}")
         
         return jsonify({"success": True, "insights": insights})
     except Exception as e:
@@ -266,7 +269,7 @@ def handle_file_upload():
         
         # Check if it's an image file
         allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
-        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        file_extension = file.filename.rsplit('.', 1)[1].lower() if file.filename and '.' in file.filename else ''
         
         if file_extension not in allowed_extensions:
             return jsonify({"success": False, "response": f"Invalid file format. Supported formats: {', '.join(allowed_extensions)}"}), 400
