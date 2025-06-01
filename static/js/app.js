@@ -23,6 +23,9 @@ class RobotoApp {
         this.voiceBuffer = [];
         this.lastSpeechTime = 0;
         this.adaptiveListening = true;
+        this.restartAttempts = 0;
+        this.maxRestartAttempts = 10;
+        this.lastRestartTime = 0;
         
         this.init();
     }
@@ -47,6 +50,30 @@ class RobotoApp {
         setInterval(() => {
             this.loadEmotionalStatus();
         }, 10000); // Every 10 seconds
+        
+        // Periodic check to maintain continuous listening (like ChatGPT)
+        setInterval(() => {
+            if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+                console.log('Periodic check: restarting speech recognition');
+                this.resumeContinuousListening();
+            }
+        }, 5000); // Check every 5 seconds
+        
+        // Handle page visibility changes to maintain background listening
+        document.addEventListener('visibilitychange', () => {
+            if (this.continuousListening) {
+                if (document.hidden) {
+                    // Page going to background - keep listening active
+                    console.log('Page backgrounded, maintaining speech recognition');
+                } else {
+                    // Page becoming visible again - ensure listening is active
+                    console.log('Page visible again, checking speech recognition');
+                    if (!this.isListeningActive) {
+                        setTimeout(() => this.resumeContinuousListening(), 500);
+                    }
+                }
+            }
+        });
     }
 
     initializeTTS() {
@@ -706,7 +733,8 @@ class RobotoApp {
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            this.addChatMessage('Sorry, I\'m having trouble connecting right now.', false);
+            this.addChatMessage('Chat connection failed. Please try again.', false);
+            this.showNotification('Chat failed - check your connection', 'error');
         }
     }
 
@@ -1382,23 +1410,36 @@ class RobotoApp {
     }
 
     resumeContinuousListening() {
-        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking && !document.hidden) {
-            // Shorter delay for more responsive listening like ChatGPT
-            setTimeout(() => {
-                if (this.continuousListening && !this.isListeningActive) {
-                    try {
-                        this.speechRecognition.continuous = true;
-                        this.speechRecognition.interimResults = true;
-                        this.speechRecognition.start();
-                    } catch (error) {
-                        if (!error.message.includes('already-listening')) {
-                            console.log('Could not resume listening:', error.message);
-                            // Try again after a brief pause
-                            setTimeout(() => this.resumeContinuousListening(), 2000);
+        const now = Date.now();
+        
+        // Reset restart attempts every 30 seconds
+        if (now - this.lastRestartTime > 30000) {
+            this.restartAttempts = 0;
+        }
+        
+        if (this.continuousListening && !this.isListeningActive && !this.isSpeaking) {
+            // Continue even when page is in background (like ChatGPT)
+            if (this.restartAttempts < this.maxRestartAttempts) {
+                setTimeout(() => {
+                    if (this.continuousListening && !this.isListeningActive) {
+                        try {
+                            this.speechRecognition.continuous = true;
+                            this.speechRecognition.interimResults = true;
+                            this.speechRecognition.start();
+                            this.restartAttempts++;
+                            this.lastRestartTime = now;
+                        } catch (error) {
+                            if (!error.message.includes('already-listening')) {
+                                console.log('Could not resume listening:', error.message);
+                                this.restartAttempts++;
+                                // Exponential backoff for failed attempts
+                                const delay = Math.min(2000 * Math.pow(1.5, this.restartAttempts), 10000);
+                                setTimeout(() => this.resumeContinuousListening(), delay);
+                            }
                         }
                     }
-                }
-            }, 500);
+                }, 300);
+            }
         }
     }
 
