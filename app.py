@@ -661,71 +661,7 @@ def stop_video():
             camera = None
     return jsonify({'success': True, 'message': 'Video stopped'})
 
-@app.route('/speech_to_speech', methods=['POST'])
-def speech_to_speech():
-    """Process audio input and return audio response using OpenAI's API"""
-    try:
-        # Get audio data from request
-        if 'audio' not in request.files:
-            return jsonify({'success': False, 'message': 'No audio file provided'})
-        
-        audio_file = request.files['audio']
-        
-        # Check if we have OpenAI API key
-        if not os.environ.get("OPENAI_API_KEY"):
-            return jsonify({'success': False, 'message': 'OpenAI API key not configured'})
-        
-        # Get OpenAI client
-        openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        
-        # Save temporary audio file with proper extension for Whisper
-        temp_audio_path = f"temp_audio_{datetime.now().timestamp()}.webm"
-        audio_file.save(temp_audio_path)
-        
-        # Transcribe audio using OpenAI Whisper
-        with open(temp_audio_path, 'rb') as audio:
-            transcript = openai_client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio
-            )
-        
-        # Get text response from Roboto
-        roboto = get_user_roberto()
-        if roboto:
-            response_text = roboto.chat(transcript.text)
-        else:
-            response_text = "I'm sorry, I couldn't process your request."
-        
-        # Generate speech from text using OpenAI TTS
-        speech_response = openai_client.audio.speech.create(
-            model="tts-1",
-            voice="nova",
-            input=response_text,
-            response_format="mp3"
-        )
-        
-        # Save speech to temporary file
-        temp_speech_path = f"temp_speech_{datetime.now().timestamp()}.mp3"
-        speech_response.stream_to_file(temp_speech_path)
-        
-        # Convert audio to base64 for transmission
-        with open(temp_speech_path, 'rb') as audio_file:
-            audio_data = base64.b64encode(audio_file.read()).decode()
-        
-        # Clean up temporary files
-        os.remove(temp_audio_path)
-        os.remove(temp_speech_path)
-        
-        return jsonify({
-            'success': True,
-            'transcript': transcript.text,
-            'response': response_text,
-            'audio': audio_data
-        })
-        
-    except Exception as e:
-        print(f"Speech-to-speech error: {e}")
-        return jsonify({'success': False, 'message': str(e)})
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)  # Using 0.0.0.0 for accessibility

@@ -224,14 +224,7 @@ class RobotoApp {
             });
         }
 
-        // Speech-to-speech button
-        const speechToSpeechBtn = document.getElementById('speechToSpeechBtn');
-        if (speechToSpeechBtn) {
-            speechToSpeechBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.startSpeechToSpeech();
-            });
-        }
+
 
         // Video control buttons
         const startVideoBtn = document.getElementById('startVideoBtn');
