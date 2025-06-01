@@ -33,6 +33,7 @@ openai_client = OpenAI(api_key=OPENAI_API_KEY)
 from replit_auth import require_login, make_replit_blueprint
 from flask_login import current_user
 from models import UserData
+from recaptcha import verify_recaptcha, is_recaptcha_enabled
 
 app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
@@ -107,6 +108,16 @@ def add_task():
         data = request.get_json()
         if not data or 'task' not in data:
             return jsonify({"success": False, "message": "[ERROR] No task provided!"}), 400
+
+        # Verify reCAPTCHA if enabled
+        if is_recaptcha_enabled():
+            recaptcha_response = data.get('recaptcha_response')
+            if not verify_recaptcha(recaptcha_response):
+                return jsonify({
+                    "success": False, 
+                    "message": "Security verification failed. Please try again.",
+                    "recaptcha_required": True
+                }), 400
 
         roberto = get_user_roberto()
         result = roberto.add_task(data['task'])
@@ -202,6 +213,16 @@ def chat():
         data = request.get_json()
         if not data or 'message' not in data:
             return jsonify({"success": False, "response": "No message provided"}), 400
+        
+        # Verify reCAPTCHA if enabled
+        if is_recaptcha_enabled():
+            recaptcha_response = data.get('recaptcha_response')
+            if not verify_recaptcha(recaptcha_response):
+                return jsonify({
+                    "success": False, 
+                    "response": "Security verification failed. Please try again.",
+                    "recaptcha_required": True
+                }), 400
         
         message = data['message']
         user_name = data.get('user_name')
