@@ -38,13 +38,8 @@ class RobotoApp {
         this.initializeSpeechRecognition();
         this.initializeVoiceConversationMode();
         
-        // Restore speech mode if it was previously enabled
-        this.continuousListening = localStorage.getItem('continuousListening') === 'true';
-        if (this.continuousListening) {
-            setTimeout(() => {
-                this.restoreSpeechMode();
-            }, 1000);
-        }
+        // Initialize TTS state from localStorage
+        this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
         
         // Update emotional status periodically
         setInterval(() => {
@@ -74,8 +69,34 @@ class RobotoApp {
     }
 
     initializeTTS() {
-        // TTS is now handled by the speech button
-        // No separate TTS button initialization needed
+        const ttsBtn = document.getElementById('ttsBtn');
+        const icon = ttsBtn.querySelector('i');
+        
+        if (this.ttsEnabled) {
+            ttsBtn.classList.add('btn-tts-active');
+            icon.className = 'fas fa-volume-up';
+        } else {
+            ttsBtn.classList.remove('btn-tts-active');
+            icon.className = 'fas fa-volume-mute';
+        }
+    }
+
+    toggleTTS() {
+        this.ttsEnabled = !this.ttsEnabled;
+        localStorage.setItem('ttsEnabled', this.ttsEnabled);
+        
+        const ttsBtn = document.getElementById('ttsBtn');
+        const icon = ttsBtn.querySelector('i');
+        
+        if (this.ttsEnabled) {
+            ttsBtn.classList.add('btn-tts-active');
+            icon.className = 'fas fa-volume-up';
+            this.showNotification('Text-to-speech enabled', 'success');
+        } else {
+            ttsBtn.classList.remove('btn-tts-active');
+            icon.className = 'fas fa-volume-mute';
+            this.showNotification('Text-to-speech disabled', 'info');
+        }
     }
 
     bindEvents() {
@@ -170,16 +191,20 @@ class RobotoApp {
             }
         });
 
-        // Speech button - tap to talk for iPhone compatibility
-        const speechBtn = document.getElementById('speechBtn');
-        if (speechBtn) {
-            speechBtn.addEventListener('click', (e) => {
+        // TTS toggle button
+        const ttsBtn = document.getElementById('ttsBtn');
+        if (ttsBtn) {
+            ttsBtn.addEventListener('click', () => {
+                this.toggleTTS();
+            });
+        }
+
+        // Voice recording button
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (this.continuousListening) {
-                    this.startSingleListening();
-                } else {
-                    this.toggleSpeechMode();
-                }
+                this.startVoiceListening();
             });
         }
     }
@@ -1379,18 +1404,25 @@ class RobotoApp {
         }
     }
 
-    startSingleListening() {
-        if (!this.speechRecognition || this.isListeningActive) return;
-        
+    startVoiceListening() {
+        if (!this.speechRecognition) {
+            this.showNotification('Speech recognition not supported', 'error');
+            return;
+        }
+
+        if (this.isListeningActive) {
+            this.showNotification('Already listening...', 'warning');
+            return;
+        }
+
         try {
-            // Simple one-time listening for iPhone
             this.speechRecognition.continuous = false;
             this.speechRecognition.interimResults = false;
             this.speechRecognition.start();
             this.showNotification('Listening... speak now', 'info');
         } catch (error) {
-            console.error('Failed to start listening:', error);
-            this.showNotification('Could not start microphone. Please try again.', 'error');
+            console.error('Failed to start voice listening:', error);
+            this.showNotification('Could not start microphone', 'error');
         }
     }
 

@@ -373,5 +373,68 @@ def add_reflection():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
 
+@app.route('/api/code-access', methods=['GET'])
+def get_code_access():
+    """Allow AI to inspect its own code for debugging and improvement"""
+    try:
+        import os
+        import glob
+        
+        code_files = {}
+        
+        # Get main application files
+        patterns = ['*.py', 'static/js/*.js', 'static/css/*.css', 'templates/*.html']
+        for pattern in patterns:
+            for file_path in glob.glob(pattern):
+                if os.path.isfile(file_path):
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            code_files[file_path] = f.read()
+                    except Exception as e:
+                        code_files[file_path] = f"Error reading file: {e}"
+        
+        return jsonify({
+            "success": True,
+            "code_files": code_files,
+            "message": "Code access granted for self-inspection"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/code-modify', methods=['POST'])
+def modify_code():
+    """Allow AI to modify its own code"""
+    try:
+        data = request.get_json()
+        if not data or 'file_path' not in data or 'content' not in data:
+            return jsonify({"success": False, "message": "File path and content required"}), 400
+        
+        file_path = data['file_path']
+        content = data['content']
+        
+        # Security check - only allow modification of specific files
+        allowed_files = ['static/js/app.js', 'static/css/style.css', 'app1.py', 'memory_system.py']
+        if file_path not in allowed_files:
+            return jsonify({"success": False, "message": "File modification not allowed"}), 403
+        
+        # Backup original file
+        backup_path = f"{file_path}.backup"
+        import shutil
+        shutil.copy2(file_path, backup_path)
+        
+        # Write new content
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        return jsonify({
+            "success": True,
+            "message": f"File {file_path} modified successfully",
+            "backup_created": backup_path
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)  # Using 0.0.0.0 for accessibility
