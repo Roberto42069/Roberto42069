@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 import os
 import io
 import base64
+import json
 from openai import OpenAI
 from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
