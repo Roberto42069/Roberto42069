@@ -3669,5 +3669,14 @@
     "emotion_intensity": 0.32000000000000006,
     "memory_id": null,
     "user": "Not"
+  },
+  {
+    "message": "test",
+    "response": "It looks like you\u2019re testing things out! I\u2019m here for it. If there\u2019s something specific you\u2019d like to explore or ask about, feel free to let me know. I\u2019m all ears\u2014well, metaphorically speaking! How can I assist you today?",
+    "timestamp": "2025-06-01T13:40:22.863873",
+    "emotion": "curious",
+    "emotion_intensity": 0.5,
+    "memory_id": "6c1b8a9f874d",
+    "user": null
   }
 ]
