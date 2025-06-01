@@ -199,71 +199,119 @@ def export_data():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
+        # Validate request
         data = request.get_json()
         if not data or 'message' not in data:
+            app.logger.error("No message provided in chat request")
             return jsonify({"success": False, "response": "No message provided"}), 400
         
-        message = data['message']
+        message = data['message'].strip()
+        if not message:
+            return jsonify({"success": False, "response": "Empty message"}), 400
+            
         user_name = data.get('user_name')
+        app.logger.info(f"Chat request from user: {user_name}, message length: {len(message)}")
         
+        # Get Roberto instance
         roberto = get_user_roberto()
+        if not roberto:
+            app.logger.error("Failed to get Roberto instance")
+            return jsonify({"success": False, "response": "System initialization error"}), 500
         
         # Set current user if provided
-        if user_name:
-            roberto.set_current_user(user_name)
-        else:
-            # Check for user introduction in message
-            roberto.check_user_introduction(message)
+        try:
+            if user_name:
+                roberto.set_current_user(user_name)
+            else:
+                roberto.check_user_introduction(message)
+        except Exception as e:
+            app.logger.warning(f"User setting error: {e}")
         
-        # Get memory context
-        relevant_memories = roberto.memory_system.retrieve_relevant_memories(
-            message, roberto.current_user, limit=3
-        )
+        # Get memory context with error handling
+        relevant_memories = []
+        try:
+            if roberto.memory_system:
+                relevant_memories = roberto.memory_system.retrieve_relevant_memories(
+                    message, roberto.current_user, limit=3
+                )
+        except Exception as e:
+            app.logger.warning(f"Memory retrieval error: {e}")
         
         # Detect emotion and update state
-        roberto.detect_emotion(message)
+        try:
+            roberto.detect_emotion(message)
+        except Exception as e:
+            app.logger.warning(f"Emotion detection error: {e}")
         
-        # Generate response with memory integration
-        response = roberto.generate_response(message)
+        # Generate response with error handling
+        response = None
+        try:
+            response = roberto.generate_response(message)
+            if not response:
+                response = "I'm experiencing some difficulty right now. Please try again."
+        except Exception as e:
+            app.logger.error(f"Response generation error: {e}")
+            response = "I'm having trouble processing your message right now. Please try again in a moment."
         
         # Store interaction in memory system
-        memory_id = roberto.memory_system.add_episodic_memory(
-            message, response, roberto.current_emotion, roberto.current_user
-        )
+        memory_id = None
+        try:
+            if roberto.memory_system and response:
+                memory_id = roberto.memory_system.add_episodic_memory(
+                    message, response, roberto.current_emotion, roberto.current_user
+                )
+        except Exception as e:
+            app.logger.warning(f"Memory storage error: {e}")
         
         # Add to chat history
-        chat_entry = {
-            "message": message,
-            "response": response,
-            "timestamp": datetime.now().isoformat(),
-            "emotion": roberto.current_emotion,
-            "emotion_intensity": roberto.emotion_intensity,
-            "memory_id": memory_id,
-            "user": roberto.current_user
-        }
-        roberto.chat_history.append(chat_entry)
-        roberto.save_chat_history()
+        try:
+            chat_entry = {
+                "message": message,
+                "response": response,
+                "timestamp": datetime.now().isoformat(),
+                "emotion": getattr(roberto, 'current_emotion', 'curious'),
+                "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
+                "memory_id": memory_id,
+                "user": getattr(roberto, 'current_user', None)
+            }
+            roberto.chat_history.append(chat_entry)
+            roberto.save_chat_history()
+        except Exception as e:
+            app.logger.warning(f"Chat history save error: {e}")
         
         # Save user data
-        save_user_data()
+        try:
+            save_user_data()
+        except Exception as e:
+            app.logger.warning(f"User data save error: {e}")
         
         # Get updated memory summary
-        memory_summary = roberto.memory_system.get_memory_summary(roberto.current_user)
+        memory_summary = {}
+        try:
+            if roberto.memory_system:
+                memory_summary = roberto.memory_system.get_memory_summary(roberto.current_user)
+        except Exception as e:
+            app.logger.warning(f"Memory summary error: {e}")
         
         return jsonify({
             "success": True, 
             "response": response,
-            "emotion": roberto.current_emotion,
-            "emotion_intensity": roberto.emotion_intensity,
-            "current_user": roberto.current_user,
+            "emotion": getattr(roberto, 'current_emotion', 'curious'),
+            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
+            "current_user": getattr(roberto, 'current_user', None),
             "memory_context": {
                 "relevant_memories": len(relevant_memories),
                 "total_user_memories": memory_summary.get('user_specific_memories', 0),
                 "memory_id": memory_id
             }
         })
+        
     except Exception as e:
-        return jsonify({"success": False, "response": f"Error: {str(e)}"}), 500
+        app.logger.error(f"Chat endpoint critical error: {e}")
+        return jsonify({
+            "success": False, 
+            "response": "I'm experiencing technical difficulties. Please refresh the page and try again."
+        }), 500
 
 # Memory Management API Endpoints
 @app.route('/api/memory/summary', methods=['GET'])

@@ -735,49 +735,92 @@ class RobotoApp {
         this.addChatMessage(message, true);
         chatInput.value = '';
 
-        try {
-            // Simpler fetch for iPhone compatibility
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message })
-            });
+        // Show typing indicator
+        const typingId = Date.now();
+        this.addChatMessage('Roboto is thinking...', false, typingId);
 
-            if (!response.ok) {
-                throw new Error(`Network error: ${response.status}`);
-            }
+        let retryCount = 0;
+        const maxRetries = 3;
 
-            const data = await response.json();
-            
-            if (data.success) {
-                // Add bot response to chat
-                this.addChatMessage(data.response, false);
-                // Speak the response if TTS is enabled
-                if (this.ttsEnabled) {
-                    this.speakText(data.response);
+        while (retryCount < maxRetries) {
+            try {
+                // Create abort controller for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                    },
+                    body: JSON.stringify({ 
+                        message,
+                        timestamp: Date.now() // Add timestamp for uniqueness
+                    }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                // Update emotional status after each message
-                this.loadEmotionalStatus();
-            } else {
-                this.addChatMessage(data.response || 'Sorry, I encountered an error.', false);
-                console.error('Chat API error:', data);
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                this.removeChatMessage(typingId);
+                
+                if (data.success && data.response) {
+                    // Add bot response to chat
+                    this.addChatMessage(data.response, false);
+                    
+                    // Speak the response if TTS is enabled
+                    if (this.ttsEnabled) {
+                        this.speakText(data.response);
+                    }
+                    
+                    // Update emotional status after each message
+                    this.loadEmotionalStatus();
+                    return; // Success, exit retry loop
+                } else {
+                    throw new Error(data.response || 'Invalid response from server');
+                }
+                
+            } catch (error) {
+                console.error(`Chat attempt ${retryCount + 1} failed:`, error);
+                retryCount++;
+                
+                if (retryCount >= maxRetries) {
+                    // Remove typing indicator
+                    this.removeChatMessage(typingId);
+                    
+                    if (error.name === 'AbortError') {
+                        this.addChatMessage('Request timed out. Please try again.', false);
+                        this.showNotification('Request timed out', 'warning');
+                    } else if (error.message.includes('HTTP 5')) {
+                        this.addChatMessage('Server is experiencing issues. Please try again in a moment.', false);
+                        this.showNotification('Server error - please try again', 'error');
+                    } else {
+                        this.addChatMessage('Connection problem. Please check your internet and try again.', false);
+                        this.showNotification('Connection failed - please try again', 'error');
+                    }
+                } else {
+                    // Wait before retry
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                }
             }
-        } catch (error) {
-            console.error('Error sending message:', error);
-            if (error.name === 'AbortError') {
-                this.addChatMessage('Request timed out. Please try again.', false);
-            } else {
-                this.addChatMessage('Connection error. Please check your network and try again.', false);
-            }
-            this.showNotification('Chat failed - please try again', 'error');
         }
     }
 
-    addChatMessage(message, isUser) {
+    addChatMessage(message, isUser, messageId = null) {
         const chatHistory = document.getElementById('chatHistory');
         const messageDiv = document.createElement('div');
+        
+        if (messageId) {
+            messageDiv.setAttribute('data-message-id', messageId);
+        }
         messageDiv.className = `chat-message mb-2 ${isUser ? 'user-message' : 'bot-message'}`;
         
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1834,6 +1877,13 @@ class RobotoApp {
     }
 
 
+
+    removeChatMessage(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+    }
 
     escapeHtml(text) {
         const div = document.createElement('div');
