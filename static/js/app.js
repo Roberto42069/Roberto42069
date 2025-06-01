@@ -35,6 +35,14 @@ class RobotoApp {
         this.initializeSpeechRecognition();
         this.initializeVoiceConversationMode();
         
+        // Restore speech mode if it was previously enabled
+        this.continuousListening = localStorage.getItem('continuousListening') === 'true';
+        if (this.continuousListening) {
+            setTimeout(() => {
+                this.restoreSpeechMode();
+            }, 1000);
+        }
+        
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
@@ -42,16 +50,8 @@ class RobotoApp {
     }
 
     initializeTTS() {
-        const ttsBtn = document.getElementById('ttsBtn');
-        const icon = ttsBtn.querySelector('i');
-        
-        if (this.ttsEnabled) {
-            ttsBtn.classList.add('btn-tts-active');
-            icon.className = 'fas fa-volume-up';
-        } else {
-            ttsBtn.classList.remove('btn-tts-active');
-            icon.className = 'fas fa-volume-mute';
-        }
+        // TTS is now handled by the speech button
+        // No separate TTS button initialization needed
     }
 
     bindEvents() {
@@ -1486,27 +1486,38 @@ class RobotoApp {
         this.updateListeningIndicator(false);
         
         if (event.error === 'no-speech') {
-            // Normal - just restart
+            // Normal - just restart silently for background listening
             if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 2000);
+                setTimeout(() => this.resumeContinuousListening(), 1000);
             }
         } else if (event.error === 'aborted') {
             // Normal stop - don't restart
             console.log('Speech recognition stopped');
         } else if (event.error === 'audio-capture') {
-            this.showNotification('Microphone access denied. Enable microphone permissions to use voice features.', 'error');
-            this.continuousListening = false;
-            this.updateContinuousListenButton();
+            this.showNotification('Microphone access denied. Please enable microphone permissions.', 'error');
+            this.disableSpeechMode();
         } else if (event.error === 'not-allowed') {
             this.showNotification('Microphone permission denied. Please allow microphone access and try again.', 'error');
-            this.continuousListening = false;
-            this.updateContinuousListenButton();
+            this.disableSpeechMode();
         } else {
             console.error('Speech recognition error:', event.error);
+            // Keep trying to restart for background listening
             if (this.continuousListening) {
-                setTimeout(() => this.resumeContinuousListening(), 3000);
+                setTimeout(() => this.resumeContinuousListening(), 2000);
             }
         }
+    }
+
+    disableSpeechMode() {
+        this.continuousListening = false;
+        const speechBtn = document.getElementById('speechBtn');
+        const icon = speechBtn.querySelector('i');
+        
+        speechBtn.classList.remove('btn-listen-active');
+        icon.className = 'fas fa-microphone';
+        speechBtn.title = 'Speech Mode - Click to Enable';
+        
+        localStorage.setItem('continuousListening', false);
     }
 
     handleSpeechEnd() {
@@ -1747,16 +1758,20 @@ class RobotoApp {
         const icon = speechBtn.querySelector('i');
 
         if (!this.continuousListening) {
-            // Enable speech mode
+            // Enable speech mode with continuous listening like ChatGPT
             this.continuousListening = true;
             this.ttsEnabled = true;
             
             speechBtn.classList.add('btn-listen-active');
             icon.className = 'fas fa-microphone-alt';
-            speechBtn.title = 'Speech Mode Active - Click to Disable';
+            speechBtn.title = 'Speech Mode Active - Always Listening';
+            
+            // Configure for continuous background listening
+            this.speechRecognition.continuous = true;
+            this.speechRecognition.interimResults = true;
             
             this.startContinuousListening();
-            this.showNotification('Speech mode enabled - talk to Roboto anytime', 'success');
+            this.showNotification('Speech mode enabled - always listening in background', 'success');
             
             // Store preferences
             localStorage.setItem('continuousListening', true);
@@ -1768,7 +1783,7 @@ class RobotoApp {
             
             speechBtn.classList.remove('btn-listen-active');
             icon.className = 'fas fa-microphone';
-            speechBtn.title = 'Speech Mode - Talk to Roboto';
+            speechBtn.title = 'Speech Mode - Click to Enable';
             
             this.stopContinuousListening();
             this.showNotification('Speech mode disabled', 'info');
@@ -1776,6 +1791,20 @@ class RobotoApp {
             // Store preferences
             localStorage.setItem('continuousListening', false);
             localStorage.setItem('ttsEnabled', false);
+        }
+    }
+
+    restoreSpeechMode() {
+        const speechBtn = document.getElementById('speechBtn');
+        const icon = speechBtn.querySelector('i');
+        
+        if (speechBtn && this.continuousListening) {
+            speechBtn.classList.add('btn-listen-active');
+            icon.className = 'fas fa-microphone-alt';
+            speechBtn.title = 'Speech Mode Active - Always Listening';
+            
+            this.ttsEnabled = true;
+            this.startContinuousListening();
         }
     }
 
