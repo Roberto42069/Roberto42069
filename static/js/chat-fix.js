@@ -513,49 +513,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function handleImportFile(event) {
+        console.log('Import file handler called');
         const file = event.target.files[0];
-        const statusDiv = document.getElementById('data-status');
+        const statusDiv = document.querySelector('#data-status');
         
-        if (!file) return;
+        console.log('Selected file:', file);
+        
+        if (!file) {
+            console.log('No file selected');
+            return;
+        }
         
         try {
-            statusDiv.textContent = 'Importing data...';
-            statusDiv.className = 'small text-info text-center';
+            if (statusDiv) {
+                statusDiv.textContent = 'Importing data...';
+                statusDiv.className = 'small text-info text-center';
+            }
             
+            console.log('Reading file...');
             const text = await file.text();
+            console.log('File content length:', text.length);
+            
             const importData = JSON.parse(text);
+            console.log('Parsed data:', importData);
             
             // Validate import data structure
             if (!importData.chat_history && !importData.emotional_history && !importData.learned_patterns) {
-                throw new Error('Invalid data format');
+                throw new Error('Invalid data format - missing required fields');
             }
             
             const formData = new FormData();
             formData.append('import_data', JSON.stringify(importData));
             
+            console.log('Sending import request...');
             const response = await fetch('/api/import', {
                 method: 'POST',
                 body: formData
             });
             
             const result = await response.json();
+            console.log('Import result:', result);
             
             if (result.success) {
-                statusDiv.textContent = 'Data imported successfully! Refreshing...';
-                statusDiv.className = 'small text-success text-center';
+                if (statusDiv) {
+                    statusDiv.textContent = 'Data imported successfully! Refreshing...';
+                    statusDiv.className = 'small text-success text-center';
+                }
                 
                 // Refresh the page to load new data
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
             } else {
-                statusDiv.textContent = 'Import failed: ' + result.message;
-                statusDiv.className = 'small text-danger text-center';
+                if (statusDiv) {
+                    statusDiv.textContent = 'Import failed: ' + result.message;
+                    statusDiv.className = 'small text-danger text-center';
+                }
             }
         } catch (error) {
             console.error('Import error:', error);
-            statusDiv.textContent = 'Import failed. Please check your file format.';
-            statusDiv.className = 'small text-danger text-center';
+            if (statusDiv) {
+                statusDiv.textContent = 'Import failed. Please check your file format.';
+                statusDiv.className = 'small text-danger text-center';
+            }
         }
         
         // Reset file input
@@ -563,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Reset status after 3 seconds (if not successful)
         setTimeout(() => {
-            if (!statusDiv.textContent.includes('successfully')) {
+            if (statusDiv && !statusDiv.textContent.includes('successfully')) {
                 statusDiv.textContent = 'Export your conversations and memories, or import previous data';
                 statusDiv.className = 'small text-muted text-center';
             }
