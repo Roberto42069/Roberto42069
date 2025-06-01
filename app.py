@@ -23,6 +23,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
 }
 
+# RECAPTCHA configuration
+app.config["RECAPTCHA_SITE_KEY"] = os.environ.get("RECAPTCHA_SITE_KEY")
+app.config["RECAPTCHA_SECRET_KEY"] = os.environ.get("RECAPTCHA_SECRET_KEY")
+
 db = SQLAlchemy(app, model_class=Base)
 
 # Initialize OpenAI client
