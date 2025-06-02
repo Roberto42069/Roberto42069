@@ -176,20 +176,8 @@ def logged_in(blueprint, token):
             else:
                 raise Exception("JWKS URI not found in OpenID configuration")
         else:
-            # Fallback: For development, we can decode without signature verification
-            # but validate other claims manually
-            user_claims = jwt.decode(
-                token['id_token'],
-                options={"verify_signature": False, "verify_aud": False}
-            )
-            
-            # Validate the token came from the expected issuer
-            if user_claims.get('iss') != issuer_url:
-                raise Exception(f"Invalid issuer: expected {issuer_url}, got {user_claims.get('iss')}")
-            
-            # Validate the audience if present
-            if 'aud' in user_claims and user_claims['aud'] != os.environ['REPL_ID']:
-                raise Exception(f"Invalid audience: expected {os.environ['REPL_ID']}, got {user_claims['aud']}")
+            # If JWKS is not available, we cannot safely verify the token
+            raise Exception("Unable to retrieve JWKS for token verification")
                 
     except Exception as e:
         app.logger.error(f"JWT verification failed: {e}")
@@ -210,8 +198,10 @@ def handle_error(blueprint, error, error_description=None, error_uri=None):
 def check_authorization_on_login(blueprint, token):
     """Additional authorization check on login"""
     try:
-        user_claims = jwt.decode(token['id_token'], options={"verify_signature": False})
-        save_user(user_claims)  # This will raise exception if not authorized
+        # This function should not decode JWT tokens - authorization is handled in logged_in()
+        # We can access user_claims through the already authenticated current_user
+        if not current_user.is_authenticated:
+            raise Exception("User not authenticated")
     except Exception as e:
         app.logger.warning(f"Authorization failed: {e}")
         return redirect(url_for('replit_auth.error'))
