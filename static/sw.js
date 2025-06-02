@@ -1,9 +1,10 @@
-// Service Worker for background functionality with continuous voice recognition
+// Enhanced Service Worker for persistent background voice recognition
 let backgroundVoiceActive = false;
-let recognition = null;
+let persistentListening = false;
+let voiceWakeLock = null;
 
 self.addEventListener('install', function(event) {
-    console.log('Service Worker installing with voice capabilities');
+    console.log('Service Worker installing with persistent voice capabilities');
     self.skipWaiting();
 });
 
@@ -11,13 +12,25 @@ self.addEventListener('activate', function(event) {
     console.log('Service Worker activating with background voice');
     event.waitUntil(self.clients.claim());
     
-    // Initialize background voice recognition
-    initializeBackgroundVoice();
+    // Enable persistent background operation
+    initializePersistentVoice();
 });
 
-function initializeBackgroundVoice() {
-    // This will be managed by the main app but kept alive by service worker
-    console.log('Background voice recognition initialized');
+function initializePersistentVoice() {
+    // Keep service worker alive indefinitely for voice recognition
+    setInterval(() => {
+        console.log('Service Worker heartbeat - maintaining voice session');
+        
+        // Check if any clients need voice recognition
+        self.clients.matchAll({ includeUncontrolled: true }).then(clients => {
+            if (clients.length === 0 && persistentListening) {
+                // No clients but voice should persist - maintain session
+                console.log('Maintaining voice recognition with no active clients');
+            }
+        });
+    }, 5000); // Every 5 seconds
+    
+    console.log('Persistent background voice recognition initialized');
 }
 
 // Handle background sync for messages
@@ -49,12 +62,23 @@ self.addEventListener('message', function(event) {
     
     if (event.data && event.data.type === 'VOICE_ACTIVE') {
         backgroundVoiceActive = event.data.active;
+        persistentListening = event.data.persistent || false;
         console.log('Background voice recognition:', backgroundVoiceActive ? 'enabled' : 'disabled');
+        console.log('Persistent listening:', persistentListening ? 'enabled' : 'disabled');
         
         if (backgroundVoiceActive) {
-            // Keep service worker alive for voice recognition
             maintainVoiceSession();
         }
+    }
+    
+    if (event.data && event.data.type === 'ENABLE_PERSISTENT_VOICE') {
+        persistentListening = true;
+        backgroundVoiceActive = true;
+        console.log('Persistent voice recognition enabled - will continue when app closes');
+        maintainVoiceSession();
+        
+        // Respond to confirm persistent mode
+        event.ports[0]?.postMessage({ type: 'PERSISTENT_VOICE_ENABLED' });
     }
 });
 
