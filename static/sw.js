@@ -1,13 +1,24 @@
-// Service Worker for background functionality
+// Service Worker for background functionality with continuous voice recognition
+let backgroundVoiceActive = false;
+let recognition = null;
+
 self.addEventListener('install', function(event) {
-    console.log('Service Worker installing');
+    console.log('Service Worker installing with voice capabilities');
     self.skipWaiting();
 });
 
 self.addEventListener('activate', function(event) {
-    console.log('Service Worker activating');
+    console.log('Service Worker activating with background voice');
     event.waitUntil(self.clients.claim());
+    
+    // Initialize background voice recognition
+    initializeBackgroundVoice();
 });
+
+function initializeBackgroundVoice() {
+    // This will be managed by the main app but kept alive by service worker
+    console.log('Background voice recognition initialized');
+}
 
 // Handle background sync for messages
 self.addEventListener('sync', function(event) {
@@ -35,7 +46,36 @@ self.addEventListener('message', function(event) {
         // Respond to keep connection active
         event.ports[0].postMessage({ type: 'ALIVE' });
     }
+    
+    if (event.data && event.data.type === 'VOICE_ACTIVE') {
+        backgroundVoiceActive = event.data.active;
+        console.log('Background voice recognition:', backgroundVoiceActive ? 'enabled' : 'disabled');
+        
+        if (backgroundVoiceActive) {
+            // Keep service worker alive for voice recognition
+            maintainVoiceSession();
+        }
+    }
 });
+
+async function maintainVoiceSession() {
+    // Prevent service worker from being terminated during voice recognition
+    setInterval(() => {
+        if (backgroundVoiceActive) {
+            console.log('Maintaining voice session in background');
+            
+            // Notify main app to keep voice recognition alive
+            self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                    client.postMessage({ 
+                        type: 'KEEP_VOICE_ALIVE',
+                        timestamp: Date.now()
+                    });
+                });
+            });
+        }
+    }, 10000); // Every 10 seconds
+}
 
 // Handle background chat processing
 async function handleBackgroundChat() {
