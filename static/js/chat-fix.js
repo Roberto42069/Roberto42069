@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     function addChatMessage(message, isUser) {
-        const chatHistory = document.getElementById('chat-history');
+        const chatHistory = document.getElementById('chatHistory') || document.getElementById('chat-history');
         if (!chatHistory) return;
         
         const messageDiv = document.createElement('div');
@@ -130,22 +130,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success && data.history && Array.isArray(data.history)) {
-                const chatHistoryElement = document.getElementById('chat-history');
+                const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
                 if (chatHistoryElement) {
                     chatHistoryElement.innerHTML = '';
                     
-                    // Load ALL conversations
                     console.log(`Loading ${data.history.length} conversations`);
-                    if (Array.isArray(data.history)) {
-                        data.history.forEach(entry => {
-                            if (entry.message) {
-                                addChatMessage(entry.message, true);
-                            }
-                            if (entry.response) {
-                                addChatMessage(entry.response, false);
-                            }
-                        });
-                    }
+                    data.history.forEach(entry => {
+                        if (entry.message) {
+                            addChatMessage(entry.message, true);
+                        }
+                        if (entry.response) {
+                            addChatMessage(entry.response, false);
+                        }
+                    });
                     
                     // Scroll to bottom
                     setTimeout(() => {
@@ -393,13 +390,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (summariesContainer) {
                     summariesContainer.innerHTML = '';
                     
-                    // Group conversations by date and create summaries
-                    const conversationsByDate = groupConversationsByDate(data.history);
+                    // Group conversations by date
+                    const grouped = {};
+                    data.history.forEach(entry => {
+                        const date = entry.timestamp ? new Date(entry.timestamp).toDateString() : 'Recent';
+                        if (!grouped[date]) {
+                            grouped[date] = [];
+                        }
+                        grouped[date].push(entry);
+                    });
                     
-                    Object.keys(conversationsByDate).slice(-10).forEach(date => {
-                        const conversations = conversationsByDate[date];
-                        const summaryCard = createSummaryCard(date, conversations);
-                        summariesContainer.appendChild(summaryCard);
+                    // Show last 5 dates
+                    Object.keys(grouped).slice(-5).forEach(date => {
+                        const conversations = grouped[date];
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.className = 'conversation-summary mb-2 p-2 bg-secondary rounded';
+                        
+                        const preview = conversations.slice(0, 2).map(c => 
+                            c.message ? c.message.substring(0, 40) + '...' : ''
+                        ).filter(p => p).join(' | ');
+                        
+                        summaryDiv.innerHTML = `
+                            <div class="fw-bold small">${date}</div>
+                            <div class="text-muted small">${conversations.length} conversations</div>
+                            <div class="small">${preview}</div>
+                        `;
+                        
+                        summariesContainer.appendChild(summaryDiv);
                     });
                 }
             }
@@ -476,27 +493,29 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error loading date conversations:', error));
     };
 
-    // History panel functionality
-    const historyToggle = document.getElementById('historyToggle');
-    const historyPanel = document.getElementById('historyPanel');
-    const closeHistory = document.getElementById('closeHistory');
-    
-    if (historyToggle && historyPanel) {
-        historyToggle.addEventListener('click', function() {
-            if (historyPanel.style.display === 'none') {
-                historyPanel.style.display = 'block';
-                loadConversationSummaries();
-            } else {
+    // History panel functionality - set up after DOM loads
+    setTimeout(() => {
+        const historyToggle = document.getElementById('historyToggle');
+        const historyPanel = document.getElementById('historyPanel');
+        const closeHistory = document.getElementById('closeHistory');
+        
+        if (historyToggle && historyPanel) {
+            historyToggle.addEventListener('click', function() {
+                if (historyPanel.style.display === 'none' || !historyPanel.style.display) {
+                    historyPanel.style.display = 'block';
+                    loadConversationSummaries();
+                } else {
+                    historyPanel.style.display = 'none';
+                }
+            });
+        }
+        
+        if (closeHistory && historyPanel) {
+            closeHistory.addEventListener('click', function() {
                 historyPanel.style.display = 'none';
-            }
-        });
-    }
-    
-    if (closeHistory) {
-        closeHistory.addEventListener('click', function() {
-            historyPanel.style.display = 'none';
-        });
-    }
+            });
+        }
+    }, 1000);
 
     // Data Management Functions
     window.initializeDataManagement = function() {
