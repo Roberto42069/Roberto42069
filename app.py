@@ -274,6 +274,15 @@ def set_user_data_cookies():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/keep-alive', methods=['POST'])
+@login_required
+def keep_alive():
+    """Keep session alive - called by service worker"""
+    try:
+        return jsonify({"success": True, "timestamp": datetime.now().isoformat()})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/api/import', methods=['POST'])
 @login_required
 def import_data():

@@ -19,16 +19,27 @@ self.addEventListener('activate', function(event) {
 function initializePersistentVoice() {
     // Keep service worker alive indefinitely for voice recognition
     setInterval(() => {
-        console.log('Service Worker heartbeat - maintaining voice session');
+        console.log('Service Worker heartbeat - maintaining persistent session');
         
-        // Check if any clients need voice recognition
+        // Keep session alive regardless of app state
         self.clients.matchAll({ includeUncontrolled: true }).then(clients => {
-            if (clients.length === 0 && persistentListening) {
-                // No clients but voice should persist - maintain session
-                console.log('Maintaining voice recognition with no active clients');
+            if (clients.length === 0) {
+                // No clients but maintain session and voice recognition
+                console.log('No active clients - maintaining persistent session and voice');
+            } else {
+                console.log('Active clients found - session maintained');
             }
         });
-    }, 5000); // Every 5 seconds
+        
+        // Prevent any automatic session termination
+        fetch('/api/keep-alive', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ timestamp: Date.now() })
+        }).catch(() => {
+            // Ignore errors, this is just to keep session alive
+        });
+    }, 30000); // Every 30 seconds
     
     console.log('Persistent background voice recognition initialized');
 }
