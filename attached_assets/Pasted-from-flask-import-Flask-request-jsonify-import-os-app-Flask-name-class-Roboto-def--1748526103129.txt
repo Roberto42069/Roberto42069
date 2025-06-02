@@ -29,7 +29,7 @@ class Roboto:
             return "[CHAT] I'm not sure how to respond to that yet, but I'm learning
  
 # Instantiate Roboto
-roberto = Roboto()
+roboto = Roboto()
 
 @app.route('/')
 def index():
@@ -51,5 +51,5 @@ def chat():
     response = roberto.chat(message)
     return jsonify({"response": response})
 
-if __name__ == "__main__":
+if __name__ == "__Roberto__":
     app.run(host='0.0.0.0', port=5000)
