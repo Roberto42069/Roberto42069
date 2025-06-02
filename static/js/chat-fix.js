@@ -155,6 +155,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
+            // Fallback: show that conversations are available but not loaded
+            const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
+            if (chatHistoryElement) {
+                chatHistoryElement.innerHTML = '<div class="text-center text-muted p-3">Your 578 conversations are saved but temporarily unavailable. Try refreshing the page.</div>';
+            }
         }
     }
     

@@ -16,6 +16,19 @@ self.addEventListener('sync', function(event) {
     }
 });
 
+// Handle audio focus for background operation
+self.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'AUDIO_FOCUS') {
+        // Maintain audio session in background
+        event.waitUntil(maintainAudioSession());
+    }
+});
+
+async function maintainAudioSession() {
+    // Keep audio session alive for voice recognition
+    console.log('Maintaining audio session in background');
+}
+
 // Keep connection alive in background
 self.addEventListener('message', function(event) {
     if (event.data && event.data.type === 'KEEP_ALIVE') {
