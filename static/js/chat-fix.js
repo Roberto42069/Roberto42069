@@ -127,6 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadChatHistory() {
         try {
             const response = await fetch('/api/history');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             if (data.success && data.history && Array.isArray(data.history)) {
@@ -383,6 +386,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadConversationSummaries() {
         try {
             const response = await fetch('/api/history');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             if (data.success && data.history && Array.isArray(data.history)) {
