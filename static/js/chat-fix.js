@@ -130,9 +130,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success && data.history && Array.isArray(data.history)) {
-                const chatHistory = document.getElementById('chat-history');
-                if (chatHistory) {
-                    chatHistory.innerHTML = '';
+                const chatHistoryElement = document.getElementById('chat-history');
+                if (chatHistoryElement) {
+                    chatHistoryElement.innerHTML = '';
                     
                     // Load ALL conversations
                     console.log(`Loading ${data.history.length} conversations`);
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Scroll to bottom
                     setTimeout(() => {
-                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                        chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
                     }, 100);
                 }
             }
