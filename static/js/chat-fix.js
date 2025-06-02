@@ -53,10 +53,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Add text-to-speech functionality if enabled
                     if (ttsEnabled && window.speechSynthesis) {
+                        // Stop any current speech
+                        window.speechSynthesis.cancel();
+                        
+                        // Create new utterance
                         const utterance = new SpeechSynthesisUtterance(data.response);
                         utterance.rate = 0.9;
-                        utterance.pitch = 1;
-                        utterance.volume = 0.8;
+                        utterance.pitch = 1.1;
+                        utterance.volume = 0.9;
+                        utterance.lang = 'en-US';
+                        
+                        // Speak the message
                         window.speechSynthesis.speak(utterance);
                     }
                     
@@ -115,19 +122,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadChatHistory() {
         try {
-            const response = await fetch('/api/chat/history');
+            const response = await fetch('/api/history');
             const data = await response.json();
             
-            if (data.success && data.history) {
-                chatHistory.innerHTML = '';
-                data.history.slice(-10).forEach(entry => {
-                    if (entry.message) {
-                        addChatMessage(entry.message, true);
-                    }
-                    if (entry.response) {
-                        addChatMessage(entry.response, false);
-                    }
-                });
+            if (data.success && data.history && Array.isArray(data.history)) {
+                const chatHistory = document.getElementById('chat-history');
+                if (chatHistory) {
+                    chatHistory.innerHTML = '';
+                    
+                    // Load ALL conversations
+                    console.log(`Loading ${data.history.length} conversations`);
+                    data.history.forEach(entry => {
+                        if (entry.message) {
+                            addChatMessage(entry.message, true);
+                        }
+                        if (entry.response) {
+                            addChatMessage(entry.response, false);
+                        }
+                    });
+                    
+                    // Scroll to bottom
+                    setTimeout(() => {
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                    }, 100);
+                }
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
