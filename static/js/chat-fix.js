@@ -545,10 +545,10 @@ document.addEventListener('DOMContentLoaded', function() {
         card.innerHTML = `
             <div class="card bg-secondary">
                 <div class="card-body p-2">
-                    <h6 class="card-title mb-1">${date}</h6>
+                    <h6 class="card-title mb-1">${escapeHtml(date)}</h6>
                     <p class="card-text small mb-1">${conversations.length} conversations</p>
-                    <p class="card-text small text-muted">${preview}</p>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadDateConversations('${date}')">
+                    <p class="card-text small text-muted">${escapeHtml(preview)}</p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadDateConversations('${escapeHtml(date)}')">
                         <i class="fas fa-eye me-1"></i>View
                     </button>
                 </div>
