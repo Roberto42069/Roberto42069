@@ -101,14 +101,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     function addChatMessage(message, isUser) {
+        const chatHistory = document.getElementById('chat-history');
         if (!chatHistory) return;
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message mb-2 ${isUser ? 'user-message' : 'bot-message'}`;
         
         const time = new Date().toLocaleTimeString();
+        const avatarHtml = !isUser ? '<img src="/static/roboto-avatar.jpeg" alt="Roboto" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #dc3545;">' : '';
+        
         messageDiv.innerHTML = `
-            <div class="d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}">
+            <div class="d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'} align-items-start">
+                ${!isUser ? avatarHtml : ''}
                 <div class="message-content p-2 rounded ${isUser ? 'bg-primary text-white' : 'bg-secondary'}" style="max-width: 80%;">
                     <div class="message-text">${escapeHtml(message)}</div>
                     <small class="message-time text-muted d-block mt-1">${time}</small>
@@ -134,12 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`Loading ${data.history.length} conversations`);
                     if (Array.isArray(data.history)) {
                         data.history.forEach(entry => {
-                        if (entry.message) {
-                            addChatMessage(entry.message, true);
-                        }
-                        if (entry.response) {
-                            addChatMessage(entry.response, false);
-                        }
+                            if (entry.message) {
+                                addChatMessage(entry.message, true);
+                            }
+                            if (entry.response) {
+                                addChatMessage(entry.response, false);
+                            }
                         });
                     }
                     
@@ -471,6 +475,28 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Error loading date conversations:', error));
     };
+
+    // History panel functionality
+    const historyToggle = document.getElementById('historyToggle');
+    const historyPanel = document.getElementById('historyPanel');
+    const closeHistory = document.getElementById('closeHistory');
+    
+    if (historyToggle && historyPanel) {
+        historyToggle.addEventListener('click', function() {
+            if (historyPanel.style.display === 'none') {
+                historyPanel.style.display = 'block';
+                loadConversationSummaries();
+            } else {
+                historyPanel.style.display = 'none';
+            }
+        });
+    }
+    
+    if (closeHistory) {
+        closeHistory.addEventListener('click', function() {
+            historyPanel.style.display = 'none';
+        });
+    }
 
     // Data Management Functions
     window.initializeDataManagement = function() {
