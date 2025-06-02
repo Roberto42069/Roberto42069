@@ -508,9 +508,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         ).filter(p => p).join(' | ');
                         
                         summaryDiv.innerHTML = `
-                            <div class="fw-bold small">${date}</div>
+                            <div class="fw-bold small">${escapeHtml(date)}</div>
                             <div class="text-muted small">${conversations.length} conversations</div>
-                            <div class="small">${preview}</div>
+                            <div class="small">${escapeHtml(preview)}</div>
                         `;
                         
                         summariesContainer.appendChild(summaryDiv);
