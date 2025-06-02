@@ -1,5 +1,5 @@
 from app1 import Roboto
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, Response
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, Response, make_response
 import os
 import io
 import base64
@@ -164,19 +164,18 @@ def intro():
 
 
 
-@app.route('/api/chat/history', methods=['GET'])
+@app.route('/api/history', methods=['GET'])
 @login_required
 def get_chat_history():
     try:
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({"success": False, "history": []}), 500
-        
-        history = getattr(roberto, 'chat_history', [])
-        return jsonify({"success": True, "history": history})
+        user_data = current_user.roboto_data
+        if user_data and user_data.chat_history:
+            return jsonify({"success": True, "history": user_data.chat_history})
+        else:
+            return jsonify({"success": True, "history": []})
     except Exception as e:
         app.logger.error(f"Error getting chat history: {e}")
-        return jsonify({"success": False, "history": []}), 500
+        return jsonify({"success": False, "history": []})
 
 
 
@@ -220,6 +219,60 @@ def export_data():
         return jsonify({"success": True, "data": export_data})
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/api/cookies/set', methods=['POST'])
+@login_required
+def set_cookies():
+    """Set cookies for user preferences and data"""
+    try:
+        data = request.get_json()
+        response = make_response(jsonify({"success": True, "message": "Cookies set"}))
+        
+        # Set various cookies with user data
+        for key, value in data.items():
+            response.set_cookie(
+                key, 
+                str(value), 
+                max_age=30*24*60*60,  # 30 days
+                secure=True,
+                httponly=False,  # Allow JavaScript access
+                samesite='Lax'
+            )
+        
+        return response
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/cookies/get', methods=['GET'])
+@login_required
+def get_cookies():
+    """Get all available cookies"""
+    try:
+        cookies = dict(request.cookies)
+        return jsonify({"success": True, "cookies": cookies})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/cookies/user-data', methods=['POST'])
+@login_required
+def set_user_data_cookies():
+    """Set cookies with user conversation and preference data"""
+    try:
+        user_data = current_user.roboto_data
+        if user_data:
+            response = make_response(jsonify({"success": True, "message": "User data cookies set"}))
+            
+            # Set cookies with user information
+            response.set_cookie('user_conversations_count', str(len(user_data.chat_history or [])), max_age=30*24*60*60)
+            response.set_cookie('user_emotion', user_data.current_emotion or 'curious', max_age=30*24*60*60)
+            response.set_cookie('user_name', user_data.current_user_name or 'Unknown', max_age=30*24*60*60)
+            response.set_cookie('user_preferences', str(user_data.user_preferences or {}), max_age=30*24*60*60)
+            
+            return response
+        else:
+            return jsonify({"success": False, "message": "No user data found"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/import', methods=['POST'])
 @login_required
