@@ -13,9 +13,90 @@ document.addEventListener('DOMContentLoaded', function() {
     loadVoiceInsights();
     loadMemoryInsights();
     
-    // Text-to-speech functionality
+    // Enhanced cross-browser text-to-speech functionality
     let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
+    let speechSynthesis = window.speechSynthesis;
+    let availableVoices = [];
     const ttsBtn = document.getElementById('ttsBtn');
+    
+    // Initialize speech synthesis for cross-browser compatibility
+    function initializeTTS() {
+        if ('speechSynthesis' in window) {
+            // Load available voices
+            function loadVoices() {
+                availableVoices = speechSynthesis.getVoices();
+                console.log('Available TTS voices:', availableVoices.length);
+            }
+            
+            // Load voices immediately and on voiceschanged event
+            loadVoices();
+            speechSynthesis.onvoiceschanged = loadVoices;
+            
+            // Test TTS capability
+            if (availableVoices.length === 0) {
+                setTimeout(loadVoices, 100);
+            }
+        } else {
+            console.warn('Text-to-speech not supported in this browser');
+        }
+    }
+    
+    // Enhanced speak function with cross-browser support
+    function speakText(text) {
+        if (!ttsEnabled || !text || !('speechSynthesis' in window)) {
+            return;
+        }
+        
+        try {
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Configure voice settings for better compatibility
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.8;
+            
+            // Select best available voice
+            if (availableVoices.length > 0) {
+                // Prefer English voices
+                const englishVoice = availableVoices.find(voice => 
+                    voice.lang.startsWith('en') && voice.localService
+                ) || availableVoices.find(voice => 
+                    voice.lang.startsWith('en')
+                ) || availableVoices[0];
+                
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+            }
+            
+            utterance.onstart = function() {
+                console.log('TTS started');
+            };
+            
+            utterance.onend = function() {
+                console.log('TTS completed');
+            };
+            
+            utterance.onerror = function(event) {
+                console.error('TTS error:', event.error);
+                // Retry with default settings if error occurs
+                if (event.error === 'voice-unavailable') {
+                    const simpleUtterance = new SpeechSynthesisUtterance(text);
+                    speechSynthesis.speak(simpleUtterance);
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        } catch (error) {
+            console.error('TTS error:', error);
+        }
+    }
+    
+    // Initialize TTS on page load
+    initializeTTS();
     
     if (ttsBtn) {
         updateTTSButton();
@@ -23,6 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
             ttsEnabled = !ttsEnabled;
             localStorage.setItem('ttsEnabled', ttsEnabled);
             updateTTSButton();
+            
+            // Test TTS when enabled
+            if (ttsEnabled) {
+                speakText('Text to speech enabled');
+            }
         });
     }
     
