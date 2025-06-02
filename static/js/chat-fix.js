@@ -132,14 +132,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Load ALL conversations
                     console.log(`Loading ${data.history.length} conversations`);
-                    data.history.forEach(entry => {
+                    if (Array.isArray(data.history)) {
+                        data.history.forEach(entry => {
                         if (entry.message) {
                             addChatMessage(entry.message, true);
                         }
                         if (entry.response) {
                             addChatMessage(entry.response, false);
                         }
-                    });
+                        });
+                    }
                     
                     // Scroll to bottom
                     setTimeout(() => {
@@ -376,6 +378,99 @@ document.addEventListener('DOMContentLoaded', function() {
         div.textContent = text;
         return div.innerHTML;
     }
+    
+    async function loadConversationSummaries() {
+        try {
+            const response = await fetch('/api/history');
+            const data = await response.json();
+            
+            if (data.success && data.history && Array.isArray(data.history)) {
+                const summariesContainer = document.getElementById('conversationSummaries');
+                if (summariesContainer) {
+                    summariesContainer.innerHTML = '';
+                    
+                    // Group conversations by date and create summaries
+                    const conversationsByDate = groupConversationsByDate(data.history);
+                    
+                    Object.keys(conversationsByDate).slice(-10).forEach(date => {
+                        const conversations = conversationsByDate[date];
+                        const summaryCard = createSummaryCard(date, conversations);
+                        summariesContainer.appendChild(summaryCard);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error loading conversation summaries:', error);
+        }
+    }
+    
+    function groupConversationsByDate(history) {
+        const groups = {};
+        history.forEach(entry => {
+            const date = entry.timestamp ? new Date(entry.timestamp).toDateString() : 'Unknown Date';
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(entry);
+        });
+        return groups;
+    }
+    
+    function createSummaryCard(date, conversations) {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 mb-2';
+        
+        const preview = conversations.slice(0, 3).map(c => 
+            c.message ? c.message.substring(0, 50) + '...' : ''
+        ).filter(p => p).join(' | ');
+        
+        card.innerHTML = `
+            <div class="card bg-secondary">
+                <div class="card-body p-2">
+                    <h6 class="card-title mb-1">${date}</h6>
+                    <p class="card-text small mb-1">${conversations.length} conversations</p>
+                    <p class="card-text small text-muted">${preview}</p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadDateConversations('${date}')">
+                        <i class="fas fa-eye me-1"></i>View
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    window.loadDateConversations = function(date) {
+        // This function will load conversations for a specific date
+        fetch('/api/history')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.history) {
+                    const chatHistory = document.getElementById('chat-history');
+                    if (chatHistory) {
+                        chatHistory.innerHTML = '';
+                        
+                        const dateConversations = data.history.filter(entry => {
+                            const entryDate = entry.timestamp ? new Date(entry.timestamp).toDateString() : 'Unknown Date';
+                            return entryDate === date;
+                        });
+                        
+                        dateConversations.forEach(entry => {
+                            if (entry.message) {
+                                addChatMessage(entry.message, true);
+                            }
+                            if (entry.response) {
+                                addChatMessage(entry.response, false);
+                            }
+                        });
+                        
+                        // Hide history panel
+                        document.getElementById('historyPanel').style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => console.error('Error loading date conversations:', error));
+    };
 
     // Data Management Functions
     window.initializeDataManagement = function() {

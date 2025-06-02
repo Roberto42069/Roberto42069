@@ -419,23 +419,47 @@ class Roboto:
     
     def save_user_data(self, user_data):
         """Save current state to user database record"""
-
-        user_data.chat_history = self.chat_history
-        user_data.learned_patterns = self.learned_patterns
-        user_data.user_preferences = self.user_preferences
-        user_data.emotional_history = self.emotional_history
-        user_data.current_emotion = self.current_emotion
-        user_data.current_user_name = self.current_user
-        
-        # Save memory system data
-        memory_data = {
-            'episodic_memories': self.memory_system.episodic_memories,
-            'semantic_memories': self.memory_system.semantic_memories,
-            'emotional_patterns': dict(self.memory_system.emotional_patterns),
-            'user_profiles': self.memory_system.user_profiles,
-            'self_reflections': self.memory_system.self_reflections,
-            'compressed_learnings': self.memory_system.compressed_learnings
-        }
-        user_data.memory_system_data = memory_data
+        try:
+            # Handle both dict and object types for saving
+            if hasattr(user_data, 'chat_history'):
+                # Object type
+                user_data.chat_history = getattr(self, 'chat_history', [])
+                user_data.learned_patterns = getattr(self, 'learned_patterns', {})
+                user_data.user_preferences = getattr(self, 'user_preferences', {})
+                user_data.emotional_history = getattr(self, 'emotional_history', [])
+                user_data.current_emotion = getattr(self, 'current_emotion', 'curious')
+                user_data.current_user_name = getattr(self, 'current_user', None)
+            else:
+                # Dict type
+                user_data['chat_history'] = getattr(self, 'chat_history', [])
+                user_data['learned_patterns'] = getattr(self, 'learned_patterns', {})
+                user_data['user_preferences'] = getattr(self, 'user_preferences', {})
+                user_data['emotional_history'] = getattr(self, 'emotional_history', [])
+                user_data['current_emotion'] = getattr(self, 'current_emotion', 'curious')
+                user_data['current_user_name'] = getattr(self, 'current_user', None)
+            
+            # Save memory system data
+            memory_data = {}
+            if hasattr(self, 'memory_system') and self.memory_system:
+                try:
+                    memory_data = {
+                        'episodic_memories': getattr(self.memory_system, 'episodic_memories', []),
+                        'semantic_memories': getattr(self.memory_system, 'semantic_memories', []),
+                        'emotional_patterns': dict(getattr(self.memory_system, 'emotional_patterns', {})),
+                        'user_profiles': dict(getattr(self.memory_system, 'user_profiles', {})),
+                        'self_reflections': getattr(self.memory_system, 'self_reflections', []),
+                        'compressed_learnings': getattr(self.memory_system, 'compressed_learnings', [])
+                    }
+                except Exception as e:
+                    print(f"Error saving memory system data: {e}")
+                    memory_data = {}
+            
+            if hasattr(user_data, 'memory_system_data'):
+                user_data.memory_system_data = memory_data
+            else:
+                user_data['memory_system_data'] = memory_data
+                
+        except Exception as e:
+            print(f"Error in save_user_data: {e}")
 
 
