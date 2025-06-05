@@ -21,8 +21,17 @@ class Roboto:
         self.current_user = None  # Track current user
         # self.load_grok_chat_data()  # Disabled to prevent errors
         
-        # Initialize advanced memory system focused on primary user
+        # Initialize advanced memory system with enhanced training capabilities
         self.memory_system = AdvancedMemorySystem()
+        
+        # Initialize enhanced training engine for improved learning
+        try:
+            from enhanced_memory_training import MemoryTrainingEngine
+            self.training_engine = MemoryTrainingEngine(self.memory_system)
+            self.training_engine.load_training_data()
+        except Exception as e:
+            print(f"Training engine initialization error: {e}")
+            self.training_engine = None
         self.primary_user_profile = {
             'name': None,
             'personal_details': {},
