@@ -125,7 +125,7 @@ class AdvancedMemorySystem:
         self.save_memory()
     
     def retrieve_relevant_memories(self, query, user_name=None, limit=5):
-        """Retrieve memories with deeper contextual understanding"""
+        """Advanced memory retrieval with semantic understanding and contextual ranking"""
         if not self.episodic_memories:
             return []
         
@@ -144,56 +144,179 @@ class AdvancedMemorySystem:
             # Calculate similarity
             similarities = cosine_similarity(query_vector, memory_vectors)[0]
             query_sentiment = self._analyze_sentiment(query)
+            query_themes = self._extract_themes(query)
             
             # Get top memories with enhanced scoring
-            top_indices = similarities.argsort()[-limit*2:][::-1]  # Get more candidates
+            top_indices = similarities.argsort()[-limit*3:][::-1]  # Get more candidates for better selection
             relevant_memories = []
             
             for idx in top_indices:
-                if similarities[idx] > 0.05:  # Lower threshold for broader context
+                if similarities[idx] > 0.03:  # Lower threshold for broader context
                     memory = self.episodic_memories[idx].copy()
                     base_score = similarities[idx]
                     
                     # Enhanced scoring factors
-                    # 1. Emotional context matching
+                    # 1. Emotional context matching with nuance
                     memory_emotion = memory.get("emotion", "neutral")
-                    emotion_boost = 0.3 if query_sentiment == memory_emotion else 0.1
+                    memory_sentiment = memory.get("sentiment", "neutral")
+                    emotion_boost = 0.4 if query_sentiment == memory_sentiment else 0.1
+                    if memory_emotion in ["joy", "excitement", "curiosity"] and "?" in query:
+                        emotion_boost += 0.2  # Questions often need curious/positive context
                     
-                    # 2. User-specific boost
-                    user_boost = 0.5 if user_name and memory.get("user_name") == user_name else 0
+                    # 2. User-specific boost with relationship depth
+                    user_boost = 0.0
+                    if user_name and memory.get("user_name") == user_name:
+                        user_profile = self.user_profiles.get(user_name, {})
+                        interaction_count = user_profile.get("interaction_count", 0)
+                        user_boost = min(0.6, 0.3 + (interaction_count * 0.01))  # More interactions = better context
                     
-                    # 3. Temporal relevance (recent conversations matter more)
+                    # 3. Enhanced temporal relevance
                     try:
                         memory_time = self._parse_timestamp(memory['timestamp'])
-                        days_ago = (datetime.now() - memory_time).days
-                        recency_boost = max(0, 0.2 - (days_ago * 0.02))  # Decays over time
+                        hours_ago = (datetime.now() - memory_time).total_seconds() / 3600
+                        if hours_ago < 24:
+                            recency_boost = 0.3  # Very recent
+                        elif hours_ago < 168:  # 1 week
+                            recency_boost = 0.2
+                        elif hours_ago < 720:  # 1 month
+                            recency_boost = 0.1
+                        else:
+                            recency_boost = max(0, 0.05 - (hours_ago / 8760 * 0.05))  # Gradual decay over year
                     except:
                         recency_boost = 0
                     
-                    # 4. Importance weighting
+                    # 4. Theme and semantic relevance
+                    memory_themes = memory.get("key_themes", [])
+                    theme_overlap = len(set(query_themes).intersection(set(memory_themes)))
+                    theme_boost = min(0.3, theme_overlap * 0.15)
+                    
+                    # 5. Importance weighting with emotional intensity
                     importance = memory.get("importance", 0.5)
-                    importance_boost = importance * 0.2
+                    emotional_intensity = memory.get("emotional_intensity", 0.5)
+                    importance_boost = (importance + emotional_intensity) * 0.15
                     
-                    # Combined relevance score
-                    memory["relevance_score"] = (base_score + emotion_boost + 
-                                               user_boost + recency_boost + importance_boost)
+                    # 6. Conversational continuity bonus
+                    continuity_boost = 0.0
+                    if len(self.episodic_memories) > 1:
+                        recent_memory = self.episodic_memories[-1]
+                        if self._memories_are_related(memory, recent_memory):
+                            continuity_boost = 0.25
                     
-                    # Add context explanation for debugging
+                    # Combined relevance score with weighted factors
+                    memory["relevance_score"] = (
+                        base_score * 1.0 +           # Semantic similarity (base)
+                        emotion_boost * 0.8 +        # Emotional context
+                        user_boost * 1.2 +           # User personalization (high weight)
+                        recency_boost * 0.6 +        # Temporal relevance
+                        theme_boost * 0.9 +          # Thematic similarity
+                        importance_boost * 0.7 +     # Memory importance
+                        continuity_boost * 0.5       # Conversation flow
+                    )
+                    
+                    # Add enhanced context explanation
                     memory["context_factors"] = {
-                        "similarity": base_score,
-                        "emotional_match": emotion_boost > 0.2,
-                        "user_specific": user_boost > 0,
-                        "recent": recency_boost > 0.1,
-                        "important": importance > 0.7
+                        "semantic_similarity": round(base_score, 3),
+                        "emotional_alignment": emotion_boost > 0.2,
+                        "user_personalized": user_boost > 0.2,
+                        "temporally_relevant": recency_boost > 0.1,
+                        "thematically_related": theme_boost > 0.1,
+                        "high_importance": importance > 0.7,
+                        "conversation_flow": continuity_boost > 0
                     }
+                    
+                    # Add memory confidence score
+                    memory["confidence"] = min(1.0, memory["relevance_score"] / 2.0)
                     
                     relevant_memories.append(memory)
             
-            # Sort by enhanced relevance score and return top results
-            return sorted(relevant_memories, key=lambda x: x["relevance_score"], reverse=True)[:limit]
+            # Advanced sorting with diversity consideration
+            sorted_memories = sorted(relevant_memories, key=lambda x: x["relevance_score"], reverse=True)
+            
+            # Ensure diversity to avoid redundant memories
+            diverse_memories = self._select_diverse_memories(sorted_memories, limit)
+            
+            return diverse_memories
+            
         except Exception as e:
             print(f"Memory retrieval error: {e}")
             return []
+    
+    def _memories_are_related(self, memory1, memory2):
+        """Check if two memories are conversationally related"""
+        # Time proximity
+        try:
+            time1 = self._parse_timestamp(memory1['timestamp'])
+            time2 = self._parse_timestamp(memory2['timestamp'])
+            time_diff = abs((time1 - time2).total_seconds() / 3600)  # hours
+            if time_diff > 24:  # More than 24 hours apart
+                return False
+        except:
+            return False
+        
+        # Theme overlap
+        themes1 = set(memory1.get("key_themes", []))
+        themes2 = set(memory2.get("key_themes", []))
+        theme_overlap = len(themes1.intersection(themes2))
+        
+        # User continuity
+        user_same = memory1.get("user_name") == memory2.get("user_name")
+        
+        return theme_overlap > 0 and user_same
+    
+    def _select_diverse_memories(self, memories, limit):
+        """Select diverse memories to avoid redundancy while maintaining relevance"""
+        if len(memories) <= limit:
+            return memories
+        
+        selected = [memories[0]]  # Always include the most relevant
+        
+        for memory in memories[1:]:
+            if len(selected) >= limit:
+                break
+            
+            # Check diversity against already selected memories
+            is_diverse = True
+            for selected_memory in selected:
+                similarity = self._calculate_memory_similarity(memory, selected_memory)
+                if similarity > 0.75:  # Too similar
+                    is_diverse = False
+                    break
+            
+            if is_diverse:
+                selected.append(memory)
+        
+        return selected
+    
+    def _calculate_memory_similarity(self, memory1, memory2):
+        """Calculate similarity between two memories to ensure diversity"""
+        # Theme similarity
+        themes1 = set(memory1.get("key_themes", []))
+        themes2 = set(memory2.get("key_themes", []))
+        if themes1 and themes2:
+            theme_sim = len(themes1.intersection(themes2)) / len(themes1.union(themes2))
+        else:
+            theme_sim = 0
+        
+        # Content similarity (simple word overlap)
+        text1 = f"{memory1['user_input']} {memory1['roboto_response']}".lower()
+        text2 = f"{memory2['user_input']} {memory2['roboto_response']}".lower()
+        words1 = set(text1.split())
+        words2 = set(text2.split())
+        if words1 and words2:
+            word_sim = len(words1.intersection(words2)) / len(words1.union(words2))
+        else:
+            word_sim = 0
+        
+        # Time proximity
+        try:
+            time1 = self._parse_timestamp(memory1['timestamp'])
+            time2 = self._parse_timestamp(memory2['timestamp'])
+            time_diff = abs((time1 - time2).total_seconds() / 3600)
+            time_sim = max(0, 1.0 - (time_diff / 24.0))  # Similarity decreases over 24 hours
+        except:
+            time_sim = 0
+        
+        return (theme_sim * 0.4 + word_sim * 0.4 + time_sim * 0.2)
     
     def get_emotional_context(self, user_name=None):
         """Get emotional context and patterns for user"""
@@ -483,24 +606,39 @@ class AdvancedMemorySystem:
         return hashlib.md5(content.encode()).hexdigest()[:12]
     
     def _analyze_sentiment(self, text):
-        """Analyze sentiment of text"""
+        """Analyze sentiment of text with enhanced accuracy"""
         try:
-            blob = TextBlob(text)
+            if not text or not isinstance(text, str):
+                return "neutral"
+                
+            blob = TextBlob(str(text))
             sentiment = blob.sentiment
             polarity = float(sentiment.polarity)
-            subjectivity = float(sentiment.subjectivity)
-            return {
-                "polarity": polarity,
-                "subjectivity": subjectivity,
-                "classification": self._classify_sentiment(polarity)
-            }
+            
+            if polarity > 0.1:
+                return "positive"
+            elif polarity < -0.1:
+                return "negative"
+            else:
+                return "neutral"
         except Exception:
-            # Fallback sentiment analysis if TextBlob fails
-            return {
-                "polarity": 0.0,
-                "subjectivity": 0.5,
-                "classification": "neutral"
-            }
+            # Enhanced fallback sentiment analysis
+            try:
+                text_lower = str(text).lower()
+                positive_words = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'happy', 'joy', 'excited']
+                negative_words = ['bad', 'terrible', 'awful', 'hate', 'sad', 'angry', 'frustrated', 'disappointed', 'worried', 'fear']
+                
+                pos_count = sum(1 for word in positive_words if word in text_lower)
+                neg_count = sum(1 for word in negative_words if word in text_lower)
+                
+                if pos_count > neg_count:
+                    return "positive"
+                elif neg_count > pos_count:
+                    return "negative"
+                else:
+                    return "neutral"
+            except:
+                return "neutral"
     
     def _classify_sentiment(self, polarity):
         """Classify sentiment based on polarity"""
@@ -584,18 +722,27 @@ class AdvancedMemorySystem:
     def _extract_themes(self, text):
         """Extract key themes from text"""
         try:
+            if not text or not isinstance(text, str):
+                return []
+            
             blob = TextBlob(text)
             # Extract noun phrases as themes
             noun_phrases = list(blob.noun_phrases)
-            themes = [phrase.lower() for phrase in noun_phrases if len(phrase.split()) <= 3]
+            themes = [phrase.lower().strip() for phrase in noun_phrases if len(phrase.split()) <= 3 and phrase.strip()]
             return list(set(themes))[:5]  # Top 5 unique themes
-        except Exception:
+        except Exception as e:
             # Fallback: extract simple keywords
-            words = text.lower().split()
-            # Filter for meaningful words (longer than 3 chars, not common words)
-            stop_words = {'the', 'and', 'but', 'for', 'are', 'this', 'that', 'with', 'have', 'will', 'you', 'not', 'can', 'all', 'from', 'they', 'been', 'said', 'her', 'she', 'him', 'his'}
-            themes = [word for word in words if len(word) > 3 and word not in stop_words]
-            return list(set(themes))[:5]
+            try:
+                if not text or not isinstance(text, str):
+                    return []
+                    
+                words = text.lower().split()
+                # Filter for meaningful words (longer than 3 chars, not common words)
+                stop_words = {'the', 'and', 'but', 'for', 'are', 'this', 'that', 'with', 'have', 'will', 'you', 'not', 'can', 'all', 'from', 'they', 'been', 'said', 'her', 'she', 'him', 'his'}
+                themes = [word.strip() for word in words if len(word) > 3 and word not in stop_words and word.strip()]
+                return list(set(themes))[:5]
+            except Exception:
+                return []
     
     def _calculate_importance(self, text, emotion):
         """Calculate importance score for memory"""
@@ -619,20 +766,53 @@ class AdvancedMemorySystem:
         return min(base_score + emotion_factor + personal_factor + question_factor, 2.0)
     
     def _calculate_emotional_intensity(self, text):
-        """Calculate emotional intensity of text"""
+        """Calculate emotional intensity of text with enhanced accuracy"""
         try:
-            blob = TextBlob(text)
+            if not text or not isinstance(text, str):
+                return 0.5
+                
+            blob = TextBlob(str(text))
             sentiment = blob.sentiment
-            return abs(float(sentiment.polarity)) + float(sentiment.subjectivity)
+            polarity = abs(float(sentiment.polarity))
+            subjectivity = float(sentiment.subjectivity)
+            return min(1.0, polarity + subjectivity)
         except Exception:
-            # Fallback: simple intensity calculation based on keywords
-            emotional_words = ['very', 'extremely', 'really', 'so', 'absolutely', 'completely', 'totally']
-            intensity = 0.5  # baseline
-            words = text.lower().split()
-            for word in emotional_words:
-                if word in words:
-                    intensity += 0.1
-            return min(intensity, 1.0)
+            # Enhanced fallback intensity calculation
+            try:
+                if not text:
+                    return 0.5
+                    
+                text_lower = str(text).lower()
+                # Emotional intensity indicators
+                high_intensity_words = ['extremely', 'absolutely', 'completely', 'totally', 'devastated', 'ecstatic', 'furious', 'terrified']
+                medium_intensity_words = ['very', 'really', 'quite', 'pretty', 'fairly', 'rather', 'upset', 'excited', 'worried', 'happy']
+                emotional_punctuation = ['!', '!!', '!!!', '?!', '...']
+                
+                intensity = 0.5  # baseline
+                
+                # Check for high intensity words
+                for word in high_intensity_words:
+                    if word in text_lower:
+                        intensity += 0.2
+                        
+                # Check for medium intensity words
+                for word in medium_intensity_words:
+                    if word in text_lower:
+                        intensity += 0.1
+                        
+                # Check for emotional punctuation
+                for punct in emotional_punctuation:
+                    if punct in text:
+                        intensity += 0.1
+                        
+                # Check for caps (indicates strong emotion)
+                caps_ratio = sum(1 for c in text if c.isupper()) / max(1, len(text))
+                if caps_ratio > 0.3:
+                    intensity += 0.2
+                    
+                return min(1.0, intensity)
+            except:
+                return 0.5
     
     def _trigger_self_reflection(self):
         """Trigger periodic self-reflection"""
