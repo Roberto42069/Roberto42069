@@ -233,8 +233,35 @@ def intro():
 
 @app.route('/api/chat_history')
 def get_chat_history():
-    roberto = get_user_roberto()
-    return jsonify({"chat_history": roberto.chat_history})
+    try:
+        roberto = get_user_roberto()
+        return jsonify({
+            "success": True,
+            "chat_history": getattr(roberto, 'chat_history', [])
+        })
+    except Exception as e:
+        app.logger.error(f"Chat history error: {e}")
+        return jsonify({
+            "success": False,
+            "chat_history": [],
+            "error": "Failed to load chat history"
+        })
+
+@app.route('/api/history')
+def get_history():
+    try:
+        roberto = get_user_roberto()
+        return jsonify({
+            "success": True,
+            "history": getattr(roberto, 'chat_history', [])
+        })
+    except Exception as e:
+        app.logger.error(f"History error: {e}")
+        return jsonify({
+            "success": False,
+            "history": [],
+            "error": "Failed to load history"
+        })
 
 @app.route('/api/emotional_status')
 def get_emotional_status():
