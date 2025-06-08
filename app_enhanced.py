@@ -203,9 +203,21 @@ def _save_to_file_backup(user_data):
 
 @app.route('/')
 def index():
-    if database_available and current_user.is_authenticated:
-        return redirect(url_for('app_main'))
-    return render_template('index.html')
+    try:
+        if database_available and hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+            return redirect(url_for('app_main'))
+    except:
+        pass
+    
+    # Provide current_user context for template
+    user_context = None
+    try:
+        if database_available and hasattr(current_user, 'is_authenticated'):
+            user_context = current_user
+    except:
+        pass
+    
+    return render_template('index.html', current_user=user_context)
 
 @app.route('/app')
 def app_main():
@@ -369,7 +381,7 @@ def handle_file_upload():
         roberto = get_user_roberto()
         
         # Process based on file type
-        if file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        if file.filename and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
             response_text = f"I can see you've shared an image: {file.filename}. While I can't process images directly yet, I appreciate you wanting to share this with me. Could you describe what's in the image? I'd love to hear about it!"
         else:
             response_text = f"Thank you for sharing the file '{file.filename}'. I'm still learning how to process different file types, but I appreciate you wanting to share this with me. What would you like to tell me about this file?"
