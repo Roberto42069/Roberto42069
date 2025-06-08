@@ -240,6 +240,8 @@ def get_chat_history():
 def get_emotional_status():
     roberto = get_user_roberto()
     return jsonify({
+        "success": True,
+        "emotion": roberto.current_emotion,
         "current_emotion": roberto.current_emotion,
         "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
         "emotional_context": roberto.get_emotional_context()

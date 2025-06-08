@@ -1,0 +1,28 @@
+{
+  "performance_history": [
+    {
+      "timestamp": "2025-06-08T10:07:02.337794",
+      "quality": 0.6500000000000001,
+      "metrics": {
+        "relevance": 0.6,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    }
+  ],
+  "conversation_patterns": {},
+  "response_effectiveness": {},
+  "topic_mastery": {},
+  "emotional_intelligence_scores": {
+    "curious": [
+      0.6500000000000001
+    ]
+  },
+  "learning_rate": 0.1,
+  "adaptation_threshold": 0.7,
+  "optimization_cycles": 1,
+  "last_updated": "2025-06-08T10:07:02.338054"
+}

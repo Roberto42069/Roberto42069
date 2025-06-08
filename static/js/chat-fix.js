@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadEmotionalStatus() {
         try {
-            const response = await fetch('/api/emotional-status');
+            const response = await fetch('/api/emotional_status');
             const data = await response.json();
             
             if (data.success) {

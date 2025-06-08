@@ -32787,5 +32787,10 @@
     "emotion_intensity": 1.0,
     "memory_id": null,
     "user": "Vision"
+  },
+  {
+    "message": "Yo hey what's up",
+    "response": "Hey! I'm here and ready to chat. What\u2019s on your mind today? Whether it\u2019s a light topic or something deeper, I\u2019m all ears!",
+    "timestamp": ""
   }
 ]
