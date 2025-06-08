@@ -8,7 +8,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import json
 import traceback
-from voice_cloning_system import VoiceCloningEngine
+from simple_voice_cloning import SimpleVoiceCloning
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -90,7 +90,7 @@ def get_user_roberto():
         
         # Add voice cloning system
         try:
-            roberto.voice_cloning = VoiceCloningEngine("Roberto Villarreal Martinez")
+            roberto.voice_cloning = SimpleVoiceCloning("Roberto Villarreal Martinez")
             app.logger.info("Voice cloning system initialized for Roberto Villarreal Martinez")
         except Exception as e:
             app.logger.error(f"Voice cloning initialization error: {e}")
@@ -400,15 +400,8 @@ def get_voice_cloning_config():
     try:
         roberto = get_user_roberto()
         if hasattr(roberto, 'voice_cloning') and roberto.voice_cloning:
-            config = roberto.voice_cloning.generate_roboto_voice_config()
-            insights = roberto.voice_cloning.get_voice_insights()
-            
-            return jsonify({
-                "success": True,
-                "voice_config": config,
-                "insights": insights,
-                "cloning_available": True
-            })
+            config = roberto.voice_cloning.get_voice_config_for_api()
+            return jsonify(config)
         else:
             return jsonify({
                 "success": True,
@@ -428,18 +421,18 @@ def apply_voice_cloning():
     try:
         data = request.get_json()
         text = data.get('text', '')
+        emotion = data.get('emotion', 'neutral')
         
         roberto = get_user_roberto()
         if hasattr(roberto, 'voice_cloning') and roberto.voice_cloning:
-            # Generate TTS parameters based on voice cloning
-            config = roberto.voice_cloning.generate_roboto_voice_config()
-            tts_settings = config.get('tts_config', {}).get('voice_settings', {})
+            # Get TTS parameters for the specified emotion
+            tts_settings = roberto.voice_cloning.get_tts_parameters(emotion)
             
             return jsonify({
                 "success": True,
                 "tts_parameters": tts_settings,
                 "voice_applied": True,
-                "personalization_strength": len(roberto.voice_cloning.voice_characteristics) / 20.0
+                "personalization_strength": 0.85
             })
         else:
             return jsonify({
