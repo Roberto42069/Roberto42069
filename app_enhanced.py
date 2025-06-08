@@ -470,6 +470,7 @@ def chat():
         save_user_data()
         
         response_data = {
+            "success": True,
             "response": response,
             "emotion": roberto.current_emotion,
             "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),

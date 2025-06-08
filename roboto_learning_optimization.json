@@ -23,6 +23,30 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-06-08T10:12:11.348211",
+      "quality": 0.625,
+      "metrics": {
+        "relevance": 0.5,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-06-08T10:12:25.953660",
+      "quality": 0.52,
+      "metrics": {
+        "relevance": 0.2,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.75,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -30,13 +54,34 @@
   "topic_mastery": {
     "hello": {
       "scores": [
-        0.75
+        0.75,
+        0.625,
+        0.625
       ],
       "improvement_rate": 0.0
     },
     "testing": {
       "scores": [
-        0.75
+        0.75,
+        0.625
+      ],
+      "improvement_rate": 0.0
+    },
+    "just": {
+      "scores": [
+        0.52
+      ],
+      "improvement_rate": 0.0
+    },
+    "wanna": {
+      "scores": [
+        0.52
+      ],
+      "improvement_rate": 0.0
+    },
+    "thought": {
+      "scores": [
+        0.52
       ],
       "improvement_rate": 0.0
     }
@@ -44,11 +89,13 @@
   "emotional_intelligence_scores": {
     "curious": [
       0.6500000000000001,
-      0.75
+      0.75,
+      0.625,
+      0.52
     ]
   },
   "learning_rate": 0.1,
   "adaptation_threshold": 0.7,
-  "optimization_cycles": 2,
-  "last_updated": "2025-06-08T10:09:22.775702"
+  "optimization_cycles": 4,
+  "last_updated": "2025-06-08T10:12:25.953955"
 }

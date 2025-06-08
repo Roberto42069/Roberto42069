@@ -32797,5 +32797,15 @@
     "message": "Hello testing",
     "response": "Hello! Testing is good\u2014I'm here and functioning. How can I assist you today? If you have anything specific in mind, feel free to share!",
     "timestamp": ""
+  },
+  {
+    "message": "Hello hello testing and it looks like everything's working now",
+    "response": "Great to hear that everything is working! If you have anything you\u2019d like to discuss or explore, I\u2019m here for it. What\u2019s next on your mind?",
+    "timestamp": ""
+  },
+  {
+    "message": "Oh man just wanna thought everything was fixed another problem",
+    "response": "I'm sorry to hear that you\u2019re facing another problem. It can be frustrating when things don\u2019t go as expected. If you\u2019d like to share what\u2019s going on, I\u2019m here to listen and help if I can. What\u2019s the issue you\u2019re dealing with?",
+    "timestamp": ""
   }
 ]
