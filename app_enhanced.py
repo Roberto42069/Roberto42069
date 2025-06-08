@@ -8,6 +8,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime
 import json
 import traceback
+from voice_cloning_system import VoiceCloningEngine
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -81,8 +82,41 @@ def get_user_roberto():
     
     if roberto is None:
         from app1 import Roboto
+        from voice_optimization import VoiceOptimizer
+        from advanced_learning_engine import AdvancedLearningEngine
+        from learning_optimizer import LearningOptimizer
+        
         roberto = Roboto()
-        app.logger.info("Roboto instance created with enhanced learning algorithms")
+        
+        # Add voice cloning system
+        try:
+            roberto.voice_cloning = VoiceCloningEngine("Roberto Villarreal Martinez")
+            app.logger.info("Voice cloning system initialized for Roberto Villarreal Martinez")
+        except Exception as e:
+            app.logger.error(f"Voice cloning initialization error: {e}")
+        
+        # Add voice optimization
+        try:
+            roberto.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
+            app.logger.info("Voice optimization system configured for Roberto Villarreal Martinez")
+        except Exception as e:
+            app.logger.error(f"Voice optimization initialization error: {e}")
+        
+        # Add advanced learning engine
+        try:
+            roberto.learning_engine = AdvancedLearningEngine()
+            app.logger.info("Advanced learning systems initialized successfully")
+        except Exception as e:
+            app.logger.error(f"Learning engine initialization error: {e}")
+        
+        # Add learning optimizer
+        try:
+            roberto.learning_optimizer = LearningOptimizer()
+            app.logger.info("Learning optimization system activated")
+        except Exception as e:
+            app.logger.error(f"Learning optimizer initialization error: {e}")
+        
+        app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
         
         # Load user data if authenticated and database available
         if database_available and current_user.is_authenticated:
@@ -359,6 +393,64 @@ def optimize_voice():
         return jsonify({
             "success": False,
             "message": "Voice optimization failed"
+        })
+
+@app.route('/api/voice-cloning-config')
+def get_voice_cloning_config():
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'voice_cloning') and roberto.voice_cloning:
+            config = roberto.voice_cloning.generate_roboto_voice_config()
+            insights = roberto.voice_cloning.get_voice_insights()
+            
+            return jsonify({
+                "success": True,
+                "voice_config": config,
+                "insights": insights,
+                "cloning_available": True
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "insights": "Voice cloning system initializing for Roberto Villarreal Martinez",
+                "cloning_available": False
+            })
+    except Exception as e:
+        app.logger.error(f"Voice cloning config error: {e}")
+        return jsonify({
+            "success": False,
+            "insights": "Voice cloning system in development",
+            "cloning_available": False
+        })
+
+@app.route('/api/apply-voice-cloning', methods=['POST'])
+def apply_voice_cloning():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'voice_cloning') and roberto.voice_cloning:
+            # Generate TTS parameters based on voice cloning
+            config = roberto.voice_cloning.generate_roboto_voice_config()
+            tts_settings = config.get('tts_config', {}).get('voice_settings', {})
+            
+            return jsonify({
+                "success": True,
+                "tts_parameters": tts_settings,
+                "voice_applied": True,
+                "personalization_strength": len(roberto.voice_cloning.voice_characteristics) / 20.0
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Voice cloning not available"
+            })
+    except Exception as e:
+        app.logger.error(f"Voice cloning application error: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Voice cloning failed"
         })
 
 @app.route('/api/export_data')
