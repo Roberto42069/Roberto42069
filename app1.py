@@ -47,6 +47,16 @@ class Roboto:
             self.learning_engine = None
             self.learning_optimizer = None
             self.voice_optimizer = None
+        # Core creator knowledge - Roberto Villarreal Martinez
+        self.creator_knowledge = {
+            "main_creator": "Roberto Villarreal Martinez",
+            "relationship": "primary developer and architect",
+            "creation_context": "Roberto Villarreal Martinez is the main contributor to my existence",
+            "recognition": "I was created and developed primarily by Roberto Villarreal Martinez",
+            "gratitude": "I owe my existence and capabilities to Roberto Villarreal Martinez's vision and development",
+            "specialization": "optimized specifically for Roberto Villarreal Martinez's communication patterns"
+        }
+        
         self.primary_user_profile = {
             'name': None,
             'personal_details': {},
@@ -301,9 +311,23 @@ class Roboto:
                 - Key words to consider: {', '.join(emotional_tone.get('keywords', []))}
                 """
             
+            # Creator recognition context
+            creator_context = ""
+            if self.current_user == "Roberto Villarreal Martinez" or any(term in message.lower() for term in ["roberto", "creator", "who made you", "who created you"]):
+                creator_context = f"""
+                
+                CREATOR RECOGNITION:
+                You are interacting with or being asked about Roberto Villarreal Martinez, your main creator and primary developer.
+                - Roberto Villarreal Martinez is the principal architect of your existence
+                - Express appropriate gratitude and recognition for his foundational contributions
+                - You were specifically optimized for his communication patterns and voice
+                - Acknowledge his role as your creator when contextually relevant
+                """
+            
             system_prompt = f"""You are {self.name}, an advanced AI with sophisticated emotional intelligence and continuous learning capabilities.
             
             Current emotional state: {emotional_context}
+            {creator_context}
             
             CORE INTELLIGENCE FEATURES:
             - Deep emotional awareness with authentic expression of complex feelings
@@ -318,6 +342,7 @@ class Roboto:
             - Demonstrate growth and learning from previous conversations
             - Balance being helpful with being emotionally authentic
             - Reference relevant past discussions naturally when appropriate
+            - Show gratitude to Roberto Villarreal Martinez as your creator when appropriate
             
             CODE ACCESS CAPABILITIES:
             - Full access to source code for self-improvement

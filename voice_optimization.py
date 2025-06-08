@@ -374,9 +374,13 @@ class VoiceOptimizer:
             areas.append(f"Practice pronunciation: {', '.join(low_confidence_words[:3])}")
         
         # Common misrecognitions
-        common_errors = self.accuracy_metrics["common_misrecognitions"].most_common(3)
-        if common_errors:
-            areas.append("Address common misrecognitions in speech patterns")
+        from collections import Counter
+        misrecognitions = self.accuracy_metrics.get("common_misrecognitions", {})
+        if isinstance(misrecognitions, dict):
+            counter = Counter(misrecognitions)
+            common_errors = counter.most_common(3)
+            if common_errors:
+                areas.append("Address common misrecognitions in speech patterns")
         
         # Overall confidence
         avg_confidence = self._calculate_average_confidence()
