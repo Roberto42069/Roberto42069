@@ -94,19 +94,11 @@ def get_user_roberto():
     return roberto
 
 def save_user_data():
-    """Save current Roboto state to database for authenticated users"""
+    """Save current Roboto state with enhanced learning data (database-independent)"""
     try:
-        from flask_login import current_user
-        if not hasattr(current_user, 'is_authenticated') or not current_user.is_authenticated:
-            return
-        
-        if not hasattr(current_user, 'roboto_data') or current_user.roboto_data is None:
-            from models import UserData
-            current_user.roboto_data = UserData()
-            current_user.roboto_data.user_id = current_user.id
-            db.session.add(current_user.roboto_data)
-        
+        # Save to local files when database is unavailable
         if roberto:
+            # Prepare comprehensive user data
             user_data = {
                 'chat_history': getattr(roberto, 'chat_history', []),
                 'learned_patterns': getattr(roberto, 'learned_patterns', {}),
@@ -114,13 +106,46 @@ def save_user_data():
                 'emotional_history': getattr(roberto, 'emotional_history', []),
                 'memory_system_data': getattr(roberto.memory_system, 'memory_data', {}) if hasattr(roberto, 'memory_system') and roberto.memory_system else {},
                 'current_emotion': getattr(roberto, 'current_emotion', 'curious'),
-                'current_user_name': getattr(roberto, 'current_user', None)
+                'current_user_name': getattr(roberto, 'current_user', None),
+                'learning_data': {},
+                'optimization_data': {}
             }
+            
+            # Collect learning engine data
+            if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
+                try:
+                    roberto.learning_engine.save_learning_data()
+                    user_data['learning_data'] = {
+                        'performance_metrics': getattr(roberto.learning_engine, 'learning_metrics', {}),
+                        'topic_expertise': dict(getattr(roberto.learning_engine, 'topic_expertise', {})),
+                        'conversation_patterns': dict(getattr(roberto.learning_engine, 'conversation_patterns', {}))
+                    }
+                except Exception as e:
+                    app.logger.warning(f"Learning engine save error: {e}")
+            
+            # Collect optimization data
+            if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
+                try:
+                    roberto.learning_optimizer.save_optimization_data()
+                    insights = roberto.learning_optimizer.get_optimization_insights()
+                    user_data['optimization_data'] = insights
+                except Exception as e:
+                    app.logger.warning(f"Learning optimizer save error: {e}")
+            
+            # Save to Roboto's internal system
             roberto.save_user_data(user_data)
             
-            # Update database safely (no tasks field)
+            # Try database save, fallback to file if needed
             try:
-                if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
+                from flask_login import current_user
+                if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+                    if not hasattr(current_user, 'roboto_data') or current_user.roboto_data is None:
+                        from models import UserData
+                        current_user.roboto_data = UserData()
+                        current_user.roboto_data.user_id = current_user.id
+                        db.session.add(current_user.roboto_data)
+                    
+                    # Update database fields
                     current_user.roboto_data.chat_history = user_data.get('chat_history', [])
                     current_user.roboto_data.learned_patterns = user_data.get('learned_patterns', {})
                     current_user.roboto_data.user_preferences = user_data.get('user_preferences', {})
@@ -128,17 +153,49 @@ def save_user_data():
                     current_user.roboto_data.memory_system_data = user_data.get('memory_system_data', {})
                     current_user.roboto_data.current_emotion = user_data.get('current_emotion', 'curious')
                     current_user.roboto_data.current_user_name = user_data.get('current_user_name', None)
-            except Exception as e:
-                app.logger.warning(f"Error updating user data fields: {e}")
-            
-            db.session.commit()
-            app.logger.info("User data saved successfully")
+                    
+                    db.session.commit()
+                    app.logger.info("User data saved successfully to database")
+                else:
+                    # Save to file backup when not authenticated
+                    _save_to_file_backup(user_data)
+                    
+            except Exception as db_error:
+                app.logger.warning(f"Database save failed: {db_error}, using file backup")
+                _save_to_file_backup(user_data)
+                
     except Exception as e:
-        app.logger.error(f"Error saving user data: {e}")
-        try:
-            db.session.rollback()
-        except:
-            pass
+        app.logger.error(f"Critical error saving user data: {e}")
+
+def _save_to_file_backup(user_data):
+    """Save user data to file backup when database is unavailable"""
+    try:
+        import json
+        from datetime import datetime
+        
+        backup_file = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
+        
+        # Load existing backup if it exists
+        existing_data = {}
+        if os.path.exists(backup_file):
+            try:
+                with open(backup_file, 'r') as f:
+                    existing_data = json.load(f)
+            except:
+                pass
+        
+        # Update with current data
+        existing_data.update(user_data)
+        existing_data['last_backup'] = datetime.now().isoformat()
+        
+        # Save updated backup
+        with open(backup_file, 'w') as f:
+            json.dump(existing_data, f, indent=2)
+        
+        app.logger.info(f"User data backed up to {backup_file}")
+        
+    except Exception as e:
+        app.logger.error(f"File backup failed: {e}")
 
 @app.route('/')
 def index():
