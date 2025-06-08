@@ -29,20 +29,24 @@ class Roboto:
             from enhanced_memory_training import MemoryTrainingEngine
             from advanced_learning_engine import AdvancedLearningEngine
             from learning_optimizer import LearningOptimizer
+            from voice_optimization import VoiceOptimizer
             
             self.training_engine = MemoryTrainingEngine(self.memory_system)
             self.training_engine.load_training_data()
             
             self.learning_engine = AdvancedLearningEngine()
             self.learning_optimizer = LearningOptimizer()
+            self.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
             
             print("Advanced learning systems initialized successfully")
+            print("Voice optimization system configured for Roberto Villarreal Martinez")
             
         except Exception as e:
             print(f"Learning systems initialization error: {e}")
             self.training_engine = None
             self.learning_engine = None
             self.learning_optimizer = None
+            self.voice_optimizer = None
         self.primary_user_profile = {
             'name': None,
             'personal_details': {},

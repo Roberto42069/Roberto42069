@@ -274,6 +274,93 @@ def get_emotional_status():
         "emotional_context": roberto.get_emotional_context()
     })
 
+@app.route('/api/voice-insights')
+def get_voice_insights():
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
+            insights = roberto.voice_optimizer.get_optimization_insights()
+            config = roberto.voice_optimizer.get_voice_optimization_config()
+            
+            # Generate user-friendly insights
+            user_insights = []
+            
+            # Voice profile strength
+            strength = insights.get('voice_profile_strength', 0)
+            if strength > 0.8:
+                user_insights.append("Voice profile highly optimized for Roberto Villarreal Martinez")
+            elif strength > 0.6:
+                user_insights.append("Voice recognition adapting well to your speech patterns")
+            else:
+                user_insights.append("Building personalized voice profile - continue speaking")
+            
+            # Recognition accuracy
+            accuracy = insights.get('recognition_accuracy', 0)
+            if accuracy > 0.9:
+                user_insights.append("Excellent voice recognition accuracy achieved")
+            elif accuracy > 0.8:
+                user_insights.append("Good recognition accuracy with room for improvement")
+            else:
+                user_insights.append("Voice recognition learning your pronunciation patterns")
+            
+            # Spanish accent adaptation
+            user_insights.append("Spanish-English bilingual support active")
+            
+            return jsonify({
+                "success": True,
+                "insights": " • ".join(user_insights),
+                "detailed_insights": insights,
+                "voice_config": config
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "insights": "Voice optimization system initializing for Roberto Villarreal Martinez"
+            })
+    except Exception as e:
+        app.logger.error(f"Voice insights error: {e}")
+        return jsonify({
+            "success": False,
+            "insights": "Voice optimization in progress"
+        })
+
+@app.route('/api/voice-optimization', methods=['POST'])
+def optimize_voice():
+    try:
+        data = request.get_json()
+        recognized_text = data.get('recognized_text', '')
+        confidence_score = data.get('confidence', 0.0)
+        actual_text = data.get('actual_text', None)
+        
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
+            suggestions = roberto.voice_optimizer.analyze_voice_pattern(
+                recognized_text, confidence_score, actual_text
+            )
+            
+            # Save voice profile periodically
+            import random
+            if random.random() < 0.1:  # 10% chance
+                roberto.voice_optimizer.save_voice_profile()
+            
+            return jsonify({
+                "success": True,
+                "suggestions": suggestions,
+                "confidence": confidence_score,
+                "optimization_applied": True
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Voice optimization system not available"
+            })
+    except Exception as e:
+        app.logger.error(f"Voice optimization error: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Voice optimization failed"
+        })
+
 @app.route('/api/export_data')
 def export_data():
     roberto = get_user_roberto()

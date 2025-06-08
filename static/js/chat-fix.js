@@ -436,6 +436,102 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    async function optimizeVoiceRecognition(recognizedText, confidence, actualText = null) {
+        try {
+            const response = await fetch('/api/voice-optimization', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    recognized_text: recognizedText,
+                    confidence: confidence,
+                    actual_text: actualText
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.suggestions) {
+                // Show optimization suggestions if needed
+                if (confidence < 0.8) {
+                    showVoiceOptimizationTip(data.suggestions[0]);
+                }
+            }
+        } catch (error) {
+            console.log('Voice optimization analysis in progress...');
+        }
+    }
+    
+    function showVoiceConfidenceIndicator(confidence) {
+        const indicator = document.createElement('div');
+        indicator.className = 'voice-confidence-indicator';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 123, 255, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        `;
+        indicator.textContent = `Voice confidence: ${Math.round(confidence * 100)}%`;
+        
+        document.body.appendChild(indicator);
+        
+        setTimeout(() => {
+            indicator.style.opacity = '0';
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }, 300);
+        }, 2000);
+    }
+    
+    function showVoiceOptimizationTip(suggestion) {
+        const tip = document.createElement('div');
+        tip.className = 'voice-optimization-tip';
+        tip.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        `;
+        tip.innerHTML = `
+            <strong>Voice Tip:</strong> ${suggestion}
+            <button onclick="this.parentNode.remove()" style="
+                background: none;
+                border: none;
+                color: white;
+                float: right;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: -2px;
+            ">&times;</button>
+        `;
+        
+        document.body.appendChild(tip);
+        
+        setTimeout(() => {
+            if (tip.parentNode) {
+                tip.parentNode.removeChild(tip);
+            }
+        }, 5000);
+    }
+    
     async function loadMemoryInsights() {
         try {
             const response = await fetch('/api/memory-insights');
