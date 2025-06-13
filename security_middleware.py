@@ -239,6 +239,7 @@ class SecurityManager:
         token = auth_header.split(' ')[1]
         
         try:
+            from models import User
             payload = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
             user_id = payload.get('user_id')
             
@@ -250,7 +251,7 @@ class SecurityManager:
                 return None
             
             # Check if account is locked
-            if user.is_account_locked():
+            if hasattr(user, 'is_account_locked') and user.is_account_locked():
                 self.log_security_event('locked_account_access_attempt', 
                                        risk_level='medium',
                                        user_id=user.id)
@@ -264,6 +265,8 @@ class SecurityManager:
         except jwt.InvalidTokenError:
             self.log_security_event('invalid_token_usage', risk_level='medium')
             return None
+        except ImportError:
+            return None
     
     def generate_jwt_token(self, user):
         """Generate JWT token for authenticated user"""
@@ -276,31 +279,40 @@ class SecurityManager:
         
         token = jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
         
-        # Create session record
-        session_record = UserSession(
-            user_id=user.id,
-            session_token=hashlib.sha256(token.encode()).hexdigest(),
-            ip_address=request.remote_addr,
-            user_agent=request.headers.get('User-Agent', '')[:512],
-            expires_at=payload['exp']
-        )
-        db.session.add(session_record)
-        db.session.commit()
+        try:
+            from models import UserSession, db
+            # Create session record
+            session_record = UserSession(
+                user_id=user.id,
+                session_token=hashlib.sha256(token.encode()).hexdigest(),
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent', '')[:512],
+                expires_at=payload['exp']
+            )
+            db.session.add(session_record)
+            db.session.commit()
+        except ImportError:
+            pass
         
         return token
     
     def log_security_event(self, event_type, risk_level='low', user_id=None, details=None):
         """Log security events for monitoring and analysis"""
-        log_entry = SecurityAuditLog(
-            user_id=user_id or (g.current_user.id if hasattr(g, 'current_user') and g.current_user else None),
-            event_type=event_type,
-            ip_address=request.remote_addr,
-            user_agent=request.headers.get('User-Agent', '')[:512],
-            details=details or {},
-            risk_level=risk_level
-        )
-        db.session.add(log_entry)
-        db.session.commit()
+        try:
+            from models import SecurityAuditLog, db
+            log_entry = SecurityAuditLog(
+                user_id=user_id or (g.current_user.id if hasattr(g, 'current_user') and g.current_user else None),
+                event_type=event_type,
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent', '')[:512],
+                details=details or {},
+                risk_level=risk_level
+            )
+            db.session.add(log_entry)
+            db.session.commit()
+        except ImportError:
+            # Log to application logger as fallback
+            current_app.logger.warning(f"Security event: {event_type} - {risk_level} - {details}")
 
 
 def require_auth(f):

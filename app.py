@@ -36,13 +36,56 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
+# Security configuration
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", os.urandom(32))
+app.config["JWT_EXPIRATION_HOURS"] = 24
+app.config["RATE_LIMIT_PER_MINUTE"] = 60
+app.config["RATE_LIMIT_PER_HOUR"] = 1000
+
 # Initialize the app with the extension
 db.init_app(app)
+
+# Initialize security systems
+security_manager = SecurityManager(app)
+
+# Configure Flask-Talisman for HTTPS and security headers
+csp = {
+    'default-src': "'self'",
+    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+    'style-src': ["'self'", "'unsafe-inline'"],
+    'img-src': ["'self'", "data:", "https:"],
+    'font-src': "'self'",
+    'connect-src': "'self'",
+    'media-src': "'self'",
+    'object-src': "'none'",
+    'base-uri': "'self'",
+    'form-action': "'self'"
+}
+
+talisman = Talisman(
+    app,
+    force_https=False,  # Set to True in production
+    strict_transport_security=True,
+    content_security_policy=csp,
+    referrer_policy='strict-origin-when-cross-origin',
+    feature_policy={
+        'geolocation': "'none'",
+        'microphone': "'none'", 
+        'camera': "'none'"
+    }
+)
+
+# Initialize rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["1000 per hour", "60 per minute"]
+)
 
 # Initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'replit_auth.login'
+login_manager.login_view = 'index'
 
 @login_manager.user_loader
 def load_user(user_id):
