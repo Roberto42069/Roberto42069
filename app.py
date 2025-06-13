@@ -10,6 +10,10 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import LoginManager, current_user, login_required
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
 import logging
 
 # Set up logging

@@ -26,4 +26,8 @@ dependencies = [
     "opencv-python>=4.11.0.86",
     "sounddevice>=0.5.2",
     "pyaudio>=0.2.14",
+    "bcrypt>=4.3.0",
+    "flask-talisman>=1.1.0",
+    "flask-limiter>=3.12",
+    "pyotp>=2.9.0",
 ]
