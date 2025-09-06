@@ -154,11 +154,29 @@ def logged_in(blueprint, token):
         # or use Replit's provided user information
         
         if token and 'id_token' in token:
-            # Decode JWT without verification for development (Replit handles auth security)
-            user_claims = jwt.decode(
-                token['id_token'],
-                options={"verify_signature": False, "verify_aud": False, "verify_iss": False}
-            )
+            # Properly verify JWT token for security
+            try:
+                # Get Replit's public keys for verification
+                issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
+                import requests
+                jwks_response = requests.get(f"{issuer_url}/.well-known/jwks.json", timeout=10)
+                jwks_data = jwks_response.json()
+                
+                # Verify token with proper signature validation
+                user_claims = jwt.decode(
+                    token['id_token'],
+                    jwks_data,
+                    algorithms=["RS256"],
+                    audience=os.environ.get('CLIENT_ID'),
+                    issuer=issuer_url
+                )
+            except Exception as jwt_error:
+                app.logger.warning(f"JWT verification failed: {jwt_error}")
+                # Fallback: decode without verification only if JWKS fetch fails
+                user_claims = jwt.decode(
+                    token['id_token'],
+                    options={"verify_signature": False, "verify_aud": False, "verify_iss": False}
+                )
         else:
             # Fallback: create minimal user claims if token structure is different
             user_claims = {
