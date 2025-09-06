@@ -37,7 +37,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 
 # Security configuration
-app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", os.urandom(32))
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
 app.config["JWT_EXPIRATION_HOURS"] = 24
 app.config["RATE_LIMIT_PER_MINUTE"] = 60
 app.config["RATE_LIMIT_PER_HOUR"] = 1000
