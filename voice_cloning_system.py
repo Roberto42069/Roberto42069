@@ -66,6 +66,11 @@ class VoiceCloningEngine:
     def convert_to_wav(self, webm_file):
         """Convert WebM audio to WAV format for analysis"""
         try:
+            # Validate input file path for security
+            if not os.path.basename(webm_file).startswith("temp_audio_") or not webm_file.endswith(".webm"):
+                logging.error(f"Invalid audio file format: {webm_file}")
+                return None
+            
             wav_file = webm_file.replace('.webm', '_converted.wav')
             
             # Use ffmpeg to convert WebM to WAV
