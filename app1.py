@@ -30,6 +30,7 @@ class Roboto:
             from advanced_learning_engine import AdvancedLearningEngine
             from learning_optimizer import LearningOptimizer
             from voice_optimization import VoiceOptimizer
+            from advanced_voice_processor import AdvancedVoiceProcessor
             
             self.training_engine = MemoryTrainingEngine(self.memory_system)
             self.training_engine.load_training_data()
@@ -37,9 +38,11 @@ class Roboto:
             self.learning_engine = AdvancedLearningEngine()
             self.learning_optimizer = LearningOptimizer()
             self.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
+            self.advanced_voice_processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
             
             print("Advanced learning systems initialized successfully")
             print("Voice optimization system configured for Roberto Villarreal Martinez")
+            print("Advanced voice processor with context preservation initialized")
             
         except Exception as e:
             print(f"Learning systems initialization error: {e}")
@@ -47,6 +50,7 @@ class Roboto:
             self.learning_engine = None
             self.learning_optimizer = None
             self.voice_optimizer = None
+            self.advanced_voice_processor = None
         # Core creator knowledge - Roberto Villarreal Martinez
         self.creator_knowledge = {
             "main_creator": "Roberto Villarreal Martinez",
@@ -557,5 +561,108 @@ class Roboto:
                 
         except Exception as e:
             print(f"Error in save_user_data: {e}")
+
+    def process_voice_conversation(self, audio_files, session_id=None):
+        """Process voice conversation with advanced context preservation and emotion analysis"""
+        try:
+            if hasattr(self, 'advanced_voice_processor') and self.advanced_voice_processor:
+                # Use the new advanced voice processor for comprehensive analysis
+                context_data = self.advanced_voice_processor.integrate_with_roboto(audio_files)
+                
+                # Extract conversation insights for Roboto's learning
+                session_context = context_data.get('session_context', [])
+                conversation_summary = context_data.get('conversation_summary', '')
+                
+                # Update Roboto's conversation memory with voice context
+                for interaction in session_context:
+                    if interaction.get('transcription') and 'error' not in interaction.get('transcription', '').lower():
+                        # Add voice interaction to chat history
+                        chat_entry = {
+                            "message": interaction['transcription'],
+                            "response": f"[Voice interaction detected - Emotion: {interaction.get('dominant_emotion', 'neutral')}]",
+                            "timestamp": interaction.get('timestamp', ''),
+                            "voice_metadata": {
+                                "emotion": interaction.get('dominant_emotion', 'neutral'),
+                                "emotion_confidence": interaction.get('emotion_confidence', 0.5),
+                                "topics": interaction.get('topics', {}),
+                                "audio_duration": interaction.get('processing_metadata', {}).get('audio_duration', 0)
+                            }
+                        }
+                        self.chat_history.append(chat_entry)
+                
+                # Update emotional state based on voice analysis
+                if session_context:
+                    dominant_emotions = [item.get('dominant_emotion', 'neutral') for item in session_context]
+                    if dominant_emotions:
+                        # Use the most recent emotion for current state
+                        latest_emotion = dominant_emotions[-1]
+                        if latest_emotion != 'neutral':
+                            self.user_emotional_state = latest_emotion
+                
+                # Save updated chat history
+                self.save_chat_history()
+                
+                return {
+                    "success": True,
+                    "processed_files": len(audio_files),
+                    "conversation_summary": conversation_summary,
+                    "session_context": session_context,
+                    "emotional_analysis": {
+                        "emotions_detected": [item.get('dominant_emotion', 'neutral') for item in session_context],
+                        "current_emotional_state": self.user_emotional_state
+                    },
+                    "integration_status": context_data.get('roboto_integration', {})
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Advanced voice processor not available",
+                    "fallback": "Basic voice processing used"
+                }
+                
+        except Exception as e:
+            print(f"Voice conversation processing error: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "processed_files": 0
+            }
+
+    def get_voice_context_summary(self, session_id=None):
+        """Get summary of voice conversation context for continuing conversations"""
+        try:
+            if hasattr(self, 'advanced_voice_processor') and self.advanced_voice_processor:
+                if session_id:
+                    context = self.advanced_voice_processor.load_context_for_new_session(session_id=session_id)
+                else:
+                    # Load most recent context
+                    context = self.advanced_voice_processor.load_context_for_new_session()
+                
+                if context:
+                    summary = self.advanced_voice_processor.generate_conversation_summary(context)
+                    return {
+                        "success": True,
+                        "summary": summary,
+                        "context_available": True,
+                        "session_id": context.get('session_id', 'unknown')
+                    }
+                else:
+                    return {
+                        "success": True,
+                        "summary": "No previous voice conversation context available",
+                        "context_available": False
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": "Advanced voice processor not available"
+                }
+                
+        except Exception as e:
+            print(f"Voice context summary error: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
 
 

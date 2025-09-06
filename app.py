@@ -638,5 +638,69 @@ def chat():
         app.logger.error(f"Chat error: {e}")
         return jsonify({"success": False, "response": "An unexpected error occurred. Please try again."}), 500
 
+@app.route('/api/process-voice-conversation', methods=['POST'])
+@limiter.limit("10 per minute")
+@login_required
+def process_voice_conversation():
+    """Process voice conversation with advanced context preservation and emotion analysis"""
+    try:
+        # Get current user's Roboto instance
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({"success": False, "message": "System not ready"}), 500
+        
+        # Get audio files from request
+        audio_files = request.json.get('audio_files', [])
+        session_id = request.json.get('session_id')
+        
+        if not audio_files:
+            return jsonify({"success": False, "message": "No audio files provided"}), 400
+        
+        # Process voice conversation using Roboto's advanced voice processor
+        result = roberto.process_voice_conversation(audio_files, session_id)
+        
+        if result.get('success'):
+            return jsonify({
+                "success": True,
+                "message": f"Successfully processed {result['processed_files']} audio files",
+                "conversation_summary": result.get('conversation_summary', ''),
+                "emotional_analysis": result.get('emotional_analysis', {}),
+                "session_context": result.get('session_context', []),
+                "integration_status": result.get('integration_status', {})
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": result.get('error', 'Voice processing failed'),
+                "fallback_used": result.get('fallback', False)
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"Voice conversation processing error: {e}")
+        return jsonify({"success": False, "message": f"Processing failed: {str(e)}"}), 500
+
+@app.route('/api/voice-context-summary', methods=['GET'])
+@limiter.limit("30 per minute")
+@login_required
+def get_voice_context_summary():
+    """Get summary of voice conversation context for continuing conversations"""
+    try:
+        # Get current user's Roboto instance
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({"success": False, "message": "System not ready"}), 500
+        
+        # Get optional session ID
+        session_id = request.args.get('session_id')
+        
+        # Get voice context summary
+        result = roberto.get_voice_context_summary(session_id)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.error(f"Voice context summary error: {e}")
+        return jsonify({"success": False, "message": f"Context retrieval failed: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

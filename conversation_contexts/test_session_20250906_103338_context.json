@@ -1,0 +1,29 @@
+{
+    "session_id": "test_session_20250906_103338",
+    "user_name": "Roberto Villarreal Martinez",
+    "created_at": "2025-09-06T10:33:38.527933",
+    "total_files": 0,
+    "successful_transcriptions": 0,
+    "dominant_emotions": {
+        "most_common": [
+            "neutral",
+            0
+        ],
+        "emotion_distribution": {},
+        "emotional_trajectory": []
+    },
+    "key_topics": {
+        "summary": "No topics extracted",
+        "text_length": 0
+    },
+    "conversation_flow": [],
+    "session_metadata": {
+        "total_duration": 0,
+        "average_emotion_confidence": NaN,
+        "models_used": {
+            "emotion_detection": false,
+            "topic_modeling": false,
+            "speech_recognition": true
+        }
+    }
+}

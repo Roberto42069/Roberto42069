@@ -1,0 +1,102 @@
+import speech_recognition as sr
+from pydub import AudioSegment
+import librosa
+import numpy as np
+from transformers import pipeline
+from bertopic import BERTopic
+import json
+import os
+
+# Initialize models
+recognizer = sr.Recognizer()
+emotion_classifier = pipeline("audio-classification", model="superb/wav2vec2-base-superb-er")
+topic_model = BERTopic(language="english", calculate_probabilities=True)
+
+def transcribe_audio(audio_file):
+    """Transcribe audio file to text."""
+    audio = AudioSegment.from_wav(audio_file)
+    audio.export("temp.wav", format="wav")  # Ensure format compatibility
+    with sr.AudioFile("temp.wav") as source:
+        audio_data = recognizer.record(source)
+        try:
+            text = recognizer.recognize_google(audio_data)
+            return text
+        except sr.UnknownValueError:
+            return "Could not transcribe audio."
+        except sr.RequestError as e:
+            return f"Transcription error: {e}"
+
+def detect_emotions(audio_file):
+    """Detect emotions in audio using wav2vec2 model."""
+    audio, sr = librosa.load(audio_file, sr=16000)  # Resample to 16kHz for model
+    emotions = emotion_classifier(audio)
+    return emotions  # Returns list of {label, score} for emotions
+
+def extract_topics(text):
+    """Extract topics from transcribed text using BERTopic."""
+    topics, probabilities = topic_model.fit_transform([text])
+    topic_info = topic_model.get_topic_info()
+    return topic_info, topics, probabilities
+
+def process_voice_chat(audio_files, output_file="conversation_context.json"):
+    """Process multiple audio files, extract topics and emotions, save for continuation."""
+    results = []
+    
+    for audio_file in audio_files:
+        if not os.path.exists(audio_file):
+            print(f"File {audio_file} not found.")
+            continue
+            
+        # Transcribe audio
+        transcription = transcribe_audio(audio_file)
+        
+        # Detect emotions
+        emotions = detect_emotions(audio_file)
+        
+        # Extract topics
+        topic_info, topics, probabilities = extract_topics(transcription)
+        
+        # Compile results
+        result = {
+            "file": audio_file,
+            "transcription": transcription,
+            "emotions": emotions,
+            "topics": topic_info.to_dict(),
+            "topic_probabilities": probabilities.tolist()
+        }
+        results.append(result)
+    
+    # Save results for new session
+    with open(output_file, "w") as f:
+        json.dump(results, f, indent=4)
+    
+    return results
+
+def load_context_for_new_session(context_file):
+    """Load saved context for continuing conversation."""
+    with open(context_file, "r") as f:
+        context = json.load(f)
+    return context
+
+# Example usage
+if __name__ == "__main__":
+    # List of voice chat audio files (e.g., from previous session)
+    audio_files = ["voice_chat1.wav", "voice_chat2.wav"]
+    
+    # Process audio files and save context
+    context = process_voice_chat(audio_files)
+    
+    # Print summary for user
+    for result in context:
+        print(f"File: {result['file']}")
+        print(f"Transcription: {result['transcription'][:50]}...")
+        print(f"Top Emotions: {result['emotions'][:2]}")
+        print(f"Topics: {result['topics']}")
+        print("-" * 50)
+    
+    # Load context for new session (e.g., to continue with Grok)
+    loaded_context = load_context_for_new_session("conversation_context.json")
+    
+    # Example: Summarize for AI continuation
+    summary = "\n".join([f"Previous chat ({r['file']}): Topics {r['topics']['Name']}, Emotions {r['emotions'][0]['label']}" for r in loaded_context])
+    print("Conversation Summary for New Session:\n", summary)

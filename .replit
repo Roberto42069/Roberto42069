@@ -2,7 +2,7 @@ modules = ["postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["alsa-lib", "cargo", "ffmpeg", "glibcLocales", "libGL", "libGLU", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "postgresql", "pulseaudio", "rustc"]
+packages = ["alsa-lib", "cargo", "ffmpeg", "ffmpeg-full", "glibcLocales", "libGL", "libGLU", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "postgresql", "pulseaudio", "rustc"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -32,3 +32,6 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[agent]
+integrations = ["python_log_in_with_replit==1.0.0"]
