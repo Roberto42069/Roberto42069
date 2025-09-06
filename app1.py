@@ -51,6 +51,9 @@ class Roboto:
             self.learning_optimizer = None
             self.voice_optimizer = None
             self.advanced_voice_processor = None
+        
+        # Initialize voice cloning attribute
+        self.voice_cloning = None
         # Core creator knowledge - Roberto Villarreal Martinez
         self.creator_knowledge = {
             "main_creator": "Roberto Villarreal Martinez",
