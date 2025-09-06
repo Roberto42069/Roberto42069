@@ -408,89 +408,173 @@ class RobotoApp {
         const activeTasks = this.tasks.filter(t => !t.completed);
         const completedTasks = this.tasks.filter(t => t.completed);
 
-        let html = '';
+        // Clear existing content safely
+        taskList.replaceChildren();
 
         if (activeTasks.length > 0) {
-            html += '<div class="mb-3"><h6 class="text-muted mb-2"><i class="fas fa-clock me-1"></i>Active Tasks</h6>';
-            activeTasks.forEach(task => {
-                html += this.renderTaskItem(task, false);
-            });
-            html += '</div>';
+            const activeSection = this.createTaskSection('Active Tasks', 'fas fa-clock', activeTasks, false);
+            taskList.appendChild(activeSection);
         }
 
         if (completedTasks.length > 0) {
-            html += '<div><h6 class="text-muted mb-2"><i class="fas fa-check me-1"></i>Completed Tasks</h6>';
-            completedTasks.forEach(task => {
-                html += this.renderTaskItem(task, true);
-            });
-            html += '</div>';
+            const completedSection = this.createTaskSection('Completed Tasks', 'fas fa-check', completedTasks, true);
+            taskList.appendChild(completedSection);
         }
 
         if (activeTasks.length === 0 && completedTasks.length === 0) {
             this.renderEmptyTasks();
             return;
         }
-
-        taskList.innerHTML = html;
     }
 
-    renderTaskItem(task, isCompleted) {
+    createTaskSection(title, iconClass, tasks, isCompleted) {
+        const section = document.createElement('div');
+        if (!isCompleted) {
+            section.className = 'mb-3';
+        }
+        
+        const header = document.createElement('h6');
+        header.className = 'text-muted mb-2';
+        
+        const icon = document.createElement('i');
+        icon.className = iconClass + ' me-1';
+        header.appendChild(icon);
+        header.appendChild(document.createTextNode(title));
+        
+        section.appendChild(header);
+        
+        tasks.forEach(task => {
+            const taskElement = this.createTaskElement(task, isCompleted);
+            section.appendChild(taskElement);
+        });
+        
+        return section;
+    }
+
+    createTaskElement(task, isCompleted) {
         const date = new Date(task.created_at).toLocaleDateString();
         
         // Priority indicator
         const priorityClass = task.priority === 'high' ? 'border-danger' : 
                              task.priority === 'low' ? 'border-info' : 'border-warning';
         
-        // Due date information
-        let dueDateInfo = '';
+        // Create main container
+        const taskDiv = document.createElement('div');
+        taskDiv.className = `task-item d-flex align-items-center p-2 mb-2 border rounded ${priorityClass} ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}`;
+        
+        // Create content area
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'flex-grow-1';
+        
+        // Create text container
+        const textDiv = document.createElement('div');
+        if (isCompleted) {
+            textDiv.className = 'text-decoration-line-through text-muted';
+        }
+        
+        // Add category badge if exists
+        if (task.category) {
+            const categoryBadge = document.createElement('span');
+            categoryBadge.className = 'badge bg-dark me-1';
+            categoryBadge.textContent = task.category;
+            textDiv.appendChild(categoryBadge);
+        }
+        
+        // Add task text
+        const taskText = document.createTextNode(task.text);
+        textDiv.appendChild(taskText);
+        
+        // Add due date badge if applicable
         if (task.due_date && !isCompleted) {
-            const dueDate = new Date(task.due_date);
-            const today = new Date();
-            const timeDiff = dueDate - today;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            
-            if (daysDiff < 0) {
-                dueDateInfo = `<span class="badge bg-danger ms-1">Overdue</span>`;
-            } else if (daysDiff === 0) {
-                dueDateInfo = `<span class="badge bg-warning ms-1">Due Today</span>`;
-            } else if (daysDiff <= 3) {
-                dueDateInfo = `<span class="badge bg-info ms-1">Due in ${daysDiff} days</span>`;
-            } else {
-                dueDateInfo = `<span class="badge bg-secondary ms-1">Due ${dueDate.toLocaleDateString()}</span>`;
+            const dueDateBadge = this.createDueDateBadge(task.due_date);
+            if (dueDateBadge) {
+                textDiv.appendChild(dueDateBadge);
             }
         }
         
-        // Category badge
-        const categoryBadge = task.category ? `<span class="badge bg-dark me-1">${this.escapeHtml(task.category)}</span>` : '';
+        contentDiv.appendChild(textDiv);
         
-        return `
-            <div class="task-item d-flex align-items-center p-2 mb-2 border rounded ${priorityClass} ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}">
-                <div class="flex-grow-1">
-                    <div class="${isCompleted ? 'text-decoration-line-through text-muted' : ''}">
-                        ${categoryBadge}${this.escapeHtml(task.text)}${dueDateInfo}
-                    </div>
-                    <small class="text-muted">
-                        <i class="fas fa-calendar-alt me-1"></i>${date}
-                        ${task.priority !== 'medium' ? `<i class="fas fa-flag ms-2 me-1"></i>${task.priority}` : ''}
-                    </small>
-                </div>
-                <div class="task-actions ms-2">
-                    ${!isCompleted && !task.due_date ? `
-                        <button class="btn btn-sm btn-outline-info me-1" onclick="app.scheduleTask(${task.id})" title="Schedule Task">
-                            <i class="fas fa-clock"></i>
-                        </button>
-                    ` : ''}
-                    ${!isCompleted ? `
-                        <button class="btn btn-sm btn-success me-1" onclick="app.completeTask(${task.id})" title="Complete Task">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    ` : ''}
-                    <button class="btn btn-sm btn-danger" onclick="app.deleteTask(${task.id})" title="Delete Task">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
+        // Create date/priority info
+        const infoSmall = document.createElement('small');
+        infoSmall.className = 'text-muted';
+        
+        const calendarIcon = document.createElement('i');
+        calendarIcon.className = 'fas fa-calendar-alt me-1';
+        infoSmall.appendChild(calendarIcon);
+        infoSmall.appendChild(document.createTextNode(date));
+        
+        if (task.priority !== 'medium') {
+            const flagIcon = document.createElement('i');
+            flagIcon.className = 'fas fa-flag ms-2 me-1';
+            infoSmall.appendChild(flagIcon);
+            infoSmall.appendChild(document.createTextNode(task.priority));
+        }
+        
+        contentDiv.appendChild(infoSmall);
+        taskDiv.appendChild(contentDiv);
+        
+        // Create actions area
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'task-actions ms-2';
+        
+        // Schedule button
+        if (!isCompleted && !task.due_date) {
+            const scheduleBtn = this.createButton('btn btn-sm btn-outline-info me-1', 'Schedule Task', 'fas fa-clock', () => this.scheduleTask(task.id));
+            actionsDiv.appendChild(scheduleBtn);
+        }
+        
+        // Complete button
+        if (!isCompleted) {
+            const completeBtn = this.createButton('btn btn-sm btn-success me-1', 'Complete Task', 'fas fa-check', () => this.completeTask(task.id));
+            actionsDiv.appendChild(completeBtn);
+        }
+        
+        // Delete button
+        const deleteBtn = this.createButton('btn btn-sm btn-danger', 'Delete Task', 'fas fa-trash', () => this.deleteTask(task.id));
+        actionsDiv.appendChild(deleteBtn);
+        
+        taskDiv.appendChild(actionsDiv);
+        
+        return taskDiv;
+    }
+    
+    createDueDateBadge(dueDate) {
+        const date = new Date(dueDate);
+        const today = new Date();
+        const timeDiff = date - today;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        const badge = document.createElement('span');
+        badge.className = 'badge ms-1';
+        
+        if (daysDiff < 0) {
+            badge.className += ' bg-danger';
+            badge.textContent = 'Overdue';
+        } else if (daysDiff === 0) {
+            badge.className += ' bg-warning';
+            badge.textContent = 'Due Today';
+        } else if (daysDiff <= 3) {
+            badge.className += ' bg-info';
+            badge.textContent = `Due in ${daysDiff} days`;
+        } else {
+            badge.className += ' bg-secondary';
+            badge.textContent = `Due ${date.toLocaleDateString()}`;
+        }
+        
+        return badge;
+    }
+    
+    createButton(className, title, iconClass, clickHandler) {
+        const button = document.createElement('button');
+        button.className = className;
+        button.title = title;
+        button.addEventListener('click', clickHandler);
+        
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+        button.appendChild(icon);
+        
+        return button;
     }
 
     renderEmptyTasks() {
