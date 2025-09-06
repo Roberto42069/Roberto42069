@@ -23,7 +23,10 @@ class SecurityManager:
     
     def init_app(self, app):
         """Initialize security middleware with Flask app"""
-        app.config.setdefault('JWT_SECRET_KEY', os.environ.get('JWT_SECRET_KEY', secrets.token_urlsafe(32)))
+        jwt_secret = os.environ.get('JWT_SECRET_KEY')
+        if not jwt_secret:
+            raise ValueError("JWT_SECRET_KEY environment variable is required for secure operation")
+        app.config.setdefault('JWT_SECRET_KEY', jwt_secret)
         app.config.setdefault('JWT_EXPIRATION_HOURS', 24)
         app.config.setdefault('RATE_LIMIT_PER_MINUTE', 60)
         app.config.setdefault('RATE_LIMIT_PER_HOUR', 1000)
