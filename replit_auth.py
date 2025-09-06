@@ -171,12 +171,10 @@ def logged_in(blueprint, token):
                     issuer=issuer_url
                 )
             except Exception as jwt_error:
-                app.logger.warning(f"JWT verification failed: {jwt_error}")
-                # Fallback: decode without verification only if JWKS fetch fails
-                user_claims = jwt.decode(
-                    token['id_token'],
-                    options={"verify_signature": False, "verify_aud": False, "verify_iss": False}
-                )
+                app.logger.error(f"JWT verification failed: {jwt_error}")
+                # Security: Do not decode unverified tokens
+                # Instead, reject the authentication attempt
+                raise Exception("JWT token verification failed - authentication rejected")
         else:
             # Fallback: create minimal user claims if token structure is different
             user_claims = {
