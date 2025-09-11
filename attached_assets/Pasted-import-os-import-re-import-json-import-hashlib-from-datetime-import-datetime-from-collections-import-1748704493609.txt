@@ -66,7 +66,7 @@ class AdvancedMemorySystem:
             "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra",
             "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
         ]:
-            personal_info["zodiac_sign"] zodiac_match.group(1).capitalize()
+            personal_info["zodiac_sign"] = zodiac_match.group(1).capitalize()
 
         # Ethnicity
         eth_match = re.search(r"i(?: am|'m|’m)? (a[n]?)? ([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)", text)

@@ -33,7 +33,7 @@ roboto = Roboto()
 
 @app.route('/')
 def index():
-    return roberto.introduce()
+    return roboto.introduce()
 
 @app.route('/add_task', methods=['POST'])
 def add_task():
@@ -51,5 +51,5 @@ def chat():
     response = roberto.chat(message)
     return jsonify({"response": response})
 
-if __name__ == "__Roberto__":
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
