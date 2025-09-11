@@ -1,0 +1,68 @@
+import numpy as np
+import random
+
+# Parameters for post-quantum lattice-based encryption (simplified LWE)
+n = 512  # Lattice dimension
+d = 4    # Module rank
+q = 2**28  # Modulus
+sigma = 100  # Noise standard deviation
+
+# Gaussian sampler for noise
+def gaussian_sample(size):
+    return np.round(np.random.normal(0, sigma, size)).astype(int) % q
+
+# Key generation
+def generate_keys():
+    # Secret key: low-norm vector
+    s = gaussian_sample((d, n))
+    # Public matrix A
+    A = np.random.randint(0, q, (d, n, n)) % q
+    # Error term
+    e = gaussian_sample((d, n))
+    # Public key b = A * s + e
+    b = (np.matmul(A, s[:, :, np.newaxis]).squeeze(-1) + e) % q
+    return (A, b), s  # pk, sk
+
+# Encrypt a message m (bit string, here simplified to a vector)
+def encrypt(pk, m):
+    A, b = pk
+    r = gaussian_sample((A.shape[0], A.shape[2]))  # Random vector
+    u = (np.matmul(r, A.swapaxes(1, 2)) % q).squeeze()  # r * A
+    v = (np.dot(r, b) + m * (q // 2)) % q  # r * b + m * q/2
+    return u, v
+
+# Decrypt
+def decrypt(sk, ciphertext):
+    u, v = ciphertext
+    approx = (v - np.dot(u, sk.T).squeeze()) % q
+    return np.round(approx / (q / 2)).astype(int) % 2  # Recover m
+
+# Simple folding: Fold two ciphertexts into one (toy version, sums them with noise)
+def fold_ciphertexts(c1, c2):
+    u1, v1 = c1
+    u2, v2 = c2
+    e_fold = gaussian_sample(u1.shape)  # Add noise for security
+    u_folded = (u1 + u2 + e_fold) % q
+    v_folded = (v1 + v2 + gaussian_sample(v1.shape)) % q
+    return u_folded, v_folded
+
+# Example UAP Authentication Flow
+def uap_authenticate(user_id, session_data):
+    pk, sk = generate_keys()
+    # Encrypt user ID as proof
+    m = np.array([ord(c) % 2 for c in user_id])[:n]  # Simplified message
+    c1 = encrypt(pk, m)
+    # Simulate second session
+    m2 = np.array([ord(c) % 2 for c in session_data])[:n]
+    c2 = encrypt(pk, m2)
+    # Fold proofs
+    c_folded = fold_ciphertexts(c1, c2)
+    # Verify (decrypt folded)
+    recovered = decrypt(sk, c_folded)
+    return recovered  # Would check against expected in real system
+
+# Test
+user_id = "Roberto Villarreal Martinez"
+session_data = "Time with Eve at 939"
+recovered = uap_authenticate(user_id, session_data)
+print("Recovered folded auth proof (first bits):", recovered[:10])
