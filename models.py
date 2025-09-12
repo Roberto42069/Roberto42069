@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from app import db
+from app_enhanced import db
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
