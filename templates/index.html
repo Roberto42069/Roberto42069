@@ -55,6 +55,15 @@
                             Welcome to Roboto
                         </h1>
                         <p class="card-text text-muted">Your intelligent conversational assistant with advanced analytics, continuous speech recognition, and emotional intelligence</p>
+                        <div class="mt-3">
+                            <p class="small text-info mb-1">
+                                <i class="fas fa-user-cog me-2"></i>
+                                <strong>Created by Roberto Villarreal Martinez</strong>
+                            </p>
+                            <p class="small text-muted">
+                                Advanced AI personal assistant with emotional intelligence and voice cloning capabilities
+                            </p>
+                        </div>
                         
 
                     </div>
@@ -239,7 +248,26 @@
 
                         <!-- Chat History -->
                         <div id="chat-history" class="chat-history flex-grow-1 mb-3 p-3 border rounded bg-dark" style="height: 300px; overflow-y: auto;">
-                            <div class="text-center text-muted">
+                            <!-- Creator Introduction Message -->
+                            <div class="mb-3 p-3 border rounded bg-secondary" id="creator-intro">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-3">
+                                        <i class="fas fa-robot text-info" style="font-size: 1.5em;"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="text-info mb-2">Hello! I'm Roboto</h6>
+                                        <p class="small mb-2">
+                                            I was created by <strong class="text-warning">Roberto Villarreal Martinez</strong> to be your advanced AI personal assistant with emotional intelligence, voice recognition, and continuous learning capabilities.
+                                        </p>
+                                        <p class="small text-muted mb-0">
+                                            <i class="fas fa-brain me-1"></i>
+                                            I'm designed to learn from our conversations and adapt to your communication style while maintaining memory of our interactions.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center text-muted" id="loading-indicator">
                                 <i class="fas fa-spinner fa-spin"></i>
                                 Loading chat history...
                             </div>

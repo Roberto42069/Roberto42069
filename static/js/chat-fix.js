@@ -221,7 +221,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success && data.history && Array.isArray(data.history)) {
                 const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
                 if (chatHistoryElement) {
-                    chatHistoryElement.innerHTML = '';
+                    // Keep the creator introduction, only remove loading indicator
+                    const loadingIndicator = chatHistoryElement.querySelector('#loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
                     
                     console.log(`Loading ${data.history.length} conversations`);
                     data.history.forEach(entry => {
@@ -241,10 +245,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
-            // Fallback: show that conversations are available but not loaded
+            // Hide loading indicator and show error message
             const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
             if (chatHistoryElement) {
-                chatHistoryElement.innerHTML = '<div class="text-center text-muted p-3">Your 578 conversations are saved but temporarily unavailable. Try refreshing the page.</div>';
+                const loadingIndicator = chatHistoryElement.querySelector('#loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.innerHTML = '<div class="text-center text-muted p-3">Your conversations are saved but temporarily unavailable. Try refreshing the page.</div>';
+                }
             }
         }
     }
