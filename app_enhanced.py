@@ -20,7 +20,9 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "fallback-secret-key")
+app.secret_key = os.environ.get("SESSION_SECRET")
+if not app.secret_key:
+    raise RuntimeError("SESSION_SECRET environment variable is required for security")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Database configuration with enhanced error handling
