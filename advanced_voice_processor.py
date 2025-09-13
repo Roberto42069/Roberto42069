@@ -285,8 +285,8 @@ class AdvancedVoiceProcessor:
                     "emotions": emotions,
                     "dominant_emotion": emotions[0]["label"] if emotions else "neutral",
                     "emotion_confidence": emotions[0]["score"] if emotions else 0.5,
-                    "topics": topic_info.to_dict() if hasattr(topic_info, 'to_dict') else topic_info,
-                    "topic_probabilities": probabilities.tolist() if hasattr(probabilities, 'tolist') else probabilities,
+                    "topics": topic_info.to_dict() if hasattr(topic_info, 'to_dict') and topic_info is not None else (topic_info if topic_info is not None else {}),
+                    "topic_probabilities": probabilities.tolist() if hasattr(probabilities, 'tolist') and probabilities is not None else (probabilities if probabilities is not None else []),
                     "processing_metadata": {
                         "audio_duration": self._get_audio_duration(audio_file),
                         "text_length": len(transcription) if transcription else 0,
@@ -383,14 +383,14 @@ class AdvancedVoiceProcessor:
         try:
             topic_info, topics, probabilities = self.extract_topics(all_text)
             return {
-                "session_topics": topic_info.to_dict() if hasattr(topic_info, 'to_dict') else topic_info,
-                "topic_confidence": probabilities.tolist() if hasattr(probabilities, 'tolist') else probabilities,
+                "session_topics": topic_info.to_dict() if hasattr(topic_info, 'to_dict') and topic_info is not None else (topic_info if topic_info is not None else {}),
+                "topic_confidence": probabilities.tolist() if hasattr(probabilities, 'tolist') and probabilities is not None else (probabilities if probabilities is not None else []),
                 "text_analyzed": len(all_text)
             }
         except:
             return {"summary": "Topic analysis failed", "text_length": len(all_text)}
 
-    def load_context_for_new_session(self, session_id: str = None, context_file: str = None) -> Dict[str, Any]:
+    def load_context_for_new_session(self, session_id: Optional[str] = None, context_file: Optional[str] = None) -> Dict[str, Any]:
         """Load saved context for continuing conversation across sessions."""
         try:
             if context_file:

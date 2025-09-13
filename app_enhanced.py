@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.utils import secure_filename
 from datetime import datetime
 import json
 import traceback
@@ -12,6 +13,53 @@ from simple_voice_cloning import SimpleVoiceCloning
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+
+def process_voice_message(audio_file_path, roberto_instance):
+    """Process voice message with emotion detection and generate contextual response"""
+    try:
+        if hasattr(roberto_instance, 'advanced_voice_processor') and roberto_instance.advanced_voice_processor:
+            # Transcribe and analyze the audio
+            transcription = roberto_instance.advanced_voice_processor.transcribe_audio(audio_file_path)
+            emotions = roberto_instance.advanced_voice_processor.detect_emotions(audio_file_path)
+            
+            # Get the dominant emotion
+            dominant_emotion = emotions[0] if emotions else {"label": "neutral", "score": 0.5}
+            
+            app.logger.info(f"Voice transcription: {transcription[:50]}...")
+            app.logger.info(f"Detected emotion: {dominant_emotion}")
+            
+            # Create emotionally-aware response
+            if transcription and "error" not in transcription.lower():
+                # Generate response that acknowledges the emotion and transcription
+                emotional_context = f"[Voice message detected with {dominant_emotion['label']} emotion at {dominant_emotion['score']:.1%} confidence]"
+                
+                # Use Roberto's chat system with emotional context
+                enhanced_message = f"{transcription} {emotional_context}"
+                response = roberto_instance.chat(enhanced_message)
+                
+                # Add emotional acknowledgment to response
+                emotion_acknowledgments = {
+                    "happy": "I can hear the joy in your voice! ",
+                    "excited": "Your excitement is contagious! ",
+                    "sad": "I sense some sadness in your voice. I'm here for you. ",
+                    "angry": "I notice some frustration in your tone. Let's talk through this. ",
+                    "neutral": "Thanks for your voice message. ",
+                    "thoughtful": "I appreciate the thoughtfulness in your voice. ",
+                    "engaged": "I love how engaged you sound! "
+                }
+                
+                acknowledgment = emotion_acknowledgments.get(dominant_emotion['label'], "I received your voice message. ")
+                final_response = f"{acknowledgment}{response}"
+                
+                return final_response, dominant_emotion
+            else:
+                return f"I received your voice message, though I had some trouble with the transcription. I detected a {dominant_emotion['label']} emotion - how can I help you today?", dominant_emotion
+        else:
+            return "I received your voice message! While my voice processing is still learning, I'm here to help. What would you like to talk about?", {"label": "neutral", "score": 0.5}
+            
+    except Exception as e:
+        app.logger.error(f"Voice processing error: {e}")
+        return "I received your voice message! There was a small hiccup in processing it, but I'm ready to chat. What's on your mind?", {"label": "neutral", "score": 0.5}
 
 class Base(DeclarativeBase):
     pass
@@ -117,6 +165,14 @@ def get_user_roberto():
             app.logger.info("Learning optimization system activated")
         except Exception as e:
             app.logger.error(f"Learning optimizer initialization error: {e}")
+        
+        # Add advanced voice processor - CRITICAL FIX
+        try:
+            from advanced_voice_processor import AdvancedVoiceProcessor
+            roberto.advanced_voice_processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
+            app.logger.info("Advanced voice processor with emotion detection initialized")
+        except Exception as e:
+            app.logger.error(f"Advanced voice processor initialization error: {e}")
         
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
         
@@ -577,8 +633,20 @@ def handle_file_upload():
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
         
-        # Save file temporarily
-        filename = f"temp_{datetime.now().timestamp()}_{file.filename}"
+        # Secure file handling - SECURITY FIX
+        if file.content_length and file.content_length > 50 * 1024 * 1024:  # 50MB limit
+            return jsonify({"error": "File too large (max 50MB)"}), 413
+        
+        secure_name = secure_filename(file.filename)
+        if not secure_name:
+            return jsonify({"error": "Invalid filename"}), 400
+            
+        # Create temp directory if it doesn't exist
+        temp_dir = "temp_uploads"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save file securely
+        filename = os.path.join(temp_dir, f"temp_{datetime.now().timestamp()}_{secure_name}")
         file.save(filename)
         
         roberto = get_user_roberto()
@@ -586,6 +654,20 @@ def handle_file_upload():
         # Process based on file type
         if file.filename and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
             response_text = f"I can see you've shared an image: {file.filename}. While I can't process images directly yet, I appreciate you wanting to share this with me. Could you describe what's in the image? I'd love to hear about it!"
+        elif file.filename and file.filename.lower().endswith(('.wav', '.mp3', '.m4a', '.ogg', '.webm', '.flac')):
+            # Process voice message with emotion detection
+            response_text, detected_emotion = process_voice_message(filename, roberto)
+            if detected_emotion:
+                roberto.detected_user_emotion = detected_emotion
+                # Update Roberto's emotional state based on detected emotion - ENHANCED FIX
+                if hasattr(roberto, 'update_emotional_state'):
+                    roberto.update_emotional_state(
+                        detected_emotion.get('label', 'neutral'), 
+                        f"Voice message with {detected_emotion.get('score', 0.5):.1%} confidence"
+                    )
+                    # Persist the emotional state immediately
+                    save_user_data()
+                    app.logger.info(f"Updated emotion state to {detected_emotion.get('label')} with confidence {detected_emotion.get('score', 0.5):.1%}")
         else:
             response_text = f"Thank you for sharing the file '{file.filename}'. I'm still learning how to process different file types, but I appreciate you wanting to share this with me. What would you like to tell me about this file?"
         
