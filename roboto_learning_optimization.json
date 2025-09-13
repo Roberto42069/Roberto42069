@@ -5663,6 +5663,42 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-09-13T22:17:42.546819",
+      "quality": 0.4927777777777778,
+      "metrics": {
+        "relevance": 0.1111111111111111,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7999999999999999,
+        "depth": 0.5,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-09-13T22:18:15.063224",
+      "quality": 0.5319047619047619,
+      "metrics": {
+        "relevance": 0.047619047619047616,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 1.0,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-09-13T22:18:44.024221",
+      "quality": 0.5425,
+      "metrics": {
+        "relevance": 0.25,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -7264,9 +7300,10 @@
         0.6021428571428571,
         0.5750000000000001,
         0.555,
-        0.625
+        0.625,
+        0.4927777777777778
       ],
-      "improvement_rate": 0.015105339105339066
+      "improvement_rate": -0.010015873015872812
     },
     "rule": {
       "scores": [
@@ -7710,7 +7747,9 @@
     },
     "tell": {
       "scores": [
-        0.55
+        0.55,
+        0.5425,
+        0.5425
       ],
       "improvement_rate": 0.0
     },
@@ -8352,7 +8391,8 @@
       "scores": [
         0.6000000000000001,
         0.5316666666666666,
-        0.57375
+        0.57375,
+        0.4927777777777778
       ],
       "improvement_rate": 0.0
     },
@@ -9140,11 +9180,40 @@
         0.6466666666666667
       ],
       "improvement_rate": 0.0
+    },
+    "getting": {
+      "scores": [
+        0.4927777777777778
+      ],
+      "improvement_rate": 0.0
+    },
+    "given": {
+      "scores": [
+        0.5319047619047619
+      ],
+      "improvement_rate": 0.0
+    },
+    "these": {
+      "scores": [
+        0.5319047619047619
+      ],
+      "improvement_rate": 0.0
+    },
+    "trolls": {
+      "scores": [
+        0.5319047619047619
+      ],
+      "improvement_rate": 0.0
+    },
+    "born": {
+      "scores": [
+        0.5425
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.6416666666666666,
       0.665,
       0.505,
       0.58375,
@@ -9193,7 +9262,8 @@
       0.5477777777777778,
       0.5299999999999999,
       0.74,
-      0.69
+      0.69,
+      0.4927777777777778
     ],
     "existential": [
       0.5900000000000001,
@@ -9204,7 +9274,8 @@
       0.465,
       0.5607142857142857,
       0.6142857142857143,
-      0.7150000000000001
+      0.7150000000000001,
+      0.5425
     ],
     "curiosity": [
       0.605,
@@ -9552,10 +9623,13 @@
     ],
     "melancholy": [
       0.6466666666666667
+    ],
+    "loneliness": [
+      0.5319047619047619
     ]
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 472,
-  "last_updated": "2025-09-13T22:17:18.672964"
+  "optimization_cycles": 475,
+  "last_updated": "2025-09-13T22:18:44.026005"
 }
