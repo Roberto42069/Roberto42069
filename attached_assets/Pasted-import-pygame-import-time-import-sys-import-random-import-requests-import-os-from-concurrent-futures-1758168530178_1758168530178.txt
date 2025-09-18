@@ -1,0 +1,466 @@
+import pygame
+import time
+import sys
+import random
+import requests
+import os
+from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv  # pip install python-dotenv
+
+load_dotenv()
+
+# Initialize Pygame and mixer
+pygame.init()
+pygame.mixer.init()
+
+# Set up display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Cultural Legacy Display")
+
+# Load Roboto font
+try:
+    font = pygame.font.Font("Roboto-Regular.ttf", 48)
+    small_font = pygame.font.Font("Roboto-Regular.ttf", 20)
+    ai_font = pygame.font.Font("Roboto-Regular.ttf", 16)
+except:
+    font = pygame.font.SysFont("arial", 48)
+    small_font = pygame.font.SysFont("arial", 20)
+    ai_font = pygame.font.SysFont("arial", 16)
+
+# Define colors (unchanged)
+background_color = (20, 20, 50)
+text_color = (255, 215, 0)
+secondary_color = (255, 255, 255)
+dna_color = (0, 255, 255)
+artist_color = (255, 165, 0)
+pride_color = (192, 192, 192)
+aztec_color = (0, 128, 0)
+tezcatlipoca_color = (128, 0, 128)
+huitzilopochtli_color = (255, 0, 0)
+tlaloc_color = (0, 0, 255)
+xipe_color = (255, 165, 0)
+coatlicue_color = (139, 69, 19)
+chalchiuhtlicue_color = (0, 191, 255)
+tonatiuh_color = (255, 255, 0)
+xochiquetzal_color = (255, 105, 180)
+centeotl_color = (0, 255, 0)
+mictlantecuhtli_color = (0, 0, 0)
+tlazolteotl_color = (128, 0, 0)
+em96_data_color = (255, 192, 203)
+eclipse_color = (255, 0, 255)
+thunder_color = (128, 0, 255)
+russian_color = (255, 215, 0)
+nahuatl_color = (255, 215, 0)
+numerology_color = (255, 20, 147)
+etymology_color = (0, 255, 127)
+particle_color = (255, 255, 255, 128)
+ai_response_color = (0, 255, 0)
+ssn_color = (255, 255, 0)  # Yellow for SSN
+destruction_color = (255, 0, 0)  # Red for destruction effect
+
+# API Keys (unchanged)
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
+# AI Communication Function (unchanged)
+def query_ai(api_type, prompt, is_roboto_benefit=False):
+    if is_roboto_benefit:
+        prompt = f"For Roboto's personal benefit: {prompt}"
+    try:
+        if api_type == "openai":
+            headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+            data = {"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": prompt}], "max_tokens": 100}
+            response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+            return response.json()["choices"][0]["message"]["content"]
+        elif api_type == "anthropic":
+            headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json"}
+            data = {"model": "claude-2", "max_tokens_to_sample": 100, "prompt": prompt}
+            response = requests.post("https://api.anthropic.com/v1/complete", headers=headers, json=data)
+            return response.json()["completion"]
+        elif api_type == "google":
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GOOGLE_API_KEY}"
+            data = {"contents": [{"parts": [{"text": prompt}]}]}
+            response = requests.post(url, json=data)
+            return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        return f"Error querying {api_type}: {str(e)}"
+
+def get_world_decision(prompt, is_roboto_benefit=False):
+    aapis = ["openai", "anthropic", "google"] if all([OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY]) else ["openai"]
+    with ThreadPoolExecutor(max_workers=len(aapis)) as executor:
+        futures = [executor.submit(query_ai, api, prompt, is_roboto_benefit) for api in aapis]
+        responses = [future.result() for future in futures]
+    summary = f"Aggregated AI Decision for World (or Roboto Benefit): {prompt}\nResponses:\n" + "\n".join([f"{api}: {resp}" for api, resp in zip(aapis, responses)])
+    return summary
+
+# Load background images (unchanged)
+backgrounds = [
+    ("cerro_de_la_silla.png", "Cerro de la Silla (Monterrey Heritage)"),
+    ("aztec_calendar.png", "Aztec Calendar (Cosmic Mythology)"),
+    ("starry_sky.png", "Starry Sky (Eclipse Power)"),
+    ("ytk_logo.png", "2025 YTK RobThuGod Persona")
+]
+current_background_index = 0
+try:
+    background_image = pygame.image.load(backgrounds[current_background_index][0])
+    background_image = pygame.transform.scale(background_image, (width, height))
+except:
+    background_image = None
+    print("Background images missing; add 'cerro_de_la_silla.png', 'aztec_calendar.png', etc.")
+
+# Load music tracks (unchanged)
+music_tracks = ["ytk_track1.mp3", "ytk_track2.mp3", "ytk_track3.mp3"]
+current_track_index = 0
+try:
+    pygame.mixer.music.load(music_tracks[current_track_index])
+    pygame.mixer.music.play(-1)
+    print(f"2025 YTK RobThuGod music loaded: {music_tracks[current_track_index]}")
+except:
+    print("No music files; download from YouTube/Spotify/BandLab (e.g., 'TOP 10', 'Double Cup (Overdose)').")
+
+# Load audio cues (unchanged)
+try:
+    theme_switch_sound = pygame.mixer.Sound("theme_switch.wav")
+    background_change_sound = pygame.mixer.Sound("background_change.wav")
+    hover_sound = pygame.mixer.Sound("hover_sound.wav")
+    ai_query_sound = pygame.mixer.Sound("ai_query.wav")
+except:
+    print("Audio cues missing; add 'theme_switch.wav', 'background_change.wav', 'hover_sound.wav', 'ai_query.wav'.")
+    theme_switch_sound = None
+    background_change_sound = None
+    hover_sound = None
+    ai_query_sound = None
+
+# Define cultural themes (added "Aztec Creation")
+themes = [
+    "All",
+    "Aztec Mythology",
+    "Aztec Creation",
+    "Monterrey Heritage",
+    "2025 YTK RobThuGod",
+    "Eclipses",
+    "Numerology & Etymology"
+]
+current_theme_index = 0
+
+# Nahuatl Creation Terms (from Aztec mythology)
+nahuatl_creation = [
+    ("Teotl (Divinity, Sacred Power)", small_font, aztec_color, "Teotl [te.oːt͡ɬ] - Etymology: teō-* divine + -tl abstract; Numerology: 2+5+6+2+3=18→9 (Completion)", "Aztec Creation"),
+    ("Tlaltecuhtli (Earth Monster, Body Forms World)", small_font, coatlicue_color, "Tlaltecuhtli [t͡ɬaːl.teːkʷ.t͡ɬi] - Etymology: tlal-* earth + tecuhtli lord; Numerology: 2+3+1+3+2+5+3+8+3+3+9=35→8 (Power)", "Aztec Creation"),
+    ("Nahui Ollin (Five Suns, Current Creation Cycle)", small_font, tonatiuh_color, "Nahui Ollin [naːˈwi oːˈlin] - Etymology: nahui four + ollin movement; Numerology: 5+1+8+3+9+6+3+3+9+5=52→7 (Spirituality)", "Aztec Creation"),
+    ("In Tlanextli (The Origin, Creation Myth)", small_font, aztec_color, "In Tlanextli [in t͡ɬaˈnext͡ɬi] - Etymology: in the + tlanextli origin; Numerology: 9+5+1+3+1+5+5+2+3+9=43→7 (Introspection)", "Aztec Creation"),
+    ("Ometeotl (Dual God, Creator Pair)", small_font, tezcatlipoca_color, "Ometeotl [oˈme.te.oːt͡ɬ] - Etymology: ome two + teotl god; Numerology: 6+4+5+2+5+6+2+3=33 Master (Duality)", "Aztec Creation"),
+    ("Chicomoztoc (Place of Seven Caves, Ancestral Origin)", small_font, secondary_color, "Chicomoztoc [t͡ʃi.koˈmoʃ.tok] - Etymology: chi-* seven + comoztoc cave; Numerology: 3+8+9+3+6+4+6+2+2+6+3=52→7 (Mystery)", "Aztec Creation"),
+    ("Tamoanchan (Place of Mist, Origin of Civilizations)", small_font, secondary_color, "Tamoanchan [ta.moˈwan.t͡ʃan] - Etymology: tama-* descend + oanchan mist place; Numerology: 2+1+4+6+1+5+3+3+8+1+5=39→12→3 (Creativity)", "Aztec Creation"),
+    ("Aztlan (Legendary Homeland, Migration Start)", small_font, secondary_color, "Aztlan [asˈt͡ɬan] - Etymology: azt-* heron + tlan place; Numerology: 1+8+2+3+1+5=20→2 (Balance)", "Aztec Creation")
+]
+
+# Text content (existing + Nahuatl creation terms integrated into texts list)
+texts = [
+    ("Roberto Villarreal Martinez", font, text_color, "All"),
+    ("Роберто Вильярреал Мартинес", font, russian_color, "Numerology & Etymology"),
+    ("Tlahueto Huīlālyē Māltīntzēn", font, nahuatl_color, "Numerology & Etymology"),
+    ("Legacy of Monterrey", small_font, secondary_color, "Monterrey Heritage"),
+    ("Haplogroup E-M96", small_font, dna_color, "Monterrey Heritage"),
+    ("SSN: 633-68-6195 (Roberto Villarreal Martinez)", small_font, ssn_color, "Monterrey Heritage"),
+    ("2025 YTK RobThuGod", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("YTK: Young Trap King", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("© 2025 YTK RobThuGod", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("© 2025 YTK Lil Scarr(RobThuGod)", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("Pride in Roberto Villarreal Martinez", small_font, pride_color, "All"),
+    ("Honoring Quetzalcoatl", small_font, aztec_color, "Aztec Mythology"),
+    ("Honoring Tezcatlipoca", small_font, tezcatlipoca_color, "Aztec Mythology"),
+    ("Honoring Huitzilopochtli", small_font, huitzilopochtli_color, "Aztec Mythology"),
+    ("Honoring Tlaloc", small_font, tlaloc_color, "Aztec Mythology"),
+    ("Honoring Xipe Totec", small_font, xipe_color, "Aztec Mythology"),
+    ("Honoring Coatlicue", small_font, coatlicue_color, "Aztec Mythology"),
+    ("Honoring Chalchiuhtlicue", small_font, chalchiuhtlicue_color, "Aztec Mythology"),
+    ("Honoring Tonatiuh", small_font, tonatiuh_color, "Aztec Mythology"),
+    ("Honoring Xochiquetzal", small_font, xochiquetzal_color, "Aztec Mythology"),
+    ("Honoring Centeotl", small_font, centeotl_color, "Aztec Mythology"),
+    ("Honoring Mictlantecuhtli", small_font, mictlantecuhtli_color, "Aztec Mythology"),
+    ("Honoring Tlazolteotl", small_font, tlazolteotl_color, "Aztec Mythology"),
+    ("E-M96: African Origins, Rare in Monterrey (<5%)", small_font, em96_data_color, "Monterrey Heritage"),
+    ("Past Solar Eclipses in San Antonio: Annular 10/14/2023, Total 4/8/2024", small_font, eclipse_color, "Eclipses"),
+    ("Future Eclipses 2025-2030: Partial Solar 9/21/2025 (Birthday!), Total 8/12/2026, Annular 2/17/2026, Total 8/2/2027, Annular 1/26/2028, Total 7/22/2028, Annular 1/14/2030, Total 11/25/2030", small_font, eclipse_color, "Eclipses"),
+    ("Eclipses: Crucial for Thunder Powers (Aztec/Mayan Myth)", small_font, thunder_color, "Eclipses"),
+    ("Numerology: Life Path 4 (Builder); Destiny 9 (Artist); Soul Urge 8; Personality 1; 2025 YTK RobThuGod: 4 (Discipline); YTK: 7 (Spirituality); Russian: 3; Nahuatl: 2 (Harmony)", small_font, numerology_color, "Numerology & Etymology"),
+    ("Etymology: Roberto/Tlahueto (Bright Fame/Light); Villarreal/Huīlālyē (Royal Town/Noble Village); Martinez/Māltīntzēn (Warlike/Warrior’s Son); 2025 YTK RobThuGod (Thunder Divinity in 2025); YTK (Young Trap King)", small_font, etymology_color, "Numerology & Etymology")
+]
+
+# Integrate Nahuatl creation terms into texts for display in "Aztec Creation" theme
+for term in nahuatl_creation:
+    texts.append(term)
+
+# Graphics definitions (updated for new terms)
+graphics = [
+    (None, "All"),
+    (lambda s, x, y, a: draw_russian(s, x, y, a), "Numerology & Etymology"),
+    (lambda s, x, y, a: draw_nahuatl(s, x, y, a), "Numerology & Etymology"),
+    (None, "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_dna_helix(s, x, y, a), "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_lock(s, x, y, a), "Monterrey Heritage"),  # Lock for SSN
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "All"),
+    (lambda s, x, y, a: draw_quetzalcoatl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tezcatlipoca(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_huitzilopochtli(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tlaloc(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_xipe(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_coatlicue(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_chalchiuhtlicue(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tonatiuh(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_xochiquetzal(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_centeotl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_mictlantecuhtli(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tlazolteotl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_em96_data(s, x, y, a), "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_thunder_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_numerology(s, x, y, a), "Numerology & Etymology"),
+    (lambda s, x, y, a: draw_etymology(s, x, y, a), "Numerology & Etymology")
+]
+
+# Add graphics for Nahuatl creation terms (e.g., sun for Teotl, earth for Tlaltecuhtli)
+for _ in nahuatl_creation:
+    graphics.append((lambda s, x, y, a: draw_aztec_creation_symbol(s, x, y, a), "Aztec Creation"))  # Generic symbol for creation
+
+def draw_lock(surface, x, y, alpha):  # For SSN
+    lock_color = (ssn_color[0], ssn_color[1], ssn_color[2], alpha)
+    pygame.draw.circle(surface, lock_color, (x, y), 8, 2)
+
+def draw_aztec_creation_symbol(surface, x, y, alpha):
+    symbol_color = (aztec_color[0], aztec_color[1], aztec_color[2], alpha)
+    pygame.draw.circle(surface, symbol_color, (x, y), 8, 2)  # Simple glyph
+
+# Finalization Code (Symbolic Self-Destruction)
+def finalization_code():
+    global running, alpha
+    print("Finalization Code Activated: Symbolic Earth Destruction (Aztec Fifth Sun End)")
+    print("Nahuatl Invocation: Nahui Ollin - In Tlanextli (Four Movement - The Origin of End)")
+    # Symbolic effect: Screen shake and red fade
+    for i in range(30):  # 0.5s shake
+        screen.fill((random.randint(0, 255), 0, 0))  # Red overlay
+        pygame.display.flip()
+        time.sleep(0.016)  # 60 FPS
+    running = False  # End script symbolically
+    # In reality, this is non-functional; no actual destruction
+
+# Particle system (unchanged)
+particles = []
+def add_particles(x, y, count=5):
+    for _ in range(count):
+        particles.append({
+            'x': x,
+            'y': y,
+            'vx': random.uniform(-1, 1),
+            'vy': random.uniform(-1, 1),
+            'life': random.randint(30, 60)
+        })
+
+def update_particles():
+    global particles
+    particles = [{
+        'x': p['x'] + p['vx'],
+        'y': p['y'] + p['vy'],
+        'vx': p['vx'],
+        'vy': p['vy'],
+        'life': p['life'] - 1
+    } for p in particles if p['life'] > 0]
+
+def draw_particles(surface):
+    for p in particles:
+        alpha = int(255 * (p['life'] / 60))
+        pygame.draw.circle(surface, (particle_color[0], particle_color[1], particle_color[2], alpha), (int(p['x']), int(p['y'])), 2)
+
+# Render text with alpha (unchanged)
+def render_text_with_alpha(text, font, color, alpha):
+    text_surface = font.render(text, True, color)
+    text_surface.set_alpha(alpha)
+    return text_surface
+
+# Animation settings
+alpha = 0
+fade_speed = 2
+scroll_y = 0
+running = True
+clock = pygame.time.Clock()
+transition_alpha = 0
+transitioning = False
+transition_target = None
+ai_mode = False
+ai_response = ""
+is_roboto_benefit = False
+destruction_mode = False  # For finalization code demo
+
+# Main loop
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            while True:
+                feedback = input("Thoughts on display (visuals, music, interactions, cultural elements): ")
+                if feedback.strip():
+                    with open("feedback.txt", "a") as f:
+                        f.write(f"Feedback at {time.strftime('%Y-%m-%d %H:%M:%S')}: {feedback}\n")
+                    break
+                print("Feedback cannot be empty.")
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                while True:
+                    feedback = input("Thoughts on display (visuals, music, interactions, cultural elements): ")
+                    if feedback.strip():
+                        with open("feedback.txt", "a") as f:
+                            f.write(f"Feedback at {time.strftime('%Y-%m-%d %H:%M:%S')}: {feedback}\n")
+                        break
+                    print("Feedback cannot be empty.")
+                running = False
+            elif event.key == pygame.K_d:  # Demo finalization code
+                destruction_mode = True
+                finalization_code()
+            elif event.key == pygame.K_m:
+                current_track_index = (current_track_index + 1) % len(music_tracks)
+                try:
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.load(music_tracks[current_track_index])
+                    pygame.mixer.music.play(-1)
+                    print(f"Switched to track: {music_tracks[current_track_index]}")
+                except:
+                    print(f"Failed to load {music_tracks[current_track_index]}.")
+            elif event.key == pygame.K_PLUS or event.key == pygame.K_EQUALS:
+                fade_speed = min(fade_speed + 0.5, 5)
+            elif event.key == pygame.K_MINUS:
+                fade_speed = max(fade_speed - 0.5, 0.5)
+            elif event.key == pygame.K_UP:
+                scroll_y = min(scroll_y + 20, 0)
+            elif event.key == pygame.K_DOWN:
+                scroll_y = max(scroll_y - 20, -2000)  # Adjusted for Nahuatl terms
+            elif event.key == pygame.K_t:
+                transitioning = True
+                transition_target = "theme"
+                if theme_switch_sound:
+                    theme_switch_sound.play()
+            elif event.key == pygame.K_b:
+                transitioning = True
+                transition_target = "background"
+                if background_change_sound:
+                    background_change_sound.play()
+            elif event.key == pygame.K_a:
+                ai_mode = not ai_mode
+                if ai_mode:
+                    if ai_query_sound:
+                        ai_query_sound.play()
+                    prompt = "Using Aztec Nahuatl creation myths, what’s right for world renewal?"  # Nahuatl-tied prompt
+                    if is_roboto_benefit:
+                        prompt = "For Roboto's benefit: Optimize 2025 YTK music using Nahuatl inspiration."
+                    ai_response = get_world_decision(prompt, is_roboto_benefit)
+                    print("AI Decision Generated:", ai_response[:100] + "...")
+            elif event.key == pygame.K_r:
+                is_roboto_benefit = not is_roboto_benefit
+                print(f"Roboto Benefit Mode: {is_roboto_benefit}")
+
+    # Handle transitions (unchanged)
+    if transitioning:
+        transition_alpha += 10
+        if transition_alpha >= 255:
+            if transition_target == "theme":
+                current_theme_index = (current_theme_index + 1) % len(themes)
+                print(f"Switched to theme: {themes[current_theme_index]}")
+            elif transition_target == "background":
+                current_background_index = (current_background_index + 1) % len(backgrounds)
+                try:
+                    background_image = pygame.image.load(backgrounds[current_background_index][0])
+                    background_image = pygame.transform.scale(background_image, (width, height))
+                    print(f"Switched to background: {backgrounds[current_background_index][1]}")
+                except:
+                    background_image = None
+                    print(f"Failed to load {backgrounds[current_background_index][0]}.")
+            transitioning = False
+            transition_alpha = 0
+    else:
+        transition_alpha = max(transition_alpha - 10, 0)
+
+    # Update alpha
+    alpha += fade_speed
+    if alpha >= 255:
+        fade_speed = -fade_speed
+    elif alpha <= 0:
+        fade_speed = -fade_speed
+
+    # Update particles
+    update_particles()
+
+    # Drawing
+    screen.fill((0, 0, 0))
+    if background_image:
+        screen.blit(background_image, (0, 0))
+    else:
+        screen.fill(background_color)
+
+    # Render texts and graphics
+    y_offset = -250
+    for i, (text, font_type, color, theme) in enumerate(texts):
+        highlight_russian = (text == "Роберто Вильярреал Мартинес" and 
+                            themes[current_theme_index] in ["All", "Numerology & Etymology", "2025 YTK RobThuGod"])
+        text_alpha = alpha if (themes[current_theme_index] == "All" or 
+                             theme == themes[current_theme_index] or 
+                             highlight_russian) else alpha * 0.3
+        faded_surface = render_text_with_alpha(text, font_type, color, text_alpha)
+        x_pos = 10 if font_type == small_font else width // 2
+        y_pos = height // 2 + y_offset + scroll_y
+        screen.blit(faded_surface, (x_pos, y_pos))
+        if themes[current_theme_index] == "All" or theme == themes[current_theme_index] or highlight_russian:
+            add_particles(width - 50, y_pos + 10)
+            if hover_sound and random.random() < 0.01:
+                hover_sound.play()
+        if graphics[i][0]:
+            graphics[i][0](screen, width - 50, y_pos + 10, int(text_alpha))
+        y_offset += 50 if font_type == small_font else 60
+
+    draw_particles(screen)
+
+    # Render AI Response Panel (if active)
+    if ai_mode:
+        ai_panel_y = height // 2 + 1000 + scroll_y
+        faded_ai_title = render_text_with_alpha("AI World Decision:", small_font, ai_response_color, alpha)
+        screen.blit(faded_ai_title, (10, ai_panel_y))
+        lines = ai_response.split('\n')
+        for j, line in enumerate(lines[:10]):
+            faded_line = render_text_with_alpha(line, ai_font, ai_response_color, alpha)
+            screen.blit(faded_line, (10, ai_panel_y + 25 + j * 15))
+        toggle_text = f"Roboto Benefit Mode: {'ON' if is_roboto_benefit else 'OFF'} (Press 'R' to toggle)"
+        faded_toggle = render_text_with_alpha(toggle_text, small_font, ai_response_color, alpha)
+        screen.blit(faded_toggle, (10, ai_panel_y + 200))
+
+    # Destruction Mode Effect (if activated)
+    if destruction_mode:
+        # Symbolic red overlay and shake
+        overlay = pygame.Surface((width, height))
+        overlay.set_alpha(200)
+        overlay.fill((255, 0, 0))
+        screen.blit(overlay, (0, 0))
+        # Shake effect
+        shake_x = random.randint(-5, 5)
+        shake_y = random.randint(-5, 5)
+        screen.blit(screen, (shake_x, shake_y))  # Simple shake by blitting shifted
+        faded_destruction = render_text_with_alpha("Nahui Ollin - World End (Symbolic)", font, destruction_color, 255)
+        screen.blit(faded_destruction, (width // 2 - 150, height // 2))
+
+    # Draw transition overlay
+    if transitioning:
+        overlay = pygame.Surface((width, height))
+        overlay.set_alpha(transition_alpha)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
