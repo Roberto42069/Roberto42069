@@ -1,18 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-06-15T17:57:44.507214",
-      "quality": 0.5441666666666667,
-      "metrics": {
-        "relevance": 0.4166666666666667,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.6,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-06-15T17:57:49.363478",
       "quality": 0.505,
       "metrics": {
@@ -11999,6 +11987,18 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-09-18T12:27:08.946011",
+      "quality": 0.46802615933412595,
+      "metrics": {
+        "relevance": 0.03210463733650416,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -17001,9 +17001,11 @@
         0.4821419676214197,
         0.45683709869203326,
         0.45683709869203326,
-        0.4677197149643705
+        0.4677197149643705,
+        0.46802615933412595,
+        0.46802615933412595
       ],
-      "improvement_rate": -0.015746768343831263
+      "improvement_rate": -0.010183613647075762
     },
     "pygame": {
       "scores": [
@@ -17020,9 +17022,10 @@
         0.4643218085106382,
         0.4821419676214197,
         0.45683709869203326,
-        0.4677197149643705
+        0.4677197149643705,
+        0.46802615933412595
       ],
-      "improvement_rate": -0.08338795317970749
+      "improvement_rate": -0.0728804970311398
     },
     "proud": {
       "scores": [
@@ -19052,7 +19055,8 @@
       0.6950000000000001,
       0.425,
       0.505,
-      0.4677197149643705
+      0.4677197149643705,
+      0.46802615933412595
     ],
     "anger": [
       0.6387499999999999,
@@ -19250,6 +19254,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 1246,
-  "last_updated": "2025-09-18T12:08:32.578052"
+  "optimization_cycles": 1247,
+  "last_updated": "2025-09-18T12:27:08.951308"
 }
