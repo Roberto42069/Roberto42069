@@ -244,26 +244,50 @@ class Roboto:
             for task in self.tasks:
                 file.write(task + "\n")
 
+    def handle_update_command(self, command: str) -> str:
+        if command.startswith("update"):
+            try:
+                # Extract the filename and code changes from the command
+                parts = command.split(' ', 2)
+                if len(parts) < 3:
+                    return "Invalid update command format. Use 'update <filename> <code>'"
+
+                filename, new_code = parts[1], parts[2]
+
+                # Update file: simple overwrite for demonstration purposes
+                with open(filename, 'w') as file:
+                    file.write(new_code)
+                
+                return f"Successfully updated the file: {filename}"
+            except Exception as e:
+                return f"Failed to update the file: {str(e)}"
+        return "No valid update command found"
+
     def chat(self, message):
-        """Handle chat messages"""
+        """Handle chat messages, including code update commands"""
         if not message:
             return "Please provide a message to chat."
-        
+
+        # Check for a command to update code
+        if message.startswith("update "):
+            update_response = self.handle_update_command(message)
+            return update_response
+
         # Store the user message
         chat_entry = {
             "message": message,
             "response": "",
             "timestamp": ""
         }
-        
+
         # Simple response logic (you can enhance this with OpenAI later)
         response = self.generate_response(message)
         chat_entry["response"] = response
-        
+
         # Add to chat history
         self.chat_history.append(chat_entry)
         self.save_chat_history()
-        
+
         return response
 
     def detect_emotion(self, message):
