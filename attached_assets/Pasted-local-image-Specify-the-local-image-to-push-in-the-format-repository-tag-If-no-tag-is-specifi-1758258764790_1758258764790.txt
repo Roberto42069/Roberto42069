@@ -1,0 +1,429 @@
+local_image#
+Specify the local image to push, in the format <repository>:<tag>. If no tag is specified, latest is assumed. Image must exist locally (i.e. docker images must list it).
+-h, --help
+show this help message and exit
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+-q, --quiet
+Only output the image URI, terminated by a newline, if successful.
+roboto invocations
+
+usage: roboto invocations [-h] {cancel,cancel-all,logs,show,status} ...
+
+-h, --help
+show this help message and exit
+roboto invocations cancel
+
+usage: roboto invocations cancel [-h] invocation_id
+
+invocation_id
+-h, --help
+show this help message and exit
+roboto invocations cancel-all
+
+usage: roboto invocations cancel-all [-h] [--org ORG] [--timeout TIMEOUT]
+
+-h, --help
+show this help message and exit
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+--timeout <timeout>
+Amount of time to wait before giving up attempting to cancel active invocations. Defaults to -1, which is interpretted as ‘try forever’.
+roboto invocations logs
+
+usage: roboto invocations logs [-h] [--tail] invocation_id
+
+invocation_id
+-h, --help
+show this help message and exit
+--tail
+roboto invocations show
+
+usage: roboto invocations show [-h] invocation_id
+
+invocation_id
+-h, --help
+show this help message and exit
+roboto invocations status
+
+usage: roboto invocations status [-h] [--tail] invocation_id
+
+invocation_id
+-h, --help
+show this help message and exit
+--tail
+roboto orgs
+
+usage: roboto orgs [-h]
+                   {add-role,bind-email-domain,delete,invite-user,list-email-domains,list-invites,members,register-bucket,remove-role,remove-user,show,unbind-email-domain}
+                   ...
+
+-h, --help
+show this help message and exit
+roboto orgs add-role
+
+usage: roboto orgs add-role [-h] --user USER
+                            [--role {OrgRoleName.admin,OrgRoleName.owner}]
+                            [--org ORG]
+
+-h, --help
+show this help message and exit
+--user <user>
+The user_id of the user to add a role for.
+--role {OrgRoleName.admin,OrgRoleName.owner}
+The role to grant to the specified user
+--org <org>
+The org_id of the org for which to add permissions for the specified user. Required only if the caller is a member of more than one org.
+roboto orgs bind-email-domain
+
+usage: roboto orgs bind-email-domain [-h] [--org ORG] --email-domain
+                                     EMAIL_DOMAIN
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id of the org for which to bind an email domain. This parameter is only required if the caller is a member of more than one org, otherwise this action will be performed implicitly on their single org.
+--email-domain <email_domain>
+The email domain to bind to an org.
+roboto orgs delete
+
+usage: roboto orgs delete [-h] --org ORG [--ignore-prompt]
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id for the org you’re about to delete.
+--ignore-prompt
+Ignore the prompt which asks you to confirm that you’d like to delete your org.
+roboto orgs invite-user
+
+usage: roboto orgs invite-user [-h] --user USER [--org ORG]
+
+-h, --help
+show this help message and exit
+--user <user>
+The user_id of the user to invite.
+--org <org>
+The org_id of the org to invite a user to. Required only if the caller is a member of more than one org.
+roboto orgs list-email-domains
+
+usage: roboto orgs list-email-domains [-h] [--org ORG]
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id of the org for which to list bound email domains. This parameter is only required if the caller is a member of more than one org, otherwise this action will be performed implicitly on their single org.
+roboto orgs list-invites
+
+usage: roboto orgs list-invites [-h] [--org ORG]
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id of the org to view invites for. Required only if the caller is a member of more than one org.
+roboto orgs members
+
+usage: roboto orgs members [-h] [--org ORG]
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id for the org you want to see.
+roboto orgs register-bucket
+
+usage: roboto orgs register-bucket [-h] [--org ORG] --bucket-name BUCKET_NAME
+                                   --aws-account AWS_ACCOUNT
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id of the org for which to register an S3 bring-your-own-bucket. This parameter is only required if the caller is a member of more than one org, otherwise this action will be performed implicitly on their single org.
+--bucket-name <bucket_name>
+The base name of the S3 bucket you want to register, e.g. ‘my-company-roboto-byob’
+--aws-account <aws_account>
+The AWS account to register the bucket in. This command will only work if you also have the calling environment configured with AWS credentials for this account that the underlying boto3 client can use. For more information on configuring AWS credentials, see https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html.
+roboto orgs remove-role
+
+usage: roboto orgs remove-role [-h] --user USER
+                               [--role {OrgRoleName.admin,OrgRoleName.owner}]
+                               [--org ORG]
+
+-h, --help
+show this help message and exit
+--user <user>
+The user_id of the user to add a role for. This can be your own user_id if you would like to step down as an admin or owner.
+--role {OrgRoleName.admin,OrgRoleName.owner}
+The role to remove for the specified user
+--org <org>
+The org_id of the org for which to remove permissions for the specified user. Required only if the caller is a member of more than one org.
+roboto orgs remove-user
+
+usage: roboto orgs remove-user [-h] --user USER [--org ORG]
+
+-h, --help
+show this help message and exit
+--user <user>
+The user_id of the user to remove.
+--org <org>
+The org_id of the org to remove a user from. Required only if the caller is a member of more than one org.
+roboto orgs show
+
+usage: roboto orgs show [-h] [--org ORG]
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id for the org you want to see.
+roboto orgs unbind-email-domain
+
+usage: roboto orgs unbind-email-domain [-h] [--org ORG] --email-domain
+                                       EMAIL_DOMAIN
+
+-h, --help
+show this help message and exit
+--org <org>
+The org_id of the org for which to unbind an email domain. This parameter is only required if the caller is a member of more than one org, otherwise this action will be performed implicitly on their single org.
+--email-domain <email_domain>
+The email domain to unbind from an org.
+roboto tokens
+
+usage: roboto tokens [-h] {create,delete,list,show} ...
+
+-h, --help
+show this help message and exit
+roboto tokens create
+
+usage: roboto tokens create [-h] --name NAME [--description DESCRIPTION]
+                            [--expiry-days {30,60,90}]
+
+-h, --help
+show this help message and exit
+--name <name>
+A human readable name for this token.
+--description <description>
+An optional description for this token.
+--expiry-days {30,60,90}
+The number of days this token will be valid for.
+roboto tokens delete
+
+usage: roboto tokens delete [-h] --id ID
+
+-h, --help
+show this help message and exit
+--id <id>
+The token_id for a token to delete.
+roboto tokens list
+
+usage: roboto tokens list [-h]
+
+-h, --help
+show this help message and exit
+roboto tokens show
+
+usage: roboto tokens show [-h] --id ID
+
+-h, --help
+show this help message and exit
+--id <id>
+The token_id for a token to look up.
+roboto triggers
+
+usage: roboto triggers [-h] {create,delete,get,search,update} ...
+
+-h, --help
+show this help message and exit
+roboto triggers create
+
+usage: roboto triggers create [-h] --name NAME --action <action_name> |
+                              <action_name>@<digest> | <org>/<action_name> |
+                              <org>/<action_name>@<digest> --required-inputs
+                              INPUT_DATA [INPUT_DATA ...]
+                              [--additional-inputs ADDITIONAL_INPUTS [ADDITIONAL_INPUTS ...]]
+                              [--parameter-value [<PARAMETER_NAME>=<PARAMETER_VALUE> ...]]
+                              [--timeout TIMEOUT] [--org ORG]
+                              [--vcpu {256,512,1024,2048,4096,8192,16384}]
+                              [--memory MEMORY] [--storage STORAGE] [--gpu]
+                              [--entrypoint ENTRY_POINT] [--command COMMAND]
+                              [--command-form {exec,shell}]
+                              [--workdir WORKDIR] [--env [KEY=VALUE ...]]
+                              [--for-each {dataset,dataset_file}]
+                              [--condition-json CONDITION_JSON]
+                              [--required-tag [REQUIRED_TAG ...]]
+                              [--required-metadata [REQUIRED_METADATA ...]]
+
+-h, --help
+show this help message and exit
+--name <name>
+The unique name used to reference a trigger.
+--action
+Partially or fully qualified reference to the action to be triggered.
+--required-inputs <input_data>
+One or many file patterns for data to download from the data source. Examples: front camera images, --required-inputs '**/cam_front/*.jpg'; front and rear camera images, --required-inputs'**/cam_front/*.jpg' --required-inputs '**/cam_rear/*.jpg'; all data, --required-inputs '**/*'.
+--additional-inputs <additional_inputs>
+One or many file patterns for data to download from the data source which is NOT considered as part of trigger evaluation. Example: front camera images, --additional-inputs '**/cam_front/*.jpg'.
+--parameter-value
+Zero or more <parameter_name>=<parameter_value> pairs to pass to the invocation. parameter_value is parsed as JSON.
+--timeout
+Optional timeout for an action in minutes, defaults to 30 minutes or 12 hours depending on tier.
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+--vcpu {256,512,1024,2048,4096,8192,16384}
+CPU units to dedicate to action invocation. Defaults to 512 (0.5vCPU).
+--memory <memory>
+Memory (in MiB) to dedicate to action invocation. Defaults to 1024 (1 GiB). Supported values range from 512 (0.5 GiB) to 122880 (120 GiB). Supported values are tied to selected vCPU resources. See documentation for more information.
+--storage <storage>
+Ephemeral storage (in GiB) to dedicate to action invocation. Defaults to 21 GiB. Supported values range from 21 to 200, inclusive.
+--gpu
+This is a placeholder; it currently does nothing. In the future, setting this option will invoke the action in a GPU-enabled compute environment.
+--entrypoint <entry_point>
+Container ENTRYPOINT override. Supports passing empty string (“”) as an override, which unsets the ENTRYPOINT specified in the docker image. If updating or invoking action which has existing ENTRYPOINT override, specify null to remove the override. Refer to docker documentation for more: https://docs.docker.com/engine/reference/builder/#entrypoint and https://docs.docker.com/engine/reference/run/#entrypoint-default-command-to-execute-at-runtime
+--command <command>
+Container CMD override. If updating or invoking action which has existing CMD override, specify null to remove the override. Refer to docker documentation for more: https://docs.docker.com/engine/reference/builder/#cmd and https://docs.docker.com/engine/reference/run/#cmd-default-command-or-options
+--command-form {exec,shell}
+In exec form, the provided --command str is split into a list of strings (e.g., --command "-c 'print(123)'" is parsed as ["-c", "print(123)"]). In shell form, the provided --command str is not split (e.g., --command "python -c 'print(123)'" is parsed as ["python -c 'print(123)'"]).
+--workdir <workdir>
+If updating, specify null to clear existing workdir. Refer to docker documentation for more: https://docs.docker.com/engine/reference/run/#workdir
+--env
+Zero or more <key>=<value> formatted pairs to set as container ENV vars. Do not use ENV vars for secrets (such as API keys). See documentation: https://docs.docker.com/engine/reference/run/#env-environment-variables
+--for-each {dataset,dataset_file}
+Primitive against which this trigger will spawn invocations.
+--condition-json <condition_json>
+Inline JSON or a reference to a JSON file which expresses a dataset metadata and tag condition which must be met for this trigger to run against a given dataset. If provided, ‘required-tag’ and ‘required-metadata’ cannot be provided.
+--required-tag <required_tag>
+Dataset tags which must be present for this trigger to run against a given dataset. If provided, these are used to construct a trigger condition, and as such they cannot be used if ‘condition-json’ is specified.
+--required-metadata
+Dataset metadata key=value conditions which all must be met for this trigger to run against a given dataset. If provided, these are used to construct a trigger condition, and as such they cannot be used if condition-json is specified.
+roboto triggers delete
+
+usage: roboto triggers delete [-h] [--org ORG] trigger_name
+
+trigger_name
+The unique name used to reference a trigger.
+-h, --help
+show this help message and exit
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+roboto triggers get
+
+usage: roboto triggers get [-h] [--org ORG] trigger_name
+
+trigger_name
+The unique name used to reference a trigger.
+-h, --help
+show this help message and exit
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+roboto triggers search
+
+usage: roboto triggers search [-h] [--name NAME]
+                              [--action <action_name> | <action_name>@<digest> | <org>/<action_name> | <org>/<action_name>@<digest>]
+                              [--org ORG]
+
+-h, --help
+show this help message and exit
+--name <name>
+Query by trigger name. Must provide an exact match; patterns are not accepted.
+--action
+Query by partially or fully qualified reference to the action to be triggered.
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+roboto triggers update
+
+usage: roboto triggers update [-h]
+                              [--action <action_name> | <action_name>@<digest> | <org>/<action_name> | <org>/<action_name>@<digest>]
+                              [--required-inputs REQUIRED_INPUTS [REQUIRED_INPUTS ...]]
+                              [--additional-inputs ADDITIONAL_INPUTS [ADDITIONAL_INPUTS ...]]
+                              [--timeout TIMEOUT] [--org ORG]
+                              [--vcpu {256,512,1024,2048,4096,8192,16384}]
+                              [--memory MEMORY] [--storage STORAGE] [--gpu]
+                              [--entrypoint ENTRY_POINT] [--command COMMAND]
+                              [--command-form {exec,shell}]
+                              [--workdir WORKDIR] [--env [KEY=VALUE ...]]
+                              [--condition-json CONDITION_JSON]
+                              [--required-tag [REQUIRED_TAG ...]]
+                              [--required-metadata [REQUIRED_METADATA ...]]
+                              [--for-each {dataset,dataset_file}] [--enabled]
+                              [--disabled] [--clear-condition]
+                              [--parameter-value [<PARAMETER_NAME>=<PARAMETER_VALUE> ...]]
+                              trigger_name
+
+trigger_name
+The unique name used to reference a trigger.
+-h, --help
+show this help message and exit
+--action
+Partially or fully qualified reference to the action to be triggered.
+--required-inputs <required_inputs>
+One or many file patterns for data to download from the data source. Examples: front camera images, --required-inputs '**/cam_front/*.jpg'; front and rear camera images, --required-inputs '**/cam_front/*.jpg' --required-inputs '**/cam_rear/*.jpg'; all data, --required-inputs '**/*'.
+--additional-inputs <additional_inputs>
+One or many file patterns for data to download from the data source which is NOT considered as part of trigger evaluation. Example: front camera images, --additional-inputs '**/cam_front/*.jpg'.
+--timeout
+Optional timeout for an action in minutes, defaults to 30 minutes or 12 hours depending on tier.
+--org <org>
+The calling organization ID. Gets set implicitly if in a single org. The ROBOTO_ORG_ID environment variable can be set to control the default value.
+--vcpu {256,512,1024,2048,4096,8192,16384}
+CPU units to dedicate to action invocation. Defaults to 512 (0.5vCPU).
+--memory <memory>
+Memory (in MiB) to dedicate to action invocation. Defaults to 1024 (1 GiB). Supported values range from 512 (0.5 GiB) to 122880 (120 GiB). Supported values are tied to selected vCPU resources. See documentation for more information.
+--storage <storage>
+Ephemeral storage (in GiB) to dedicate to action invocation. Defaults to 21 GiB. Supported values range from 21 to 200, inclusive.
+--gpu
+This is a placeholder; it currently does nothing. In the future, setting this option will invoke the action in a GPU-enabled compute environment.
+--entrypoint <entry_point>
+Container ENTRYPOINT override. Supports passing empty string (“”) as an override, which unsets the ENTRYPOINT specified in the docker image. If updating or invoking action which has existing ENTRYPOINT override, specify null to remove the override. Refer to docker documentation for more: https://docs.docker.com/engine/reference/builder/#entrypoint and https://docs.docker.com/engine/reference/run/#entrypoint-default-command-to-execute-at-runtime
+--command <command>
+Container CMD override. If updating or invoking action which has existing CMD override, specify null to remove the override. Refer to docker documentation for more: https://docs.docker.com/engine/reference/builder/#cmd and https://docs.docker.com/engine/reference/run/#cmd-default-command-or-options
+--command-form {exec,shell}
+In exec form, the provided --command str is split into a list of strings (e.g., --command "-c 'print(123)'" is parsed as ["-c", "print(123)"]). In shell form, the provided --command str is not split (e.g., --command "python -c 'print(123)'" is parsed as ["python -c 'print(123)'"]).
+--workdir <workdir>
+If updating, specify null to clear existing workdir. Refer to docker documentation for more: https://docs.docker.com/engine/reference/run/#workdir
+--env
+Zero or more <key>=<value> formatted pairs to set as container ENV vars. Do not use ENV vars for secrets (such as API keys). See documentation: https://docs.docker.com/engine/reference/run/#env-environment-variables
+--condition-json <condition_json>
+Inline JSON or a reference to a JSON file which expresses a dataset metadata and tag condition which must be met for this trigger to run against a given dataset. If provided, ‘required-tag’ and ‘required-metadata’ cannot be provided.
+--required-tag <required_tag>
+Dataset tags which must be present for this trigger to run against a given dataset. If provided, these are used to construct a trigger condition, and as such they cannot be used if ‘condition-json’ is specified.
+--required-metadata
+Dataset metadata key=value conditions which all must be met for this trigger to run against a given dataset. If provided, these are used to construct a trigger condition, and as such they cannot be used if ‘condition-json’ is specified.
+--for-each {dataset,dataset_file}
+Primitive against which this trigger will spawn invocations.
+--enabled
+Enables this trigger
+--disabled
+Disables this trigger
+--clear-condition
+Sets the condition to None
+--parameter-value
+Zero or more <parameter_name>=<parameter_value> pairs to pass to the invocation. parameter_value is parsed as JSON.
+roboto users
+
+usage: roboto users [-h] {delete,orgs,show,whoami} ...
+
+-h, --help
+show this help message and exit
+roboto users delete
+
+usage: roboto users delete [-h] [--ignore-prompt]
+
+-h, --help
+show this help message and exit
+--ignore-prompt
+Ignore the prompt which asks you to confirm that you’d like to delete your user.
+roboto users orgs
+
+usage: roboto users orgs [-h]
+
+-h, --help
+show this help message and exit
+roboto users show
+
+usage: roboto users show [-h]
+
+-h, --help
+show this help message and exit
+roboto users whoami
+
+usage: roboto users whoami [-h]
+
+-h, --help
+show this help message and exit
