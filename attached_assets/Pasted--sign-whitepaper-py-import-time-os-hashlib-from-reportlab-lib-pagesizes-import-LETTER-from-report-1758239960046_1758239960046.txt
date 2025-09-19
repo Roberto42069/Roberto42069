@@ -1,0 +1,45 @@
+# sign_whitepaper.py
+import time, os, hashlib
+from reportlab.lib.pagesizes import LETTER
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet
+
+ORIG = "Roboto_Super_AI_Project_Deimon_Boots.pdf"
+OUT = "Roboto_Super_AI_Project_Deimon_Boots_signed.pdf"
+
+if not os.path.exists(ORIG):
+    raise SystemExit(f"Original not found: {ORIG}")
+
+# compute sha256
+with open(ORIG,"rb") as f:
+    data = f.read()
+sha256hex = hashlib.sha256(data).hexdigest()
+timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+author = "Roberto Villarreal Martinez"
+
+# build signed PDF (signature page + short proof instructions)
+styles = getSampleStyleSheet()
+doc = SimpleDocTemplate(OUT, pagesize=LETTER)
+flow = []
+flow.append(Paragraph("Roboto – Project Deimon Boots", styles["Title"]))
+flow.append(Spacer(1,12))
+flow.append(Paragraph("Cryptographic Proof of Authorship", styles["Heading2"]))
+flow.append(Spacer(1,8))
+flow.append(Paragraph(f"Author: {author}", styles["Normal"]))
+flow.append(Paragraph(f"Timestamp (UTC): {timestamp}", styles["Normal"]))
+flow.append(Paragraph(f"SHA-256 (hex): {sha256hex}", styles["Normal"]))
+flow.append(Spacer(1,12))
+flow.append(Paragraph("How to verify:", styles["Heading3"]))
+flow.append(Paragraph(
+    "1) Download the original PDF you claim as proof. "
+    "2) Run: `sha256sum Roboto_Super_AI_Project_Deimon_Boots.pdf` and compare hex to the SHA-256 above. "
+    "3) If hashes match, the file is bit-for-bit identical to the file hashed at timestamp above.", styles["Normal"]))
+flow.append(Spacer(1,12))
+flow.append(Paragraph("Recommended next step: anchor the SHA-256 on-chain (commands provided separately).", styles["Normal"]))
+flow.append(PageBreak())
+flow.append(Paragraph("NOTE: This file contains only a signature page; the original PDF bytes are unchanged.", styles["Italic"]))
+
+doc.build(flow)
+print("Signed PDF written to:", OUT)
+print("SHA-256:", sha256hex)
+print("Timestamp (UTC):", timestamp)
