@@ -1,30 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-13T23:12:18.057731",
-      "quality": 0.595,
-      "metrics": {
-        "relevance": 0.4,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.8,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-14T08:04:04.553867",
-      "quality": 0.48,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-14T08:04:33.598181",
       "quality": 0.525,
       "metrics": {
@@ -11999,6 +11975,30 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-09-22T22:50:31.163036",
+      "quality": 0.5583333333333333,
+      "metrics": {
+        "relevance": 0.3333333333333333,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.5,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-09-22T22:51:05.780044",
+      "quality": 0.72,
+      "metrics": {
+        "relevance": 1.0,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.75,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -14643,7 +14643,8 @@
         0.455,
         0.6725000000000001,
         0.565,
-        0.572857142857143
+        0.572857142857143,
+        0.5583333333333333
       ],
       "improvement_rate": 0.0
     },
@@ -14704,7 +14705,8 @@
         0.77,
         0.6121428571428571,
         0.575,
-        0.625
+        0.625,
+        0.5583333333333333
       ],
       "improvement_rate": 0.0
     },
@@ -17159,7 +17161,8 @@
       "scores": [
         0.6766666666666667,
         0.77,
-        0.5800000000000001
+        0.5800000000000001,
+        0.72
       ],
       "improvement_rate": 0.0
     },
@@ -17182,7 +17185,8 @@
         0.77,
         0.6800000000000002,
         0.6566666666666667,
-        0.5800000000000001
+        0.5800000000000001,
+        0.72
       ],
       "improvement_rate": 0.0
     },
@@ -19797,8 +19801,6 @@
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.5773529411764706,
-      0.6475,
       0.435,
       0.6325000000000001,
       0.7350000000000001,
@@ -19846,7 +19848,9 @@
       0.6466666666666667,
       0.47,
       0.415,
-      0.40499999999999997
+      0.40499999999999997,
+      0.5583333333333333,
+      0.72
     ],
     "existential": [
       0.5900000000000001,
@@ -20449,6 +20453,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 1531,
-  "last_updated": "2025-09-22T20:40:03.938071"
+  "optimization_cycles": 1533,
+  "last_updated": "2025-09-22T22:51:05.785051"
 }
