@@ -71,7 +71,14 @@ class VoiceCloningEngine:
                 logging.error(f"Invalid audio file format: {webm_file}")
                 return None
             
+            # Sanitize file paths to prevent command injection
+            webm_file = os.path.normpath(webm_file)
+            if os.path.isabs(webm_file) or '..' in webm_file:
+                logging.error(f"Invalid file path detected: {webm_file}")
+                return None
+            
             wav_file = webm_file.replace('.webm', '_converted.wav')
+            wav_file = os.path.normpath(wav_file)
             
             # Use ffmpeg to convert WebM to WAV
             cmd = [
