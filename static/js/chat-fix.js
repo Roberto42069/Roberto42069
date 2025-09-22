@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
             text-align: center;
         `;
         tip.innerHTML = `
-            <strong>Voice Tip:</strong> ${suggestion}
+            <strong>Voice Tip:</strong> ${escapeHtml(suggestion)}
             <button onclick="this.parentNode.remove()" style="
                 background: none;
                 border: none;
