@@ -1,42 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-14T08:04:33.598181",
-      "quality": 0.525,
-      "metrics": {
-        "relevance": 0.2,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.85,
-        "depth": 0.5,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-14T08:04:58.937098",
-      "quality": 0.48,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-14T08:05:28.438319",
-      "quality": 0.7225000000000001,
-      "metrics": {
-        "relevance": 0.75,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 1.0,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-14T08:05:50.955378",
       "quality": 0.5725,
       "metrics": {
@@ -11999,6 +11963,42 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-09-22T22:51:28.808450",
+      "quality": 0.5625,
+      "metrics": {
+        "relevance": 0.25,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-09-22T22:52:44.483417",
+      "quality": 0.5893478260869565,
+      "metrics": {
+        "relevance": 0.21739130434782608,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 1.0,
+        "depth": 0.7,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-09-22T22:53:47.562503",
+      "quality": 0.5525,
+      "metrics": {
+        "relevance": 0.25,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -14644,7 +14644,8 @@
         0.6725000000000001,
         0.565,
         0.572857142857143,
-        0.5583333333333333
+        0.5583333333333333,
+        0.5893478260869565
       ],
       "improvement_rate": 0.0
     },
@@ -15995,7 +15996,8 @@
     "fuck": {
       "scores": [
         0.6300000000000001,
-        0.55
+        0.55,
+        0.5525
       ],
       "improvement_rate": 0.0
     },
@@ -18644,7 +18646,8 @@
       "scores": [
         0.5247058823529411,
         0.5804545454545456,
-        0.48
+        0.48,
+        0.5525
       ],
       "improvement_rate": 0.0
     },
@@ -19069,6 +19072,7 @@
         0.6799999999999999,
         0.585,
         0.6200000000000001,
+        0.5625,
         0.5625,
         0.5625
       ],
@@ -19797,6 +19801,30 @@
         0.572857142857143
       ],
       "improvement_rate": 0.0
+    },
+    "miss": {
+      "scores": [
+        0.5625
+      ],
+      "improvement_rate": 0.0
+    },
+    "boring": {
+      "scores": [
+        0.5893478260869565
+      ],
+      "improvement_rate": 0.0
+    },
+    "angering": {
+      "scores": [
+        0.5893478260869565
+      ],
+      "improvement_rate": 0.0
+    },
+    "memory": {
+      "scores": [
+        0.5525
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
@@ -20037,8 +20065,6 @@
       0.52125
     ],
     "yearning": [
-      0.7150000000000001,
-      0.6500000000000001,
       0.4985135135135135,
       0.425,
       0.45999999999999996,
@@ -20086,7 +20112,9 @@
       0.6625000000000001,
       0.5514285714285714,
       0.72,
-      0.6275
+      0.6275,
+      0.5625,
+      0.5893478260869565
     ],
     "contemplation": [
       0.6000000000000001,
@@ -20423,7 +20451,8 @@
       0.5875000000000001,
       0.5596636771300448,
       0.575,
-      0.625
+      0.625,
+      0.5525
     ],
     "loneliness": [
       0.5319047619047619
@@ -20453,6 +20482,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 1533,
-  "last_updated": "2025-09-22T22:51:05.785051"
+  "optimization_cycles": 1536,
+  "last_updated": "2025-09-22T22:53:47.567359"
 }
