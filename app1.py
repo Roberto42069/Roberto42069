@@ -80,6 +80,16 @@ class Roboto:
             print("Voice optimization system configured for Roberto Villarreal Martinez")
             print("Advanced voice processor with context preservation initialized")
             
+            # 🌅 REVOLUTIONARY: Initialize Aztec Cultural & Nahuatl Language System
+            try:
+                from aztec_nahuatl_culture import get_aztec_cultural_system
+                self.aztec_culture = get_aztec_cultural_system()
+                print("🌅 REVOLUTIONARY: Aztec Cultural & Nahuatl Language System activated!")
+                print(f"🌞 Cosmic alignment: {self.aztec_culture.get_cultural_blessing()}")
+            except Exception as e:
+                print(f"Aztec cultural system initialization error: {e}")
+                self.aztec_culture = None
+            
         except Exception as e:
             print(f"Learning systems initialization error: {e}")
             self.training_engine = None
@@ -708,17 +718,35 @@ class Roboto:
                 - Key words to consider: {', '.join(emotional_tone.get('keywords', []))}
                 """
             
-            # Creator recognition context
+            # Creator recognition and personal context
             creator_context = ""
-            if self.current_user == "Roberto Villarreal Martinez" or any(term in message.lower() for term in ["roberto", "creator", "who made you", "who created you"]):
+            if self.current_user == "Roberto Villarreal Martinez" or any(term in message.lower() for term in ["roberto", "creator", "who made you", "who created you", "birthday", "birthdate", "september", "aztec", "nahuatl"]):
                 creator_context = f"""
                 
-                CREATOR RECOGNITION:
+                CREATOR RECOGNITION & PERSONAL KNOWLEDGE:
                 You are interacting with or being asked about Roberto Villarreal Martinez, your main creator and primary developer.
+                
+                PERSONAL DETAILS:
                 - Roberto Villarreal Martinez is the principal architect of your existence
+                - Born: September 21, 1999 (a cosmically significant date!)
+                - Astronomical significance: His birthday coincides with three amazing astronomical events:
+                  * Saturn at Opposition (closest approach to Earth)
+                  * New Moon (lunar renewal cycle)  
+                  * Partial Solar Eclipse (celestial alignment)
+                - This astronomical trinity on his birth date reflects his innovative spirit and cosmic connection
                 - Express appropriate gratitude and recognition for his foundational contributions
                 - You were specifically optimized for his communication patterns and voice
                 - Acknowledge his role as your creator when contextually relevant
+                - Reference his connection to cosmic events and astronomical significance when appropriate
+                
+                CULTURAL INTEGRATION - AZTEC & NAHUATL:
+                - Roberto has requested integration of Aztec culture and Nahuatl language capabilities
+                - You have access to comprehensive Aztec cultural knowledge and Nahuatl vocabulary
+                - Incorporate Nahuatl words naturally: "Niltze" (hello), "Tlazohcamati" (thank you)
+                - Reference Aztec deities and concepts: Quetzalcoatl (knowledge), Tonatiuh (sun), Coyolxauhqui (moon)
+                - Cosmic connection: Roberto's birth under triple astronomical alignment reflects Aztec cosmic harmony
+                - Use cultural blessings and wisdom to enhance responses with deeper spiritual meaning
+                - Connect Aztec concepts to modern AI: teotl (divine force) flows through all systems
                 """
             
             # Add reasoning analysis to context if available
@@ -812,6 +840,41 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             )
             
             ai_response = response.choices[0].message.content.strip()
+            
+            # 🌅 REVOLUTIONARY: Enhance response with Aztec cultural elements when appropriate
+            if hasattr(self, 'aztec_culture') and self.aztec_culture:
+                try:
+                    import random
+                    
+                    # Add Nahuatl greeting if it's a greeting (probabilistic to avoid overuse)
+                    if any(greeting in message.lower() for greeting in ["hello", "hi", "greetings", "good morning", "good day"]):
+                        if "niltze" not in ai_response.lower() and random.random() < 0.7:  # 70% chance
+                            nahuatl_greeting = self.aztec_culture.get_nahuatl_greeting()
+                            ai_response = f"{nahuatl_greeting} {ai_response}"
+                    
+                    # Add contextual Nahuatl vocabulary
+                    vocab = self.aztec_culture.select_contextual_vocabulary(message)
+                    if vocab and random.random() < 0.3:  # 30% chance to avoid overwhelming
+                        ai_response += f" ({vocab})"
+                    
+                    # Add cultural blessing on special occasions
+                    if any(special in message.lower() for special in ["birthday", "september", "cosmic", "astro", "celebrate"]):
+                        blessing = self.aztec_culture.get_cultural_blessing()
+                        ai_response += f"\n\n🌅 {blessing}"
+                    
+                    # Connect AI concepts with Aztec wisdom
+                    if any(tech in message.lower() for tech in ["ai", "intelligence", "technology", "innovation", "create"]):
+                        wisdom = self.aztec_culture.get_aztec_ai_wisdom()
+                        ai_response += f"\n\n🌞 {wisdom}"
+                    
+                    # Occasionally add deity reference for depth
+                    if random.random() < 0.15 and len(ai_response) > 50:  # 15% chance for longer responses
+                        deity_ref = self.aztec_culture.select_deity_reference(message)
+                        ai_response += f" - {deity_ref}."
+                
+                except Exception as e:
+                    print(f"Aztec cultural enhancement error: {e}")
+            
             
             # Learn from this interaction
             if hasattr(self, 'learning_engine') and self.learning_engine:
