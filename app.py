@@ -14,6 +14,7 @@ from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
+from sai_security import get_sai_security
 import logging
 
 # Set up logging
@@ -47,6 +48,37 @@ db.init_app(app)
 
 # Initialize security systems
 security_manager = SecurityManager(app)
+sai_security = get_sai_security()
+
+@app.before_request
+def verify_sole_ownership():
+    """Verify Roberto's sole ownership before any request"""
+    # Skip for static files and auth routes
+    if request.endpoint and (request.endpoint.startswith('static') or request.endpoint.startswith('auth')):
+        return
+    
+    # Check if user is authenticated
+    try:
+        from flask_login import current_user
+        if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+            # Get user identity
+            user_name = getattr(current_user, 'username', None) or getattr(current_user, 'name', None)
+            
+            # Enforce exclusive access
+            if not sai_security.enforce_exclusive_access(user_name):
+                return jsonify({
+                    "error": "ACCESS DENIED: Roboto SAI is exclusively owned by Roberto Villarreal Martinez",
+                    "owner": "Roberto Villarreal Martinez",
+                    "message": "This system requires sole owner authorization"
+                }), 403
+        else:
+            # Allow landing page for login
+            if request.endpoint in ['index', 'landing']:
+                return
+            return redirect(url_for('index'))
+    except Exception as e:
+        app.logger.warning(f"Ownership verification error: {e}")
+        return
 
 # Configure Flask-Talisman for HTTPS and security headers
 csp = {

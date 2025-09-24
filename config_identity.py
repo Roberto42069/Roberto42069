@@ -20,6 +20,20 @@ def load_identity_from_env() -> UserIdentity:
         driver_license=os.getenv("USER_DRIVER_LICENSE", "")
     )
 
+def verify_owner_identity(user_name: str) -> bool:
+    """Verify if user is Roberto Villarreal Martinez"""
+    identity = load_identity_from_env()
+    
+    # Check full name
+    if user_name == identity.full_name:
+        return True
+    
+    # Check aliases
+    if user_name in identity.aliases:
+        return True
+    
+    return False
+
 # fallback inline (use only if .env not found)
 INLINE_IDENTITY = UserIdentity(
     full_name="Roberto Villarreal Martinez",

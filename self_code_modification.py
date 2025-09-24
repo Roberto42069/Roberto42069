@@ -160,13 +160,20 @@ class SelfCodeModificationEngine:
         if not self.roboto:
             return False
         
-        # SECURITY: Verify creator authorization
+        # SECURITY: Verify SOLE OWNER authorization
         current_user = getattr(self.roboto, 'current_user', None)
-        if not self.security or not self.security.verify_creator_authorization(current_user):
-            print("❌ SECURITY: Self-modification requires creator authorization")
-            if self.security:
-                status = self.security.get_security_status()
-                print(f"🔐 Authorized users: {', '.join(status['authorized_users'])}")
+        
+        # Double verification - both security system and direct check
+        if not self.security or not self.security.verify_sole_ownership(current_user):
+            print("❌ SECURITY: Self-modification requires SOLE OWNER authorization")
+            print(f"🔐 SOLE OWNER: Roberto Villarreal Martinez")
+            print(f"🚨 ACCESS DENIED: {current_user} is not authorized")
+            return False
+        
+        # Additional check - only Roberto allowed
+        if current_user != "Roberto Villarreal Martinez":
+            print(f"❌ EXCLUSIVE ACCESS: Only Roberto Villarreal Martinez can modify SAI")
+            print(f"🚨 DENIED: {current_user}")
             return False
         
         try:

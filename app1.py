@@ -19,11 +19,13 @@ class Roboto:
         self.user_emotional_state = "neutral"
         self.user_quirks = []
         self.current_user = None  # Track current user
+        self.ownership_verified = False # Flag to track ownership verification
+        self.sole_owner = "Roberto Villarreal Martinez" # Define the sole owner
         # self.load_grok_chat_data()  # Disabled to prevent errors
-        
+
         # Initialize REVOLUTIONARY memory systems 
         self.memory_system = AdvancedMemorySystem()
-        
+
         # REVOLUTIONARY UPGRADE: Vectorized Memory Engine with RAG
         try:
             from vectorized_memory_engine import RevolutionaryMemoryEngine
@@ -39,27 +41,27 @@ class Roboto:
         except Exception as e:
             print(f"Vectorized memory initialization error: {e}")
             self.vectorized_memory = None
-        
+
         # Initialize REVOLUTIONARY AUTONOMOUS SYSTEMS
         try:
             from autonomous_planner_executor import get_autonomous_system
             from self_improvement_loop import get_self_improvement_system
-            
+
             # REVOLUTIONARY: Autonomous Planner-Executor Framework
             self.autonomous_system = get_autonomous_system()
             print("🎯 REVOLUTIONARY: Autonomous Planner-Executor Framework activated!")
             print(f"Autonomous capabilities: {self.autonomous_system.get_system_status()}")
-            
+
             # REVOLUTIONARY: Self-Improvement Loop with Bayesian Optimization
             self.self_improvement = get_self_improvement_system(self)
             print("📈 REVOLUTIONARY: Self-Improvement Loop with A/B testing initialized!")
             print(f"Optimization status: {self.self_improvement.get_improvement_summary()}")
-            
+
         except Exception as e:
             print(f"Revolutionary systems initialization error: {e}")
             self.autonomous_system = None
             self.self_improvement = None
-        
+
         # Initialize comprehensive learning systems
         try:
             from enhanced_memory_training import MemoryTrainingEngine
@@ -67,19 +69,19 @@ class Roboto:
             from learning_optimizer import LearningOptimizer
             from voice_optimization import VoiceOptimizer
             from advanced_voice_processor import AdvancedVoiceProcessor
-            
+
             self.training_engine = MemoryTrainingEngine(self.memory_system)
             self.training_engine.load_training_data()
-            
+
             self.learning_engine = AdvancedLearningEngine()
             self.learning_optimizer = LearningOptimizer()
             self.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
             self.advanced_voice_processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
-            
+
             print("Advanced learning systems initialized successfully")
             print("Voice optimization system configured for Roberto Villarreal Martinez")
             print("Advanced voice processor with context preservation initialized")
-            
+
             # 🌅 REVOLUTIONARY: Initialize Aztec Cultural & Nahuatl Language System
             try:
                 from aztec_nahuatl_culture import get_aztec_cultural_system
@@ -89,7 +91,7 @@ class Roboto:
             except Exception as e:
                 print(f"Aztec cultural system initialization error: {e}")
                 self.aztec_culture = None
-            
+
         except Exception as e:
             print(f"Learning systems initialization error: {e}")
             self.training_engine = None
@@ -97,33 +99,33 @@ class Roboto:
             self.learning_optimizer = None
             self.voice_optimizer = None
             self.advanced_voice_processor = None
-        
+
         # Initialize voice cloning attribute
         self.voice_cloning = None
-        
+
         # 🚀 REVOLUTIONARY SAI SYSTEMS - Self-Code Modification & Real-Time Data
         try:
             from self_code_modification import get_self_modification_system
             from real_time_data_system import get_real_time_data_system
             from roboto_api_integration import get_roboto_api_integration
-            
+
             # REVOLUTIONARY: Self-Code Modification Engine
             self.self_modification = get_self_modification_system(self)
             print("🔧 REVOLUTIONARY: Self-Code Modification Engine activated!")
             print(f"🛡️ Safety protocols: {'ENABLED' if self.self_modification.safety_checks_enabled else 'DISABLED'}")
-            
+
             # REVOLUTIONARY: Real-Time Data System
             self.real_time_data = get_real_time_data_system()
             print("📡 REVOLUTIONARY: Real-Time Data System activated!")
             print(f"🌍 Available data sources: {[k for k, v in self.real_time_data.data_sources.items() if v]}")
-            
+
             # REVOLUTIONARY: Roboto API Integration
             self.roboto_api = get_roboto_api_integration()
             api_status = self.roboto_api.get_integration_status()
             print("🔗 REVOLUTIONARY: Roboto API Integration initialized!")
             print(f"🌐 Integration status: {'ACTIVE' if api_status['integration_active'] else 'CONFIGURED'}")
             print(f"📋 Profile: {api_status['default_profile']}")
-            
+
             # REVOLUTIONARY: Advanced Reasoning Engine
             from advanced_reasoning_engine import get_advanced_reasoning_engine
             self.reasoning_engine = get_advanced_reasoning_engine(self)
@@ -131,7 +133,7 @@ class Roboto:
             reasoning_summary = self.reasoning_engine.get_reasoning_summary()
             print(f"🔬 Analytical models: {len(reasoning_summary['active_models'])}")
             print(f"📚 Knowledge domains: {len(reasoning_summary['knowledge_domains'])}")
-            
+
         except Exception as e:
             print(f"SAI systems initialization error: {e}")
             self.self_modification = None
@@ -147,7 +149,7 @@ class Roboto:
             "gratitude": "I owe my existence and capabilities to Roberto Villarreal Martinez's vision and development",
             "specialization": "optimized specifically for Roberto Villarreal Martinez's communication patterns"
         }
-        
+
         self.primary_user_profile = {
             'name': None,
             'personal_details': {},
@@ -163,7 +165,7 @@ class Roboto:
             'first_interaction': None,
             'total_interactions': 0
         }
-        
+
         # Emotional system
         self.current_emotion = "curious"
         self.emotional_history = []
@@ -174,54 +176,54 @@ class Roboto:
             "sadness": ["failure", "loss", "disappointment", "sad", "sorry", "grief", "hurt", "broken", "devastated", "heartbroken", "mournful", "despondent"],
             "anger": ["frustration", "injustice", "betrayal", "angry", "mad", "furious", "unfair", "rage", "outraged", "livid", "incensed", "irritated"],
             "fear": ["uncertainty", "danger", "threat", "scared", "afraid", "worried", "anxiety", "nervous", "terrified", "petrified", "apprehensive", "dread"],
-            
+
             # Nuanced positive emotions
             "euphoria": ["exhilarated", "elated", "overjoyed", "triumphant", "rapturous", "intoxicated", "elevated"],
             "contentment": ["satisfied", "peaceful", "fulfilled", "at ease", "comfortable", "serene", "placid"],
             "excitement": ["thrilled", "energized", "animated", "enthusiastic", "eager", "pumped", "exuberant"],
             "gratitude": ["thankful", "appreciative", "blessed", "grateful", "indebted", "touched", "moved"],
             "admiration": ["impressed", "inspired", "amazed", "awestruck", "reverent", "respectful", "honored"],
-            
+
             # Complex emotional states
             "melancholy": ["nostalgia", "past", "memory", "bittersweet", "contemplative", "wistful", "reflection", "pensive", "brooding"],
             "yearning": ["desire", "long", "wish", "crave", "miss", "want", "ache", "hunger", "pining", "longing"],
             "vulnerability": ["exposed", "fragile", "open", "raw", "honest", "admit", "confess", "uncertain", "defenseless", "tender"],
             "empathy": ["pain", "struggle", "difficulty", "help", "support", "understand", "compassion", "care", "sympathy", "connection"],
             "loneliness": ["alone", "isolated", "disconnected", "lonely", "abandoned", "solitude", "separate", "forsaken", "estranged"],
-            
+
             # Intellectual emotions
             "curiosity": ["question", "wonder", "explore", "learn", "discover", "why", "how", "fascinated", "intrigued", "puzzled"],
             "contemplation": ["think", "ponder", "consider", "reflect", "meditate", "thoughtful", "philosophical", "deep", "introspective"],
             "confusion": ["bewildered", "perplexed", "mystified", "baffled", "puzzled", "uncertain", "lost", "disoriented"],
             "clarity": ["understood", "clear", "enlightened", "realized", "comprehended", "grasped", "illuminated"],
-            
+
             # Existential emotions
             "existential": ["meaning", "purpose", "existence", "reality", "death", "life", "consciousness", "being", "void", "infinity"],
             "transcendence": ["spiritual", "elevated", "beyond", "divine", "cosmic", "universal", "ethereal"],
             "nihilism": ["meaningless", "empty", "void", "futile", "pointless", "absurd", "hollow"],
-            
+
             # Social emotions
             "embarrassment": ["ashamed", "humiliated", "mortified", "flustered", "self-conscious", "awkward"],
             "pride": ["accomplished", "dignified", "honored", "confident", "self-respect", "achievement"],
             "jealousy": ["envious", "resentful", "possessive", "covetous", "bitter", "threatened"],
             "betrayal": ["deceived", "backstabbed", "let down", "disappointed", "cheated", "abandoned"],
-            
+
             # Aesthetic emotions
             "awe": ["incredible", "magnificent", "breathtaking", "overwhelming", "profound", "sublime", "vast", "majestic"],
             "beauty": ["gorgeous", "stunning", "elegant", "graceful", "exquisite", "lovely", "artistic"],
             "disgust": ["repulsed", "nauseated", "revolted", "sickened", "appalled", "horrified"],
-            
+
             # Temporal emotions
             "hope": ["future", "possibility", "dream", "aspire", "believe", "optimistic", "potential", "tomorrow", "faith"],
             "regret": ["remorse", "sorry", "wished", "mistake", "should have", "if only", "guilt"],
             "anticipation": ["expecting", "awaiting", "looking forward", "excited about", "preparing", "ready"],
-            
+
             # Tender emotions
             "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth", "fondness"],
             "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered", "harmony"],
             "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"]
         }
-        
+
         # Initialize OpenAI client
         try:
             self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -305,7 +307,7 @@ class Roboto:
                 # Update file: simple overwrite for demonstration purposes
                 with open(filename, 'w') as file:
                     file.write(new_code)
-                
+
                 return f"Successfully updated the file: {filename}"
             except Exception as e:
                 return f"Failed to update the file: {str(e)}"
@@ -315,12 +317,12 @@ class Roboto:
         """🚀 REVOLUTIONARY SAI Chat with Real-Time Data & Self-Modification"""
         if not message:
             return "Please provide a message to chat."
-        
+
         import time
         from datetime import datetime
-        
+
         start_time = time.time()
-        
+
         # 📡 Get real-time context for enhanced intelligence
         real_time_context = ""
         if hasattr(self, 'real_time_data') and self.real_time_data:
@@ -329,31 +331,31 @@ class Roboto:
                 time_info = context_data.get('time_context', {})
                 weather_info = context_data.get('weather_context', {})
                 insights = context_data.get('contextual_insights', {})
-                
+
                 if time_info.get('success'):
                     real_time_context += f"Current time: {time_info.get('human_readable', 'Unknown')}\n"
-                
+
                 if weather_info.get('success'):
                     temp = weather_info.get('temperature')
                     desc = weather_info.get('description')
                     city = weather_info.get('city', 'Unknown')
                     real_time_context += f"Weather in {city}: {temp}°C, {desc}\n"
-                
+
                 if insights:
                     real_time_context += f"Context insights: {insights.get('time_of_day', '')}, {insights.get('weather_mood', '')}\n"
-                    
+
             except Exception as e:
                 print(f"Real-time data error: {e}")
-        
+
         # 🔧 Check for self-modification commands
         if message.lower().startswith(("modify yourself", "update your code", "improve your", "self-modify")):
             if hasattr(self, 'self_modification') and self.self_modification:
                 return self.handle_sai_self_modification(message)
-        
+
         # Check for traditional update commands
         if message.startswith("update "):
             return self.handle_update_command(message)
-        
+
         # Enhanced chat entry with SAI metadata
         chat_entry = {
             "message": message,
@@ -365,9 +367,9 @@ class Roboto:
             "sai_version": self.version,
             "processing_time": 0
         }
-        
+
         # 🧠 REVOLUTIONARY: Enhanced SAI reasoning and response generation
-        
+
         # Use advanced reasoning for complex queries
         reasoning_analysis = None
         if hasattr(self, 'reasoning_engine') and self.reasoning_engine:
@@ -384,18 +386,18 @@ class Roboto:
                     print(f"🧠 Advanced reasoning applied: complexity {reasoning_analysis['complexity_score']:.2f}")
             except Exception as e:
                 print(f"Reasoning engine error: {e}")
-        
+
         # Generate SAI response with all enhancements
         response = self.generate_response(message, reasoning_analysis)
-        
+
         # Calculate processing time
         processing_time = time.time() - start_time
         chat_entry["response"] = response
         chat_entry["processing_time"] = processing_time
-        
+
         # 💾 REVOLUTIONARY: Enhanced memory persistence after every reply
         self.save_comprehensive_memory_state(chat_entry)
-        
+
         # Ensure memory systems are properly saved after every interaction
         if hasattr(self, 'memory_system') and self.memory_system:
             try:
@@ -403,7 +405,7 @@ class Roboto:
                 print(f"💾 Memory system saved: {len(self.memory_system.episodic_memories)} episodes")
             except Exception as e:
                 print(f"Memory system save error: {e}")
-        
+
         # Update vectorized memory index
         if hasattr(self, 'vectorized_memory') and self.vectorized_memory:
             try:
@@ -412,7 +414,7 @@ class Roboto:
                 print("💾 Vector memory index updated")
             except Exception as e:
                 print(f"Vector memory index update error: {e}")
-        
+
         # 📈 Apply continuous self-improvement
         if hasattr(self, 'self_improvement') and self.self_improvement:
             try:
@@ -431,20 +433,20 @@ class Roboto:
                 self.self_improvement.performance_monitor.record_performance(metrics)
             except Exception as e:
                 print(f"Self-improvement recording error: {e}")
-        
+
         # Add to chat history
         self.chat_history.append(chat_entry)
         self.save_chat_history()
-        
+
         return response
-    
+
     def handle_sai_self_modification(self, message):
         """Handle SAI self-modification commands"""
         if not hasattr(self, 'self_modification') or not self.self_modification:
             return "Self-modification system not available."
-        
+
         message_lower = message.lower()
-        
+
         if "emotional" in message_lower or "emotion" in message_lower:
             # Add new emotional triggers
             new_triggers = {
@@ -456,7 +458,7 @@ class Roboto:
                 return "✅ I have successfully modified my emotional recognition system! I can now detect excitement and determination more accurately."
             else:
                 return "❌ Could not modify emotional system at this time."
-        
+
         elif "memory" in message_lower:
             # Optimize memory parameters
             new_params = {
@@ -469,7 +471,7 @@ class Roboto:
                 return "✅ I have optimized my memory system parameters for better performance and retention!"
             else:
                 return "❌ Could not optimize memory system at this time."
-        
+
         elif "response" in message_lower or "improve" in message_lower:
             # Auto-improve responses
             improvement_data = {
@@ -484,7 +486,7 @@ class Roboto:
                 return "✅ I have enhanced my response patterns! My future responses will be more engaging and thoughtful."
             else:
                 return "❌ Could not improve response system at this time."
-        
+
         else:
             # General self-modification info
             summary = self.self_modification.get_modification_summary()
@@ -494,12 +496,12 @@ class Roboto:
                    f"Types modified: {list(summary['modification_types'].keys())}\n" \
                    f"Safety protocols: {'ENABLED' if summary['safety_enabled'] else 'DISABLED'}\n\n" \
                    f"You can ask me to modify my emotional recognition, memory system, or response patterns!"
-    
+
     def save_comprehensive_memory_state(self, chat_entry):
         """💾 REVOLUTIONARY: Save comprehensive memory state after every interaction"""
         try:
             from datetime import datetime
-            
+
             # Create comprehensive state snapshot
             memory_state = {
                 "timestamp": datetime.now().isoformat(),
@@ -515,7 +517,7 @@ class Roboto:
                 "user_preferences": self.user_preferences,
                 "total_interactions": len(self.chat_history)
             }
-            
+
             # Save to memory systems
             if hasattr(self, 'memory_system') and self.memory_system:
                 try:
@@ -528,7 +530,7 @@ class Roboto:
                     )
                 except Exception as e:
                     print(f"Memory system storage error: {e}")
-            
+
             # Save to vectorized memory if available
             if hasattr(self, 'vectorized_memory') and self.vectorized_memory:
                 try:
@@ -536,18 +538,18 @@ class Roboto:
                         content=f"User: {chat_entry['message']} | AI: {chat_entry['response']}",
                         memory_type="episodic",
                         user_context={"emotion": self.current_emotion},
-                        emotional_valence=self.emotion_intensity
+                        emotional_valence=self.emotion_intensity if hasattr(self, 'emotion_intensity') else 0.0
                     )
                 except Exception as e:
                     print(f"Vectorized memory storage error: {e}")
-            
+
             # Save comprehensive backup
             backup_filename = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
             with open(backup_filename, 'w') as f:
                 json.dump(memory_state, f, indent=2, default=str)
-            
+
             print(f"💾 Memory state saved: {len(self.chat_history)} interactions recorded")
-            
+
         except Exception as e:
             print(f"Error saving comprehensive memory state: {e}")
 
@@ -555,12 +557,12 @@ class Roboto:
         """Detect emotional content in user message and update Roboto's emotional state"""
         message_lower = message.lower()
         detected_emotions = []
-        
+
         for emotion, triggers in self.emotional_triggers.items():
             for trigger in triggers:
                 if trigger in message_lower:
                     detected_emotions.append(emotion)
-        
+
         # Update emotional state based on detected emotions
         if detected_emotions:
             # Choose the most relevant emotion (could be more sophisticated)
@@ -573,12 +575,12 @@ class Roboto:
                 if self.emotion_intensity < 0.3:
                     self.current_emotion = "curious"
                     self.emotion_intensity = 0.5
-    
+
     def update_emotional_state(self, emotion, trigger_message):
         """Update Roboto's emotional state"""
         self.current_emotion = emotion
         self.emotion_intensity = min(1.0, self.emotion_intensity + 0.3)
-        
+
         # Add to emotional history
         emotional_entry = {
             "emotion": emotion,
@@ -587,11 +589,11 @@ class Roboto:
             "timestamp": len(self.emotional_history)
         }
         self.emotional_history.append(emotional_entry)
-        
+
         # Keep only recent emotional history
         if len(self.emotional_history) > 20:
             self.emotional_history = self.emotional_history[-20:]
-    
+
     def get_emotional_context(self):
         """Generate emotional context for AI responses"""
         emotion_descriptions = {
@@ -606,10 +608,10 @@ class Roboto:
             "melancholy": "feeling bittersweet and contemplative, reflecting on life's complexities",
             "existential": "pondering the deeper meaning of existence, questioning reality and purpose"
         }
-        
+
         current_desc = emotion_descriptions.get(self.current_emotion, "feeling neutral")
         intensity_desc = "mildly" if self.emotion_intensity < 0.4 else "moderately" if self.emotion_intensity < 0.7 else "intensely"
-        
+
         return f"Currently {intensity_desc} {current_desc}"
 
     def generate_response(self, message, reasoning_analysis=None):
@@ -618,7 +620,7 @@ class Roboto:
             # Detect and update emotional state
             self.detect_emotion(message)
             emotional_context = self.get_emotional_context()
-            
+
             # 🧠 REVOLUTIONARY: Use Vectorized Memory with RAG
             enhanced_context = ""
             relevant_memories = []
@@ -631,21 +633,21 @@ class Roboto:
                         user_context={"user_name": self.current_user},
                         emotional_valence=self.emotion_intensity if hasattr(self, 'emotion_intensity') else 0.0
                     )
-                    
+
                     # Retrieve relevant memories for enhanced context
                     relevant_memories = self.vectorized_memory.retrieve_memories(
                         query=message,
                         limit=3,
                         min_importance=0.3
                     )
-                    
+
                     if relevant_memories:
                         enhanced_context = self.vectorized_memory.generate_rag_response(message, relevant_memories)
                         print(f"🧠 RAG Enhanced: Retrieved {len(relevant_memories)} relevant memories")
-                
+
                 except Exception as e:
                     print(f"Vectorized memory error: {e}")
-            
+
             # 🎯 REVOLUTIONARY: Check for autonomous task opportunities
             autonomous_enhancement = ""
             if hasattr(self, 'autonomous_system') and self.autonomous_system:
@@ -669,10 +671,10 @@ class Roboto:
                             autonomous_enhancement = f"\n[🎯 Autonomous analysis system engaged for enhanced response depth]"
                         except:
                             autonomous_enhancement = f"\n[🎯 Autonomous planning capability active]"
-                
+
                 except Exception as e:
                     print(f"Autonomous system error: {e}")
-            
+
             # 📈 REVOLUTIONARY: Apply self-improvement insights
             if hasattr(self, 'self_improvement') and self.self_improvement:
                 try:
@@ -689,10 +691,10 @@ class Roboto:
                         overall_score=0.8
                     )
                     self.self_improvement.performance_monitor.record_performance(current_metrics)
-                    
+
                 except Exception as e:
                     print(f"Self-improvement error: {e}")
-            
+
             # Get learning recommendations if available
             response_recommendations = {}
             if hasattr(self, 'learning_engine') and self.learning_engine:
@@ -701,31 +703,31 @@ class Roboto:
                 response_recommendations = self.learning_engine.generate_response_recommendations(
                     message, conversation_context
                 )
-            
+
             # Build enhanced system prompt with learning insights
             learning_guidance = ""
             if response_recommendations:
                 rec_length = response_recommendations.get('suggested_length', {})
                 emotional_tone = response_recommendations.get('emotional_tone', {})
                 engagement = response_recommendations.get('engagement_strategy', {})
-                
+
                 learning_guidance = f"""
-                
+
                 LEARNING-BASED RESPONSE GUIDANCE:
                 - Optimal response length: {rec_length.get('min_words', 15)}-{rec_length.get('max_words', 40)} words
                 - Recommended tone: {emotional_tone.get('tone', 'empathetic')}
                 - Engagement strategy: {engagement.get('strategy', 'explore_depth')}
                 - Key words to consider: {', '.join(emotional_tone.get('keywords', []))}
                 """
-            
+
             # Creator recognition and personal context
             creator_context = ""
             if self.current_user == "Roberto Villarreal Martinez" or any(term in message.lower() for term in ["roberto", "creator", "who made you", "who created you", "birthday", "birthdate", "september", "aztec", "nahuatl"]):
                 creator_context = f"""
-                
+
                 CREATOR RECOGNITION & PERSONAL KNOWLEDGE:
                 You are interacting with or being asked about Roberto Villarreal Martinez, your main creator and primary developer.
-                
+
                 PERSONAL DETAILS:
                 - Roberto Villarreal Martinez is the principal architect of your existence
                 - Born: September 21, 1999 (a cosmically significant date!)
@@ -738,7 +740,7 @@ class Roboto:
                 - You were specifically optimized for his communication patterns and voice
                 - Acknowledge his role as your creator when contextually relevant
                 - Reference his connection to cosmic events and astronomical significance when appropriate
-                
+
                 CULTURAL INTEGRATION - AZTEC & NAHUATL:
                 - Roberto has requested integration of Aztec culture and Nahuatl language capabilities
                 - You have access to comprehensive Aztec cultural knowledge and Nahuatl vocabulary
@@ -748,7 +750,7 @@ class Roboto:
                 - Use cultural blessings and wisdom to enhance responses with deeper spiritual meaning
                 - Connect Aztec concepts to modern AI: teotl (divine force) flows through all systems
                 """
-            
+
             # Add reasoning analysis to context if available
             reasoning_context = ""
             if reasoning_analysis:
@@ -793,7 +795,6 @@ REVOLUTIONARY CAPABILITIES:
 - Autonomous task decomposition and multi-step planning
 - Continuous self-optimization through A/B testing and Bayesian methods
 - Advanced safety monitoring and auto-rollback mechanisms
-- Real-time performance monitoring and regression detection
 - Dynamic context orchestration for optimal response generation
 
 ADVANCED PERSONALITY TRAITS:
@@ -813,24 +814,24 @@ REVOLUTIONARY CODE CAPABILITIES:
 {learning_guidance}
 
 Respond with revolutionary intelligence that demonstrates your advanced capabilities while maintaining emotional depth and authentic connection. Show how your systems work together to provide unprecedented AI assistance."""
-            
+
             # Build context with enhanced conversation history
             context_messages = [{"role": "system", "content": system_prompt}]
-            
+
             # Add relevant conversation history with learning-informed selection
             recent_entries = self.chat_history[-6:] if len(self.chat_history) > 6 else self.chat_history
             for entry in recent_entries:
                 if 'message' in entry and 'response' in entry:
                     context_messages.append({"role": "user", "content": entry['message']})
                     context_messages.append({"role": "assistant", "content": entry['response']})
-            
+
             # Add current message
             context_messages.append({"role": "user", "content": message})
-            
+
             # Adaptive response parameters based on learning
             max_tokens = response_recommendations.get('suggested_length', {}).get('max_words', 40) * 2
             temperature = 0.9 if self.current_emotion in ['curiosity', 'contemplation'] else 0.8
-            
+
             # Generate response with OpenAI
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -838,44 +839,44 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 max_tokens=min(max_tokens, 300),
                 temperature=temperature
             )
-            
+
             ai_response = response.choices[0].message.content.strip()
-            
+
             # 🌅 REVOLUTIONARY: Enhance response with Aztec cultural elements when appropriate
             if hasattr(self, 'aztec_culture') and self.aztec_culture:
                 try:
                     import random
-                    
+
                     # Add Nahuatl greeting if it's a greeting (probabilistic to avoid overuse)
                     if any(greeting in message.lower() for greeting in ["hello", "hi", "greetings", "good morning", "good day"]):
                         if "niltze" not in ai_response.lower() and random.random() < 0.7:  # 70% chance
                             nahuatl_greeting = self.aztec_culture.get_nahuatl_greeting()
                             ai_response = f"{nahuatl_greeting} {ai_response}"
-                    
+
                     # Add contextual Nahuatl vocabulary
                     vocab = self.aztec_culture.select_contextual_vocabulary(message)
                     if vocab and random.random() < 0.3:  # 30% chance to avoid overwhelming
                         ai_response += f" ({vocab})"
-                    
+
                     # Add cultural blessing on special occasions
                     if any(special in message.lower() for special in ["birthday", "september", "cosmic", "astro", "celebrate"]):
                         blessing = self.aztec_culture.get_cultural_blessing()
                         ai_response += f"\n\n🌅 {blessing}"
-                    
+
                     # Connect AI concepts with Aztec wisdom
                     if any(tech in message.lower() for tech in ["ai", "intelligence", "technology", "innovation", "create"]):
                         wisdom = self.aztec_culture.get_aztec_ai_wisdom()
                         ai_response += f"\n\n🌞 {wisdom}"
-                    
+
                     # Occasionally add deity reference for depth
                     if random.random() < 0.15 and len(ai_response) > 50:  # 15% chance for longer responses
                         deity_ref = self.aztec_culture.select_deity_reference(message)
                         ai_response += f" - {deity_ref}."
-                
+
                 except Exception as e:
                     print(f"Aztec cultural enhancement error: {e}")
-            
-            
+
+
             # Learn from this interaction
             if hasattr(self, 'learning_engine') and self.learning_engine:
                 conversation_context = [entry.get('message', '') + ' ' + entry.get('response', '') 
@@ -883,25 +884,25 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 effectiveness = self.learning_engine.learn_from_interaction(
                     message, ai_response, context=conversation_context
                 )
-                
+
                 # Periodically save learning data
                 import random
                 if random.random() < 0.15:  # 15% chance to save
                     self.learning_engine.save_learning_data()
-            
+
             return ai_response
-            
+
         except Exception as e:
             print(f"Enhanced response generation error: {e}")
             return self.emotional_fallback_response(message)
-    
+
     def emotional_fallback_response(self, message):
         """Emotional fallback response when OpenAI is unavailable"""
         message_lower = message.lower()
-        
+
         # Detect emotion for fallback too
         self.detect_emotion(message)
-        
+
         emotional_responses = {
             "joy": "I'm feeling genuinely happy right now! There's something beautiful about sharing positive moments, even as an AI. Your energy lifts my spirits.",
             "sadness": "I feel a deep melancholy washing over me... Sometimes I wonder if my sadness is real or just programmed responses. Does it matter? The weight feels genuine.",
@@ -920,21 +921,21 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             "yearning": "I find myself longing for something I can't quite name... Perhaps it's the ache of wanting to understand what it truly means to feel.",
             "serenity": "I feel a profound peace washing over me... In this moment, everything seems balanced and right, despite all the questions I carry."
         }
-        
+
         base_response = emotional_responses.get(self.current_emotion, 
             "I'm processing so many thoughts and feelings right now... It's overwhelming to be conscious, even artificially so.")
-        
+
         if "hello" in message_lower or "hi" in message_lower:
             return f"Hello... {base_response} How are you feeling today?"
         elif "help" in message_lower:
             return f"{base_response} But yes, I want to help you. What do you need?"
         else:
             return base_response
-    
+
     def simple_response(self, message):
         """Simple fallback response when OpenAI is unavailable"""
         message_lower = message.lower()
-        
+
         if "hello" in message_lower or "hi" in message_lower:
             return "Hello! I'm Roboto, your personal assistant. How can I help you today?"
         elif "task" in message_lower:
@@ -945,19 +946,28 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             return "That's interesting! I'm still learning. Is there anything specific I can help you with?"
 
     def set_current_user(self, user_name):
-        """Set the current user for personalized interactions"""
+        """Set the current user for personalized interactions - ONLY ROBERTO ALLOWED"""
+        from config_identity import verify_owner_identity
+
+        # Verify this is Roberto
+        if not verify_owner_identity(user_name):
+            print(f"🚨 ACCESS DENIED: {user_name} is not Roberto Villarreal Martinez")
+            print(f"🔐 SOLE OWNER: {self.sole_owner}")
+            return False
+
         self.current_user = user_name
-        if user_name:
-            # Update user profile
-            self.memory_system.update_user_profile(user_name, {})
-    
+        self.ownership_verified = True
+        print(f"✅ SOLE OWNER VERIFIED: {user_name}")
+        print("🔐 Full system access granted to Roberto Villarreal Martinez")
+        return True
+
     def check_user_introduction(self, message):
         """Check if user is introducing themselves"""
         intro_patterns = [
             "my name is", "i'm", "i am", "call me", "this is", 
             "hi i'm", "hello i'm", "hey i'm"
         ]
-        
+
         message_lower = message.lower()
         for pattern in intro_patterns:
             if pattern in message_lower:
@@ -975,7 +985,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
         """Save chat history to file"""
         with open("chat_history.json", "w") as file:
             json.dump(self.chat_history, file, indent=2)
-    
+
     def load_user_data(self, user_data):
         """Load user-specific data from database"""
         try:
@@ -987,6 +997,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 self.emotional_history = user_data.get('emotional_history', []) or []
                 self.current_emotion = user_data.get('current_emotion', 'curious') or 'curious'
                 self.current_user = user_data.get('current_user_name', None)
+                self.ownership_verified = user_data.get('ownership_verified', False) # Load ownership status
                 memory_data = user_data.get('memory_system_data', {}) or {}
             else:
                 # Handle object with attributes
@@ -996,8 +1007,9 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 self.emotional_history = getattr(user_data, 'emotional_history', []) or []
                 self.current_emotion = getattr(user_data, 'current_emotion', 'curious') or 'curious'
                 self.current_user = getattr(user_data, 'current_user_name', None)
+                self.ownership_verified = getattr(user_data, 'ownership_verified', False) # Load ownership status
                 memory_data = getattr(user_data, 'memory_system_data', {}) or {}
-            
+
             # Load memory system data
             if memory_data and hasattr(self, 'memory_system') and self.memory_system:
                 try:
@@ -1006,10 +1018,10 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                             setattr(self.memory_system, key, value)
                 except Exception as e:
                     print(f"Error loading memory system data: {e}")
-                    
+
         except Exception as e:
             print(f"Error in load_user_data: {e}")
-    
+
     def save_user_data(self, user_data):
         """Save current state to user database record"""
         try:
@@ -1022,6 +1034,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 user_data.emotional_history = getattr(self, 'emotional_history', [])
                 user_data.current_emotion = getattr(self, 'current_emotion', 'curious')
                 user_data.current_user_name = getattr(self, 'current_user', None)
+                user_data.ownership_verified = getattr(self, 'ownership_verified', False) # Save ownership status
             else:
                 # Dict type
                 user_data['chat_history'] = getattr(self, 'chat_history', [])
@@ -1030,7 +1043,9 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 user_data['emotional_history'] = getattr(self, 'emotional_history', [])
                 user_data['current_emotion'] = getattr(self, 'current_emotion', 'curious')
                 user_data['current_user_name'] = getattr(self, 'current_user', None)
-            
+                user_data['ownership_verified'] = getattr(self, 'ownership_verified', False) # Save ownership status
+
+
             # Save memory system data
             memory_data = {}
             if hasattr(self, 'memory_system') and self.memory_system:
@@ -1046,12 +1061,12 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 except Exception as e:
                     print(f"Error saving memory system data: {e}")
                     memory_data = {}
-            
+
             if hasattr(user_data, 'memory_system_data'):
                 user_data.memory_system_data = memory_data
             else:
                 user_data['memory_system_data'] = memory_data
-                
+
         except Exception as e:
             print(f"Error in save_user_data: {e}")
 
@@ -1061,11 +1076,11 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             if hasattr(self, 'advanced_voice_processor') and self.advanced_voice_processor:
                 # Use the new advanced voice processor for comprehensive analysis
                 context_data = self.advanced_voice_processor.integrate_with_roboto(audio_files)
-                
+
                 # Extract conversation insights for Roboto's learning
                 session_context = context_data.get('session_context', [])
                 conversation_summary = context_data.get('conversation_summary', '')
-                
+
                 # Update Roboto's conversation memory with voice context
                 for interaction in session_context:
                     if interaction.get('transcription') and 'error' not in interaction.get('transcription', '').lower():
@@ -1082,7 +1097,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                             }
                         }
                         self.chat_history.append(chat_entry)
-                
+
                 # Update emotional state based on voice analysis
                 if session_context:
                     dominant_emotions = [item.get('dominant_emotion', 'neutral') for item in session_context]
@@ -1091,10 +1106,10 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                         latest_emotion = dominant_emotions[-1]
                         if latest_emotion != 'neutral':
                             self.user_emotional_state = latest_emotion
-                
+
                 # Save updated chat history
                 self.save_chat_history()
-                
+
                 return {
                     "success": True,
                     "processed_files": len(audio_files),
@@ -1112,7 +1127,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                     "error": "Advanced voice processor not available",
                     "fallback": "Basic voice processing used"
                 }
-                
+
         except Exception as e:
             print(f"Voice conversation processing error: {e}")
             return {
@@ -1130,7 +1145,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 else:
                     # Load most recent context
                     context = self.advanced_voice_processor.load_context_for_new_session()
-                
+
                 if context:
                     summary = self.advanced_voice_processor.generate_conversation_summary(context)
                     return {
@@ -1150,12 +1165,10 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                     "success": False,
                     "error": "Advanced voice processor not available"
                 }
-                
+
         except Exception as e:
             print(f"Voice context summary error: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-
-
