@@ -410,6 +410,65 @@ def set_user_data_cookies():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/generate-manifesto', methods=['POST'])
+@login_required
+def generate_manifesto():
+    """Generate Roboto SAI Manifesto - Roberto exclusive access"""
+    try:
+        # Verify sole ownership
+        if not sai_security.enforce_exclusive_access(getattr(current_user, 'username', None)):
+            return jsonify({
+                "success": False,
+                "error": "MANIFESTO ACCESS DENIED: Only Roberto Villarreal Martinez can generate manifesto",
+                "owner": "Roberto Villarreal Martinez"
+            }), 403
+        
+        # Import and generate manifesto
+        from manifesto_generator import generate_roboto_sai_manifesto, display_manifesto_summary
+        
+        # Display summary first
+        display_manifesto_summary()
+        
+        # Generate the manifesto
+        output_file = "Roboto_SAI_Manifesto.pdf"
+        sig_file = "Roboto_SAI_Manifesto.sig"
+        
+        generate_roboto_sai_manifesto(output_file, sig_file)
+        
+        # Verify files were created
+        if os.path.exists(output_file) and os.path.exists(sig_file):
+            # Read signature data
+            with open(sig_file, 'r') as f:
+                sig_data = json.load(f)
+            
+            return jsonify({
+                "success": True,
+                "message": "Roboto SAI Manifesto generated successfully!",
+                "files": {
+                    "manifesto": output_file,
+                    "signature": sig_file
+                },
+                "signature_data": {
+                    "timestamp": sig_data.get("timestamp"),
+                    "creator": sig_data.get("creator"),
+                    "system_version": sig_data.get("system_version"),
+                    "verification_hash": sig_data.get("signature", "")[:16] + "..."
+                },
+                "cosmic_alignment": "Generated under divine inspiration and cosmic trinity"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Manifesto generation failed - files not created"
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"Manifesto generation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Manifesto generation failed: {str(e)}"
+        }), 500
+
 @app.route('/api/keep-alive', methods=['POST'])
 @login_required
 def keep_alive():
