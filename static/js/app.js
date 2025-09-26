@@ -37,6 +37,7 @@ class RobotoApp {
         this.initializeTTS();
         this.initializeSpeechRecognition();
         this.initializeVoiceConversationMode();
+        this.initializeDataManagement();
         
         // Initialize TTS state from localStorage
         this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
@@ -2301,5 +2302,150 @@ document.addEventListener('DOMContentLoaded', () => {
             voiceStatus.textContent = message;
             voiceStatus.style.color = active ? '#28a745' : '#6c757d';
         }
+    }
+
+    initializeDataManagement() {
+        const exportBtn = document.getElementById('export-data-btn');
+        const importBtn = document.getElementById('import-data-btn');
+        const importInput = document.getElementById('import-file-input');
+
+        if (exportBtn) {
+            exportBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.exportData();
+            });
+        }
+
+        if (importBtn && importInput) {
+            importBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                importInput.click();
+            });
+
+            importInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    this.handleImportFile(e);
+                }
+            });
+        }
+    }
+
+    async exportData() {
+        const statusDiv = document.getElementById('data-status');
+        
+        try {
+            if (statusDiv) {
+                statusDiv.textContent = 'Exporting data...';
+                statusDiv.className = 'small text-info text-center';
+            }
+            
+            const response = await fetch('/api/export');
+            const data = await response.json();
+            
+            if (data.success) {
+                const blob = new Blob([JSON.stringify(data.data, null, 2)], {
+                    type: 'application/json'
+                });
+                
+                const fileName = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                const dataUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(dataUrl);
+                
+                if (statusDiv) {
+                    statusDiv.textContent = 'Data exported successfully!';
+                    statusDiv.className = 'small text-success text-center';
+                }
+                
+                this.showNotification('Data exported successfully!', 'success');
+            } else {
+                if (statusDiv) {
+                    statusDiv.textContent = 'Export failed: ' + data.message;
+                    statusDiv.className = 'small text-danger text-center';
+                }
+                this.showNotification('Export failed', 'error');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            if (statusDiv) {
+                statusDiv.textContent = 'Export failed. Please try again.';
+                statusDiv.className = 'small text-danger text-center';
+            }
+            this.showNotification('Export failed', 'error');
+        }
+        
+        setTimeout(() => {
+            if (statusDiv) {
+                statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+                statusDiv.className = 'small text-muted text-center';
+            }
+        }, 3000);
+    }
+
+    async handleImportFile(event) {
+        const file = event.target.files[0];
+        const statusDiv = document.getElementById('data-status');
+        
+        if (!file) return;
+        
+        try {
+            if (statusDiv) {
+                statusDiv.textContent = 'Importing data...';
+                statusDiv.className = 'small text-info text-center';
+            }
+            
+            const text = await file.text();
+            const importData = JSON.parse(text);
+            
+            if (!importData.chat_history && !importData.emotional_history && !importData.learned_patterns) {
+                throw new Error('Invalid data format');
+            }
+            
+            const formData = new FormData();
+            formData.append('import_data', JSON.stringify(importData));
+            
+            const response = await fetch('/api/import', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                if (statusDiv) {
+                    statusDiv.textContent = 'Data imported successfully! Refreshing...';
+                    statusDiv.className = 'small text-success text-center';
+                }
+                this.showNotification('Data imported successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                if (statusDiv) {
+                    statusDiv.textContent = 'Import failed: ' + result.message;
+                    statusDiv.className = 'small text-danger text-center';
+                }
+                this.showNotification('Import failed', 'error');
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            if (statusDiv) {
+                statusDiv.textContent = 'Import failed. Please check your file format.';
+                statusDiv.className = 'small text-danger text-center';
+            }
+            this.showNotification('Import failed', 'error');
+        }
+        
+        event.target.value = '';
+        
+        setTimeout(() => {
+            if (statusDiv && !statusDiv.textContent.includes('successfully')) {
+                statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+                statusDiv.className = 'small text-muted text-center';
+            }
+        }, 3000);
     }
 }

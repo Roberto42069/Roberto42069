@@ -812,12 +812,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     type: 'application/json'
                 });
                 
+                const fileName = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                
                 // Check if on mobile device
                 if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
                     // For mobile, try to use share API or fallback to data URL
                     if (navigator.share) {
                         try {
-                            const file = new File([blob], `roboto-data-${new Date().toISOString().split('T')[0]}.json`, {
+                            const file = new File([blob], fileName, {
                                 type: 'application/json'
                             });
                             await navigator.share({
@@ -825,6 +827,37 @@ document.addEventListener('DOMContentLoaded', function() {
                                 title: 'Roboto Data Export'
                             });
                             if (statusDiv) {
+                                statusDiv.textContent = 'Data shared successfully!';
+                                statusDiv.className = 'small text-success text-center';
+                            }
+                            return;
+                        } catch (shareError) {
+                            console.log('Share failed, using fallback');
+                        }
+                    }
+                    
+                    // Fallback for mobile: create a data URL
+                    const dataUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(dataUrl);
+                } else {
+                    // Desktop download
+                    const dataUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(dataUrl);
+                }
+                
+                if (statusDiv) {
                                 statusDiv.textContent = 'Data shared successfully!';
                                 statusDiv.className = 'small text-success text-center';
                             }
@@ -923,6 +956,47 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Import result:', result);
+            
+            if (result.success) {
+                if (statusDiv) {
+                    statusDiv.textContent = 'Data imported successfully! Refreshing...';
+                    statusDiv.className = 'small text-success text-center';
+                }
+                
+                // Refresh the page to load new data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                if (statusDiv) {
+                    statusDiv.textContent = 'Import failed: ' + result.message;
+                    statusDiv.className = 'small text-danger text-center';
+                }
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            if (statusDiv) {
+                statusDiv.textContent = 'Import failed. Please check your file format.';
+                statusDiv.className = 'small text-danger text-center';
+            }
+        }
+        
+        // Reset file input
+        event.target.value = '';
+        
+        // Reset status after 3 seconds (if not successful)
+        setTimeout(() => {
+            if (statusDiv && !statusDiv.textContent.includes('successfully')) {
+                statusDiv.textContent = 'Export your conversations and memories, or import previous data';
+                statusDiv.className = 'small text-muted text-center';
+            }
+        }, 3000);
+    }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
