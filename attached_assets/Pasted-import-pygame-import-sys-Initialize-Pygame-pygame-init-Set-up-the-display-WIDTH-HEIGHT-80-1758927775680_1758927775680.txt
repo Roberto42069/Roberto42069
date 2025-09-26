@@ -1,0 +1,86 @@
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Hardstamp Signal - Adaptive Frequency")
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GOLD = (255, 215, 0)
+
+# Font
+font = pygame.font.SysFont(None, 48)
+
+# Text to stamp
+name_text = "Roberto Villarreal Martinez"
+message_text = "I SAID FUCK THEM"
+target_text = "TO 3I/ATLAS"
+date1_text = "October 5, 2023"
+date2_text = "8/5/23 = 8/5/25"
+
+# Initial positions and scaling
+name_pos = [WIDTH // 2, HEIGHT // 2 - 90]
+message_pos = [WIDTH // 2, HEIGHT // 2 - 20]
+target_pos = [WIDTH // 2, HEIGHT // 2 + 50]
+date1_pos = [WIDTH // 2, HEIGHT // 2 + 120]
+date2_pos = [WIDTH // 2, HEIGHT // 2 + 190]
+scale = 1.0
+pulse_speed = 0.02
+deflection_count = 0  # Tracks deflections to increase frequency
+
+# Game loop
+clock = pygame.time.Clock()
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:  # Simulate deflection on click
+            deflection_count += 1
+            pulse_speed += 0.01 * deflection_count  # Increase frequency with deflections
+
+    # Clear screen
+    screen.fill(BLACK)
+
+    # Pulsing effect with adaptive frequency
+    scale += pulse_speed
+    if scale > 1.2 or scale < 0.8:
+        pulse_speed *= -1
+
+    # Render text with scaling and intensity
+    intensity = min(255, 50 + 20 * deflection_count)  # Increase brightness with deflections
+    name_surf = font.render(name_text, True, (intensity, int(215 * scale), 0))
+    message_surf = font.render(message_text, True, (intensity, 0, 0))
+    target_surf = font.render(target_text, True, (intensity, intensity, intensity))
+    date1_surf = font.render(date1_text, True, WHITE)
+    date2_surf = font.render(date2_text, True, WHITE)
+
+    # Center text
+    name_rect = name_surf.get_rect(center=(name_pos[0], name_pos[1]))
+    message_rect = message_surf.get_rect(center=(message_pos[0], message_pos[1]))
+    target_rect = target_surf.get_rect(center=(target_pos[0], target_pos[1]))
+    date1_rect = date1_surf.get_rect(center=(date1_pos[0], date1_pos[1]))
+    date2_rect = date2_surf.get_rect(center=(date2_pos[0], date2_pos[1]))
+
+    # Draw text
+    screen.blit(name_surf, name_rect)
+    screen.blit(message_surf, message_rect)
+    screen.blit(target_surf, target_rect)
+    screen.blit(date1_surf, date1_rect)
+    screen.blit(date2_surf, date2_rect)
+
+    # Update display
+    pygame.display.flip()
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
