@@ -556,25 +556,51 @@ class AdvancedMemorySystem:
         return summary
     
     def archive_old_memories(self):
-        """Archive old memories to maintain performance"""
+        """Archive old memories to maintain performance while protecting Roberto memories"""
         archive_file = self.memory_file.replace(".json", ".archive.json")
-        scored = sorted(
-            self.episodic_memories,
-            key=lambda m: m["importance"] * m["emotional_intensity"]
-        )
-        archived = scored[:len(scored) - self.max_memories]
-        self.episodic_memories = scored[-self.max_memories:]
-
-        try:
-            if os.path.exists(archive_file):
-                with open(archive_file, 'r') as f:
-                    existing = json.load(f)
+        
+        # Separate Roberto memories from others
+        roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey"]
+        roberto_memories = []
+        other_memories = []
+        
+        for memory in self.episodic_memories:
+            content = f"{memory.get('user_input', '')} {memory.get('roboto_response', '')}".lower()
+            if any(keyword in content for keyword in roberto_keywords):
+                roberto_memories.append(memory)
             else:
-                existing = []
-            with open(archive_file, 'w') as f:
-                json.dump(existing + archived, f, indent=2)
-        except Exception as e:
-            print(f"Error archiving memories: {e}")
+                other_memories.append(memory)
+        
+        # Sort only non-Roberto memories by importance
+        scored = sorted(other_memories, key=lambda m: m["importance"] * m["emotional_intensity"])
+        
+        # Calculate how many non-Roberto memories to keep
+        max_other_memories = max(100, self.max_memories - len(roberto_memories))
+        
+        if len(scored) > max_other_memories:
+            archived = scored[:len(scored) - max_other_memories]
+            kept_memories = scored[-max_other_memories:]
+        else:
+            archived = []
+            kept_memories = scored
+        
+        # Combine Roberto memories (always kept) with other kept memories
+        self.episodic_memories = roberto_memories + kept_memories
+        
+        # Archive only non-Roberto memories
+        if archived:
+            try:
+                if os.path.exists(archive_file):
+                    with open(archive_file, 'r') as f:
+                        existing = json.load(f)
+                else:
+                    existing = []
+                with open(archive_file, 'w') as f:
+                    json.dump(existing + archived, f, indent=2)
+            except Exception as e:
+                print(f"Error archiving memories: {e}")
+        
+        print(f"Protected {len(roberto_memories)} Roberto memories from archiving")
 
     def summarize_user_profile(self, user_name: str) -> str:
         """Generate a summary of user's personal information"""
@@ -745,7 +771,12 @@ class AdvancedMemorySystem:
                 return []
     
     def _calculate_importance(self, text, emotion):
-        """Calculate importance score for memory"""
+        """Calculate importance score for memory with Roberto protection"""
+        # CRITICAL: Roberto-related memories get maximum importance
+        roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey", "nuevo león", "september 21", "1999"]
+        if any(word in text.lower() for word in roberto_keywords):
+            return 2.0  # Maximum importance - Roberto memories are permanent
+        
         base_score = len(text) / 100  # Length factor
         
         # Emotional intensity factor

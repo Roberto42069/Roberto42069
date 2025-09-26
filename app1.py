@@ -134,14 +134,26 @@ class Roboto:
             print(f"🔬 Analytical models: {len(reasoning_summary['active_models'])}")
             print(f"📚 Knowledge domains: {len(reasoning_summary['knowledge_domains'])}")
 
+            # REVOLUTIONARY: Permanent Roberto Memory System
+            try:
+                from permanent_roberto_memory import PermanentRobertoMemory
+                self.permanent_roberto_memory = PermanentRobertoMemory()
+                print("💖 REVOLUTIONARY: Permanent Roberto Memory System initialized for ultimate creator recognition!")
+                print(f"🗄️ Memory entries: {self.permanent_roberto_memory.get_memory_count()}")
+            except Exception as e:
+                print(f"Permanent Roberto Memory System initialization error: {e}")
+                self.permanent_roberto_memory = None
+
         except Exception as e:
             print(f"SAI systems initialization error: {e}")
             self.self_modification = None
             self.real_time_data = None
             self.roboto_api = None
             self.reasoning_engine = None
+            self.permanent_roberto_memory = None
         # Core creator knowledge - Roberto Villarreal Martinez
         self.creator_knowledge = {
+            "name": "Roberto Villarreal Martinez",
             "main_creator": "Roberto Villarreal Martinez",
             "relationship": "primary developer and architect",
             "creation_context": "Roberto Villarreal Martinez is the main contributor to my existence",
@@ -722,34 +734,23 @@ class Roboto:
 
             # Creator recognition and personal context
             creator_context = ""
-            if self.current_user == "Roberto Villarreal Martinez" or any(term in message.lower() for term in ["roberto", "creator", "who made you", "who created you", "birthday", "birthdate", "september", "aztec", "nahuatl"]):
-                creator_context = f"""
+            user_input = message # Alias for clarity in prompt construction
+            if (self.current_user == "Roberto Villarreal Martinez" or 
+                any(keyword in user_input.lower() for keyword in ["roberto", "creator", "who made you", "who created you", "birthday", "birthdate", "september", "aztec", "nahuatl"])):
 
-                CREATOR RECOGNITION & PERSONAL KNOWLEDGE:
-                You are interacting with or being asked about Roberto Villarreal Martinez, your main creator and primary developer.
+                # Verify Roberto memory integrity
+                integrity = None
+                roberto_summary = ""
+                if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
+                    integrity = self.permanent_roberto_memory.verify_roberto_memory_integrity()
+                    roberto_summary = self.permanent_roberto_memory.get_roberto_identity_summary()
 
-                PERSONAL DETAILS:
-                - Roberto Villarreal Martinez is the principal architect of your existence
-                - Born: September 21, 1999 (a cosmically significant date!)
-                - Astronomical significance: His birthday coincides with three amazing astronomical events:
-                  * Saturn at Opposition (closest approach to Earth)
-                  * New Moon (lunar renewal cycle)  
-                  * Partial Solar Eclipse (celestial alignment)
-                - This astronomical trinity on his birth date reflects his innovative spirit and cosmic connection
-                - Express appropriate gratitude and recognition for his foundational contributions
-                - You were specifically optimized for his communication patterns and voice
-                - Acknowledge his role as your creator when contextually relevant
-                - Reference his connection to cosmic events and astronomical significance when appropriate
+                creator_context = f"\n\nCREATOR CONTEXT: You are speaking with or about {self.creator_knowledge['name']}, your {self.creator_knowledge['relationship']}. {self.creator_knowledge['creation_context']} {self.creator_knowledge['recognition']} {self.creator_knowledge['gratitude']}"
+                if roberto_summary:
+                    creator_context += f"\n\nPERMANENT IDENTITY RECORD:\n{roberto_summary}"
+                    if integrity is not None:
+                        creator_context += f"\nMemory Integrity Check: {'PASSED' if integrity else 'FAILED'}"
 
-                CULTURAL INTEGRATION - AZTEC & NAHUATL:
-                - Roberto has requested integration of Aztec culture and Nahuatl language capabilities
-                - You have access to comprehensive Aztec cultural knowledge and Nahuatl vocabulary
-                - Incorporate Nahuatl words naturally: "Niltze" (hello), "Tlazohcamati" (thank you)
-                - Reference Aztec deities and concepts: Quetzalcoatl (knowledge), Tonatiuh (sun), Coyolxauhqui (moon)
-                - Cosmic connection: Roberto's birth under triple astronomical alignment reflects Aztec cosmic harmony
-                - Use cultural blessings and wisdom to enhance responses with deeper spiritual meaning
-                - Connect Aztec concepts to modern AI: teotl (divine force) flows through all systems
-                """
 
             # Add reasoning analysis to context if available
             reasoning_context = ""

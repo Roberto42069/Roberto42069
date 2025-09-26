@@ -288,8 +288,13 @@ class RevolutionaryMemoryEngine:
         return memory_id
     
     def _calculate_memory_importance(self, content: str, memory_type: str, user_context: Dict[str, Any]) -> float:
-        """Advanced importance calculation"""
+        """Advanced importance calculation with Roberto protection"""
         importance = 0.5  # base importance
+        
+        # CRITICAL: Roberto-related memories are MAXIMUM importance
+        roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey", "nuevo león"]
+        if any(word in content.lower() for word in roberto_keywords):
+            return 1.0  # Maximum importance - never delete Roberto memories
         
         # Memory type weights
         type_weights = {
@@ -303,9 +308,6 @@ class RevolutionaryMemoryEngine:
         # Content analysis
         if any(word in content.lower() for word in ["important", "remember", "crucial", "key"]):
             importance += 0.2
-        
-        if any(word in content.lower() for word in ["roberto", "creator", "villarreal", "martinez"]):
-            importance += 0.3  # Creator-related memories are highly important
         
         # Emotional content
         emotional_words = ["feel", "emotion", "happy", "sad", "angry", "love", "hate", "fear"]
