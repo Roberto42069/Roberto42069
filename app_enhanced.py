@@ -124,10 +124,12 @@ def load_user(user_id):
                 return self.id
         return FileUser(user_id) if user_id else None
 
-@login_manager.unauthorized_handler
+@login_manager.unauthorized_handler  
 def unauthorized():
-    from flask import render_template
-    return render_template('403.html'), 403
+    # Store the original URL they wanted to visit
+    session['next_url'] = request.url
+    # Redirect to OAuth login using the direct route
+    return redirect('/auth/replit_auth')
 
 # Register authentication blueprint
 try:
