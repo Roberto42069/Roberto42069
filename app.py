@@ -478,6 +478,29 @@ def keep_alive():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/performance-stats', methods=['GET'])
+@login_required
+def get_performance_stats():
+    """Get HyperSpeed optimization performance statistics"""
+    try:
+        roberto = get_user_roberto()
+        if roberto and hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer:
+            stats = roberto.get_performance_stats()
+            return jsonify({
+                "success": True,
+                "hyperspeed_enabled": True,
+                "stats": stats
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "hyperspeed_enabled": False,
+                "message": "HyperSpeed optimization not active"
+            })
+    except Exception as e:
+        app.logger.error(f"Performance stats error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/api/import', methods=['POST'])
 @login_required
 def import_data():

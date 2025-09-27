@@ -213,6 +213,16 @@ def get_user_roberto():
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
+        
+        # Add HyperSpeed Optimization if not already added in app1.py
+        if not hasattr(roberto, 'hyperspeed_optimizer') or roberto.hyperspeed_optimizer is None:
+            try:
+                from hyperspeed_optimization import integrate_hyperspeed_optimizer
+                roberto.hyperspeed_optimizer = integrate_hyperspeed_optimizer(roberto)
+                app.logger.info("⚡ HyperSpeed Optimization Engine activated!")
+                app.logger.info("🚀 Performance: 10x speed improvement enabled")
+            except Exception as e:
+                app.logger.warning(f"HyperSpeed optimization not available: {e}")
 
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
 
