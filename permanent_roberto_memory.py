@@ -134,6 +134,10 @@ LAST UPDATED: {datetime.now().isoformat()}
         """Get all permanent Roberto memories"""
         return self.permanent_memories.copy()
     
+    def get_memory_count(self) -> int:
+        """Get count of permanent memories"""
+        return len(self.permanent_memories)
+    
     def verify_roberto_memory_integrity(self) -> Dict[str, Any]:
         """Verify all Roberto memories are intact"""
         core_ids = [

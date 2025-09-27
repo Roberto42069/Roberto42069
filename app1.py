@@ -136,8 +136,8 @@ class Roboto:
 
             # REVOLUTIONARY: Permanent Roberto Memory System
             try:
-                from permanent_roberto_memory import PermanentRobertoMemory
-                self.permanent_roberto_memory = PermanentRobertoMemory()
+                from permanent_roberto_memory import PermanentRobertoMemorySystem
+                self.permanent_roberto_memory = PermanentRobertoMemorySystem()
                 print("💖 REVOLUTIONARY: Permanent Roberto Memory System initialized for ultimate creator recognition!")
                 print(f"🗄️ Memory entries: {self.permanent_roberto_memory.get_memory_count()}")
             except Exception as e:
