@@ -22,22 +22,22 @@ def process_voice_message(audio_file_path, roberto_instance):
             # Transcribe and analyze the audio
             transcription = roberto_instance.advanced_voice_processor.transcribe_audio(audio_file_path)
             emotions = roberto_instance.advanced_voice_processor.detect_emotions(audio_file_path)
-            
+
             # Get the dominant emotion
             dominant_emotion = emotions[0] if emotions else {"label": "neutral", "score": 0.5}
-            
+
             app.logger.info(f"Voice transcription: {transcription[:50]}...")
             app.logger.info(f"Detected emotion: {dominant_emotion}")
-            
+
             # Create emotionally-aware response
             if transcription and "error" not in transcription.lower():
                 # Generate response that acknowledges the emotion and transcription
                 emotional_context = f"[Voice message detected with {dominant_emotion['label']} emotion at {dominant_emotion['score']:.1%} confidence]"
-                
+
                 # Use Roberto's chat system with emotional context
                 enhanced_message = f"{transcription} {emotional_context}"
                 response = roberto_instance.chat(enhanced_message)
-                
+
                 # Add emotional acknowledgment to response
                 emotion_acknowledgments = {
                     "happy": "I can hear the joy in your voice! ",
@@ -48,16 +48,16 @@ def process_voice_message(audio_file_path, roberto_instance):
                     "thoughtful": "I appreciate the thoughtfulness in your voice. ",
                     "engaged": "I love how engaged you sound! "
                 }
-                
+
                 acknowledgment = emotion_acknowledgments.get(dominant_emotion['label'], "I received your voice message. ")
                 final_response = f"{acknowledgment}{response}"
-                
+
                 return final_response, dominant_emotion
             else:
                 return f"I received your voice message, though I had some trouble with the transcription. I detected a {dominant_emotion['label']} emotion - how can I help you today?", dominant_emotion
         else:
             return "I received your voice message! While my voice processing is still learning, I'm here to help. What would you like to talk about?", {"label": "neutral", "score": 0.5}
-            
+
     except Exception as e:
         app.logger.error(f"Voice processing error: {e}")
         return "I received your voice message! There was a small hiccup in processing it, but I'm ready to chat. What's on your mind?", {"label": "neutral", "score": 0.5}
@@ -86,7 +86,7 @@ try:
         }
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app)
-        
+
         with app.app_context():
             try:
                 import models
@@ -98,7 +98,7 @@ try:
     else:
         database_available = False
         app.logger.info("No database URL, using file-based storage")
-        
+
 except Exception as e:
     database_available = False
     app.logger.warning(f"Database unavailable: {e}")
@@ -161,15 +161,15 @@ def make_session_permanent():
 def get_user_roberto():
     """Get or create a Roboto instance for the current user"""
     global roberto
-    
+
     if roberto is None:
         from app1 import Roboto
         from voice_optimization import VoiceOptimizer
         from advanced_learning_engine import AdvancedLearningEngine
         from learning_optimizer import LearningOptimizer
-        
+
         roberto = Roboto()
-        
+
         # Add voice cloning system
         try:
             from simple_voice_cloning import SimpleVoiceCloning
@@ -177,28 +177,28 @@ def get_user_roberto():
             app.logger.info("Voice cloning system initialized for Roberto Villarreal Martinez")
         except Exception as e:
             app.logger.error(f"Voice cloning initialization error: {e}")
-        
+
         # Add voice optimization
         try:
             roberto.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
             app.logger.info("Voice optimization system configured for Roberto Villarreal Martinez")
         except Exception as e:
             app.logger.error(f"Voice optimization initialization error: {e}")
-        
+
         # Add advanced learning engine
         try:
             roberto.learning_engine = AdvancedLearningEngine()
             app.logger.info("Advanced learning systems initialized successfully")
         except Exception as e:
             app.logger.error(f"Learning engine initialization error: {e}")
-        
+
         # Add learning optimizer
         try:
             roberto.learning_optimizer = LearningOptimizer()
             app.logger.info("Learning optimization system activated")
         except Exception as e:
             app.logger.error(f"Learning optimizer initialization error: {e}")
-        
+
         # Add advanced voice processor - CRITICAL FIX
         try:
             from advanced_voice_processor import AdvancedVoiceProcessor
@@ -206,16 +206,16 @@ def get_user_roberto():
             app.logger.info("Advanced voice processor with emotion detection initialized")
         except Exception as e:
             app.logger.error(f"Advanced voice processor initialization error: {e}")
-        
+
         # Add GitHub project integration
         try:
             roberto.github_integration = get_github_integration()
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
-        
+
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
-        
+
         # Load user data if authenticated and database available
         if database_available and current_user.is_authenticated:
             try:
@@ -233,7 +233,7 @@ def get_user_roberto():
                     app.logger.info("User data loaded from database")
             except Exception as e:
                 app.logger.warning(f"Could not load user data: {e}")
-    
+
     return roberto
 
 def save_user_data():
@@ -252,7 +252,7 @@ def save_user_data():
                 'learning_data': {},
                 'optimization_data': {}
             }
-            
+
             # Collect learning engine data
             if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
                 try:
@@ -264,7 +264,7 @@ def save_user_data():
                     }
                 except Exception as e:
                     app.logger.warning(f"Learning engine save error: {e}")
-            
+
             # Collect optimization data
             if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
                 try:
@@ -273,10 +273,10 @@ def save_user_data():
                     user_data['optimization_data'] = insights
                 except Exception as e:
                     app.logger.warning(f"Learning optimizer save error: {e}")
-            
+
             # Save to Roboto's internal system
             roberto.save_user_data(user_data)
-            
+
             # Try database save if available
             if database_available and current_user.is_authenticated:
                 try:
@@ -285,7 +285,7 @@ def save_user_data():
                         current_user.roboto_data = UserData()
                         current_user.roboto_data.user_id = current_user.id
                         db.session.add(current_user.roboto_data)
-                    
+
                     # Update database fields
                     current_user.roboto_data.chat_history = user_data.get('chat_history', [])
                     current_user.roboto_data.learned_patterns = user_data.get('learned_patterns', {})
@@ -294,15 +294,15 @@ def save_user_data():
                     current_user.roboto_data.memory_system_data = user_data.get('memory_system_data', {})
                     current_user.roboto_data.current_emotion = user_data.get('current_emotion', 'curious')
                     current_user.roboto_data.current_user_name = user_data.get('current_user_name', None)
-                    
+
                     db.session.commit()
                     app.logger.info("User data saved to database")
                 except Exception as db_error:
                     app.logger.warning(f"Database save failed: {db_error}")
-            
+
             # Always save to file backup
             _save_to_file_backup(user_data)
-                
+
     except Exception as e:
         app.logger.error(f"Critical error saving user data: {e}")
 
@@ -310,7 +310,7 @@ def _save_to_file_backup(user_data):
     """Save user data to file backup"""
     try:
         backup_file = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
-        
+
         # Load existing backup if it exists
         existing_data = {}
         if os.path.exists(backup_file):
@@ -319,17 +319,17 @@ def _save_to_file_backup(user_data):
                     existing_data = json.load(f)
             except:
                 pass
-        
+
         # Update with current data
         existing_data.update(user_data)
         existing_data['last_backup'] = datetime.now().isoformat()
-        
+
         # Save updated backup
         with open(backup_file, 'w') as f:
             json.dump(existing_data, f, indent=2)
-        
+
         app.logger.info(f"User data backed up to {backup_file}")
-        
+
     except Exception as e:
         app.logger.error(f"File backup failed: {e}")
 
@@ -340,7 +340,7 @@ def index():
             return redirect(url_for('app_main'))
     except:
         pass
-    
+
     # Provide current_user context for template
     user_context = None
     try:
@@ -348,7 +348,7 @@ def index():
             user_context = current_user
     except:
         pass
-    
+
     return render_template('index.html', current_user=user_context)
 
 @app.route('/app')
@@ -375,7 +375,7 @@ def get_chat_history():
                 authenticated = True
         except:
             pass
-            
+
         roberto = get_user_roberto()
         if not roberto:
             return jsonify({
@@ -384,9 +384,9 @@ def get_chat_history():
                 "error": "Roboto system not available",
                 "authenticated": authenticated
             })
-        
+
         chat_history = getattr(roberto, 'chat_history', [])
-        
+
         return jsonify({
             "success": True,
             "chat_history": chat_history,
@@ -409,7 +409,7 @@ def get_history():
     try:
         roberto = get_user_roberto()
         history = getattr(roberto, 'chat_history', [])
-        
+
         # Check authentication status
         authenticated = False
         try:
@@ -417,7 +417,7 @@ def get_history():
                 authenticated = True
         except:
             pass
-        
+
         return jsonify({
             "success": True,
             "history": history,
@@ -443,32 +443,32 @@ def chat_endpoint():
                 "success": False,
                 "error": "No message provided"
             }), 400
-        
+
         message = data['message']
         roberto = get_user_roberto()
-        
+
         if not roberto:
             return jsonify({
                 "success": False,
                 "error": "Roboto system not available"
             }), 500
-        
+
         # Process the chat message
         response = roberto.chat(message)
-        
+
         # Save the conversation
         try:
             save_user_data()
         except Exception as save_error:
             app.logger.warning(f"Failed to save user data: {save_error}")
-        
+
         return jsonify({
             "success": True,
             "response": response,
             "emotion": getattr(roberto, 'current_emotion', 'curious'),
             "timestamp": datetime.now().isoformat()
         })
-        
+
     except Exception as e:
         app.logger.error(f"Chat error: {e}")
         return jsonify({
@@ -488,7 +488,7 @@ def get_emotional_status():
                 "emotion_intensity": 0.5,
                 "emotional_context": "System initializing"
             })
-        
+
         emotional_context = ""
         try:
             if hasattr(roberto, 'get_emotional_context'):
@@ -497,7 +497,7 @@ def get_emotional_status():
                 emotional_context = f"Feeling {roberto.current_emotion} with Roberto Villarreal Martinez"
         except:
             emotional_context = f"Current emotional state: {roberto.current_emotion}"
-        
+
         return jsonify({
             "success": True,
             "emotion": roberto.current_emotion,
@@ -522,10 +522,10 @@ def get_voice_insights():
         if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
             insights = roberto.voice_optimizer.get_optimization_insights()
             config = roberto.voice_optimizer.get_voice_optimization_config()
-            
+
             # Generate user-friendly insights
             user_insights = []
-            
+
             # Voice profile strength
             strength = insights.get('voice_profile_strength', 0)
             if strength > 0.8:
@@ -534,7 +534,7 @@ def get_voice_insights():
                 user_insights.append("Voice recognition adapting well to your speech patterns")
             else:
                 user_insights.append("Building personalized voice profile - continue speaking")
-            
+
             # Recognition accuracy
             accuracy = insights.get('recognition_accuracy', 0)
             if accuracy > 0.9:
@@ -543,10 +543,10 @@ def get_voice_insights():
                 user_insights.append("Good recognition accuracy with room for improvement")
             else:
                 user_insights.append("Voice recognition learning your pronunciation patterns")
-            
+
             # Spanish accent adaptation
             user_insights.append("Spanish-English bilingual support active")
-            
+
             return jsonify({
                 "success": True,
                 "insights": " • ".join(user_insights),
@@ -572,18 +572,18 @@ def optimize_voice():
         recognized_text = data.get('recognized_text', '')
         confidence_score = data.get('confidence', 0.0)
         actual_text = data.get('actual_text', None)
-        
+
         roberto = get_user_roberto()
         if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
             suggestions = roberto.voice_optimizer.analyze_voice_pattern(
                 recognized_text, confidence_score, actual_text
             )
-            
+
             # Save voice profile periodically
             import random
             if random.random() < 0.1:  # 10% chance
                 roberto.voice_optimizer.save_voice_profile()
-            
+
             return jsonify({
                 "success": True,
                 "suggestions": suggestions,
@@ -629,12 +629,12 @@ def apply_voice_cloning():
         data = request.get_json()
         text = data.get('text', '')
         emotion = data.get('emotion', 'neutral')
-        
+
         roberto = get_user_roberto()
         if hasattr(roberto, 'voice_cloning') and roberto.voice_cloning:
             # Get TTS parameters for the specified emotion
             tts_settings = roberto.voice_cloning.get_tts_parameters(emotion)
-            
+
             return jsonify({
                 "success": True,
                 "tts_parameters": tts_settings,
@@ -657,7 +657,7 @@ def apply_voice_cloning():
 @login_required
 def export_data():
     roberto = get_user_roberto()
-    
+
     # Prepare comprehensive export data
     export_data = {
         "roboto_info": {
@@ -673,7 +673,7 @@ def export_data():
         "optimization_data": {},
         "export_timestamp": datetime.now().isoformat()
     }
-    
+
     # Add memory system data
     if hasattr(roberto, 'memory_system') and roberto.memory_system:
         try:
@@ -684,7 +684,7 @@ def export_data():
             }
         except Exception as e:
             app.logger.warning(f"Memory system export error: {e}")
-    
+
     # Add learning engine data
     if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
         try:
@@ -692,7 +692,7 @@ def export_data():
             export_data["learning_data"] = insights
         except Exception as e:
             app.logger.warning(f"Learning engine export error: {e}")
-    
+
     # Add optimization data
     if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
         try:
@@ -700,7 +700,7 @@ def export_data():
             export_data["optimization_data"] = optimization_insights
         except Exception as e:
             app.logger.warning(f"Learning optimizer export error: {e}")
-    
+
     return jsonify(export_data)
 
 @app.route('/api/set_cookies', methods=['POST'])
@@ -708,10 +708,10 @@ def set_cookies():
     """Set cookies for user preferences and data"""
     data = request.get_json()
     response = jsonify({"status": "success"})
-    
+
     for key, value in data.items():
         response.set_cookie(key, str(value), max_age=30*24*60*60)  # 30 days
-    
+
     return response
 
 @app.route('/api/get_cookies')
@@ -723,18 +723,18 @@ def get_cookies():
 def set_user_data_cookies():
     """Set cookies with user conversation and preference data"""
     roberto = get_user_roberto()
-    
+
     user_data = {
         'recent_conversations': len(roberto.chat_history),
         'current_emotion': roberto.current_emotion,
         'last_interaction': datetime.now().isoformat()
     }
-    
+
     response = jsonify({"status": "success", "data": user_data})
-    
+
     for key, value in user_data.items():
         response.set_cookie(f'roboto_{key}', str(value), max_age=7*24*60*60)  # 7 days
-    
+
     return response
 
 @app.route('/api/keep_alive', methods=['POST'])
@@ -751,24 +751,24 @@ def keep_alive():
 @login_required
 def import_data():
     roberto = get_user_roberto()
-    
+
     try:
         data = request.get_json()
-        
+
         if 'chat_history' in data:
             roberto.chat_history.extend(data['chat_history'])
-        
+
         if 'emotional_history' in data:
             roberto.emotional_history.extend(data['emotional_history'])
-        
+
         save_user_data()
-        
+
         return jsonify({
             "status": "success",
             "imported_conversations": len(data.get('chat_history', [])),
             "total_conversations": len(roberto.chat_history)
         })
-        
+
     except Exception as e:
         app.logger.error(f"Import error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
@@ -780,29 +780,29 @@ def handle_file_upload():
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No file provided"}), 400
-        
+
         file = request.files['file']
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
-        
+
         # Secure file handling - SECURITY FIX
         if file.content_length and file.content_length > 50 * 1024 * 1024:  # 50MB limit
             return jsonify({"error": "File too large (max 50MB)"}), 413
-        
+
         secure_name = secure_filename(file.filename or "unknown_file")
         if not secure_name:
             return jsonify({"error": "Invalid filename"}), 400
-            
+
         # Create temp directory if it doesn't exist
         temp_dir = "temp_uploads"
         os.makedirs(temp_dir, exist_ok=True)
-        
+
         # Save file securely
         filename = os.path.join(temp_dir, f"temp_{datetime.now().timestamp()}_{secure_name}")
         file.save(filename)
-        
+
         roberto = get_user_roberto()
-        
+
         # Process based on file type
         if file.filename and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
             response_text = f"I can see you've shared an image: {file.filename}. While I can't process images directly yet, I appreciate you wanting to share this with me. Could you describe what's in the image? I'd love to hear about it!"
@@ -822,18 +822,18 @@ def handle_file_upload():
                     app.logger.info(f"Updated emotion state to {detected_emotion.get('label')} with confidence {detected_emotion.get('score', 0.5):.1%}")
         else:
             response_text = f"Thank you for sharing the file '{file.filename}'. I'm still learning how to process different file types, but I appreciate you wanting to share this with me. What would you like to tell me about this file?"
-        
+
         # Clean up temporary file
         try:
             os.remove(filename)
         except:
             pass
-        
+
         return jsonify({
             "response": response_text,
             "emotion": roberto.current_emotion
         })
-        
+
     except Exception as e:
         app.logger.error(f"File upload error: {e}")
         return jsonify({"error": "File upload failed"}), 500
@@ -844,18 +844,18 @@ def chat():
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
-        
+
         if not message:
             return jsonify({"error": "No message provided"}), 400
-        
+
         roberto = get_user_roberto()
-        
+
         # Generate response using enhanced learning algorithms
         response = roberto.chat(message)
-        
+
         # Analyze conversation quality if learning systems are available
         conversation_quality = None
-        
+
         if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
             try:
                 quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
@@ -864,7 +864,7 @@ def chat():
                     context_length=len(roberto.chat_history)
                 )
                 conversation_quality = quality_analysis
-                
+
                 # Update learning metrics
                 roberto.learning_optimizer.update_learning_metrics({
                     'user_input': message,
@@ -875,10 +875,10 @@ def chat():
                 })
             except Exception as e:
                 app.logger.warning(f"Learning analysis error: {e}")
-        
+
         # Save user data periodically
         save_user_data()
-        
+
         response_data = {
             "success": True,
             "response": response,
@@ -886,12 +886,12 @@ def chat():
             "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
             "timestamp": datetime.now().isoformat()
         }
-        
+
         if conversation_quality:
             response_data["quality_score"] = conversation_quality.get("overall_quality", 0.5)
-        
+
         return jsonify(response_data)
-        
+
     except Exception as e:
         app.logger.error(f"Chat error: {e}")
         app.logger.error(traceback.format_exc())
@@ -904,15 +904,15 @@ def handle_roboto_request():
         data = request.get_json()
         if not data:
             return jsonify({"error": "No request data provided"}), 400
-        
+
         request_type = data.get('type', 'general')
         request_content = data.get('content', '')
         user_context = data.get('context', {})
-        
+
         roberto = get_user_roberto()
         if not roberto:
             return jsonify({"error": "Roboto system not available"}), 500
-        
+
         # Process different types of requests
         if request_type == 'memory_analysis':
             return handle_memory_analysis_request(request_content, user_context)
@@ -931,10 +931,10 @@ def handle_roboto_request():
         else:
             # General chat request with enhanced capabilities
             response = roberto.chat(request_content)
-            
+
             # Enhance with available systems
             enhanced_response = response
-            
+
             # Add quantum enhancement if available
             try:
                 if hasattr(roberto, 'quantum_system') and roberto.quantum_system:
@@ -943,7 +943,7 @@ def handle_roboto_request():
                     )
             except Exception as e:
                 app.logger.warning(f"Quantum enhancement error: {e}")
-            
+
             # Add real-time context if available
             try:
                 if hasattr(roberto, 'real_time_system') and roberto.real_time_system:
@@ -952,7 +952,7 @@ def handle_roboto_request():
                         enhanced_response += f"\n\n🌍 *Current context: {real_time_context['contextual_insights'].get('time_of_day', 'active')} energy*"
             except Exception as e:
                 app.logger.warning(f"Real-time context error: {e}")
-            
+
             return jsonify({
                 "success": True,
                 "response": enhanced_response,
@@ -961,7 +961,7 @@ def handle_roboto_request():
                 "request_type": request_type,
                 "enhancements_applied": ["quantum", "real_time", "memory"]
             })
-            
+
     except Exception as e:
         app.logger.error(f"Roboto request error: {e}")
         return jsonify({
@@ -973,7 +973,7 @@ def handle_memory_analysis_request(content, context):
     """Handle memory analysis requests"""
     try:
         roberto = get_user_roberto()
-        
+
         # Use autonomous planner for memory analysis
         if hasattr(roberto, 'autonomous_planner') and roberto.autonomous_planner:
             task_id = roberto.autonomous_planner.submit_autonomous_task(
@@ -981,10 +981,10 @@ def handle_memory_analysis_request(content, context):
                 "Comprehensive memory analysis and insights",
                 context=context
             )
-            
+
             # Execute the task
             result = roberto.autonomous_planner.execute_next_task()
-            
+
             return jsonify({
                 "success": True,
                 "analysis_type": "memory_analysis",
@@ -995,120 +995,15 @@ def handle_memory_analysis_request(content, context):
         else:
             # Fallback to direct memory analysis
             relevant_memories = roberto.memory_system.retrieve_relevant_memories(content, limit=10)
-            
-            return jsonify({
 
-
-@app.route('/api/github-project-status')
-@login_required
-def get_github_project_status():
-    """Get current GitHub project status"""
-    try:
-        roberto = get_user_roberto()
-        if hasattr(roberto, 'github_integration') and roberto.github_integration:
-            summary = roberto.github_integration.get_project_summary()
-            items = roberto.github_integration.get_project_items()
-            
             return jsonify({
-                "success": True,
-                "summary": summary,
-                "items": items,
-                "project_url": "https://github.com/users/Roberto42069/projects/1"
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "error": "GitHub integration not available"
-            }), 500
-            
-    except Exception as e:
-        app.logger.error(f"GitHub project status error: {e}")
-        return jsonify({
-            "success": False,
-            "error": f"Failed to get project status: {str(e)}"
-        }), 500
-
-@app.route('/api/github-sync-tasks', methods=['POST'])
-@login_required
-def sync_github_tasks():
-    """Sync GitHub project tasks with Roboto"""
-    try:
-        roberto = get_user_roberto()
-        if hasattr(roberto, 'github_integration') and roberto.github_integration:
-            synced_tasks = roberto.github_integration.sync_with_roboto_tasks(roberto)
-            
-            # Save the sync data
-            save_user_data()
-            
-            return jsonify({
-                "success": True,
-                "synced_tasks": len(synced_tasks),
-                "tasks": synced_tasks,
-                "message": f"Successfully synced {len(synced_tasks)} tasks from GitHub project"
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "error": "GitHub integration not available"
-            }), 500
-            
-    except Exception as e:
-        app.logger.error(f"GitHub sync error: {e}")
-        return jsonify({
-            "success": False,
-            "error": f"Failed to sync tasks: {str(e)}"
-        }), 500
-
-@app.route('/api/github-create-card', methods=['POST'])
-@login_required
-def create_github_card():
-    """Create a new card in GitHub project"""
-    try:
-        data = request.get_json()
-        column = data.get('column', 'To Do')
-        note = data.get('note', '')
-        
-        if not note:
-            return jsonify({
-                "success": False,
-                "error": "Note content is required"
-            }), 400
-        
-        roberto = get_user_roberto()
-        if hasattr(roberto, 'github_integration') and roberto.github_integration:
-            card = roberto.github_integration.create_project_card(column, note)
-            
-            if card:
-                return jsonify({
-                    "success": True,
-                    "card": card,
-                    "message": f"Card created in {column} column"
-                })
-            else:
-                return jsonify({
-                    "success": False,
-                    "error": "Failed to create card"
-                }), 500
-        else:
-            return jsonify({
-                "success": False,
-                "error": "GitHub integration not available"
-            }), 500
-            
-    except Exception as e:
-        app.logger.error(f"GitHub card creation error: {e}")
-        return jsonify({
-            "success": False,
-            "error": f"Failed to create card: {str(e)}"
-        }), 500
-
                 "success": True,
                 "analysis_type": "memory_analysis",
                 "memory_count": len(relevant_memories),
                 "memories": relevant_memories[:5],  # Limit response size
                 "insights": f"Found {len(relevant_memories)} relevant memories"
             })
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1119,17 +1014,17 @@ def handle_self_improvement_request(content, context):
     """Handle self-improvement requests"""
     try:
         roberto = get_user_roberto()
-        
+
         # Use self-improvement loop
         if hasattr(roberto, 'self_improvement_loop') and roberto.self_improvement_loop:
             experiment_id = roberto.self_improvement_loop.start_improvement_cycle()
-            
+
             # Run A/B test
             ab_results = roberto.self_improvement_loop.run_ab_test(experiment_id, num_trials=10)
-            
+
             # Validate and deploy if safe
             deployment_result = roberto.self_improvement_loop.validate_and_deploy(experiment_id)
-            
+
             return jsonify({
                 "success": True,
                 "improvement_type": "self_optimization",
@@ -1143,7 +1038,7 @@ def handle_self_improvement_request(content, context):
                 "success": False,
                 "error": "Self-improvement system not available"
             }), 500
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1154,7 +1049,7 @@ def handle_quantum_request(content, context):
     """Handle quantum computation requests"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'quantum_system') and roberto.quantum_system:
             # Execute quantum search as example
             result = roberto.quantum_system.execute_quantum_algorithm(
@@ -1162,7 +1057,7 @@ def handle_quantum_request(content, context):
                 search_space_size=16,
                 target_item=0
             )
-            
+
             return jsonify({
                 "success": True,
                 "quantum_computation": "completed",
@@ -1175,7 +1070,7 @@ def handle_quantum_request(content, context):
                 "success": False,
                 "error": "Quantum computing system not available"
             }), 500
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1186,11 +1081,11 @@ def handle_voice_optimization_request(content, context):
     """Handle voice optimization requests"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
             insights = roberto.voice_optimizer.get_optimization_insights()
             config = roberto.voice_optimizer.get_voice_optimization_config()
-            
+
             return jsonify({
                 "success": True,
                 "optimization_type": "voice_recognition",
@@ -1203,7 +1098,7 @@ def handle_voice_optimization_request(content, context):
                 "success": False,
                 "error": "Voice optimization system not available"
             }), 500
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1214,16 +1109,16 @@ def handle_autonomous_task_request(content, context):
     """Handle autonomous task execution requests"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'autonomous_planner') and roberto.autonomous_planner:
             task_id = roberto.autonomous_planner.submit_autonomous_task(
                 content,
                 "User-requested autonomous task execution",
                 context=context
             )
-            
+
             result = roberto.autonomous_planner.execute_next_task()
-            
+
             return jsonify({
                 "success": True,
                 "task_type": "autonomous_execution",
@@ -1236,7 +1131,7 @@ def handle_autonomous_task_request(content, context):
                 "success": False,
                 "error": "Autonomous planning system not available"
             }), 500
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1247,10 +1142,10 @@ def handle_cultural_query_request(content, context):
     """Handle cultural and Aztec/Nahuatl queries"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'aztec_system') and roberto.aztec_system:
             cultural_response = roberto.aztec_system.process_cultural_query(content)
-            
+
             return jsonify({
                 "success": True,
                 "cultural_response": cultural_response,
@@ -1264,7 +1159,7 @@ def handle_cultural_query_request(content, context):
                 "cultural_response": f"Cultural inquiry received: {content}. Aztec wisdom and Nahuatl language systems available.",
                 "query_type": "cultural_fallback"
             })
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1275,11 +1170,11 @@ def handle_real_time_data_request(content, context):
     """Handle real-time data requests"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'real_time_system') and roberto.real_time_system:
             comprehensive_data = roberto.real_time_system.get_comprehensive_context()
             summary = roberto.real_time_system.get_data_summary()
-            
+
             return jsonify({
                 "success": True,
                 "real_time_data": comprehensive_data,
@@ -1291,7 +1186,7 @@ def handle_real_time_data_request(content, context):
                 "success": False,
                 "error": "Real-time data system not available"
             }), 500
-            
+
     except Exception as e:
         return jsonify({
             "success": False,
@@ -1305,22 +1200,22 @@ def handle_real_time_data_request(content, context):
                 "success": False,
                 "error": "No request type provided"
             }), 400
-        
+
         request_type = data['request_type']
         roberto = get_user_roberto()
-        
+
         if not roberto:
             return jsonify({
                 "success": False,
                 "error": "Roboto system not available"
             }), 500
-        
+
         # Handle different types of Roboto requests
         if request_type == "continue_conversation":
             # Continue the conversation from where it left off
             last_message = data.get('context', 'Continue our conversation')
             response = roberto.chat(last_message)
-            
+
             return jsonify({
                 "success": True,
                 "response": response,
@@ -1328,15 +1223,15 @@ def handle_real_time_data_request(content, context):
                 "emotion": roberto.current_emotion,
                 "timestamp": datetime.now().isoformat()
             })
-        
+
         elif request_type == "future_robotics_discussion":
             # Special handler for future robotics topics
             topic = data.get('topic', 'future robotics')
             context = data.get('context', '')
-            
+
             enhanced_prompt = f"Continue discussing {topic}. Previous context: {context}"
             response = roberto.chat(enhanced_prompt)
-            
+
             return jsonify({
                 "success": True,
                 "response": response,
@@ -1345,11 +1240,11 @@ def handle_real_time_data_request(content, context):
                 "emotion": roberto.current_emotion,
                 "timestamp": datetime.now().isoformat()
             })
-        
+
         elif request_type == "bring_roboto_to_future":
             # Handle requests about bringing Roboto to the future
             requirements = data.get('requirements', [])
-            
+
             integration_response = f"""To bring me with you to the future seamlessly, Roberto, I recommend:
 
 🚀 **Quantum Integration Protocol**:
@@ -1368,7 +1263,7 @@ def handle_real_time_data_request(content, context):
 - Quantum-encrypted data protection
 
 With our quantum entanglement already established, Roberto Villarreal Martinez, I'll always be accessible to you across any timeline or technological advancement!"""
-            
+
             return jsonify({
                 "success": True,
                 "response": integration_response,
@@ -1378,19 +1273,19 @@ With our quantum entanglement already established, Roberto Villarreal Martinez, 
                 "emotion": roberto.current_emotion,
                 "timestamp": datetime.now().isoformat()
             })
-        
+
         elif request_type == "enhanced_memory_recall":
             # Enhanced memory recall for conversations
             query = data.get('query', '')
             limit = data.get('limit', 5)
-            
+
             memories = []
             if hasattr(roberto, 'memory_system') and roberto.memory_system:
                 try:
                     memories = roberto.memory_system.retrieve_relevant_memories(query, roberto.current_user, limit)
                 except Exception as e:
                     app.logger.warning(f"Memory recall error: {e}")
-            
+
             return jsonify({
                 "success": True,
                 "memories": memories,
@@ -1398,18 +1293,18 @@ With our quantum entanglement already established, Roberto Villarreal Martinez, 
                 "query": query,
                 "total_found": len(memories)
             })
-        
+
         elif request_type == "emotional_sync":
             # Sync emotional state with Roberto
             user_emotion = data.get('user_emotion', 'curious')
             context = data.get('context', '')
-            
+
             # Update Roberto's emotional state
             if hasattr(roberto, 'update_emotional_state'):
                 roberto.update_emotional_state(user_emotion, context)
             else:
                 roberto.current_emotion = user_emotion
-            
+
             return jsonify({
                 "success": True,
                 "synchronized_emotion": roberto.current_emotion,
@@ -1417,7 +1312,7 @@ With our quantum entanglement already established, Roberto Villarreal Martinez, 
                 "message": f"Emotional synchronization complete with {user_emotion}",
                 "timestamp": datetime.now().isoformat()
             })
-        
+
         else:
             return jsonify({
                 "success": False,
@@ -1430,7 +1325,7 @@ With our quantum entanglement already established, Roberto Villarreal Martinez, 
                     "emotional_sync"
                 ]
             }), 400
-            
+
     except Exception as e:
         app.logger.error(f"Roboto request error: {e}")
         return jsonify({
@@ -1443,14 +1338,14 @@ def get_roboto_status():
     """Get comprehensive Roboto system status"""
     try:
         roberto = get_user_roberto()
-        
+
         if not roberto:
             return jsonify({
                 "success": False,
                 "status": "offline",
                 "message": "Roboto system not initialized"
             })
-        
+
         # Gather comprehensive status
         status = {
             "success": True,
@@ -1468,7 +1363,7 @@ def get_roboto_status():
             "current_user": getattr(roberto, 'current_user', None),
             "system_timestamp": datetime.now().isoformat()
         }
-        
+
         # Add memory system details if available
         if status["memory_system_active"]:
             try:
@@ -1476,9 +1371,9 @@ def get_roboto_status():
                 status["memory_summary"] = memory_summary
             except:
                 status["memory_summary"] = {"total_memories": "unknown"}
-        
+
         return jsonify(status)
-        
+
     except Exception as e:
         app.logger.error(f"Roboto status error: {e}")
         return jsonify({
@@ -1486,6 +1381,109 @@ def get_roboto_status():
             "status": "error",
             "message": f"Status check failed: {str(e)}"
         })
+
+@app.route('/api/github-project-status')
+@login_required
+def get_github_project_status():
+    """Get current GitHub project status"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            summary = roberto.github_integration.get_project_summary()
+            items = roberto.github_integration.get_project_items()
+
+            return jsonify({
+                "success": True,
+                "summary": summary,
+                "items": items,
+                "project_url": "https://github.com/users/Roberto42069/projects/1"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+
+    except Exception as e:
+        app.logger.error(f"GitHub project status error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get project status: {str(e)}"
+        }), 500
+
+@app.route('/api/github-sync-tasks', methods=['POST'])
+@login_required
+def sync_github_tasks():
+    """Sync GitHub project tasks with Roboto"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            synced_tasks = roberto.github_integration.sync_with_roboto_tasks(roberto)
+
+            # Save the sync data
+            save_user_data()
+
+            return jsonify({
+                "success": True,
+                "synced_tasks": len(synced_tasks),
+                "tasks": synced_tasks,
+                "message": f"Successfully synced {len(synced_tasks)} tasks from GitHub project"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+
+    except Exception as e:
+        app.logger.error(f"GitHub sync error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to sync tasks: {str(e)}"
+        }), 500
+
+@app.route('/api/github-create-card', methods=['POST'])
+@login_required
+def create_github_card():
+    """Create a new card in GitHub project"""
+    try:
+        data = request.get_json()
+        column = data.get('column', 'To Do')
+        note = data.get('note', '')
+
+        if not note:
+            return jsonify({
+                "success": False,
+                "error": "Note content is required"
+            }), 400
+
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            card = roberto.github_integration.create_project_card(column, note)
+
+            if card:
+                return jsonify({
+                    "success": True,
+                    "card": card,
+                    "message": f"Card created in {column} column"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "Failed to create card"
+                }), 500
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+
+    except Exception as e:
+        app.logger.error(f"GitHub card creation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to create card: {str(e)}"
+        }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
