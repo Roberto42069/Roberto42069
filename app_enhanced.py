@@ -783,6 +783,20 @@ def import_data():
         app.logger.error(f"Import error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
+@app.route('/api/performance-stats', methods=['GET'])
+def get_performance_stats():
+    """Get real-time performance statistics from HyperSpeed Optimizer"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'hyperspeed_optimizer'):
+            stats = roberto.hyperspeed_optimizer.get_performance_stats()
+            return jsonify(stats)
+        else:
+            return jsonify({"error": "HyperSpeed Optimizer not initialized"}), 503
+    except Exception as e:
+        app.logger.error(f"Error getting performance stats: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/upload', methods=['POST'])
 @login_required
 def handle_file_upload():
