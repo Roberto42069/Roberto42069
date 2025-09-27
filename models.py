@@ -31,22 +31,15 @@ class UserData(db.Model):
     __tablename__ = 'user_data'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    # Chat and conversation data
+    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)
     chat_history = db.Column(db.JSON, default=list)
     learned_patterns = db.Column(db.JSON, default=dict)
     user_preferences = db.Column(db.JSON, default=dict)
     emotional_history = db.Column(db.JSON, default=list)
-
-    # Memory system data
     memory_system_data = db.Column(db.JSON, default=dict)
-
-    # Current state
     current_emotion = db.Column(db.String(50), default='curious')
-    current_user_name = db.Column(db.String(100), nullable=True)
-
-    # Metadata
+    current_user_name = db.Column(db.String(255))
+    system_metadata = db.Column(db.JSON, default=dict)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

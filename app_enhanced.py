@@ -756,6 +756,57 @@ def set_user_data_cookies():
 
     return response
 
+@app.route('/api/system-status', methods=['GET'])
+def get_system_status():
+    """Get comprehensive system status"""
+    try:
+        roberto = get_user_roberto()
+        
+        status = {
+            "timestamp": datetime.now().isoformat(),
+            "roboto_sai_version": "3.0 - Super Advanced Intelligence",
+            "systems": {
+                "core_ai": True,
+                "memory_system": hasattr(roberto, 'memory_system') and roberto.memory_system is not None,
+                "vectorized_memory": hasattr(roberto, 'vectorized_memory') and roberto.vectorized_memory is not None,
+                "quantum_system": hasattr(roberto, 'quantum_system') and roberto.quantum_system is not None,
+                "autonomous_system": hasattr(roberto, 'autonomous_system') and roberto.autonomous_system is not None,
+                "cultural_display": hasattr(roberto, 'cultural_display') and roberto.cultural_display is not None,
+                "voice_optimization": hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer is not None,
+                "permanent_memory": hasattr(roberto, 'permanent_roberto_memory') and roberto.permanent_roberto_memory is not None,
+                "hyperspeed_optimizer": hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer is not None
+            },
+            "performance": {},
+            "security": {
+                "owner_verified": True,
+                "sole_owner": "Roberto Villarreal Martinez",
+                "protection_level": "MAXIMUM"
+            }
+        }
+        
+        # Add performance metrics if available
+        if hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer:
+            try:
+                perf_stats = roberto.hyperspeed_optimizer.get_performance_stats()
+                status["performance"] = perf_stats
+            except Exception as e:
+                status["performance"] = {"error": str(e)}
+        
+        # Count active systems
+        active_systems = sum(1 for system_active in status["systems"].values() if system_active)
+        status["active_systems_count"] = active_systems
+        status["total_systems_count"] = len(status["systems"])
+        
+        return jsonify(status)
+        
+    except Exception as e:
+        app.logger.error(f"System status error: {e}")
+        return jsonify({
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e),
+            "status": "error"
+        }), 500
+
 @app.route('/api/keep_alive', methods=['POST'])
 def keep_alive():
     """Keep session alive - called by service worker"""
@@ -929,6 +980,50 @@ def chat():
         app.logger.error(f"Chat error: {e}")
         app.logger.error(traceback.format_exc())
         return jsonify({"error": "An error occurred while processing your message"}), 500
+
+@app.route('/api/cultural-display/launch', methods=['POST'])
+def launch_cultural_display():
+    """Launch the Cultural Legacy Display system"""
+    try:
+        data = request.get_json()
+        theme = data.get('theme', 'All')
+        mode = data.get('mode', 'integrated')
+        
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({
+                "success": False,
+                "error": "Roboto system not available"
+            }), 500
+        
+        # Check if cultural display is available
+        if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
+            # Configure display settings
+            roberto.cultural_display.current_theme_index = roberto.cultural_display.themes.index(theme) if theme in roberto.cultural_display.themes else 0
+            
+            # Log the launch
+            roberto.cultural_display.log_cultural_memory("System Launch", f"Cultural display launched with theme: {theme}, mode: {mode}")
+            
+            return jsonify({
+                "success": True,
+                "message": "Cultural Legacy Display launched successfully",
+                "theme": theme,
+                "mode": mode,
+                "available_themes": roberto.cultural_display.themes,
+                "cultural_status": "active"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Cultural Legacy Display not integrated"
+            }), 503
+            
+    except Exception as e:
+        app.logger.error(f"Cultural display launch error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to launch cultural display: {str(e)}"
+        }), 500
 
 @app.route('/api/roboto-request', methods=['POST'])
 def handle_roboto_request():

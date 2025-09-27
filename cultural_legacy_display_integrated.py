@@ -223,6 +223,33 @@ class CulturalLegacyDisplay:
             except:
                 pass
     
+    def initialize_display_elements(self):
+        """Initialize display elements and UI components"""
+        # Initialize UI elements
+        self.ui_elements = {
+            'panels': [],
+            'buttons': [],
+            'text_fields': [],
+            'progress_bars': []
+        }
+        
+        # Initialize display metrics
+        self.display_metrics = {
+            'fps': 60,
+            'frame_count': 0,
+            'render_time': 0.0,
+            'last_update': 0.0
+        }
+        
+        # Initialize interaction states
+        self.interaction_states = {
+            'mouse_pos': (0, 0),
+            'key_states': {},
+            'active_elements': []
+        }
+        
+        print("🌅 Cultural display elements initialized")
+    
     def setup_animation_state(self):
         """Setup animation and state variables"""
         self.alpha = 0
