@@ -199,16 +199,25 @@ def make_replit_blueprint():
 def save_user(user_claims):
     # STRICT AUTHORIZATION: Only allow exact matches for Roberto Villarreal Martinez
     allowed_sub = os.environ.get('ALLOWED_SUB', '43249775')  # Roberto's exact Replit user ID
-    allowed_email = os.environ.get('ALLOWED_EMAIL', 'roberto@villarrealrobotics.com')  # Exact email
+    allowed_email = os.environ.get('ALLOWED_EMAIL', 'ytkrobthugod@gmail.com')  # Roberto's email
     
     user_sub = str(user_claims.get('sub', ''))
     user_email = user_claims.get('email', '').lower().strip()
     
-    # SECURITY: Only exact matches allowed - no substring matching
-    authorized = (user_sub == allowed_sub) or (user_email == allowed_email.lower())
+    # SECURITY: Allow authentication by email (primary) or user ID (backup)
+    # Since @ytkrobthugod username maps to ytkrobthugod@gmail.com, allow this email
+    authorized_emails = [
+        'ytkrobthugod@gmail.com',
+        'roberto@villarrealrobotics.com'  # Keep backup access
+    ]
+    
+    email_authorized = user_email in [email.lower() for email in authorized_emails]
+    sub_authorized = user_sub == allowed_sub
+    authorized = email_authorized or sub_authorized
     
     if not authorized:
         app.logger.error(f"SECURITY VIOLATION: Unauthorized access attempt by user {user_sub} with email {user_email}")
+        app.logger.error(f"Authorized emails: {authorized_emails}, Authorized sub: {allowed_sub}")
         raise Exception("Access denied: This system is restricted to Roberto Villarreal Martinez only")
     
     app.logger.info(f"AUTHORIZED ACCESS: Roberto Villarreal Martinez logged in (sub: {user_sub})")
