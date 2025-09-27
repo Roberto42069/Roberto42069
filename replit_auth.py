@@ -313,16 +313,7 @@ def logged_in(blueprint, token):
 def handle_error(blueprint, error, error_description=None, error_uri=None):
     return redirect(url_for('replit_auth.error'))
 
-@oauth_authorized.connect
-def check_authorization_on_login(blueprint, token):
-    """Additional authorization check on login"""
-    try:
-        # For Replit auth, we trust the authentication process
-        # Authorization is handled in the logged_in() function
-        pass
-    except Exception as e:
-        app.logger.warning(f"Authorization check failed: {e}")
-        # Continue with login process even if this check fails
+# Authorization is handled in the logged_in() function above
 
 def require_login(f):
     @wraps(f)

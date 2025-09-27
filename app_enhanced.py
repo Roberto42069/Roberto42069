@@ -101,7 +101,7 @@ except Exception as e:
 # Initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'replit_auth.authorize'
+login_manager.login_view = 'replit_auth.login'
 login_manager.login_message = 'Please log in to access this page.'
 
 @login_manager.user_loader
@@ -161,7 +161,8 @@ def get_user_roberto():
         
         # Add voice cloning system
         try:
-            roberto.voice_cloning = SimpleVoiceCloning("Roberto Villarreal Martinez")
+            from simple_voice_cloning import SimpleVoiceCloning
+            setattr(roberto, 'voice_cloning', SimpleVoiceCloning("Roberto Villarreal Martinez"))
             app.logger.info("Voice cloning system initialized for Roberto Villarreal Martinez")
         except Exception as e:
             app.logger.error(f"Voice cloning initialization error: {e}")
@@ -664,7 +665,7 @@ def handle_file_upload():
         if file.content_length and file.content_length > 50 * 1024 * 1024:  # 50MB limit
             return jsonify({"error": "File too large (max 50MB)"}), 413
         
-        secure_name = secure_filename(file.filename)
+        secure_name = secure_filename(file.filename or "unknown_file")
         if not secure_name:
             return jsonify({"error": "Invalid filename"}), 400
             
@@ -685,7 +686,7 @@ def handle_file_upload():
             # Process voice message with emotion detection
             response_text, detected_emotion = process_voice_message(filename, roberto)
             if detected_emotion:
-                roberto.detected_user_emotion = detected_emotion
+                setattr(roberto, 'detected_user_emotion', detected_emotion)
                 # Update Roberto's emotional state based on detected emotion - ENHANCED FIX
                 if hasattr(roberto, 'update_emotional_state'):
                     roberto.update_emotional_state(
