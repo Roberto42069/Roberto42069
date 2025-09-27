@@ -21,20 +21,25 @@ class RobotoAPIIntegration:
         self.base_url = "https://api.roboto.ai"  # Assuming this is the base URL
         self.session = requests.Session()
         
-        if self.api_config:
+        # Try environment variable first (Replit's secure approach)
+        api_key = os.environ.get("ROBOTO_API_KEY")
+        profile_source = "environment"
+        
+        # Fall back to config file if no environment variable
+        if not api_key and self.api_config:
             api_key = self.get_api_key()
-            if api_key:
-                self.session.headers.update({
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                    "User-Agent": "Roboto-SAI/3.0"
-                })
-                print("🔗 REVOLUTIONARY: Roboto API Integration activated!")
-                print(f"📋 Profile: {self.api_config.get('default_profile', 'unknown')}")
-            else:
-                print("⚠️ Roboto API key not found in configuration")
+            profile_source = self.api_config.get('default_profile', 'config')
+        
+        if api_key:
+            self.session.headers.update({
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "Roboto-SAI/3.0"
+            })
+            print("🔗 REVOLUTIONARY: Roboto API Integration activated!")
+            print(f"📋 Profile: {profile_source}")
         else:
-            print("⚠️ Roboto API configuration not found")
+            print("⚠️ Roboto API key not found in environment or configuration")
     
     def load_api_config(self) -> Optional[Dict[str, Any]]:
         """Load Roboto API configuration"""
