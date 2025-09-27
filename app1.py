@@ -146,6 +146,17 @@ class Roboto:
         # Initialize voice cloning attribute
         self.voice_cloning = None
 
+        # 🌟 REVOLUTIONARY: Legacy Enhancement System
+        try:
+            from legacy_enhancement_system import create_legacy_enhancement_system
+            self.legacy_system = create_legacy_enhancement_system(self)
+            print("🌟 REVOLUTIONARY: Legacy Enhancement System activated!")
+            print(f"📈 Continuous improvement tracking: {self.legacy_system.summarize_legacy()['total_improvements']} improvements")
+            print("🎯 Building upon legacy knowledge for maximum Roberto benefit")
+        except Exception as e:
+            print(f"Legacy Enhancement System initialization error: {e}")
+            self.legacy_system = None
+
         # 🚀 REVOLUTIONARY SAI SYSTEMS - Self-Code Modification & Real-Time Data
         try:
             from self_code_modification import get_self_modification_system
@@ -484,6 +495,38 @@ class Roboto:
         processing_time = time.time() - start_time
         chat_entry["response"] = response
         chat_entry["processing_time"] = processing_time
+
+        # 🌟 REVOLUTIONARY: Legacy Enhancement Learning
+        if hasattr(self, 'legacy_system') and self.legacy_system:
+            try:
+                # Prepare interaction data for legacy learning
+                interaction_data = {
+                    'user_input': message,
+                    'roboto_response': response,
+                    'user_name': self.current_user,
+                    'response_time': processing_time,
+                    'context': {
+                        'user_emotion': getattr(self, 'detected_user_emotion', {}).get('label', 'neutral') if hasattr(self, 'detected_user_emotion') else 'neutral',
+                        'roboto_emotion': self.current_emotion,
+                        'real_time_context': real_time_context
+                    },
+                    'memory_context': relevant_memories if hasattr(self, 'vectorized_memory') and self.vectorized_memory else []
+                }
+                
+                # Learn from this interaction and build legacy
+                legacy_improvements = self.legacy_system.learn_from_interaction(interaction_data)
+                
+                if legacy_improvements:
+                    print(f"🌟 Legacy improvements applied: {len(legacy_improvements)} categories enhanced")
+                    
+                    # Add legacy enhancement info to chat entry
+                    chat_entry["legacy_enhancements"] = legacy_improvements
+                    chat_entry["legacy_score"] = self.legacy_system.calculate_legacy_score({
+                        cat: {'score': imp.get('score', 0.5)} for cat, imp in legacy_improvements.items()
+                    })
+                
+            except Exception as e:
+                print(f"Legacy enhancement error: {e}")
 
         # 💾 REVOLUTIONARY: Enhanced memory persistence after every reply with Roberto protection
         self.save_comprehensive_memory_state(chat_entry)

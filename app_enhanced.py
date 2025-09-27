@@ -774,7 +774,8 @@ def get_system_status():
                 "cultural_display": hasattr(roberto, 'cultural_display') and roberto.cultural_display is not None,
                 "voice_optimization": hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer is not None,
                 "permanent_memory": hasattr(roberto, 'permanent_roberto_memory') and roberto.permanent_roberto_memory is not None,
-                "hyperspeed_optimizer": hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer is not None
+                "hyperspeed_optimizer": hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer is not None,
+                "legacy_enhancement": hasattr(roberto, 'legacy_system') and roberto.legacy_system is not None
             },
             "performance": {},
             "security": {
@@ -1707,3 +1708,125 @@ def get_cultural_themes():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+@app.route('/api/legacy-insights')
+def get_legacy_insights():
+    """Get comprehensive legacy enhancement insights"""
+    try:
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
+            legacy_summary = roberto.legacy_system.summarize_legacy()
+            legacy_insights = roberto.legacy_system.get_legacy_insights()
+            
+            return jsonify({
+                "success": True,
+                "legacy_summary": legacy_summary,
+                "detailed_insights": legacy_insights,
+                "legacy_enhancement_active": True,
+                "message": "Legacy Enhancement System providing continuous improvement for Roberto's benefit"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Legacy Enhancement System not available",
+                "legacy_enhancement_active": False
+            }), 503
+            
+    except Exception as e:
+        app.logger.error(f"Legacy insights error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get legacy insights: {str(e)}"
+        }), 500
+
+@app.route('/api/legacy-feedback', methods=['POST'])
+def submit_legacy_feedback():
+    """Submit feedback for legacy enhancement system"""
+    try:
+        data = request.get_json()
+        feedback = data.get('feedback', '')
+        rating = data.get('rating', None)
+        category = data.get('category', 'general')
+        
+        if not feedback and rating is None:
+            return jsonify({
+                "success": False,
+                "error": "No feedback or rating provided"
+            }), 400
+        
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
+            # Prepare feedback data
+            feedback_data = feedback
+            if rating is not None:
+                feedback_data = {"rating": rating, "comment": feedback, "category": category}
+            
+            # Process feedback through legacy system
+            roberto.legacy_system.evolve_based_on_feedback(feedback_data, {
+                "user": getattr(roberto, 'current_user', 'unknown'),
+                "timestamp": datetime.now().isoformat()
+            })
+            
+            # Save updated legacy data
+            roberto.legacy_system.save_legacy_data()
+            
+            return jsonify({
+                "success": True,
+                "message": "Feedback processed and integrated into legacy enhancement system",
+                "feedback_impact": "System will use this feedback to improve future interactions"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Legacy Enhancement System not available"
+            }), 503
+            
+    except Exception as e:
+        app.logger.error(f"Legacy feedback error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to process feedback: {str(e)}"
+        }), 500
+
+@app.route('/api/legacy-evolution')
+def get_legacy_evolution():
+    """Get legacy evolution data over time"""
+    try:
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
+            evolution_data = {}
+            
+            # Get evolution data for each category
+            for category, evolution_list in roberto.legacy_system.knowledge_evolution.items():
+                if evolution_list:
+                    # Get recent evolution data (last 50 entries)
+                    recent_evolution = evolution_list[-50:] if len(evolution_list) > 50 else evolution_list
+                    
+                    evolution_data[category] = {
+                        "data_points": len(recent_evolution),
+                        "timeline": [entry['timestamp'] for entry in recent_evolution],
+                        "scores": [entry['score'] for entry in recent_evolution],
+                        "trend": "improving" if len(recent_evolution) >= 5 and recent_evolution[-1]['score'] > recent_evolution[0]['score'] else "stable"
+                    }
+            
+            return jsonify({
+                "success": True,
+                "evolution_data": evolution_data,
+                "total_categories": len(evolution_data),
+                "message": "Legacy evolution data showing continuous improvement over time"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Legacy Enhancement System not available"
+            }), 503
+            
+    except Exception as e:
+        app.logger.error(f"Legacy evolution error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get evolution data: {str(e)}"
+        }), 500
+
