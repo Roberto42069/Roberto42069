@@ -997,6 +997,260 @@ class RobotoApp {
                 <small>Try saying "hello" or ask about your tasks.</small>
             </div>
         `;
+
+
+// Roboto Request System
+class RobotoRequestSystem {
+    constructor() {
+        this.requestQueue = [];
+        this.isProcessing = false;
+        this.setupRobotoRequests();
+    }
+
+    setupRobotoRequests() {
+        // Add Roboto request button if it doesn't exist
+        if (!document.getElementById('robotoRequestBtn')) {
+            const requestBtn = document.createElement('button');
+            requestBtn.id = 'robotoRequestBtn';
+            requestBtn.className = 'btn btn-outline-primary me-2';
+            requestBtn.innerHTML = '<i class="bi bi-robot"></i> Roboto Request';
+            requestBtn.onclick = () => this.showRequestMenu();
+            
+            const sendBtn = document.getElementById('sendBtn');
+            if (sendBtn) {
+                sendBtn.parentNode.insertBefore(requestBtn, sendBtn);
+            }
+        }
+    }
+
+    showRequestMenu() {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">🤖 Roboto Request System</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="list-group">
+                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('continue_conversation')">
+                                <i class="bi bi-chat-dots"></i> Continue Conversation
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('future_robotics_discussion')">
+                                <i class="bi bi-robot"></i> Future Robotics Discussion
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('bring_roboto_to_future')">
+                                <i class="bi bi-lightning"></i> Bring Roboto to Future
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('enhanced_memory_recall')">
+                                <i class="bi bi-memory"></i> Enhanced Memory Recall
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('emotional_sync')">
+                                <i class="bi bi-heart"></i> Emotional Synchronization
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Additional Context (optional):</label>
+                            <textarea id="requestContext" class="form-control" rows="3" placeholder="Provide additional context for your request..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+        
+        // Clean up when modal is closed
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modal);
+        });
+    }
+
+    async makeRequest(requestType) {
+        try {
+            this.isProcessing = true;
+            
+            // Get additional context
+            const contextEl = document.getElementById('requestContext');
+            const context = contextEl ? contextEl.value : '';
+            
+            // Prepare request data
+            const requestData = {
+                request_type: requestType,
+                context: context,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add specific data based on request type
+            if (requestType === 'future_robotics_discussion') {
+                requestData.topic = 'future robotics and AI advancement';
+            } else if (requestType === 'enhanced_memory_recall') {
+                requestData.query = context || 'recent conversations';
+                requestData.limit = 5;
+            } else if (requestType === 'emotional_sync') {
+                requestData.user_emotion = 'excited';
+                requestData.context = context || 'Engaged in future robotics discussion';
+            }
+            
+            // Show processing indicator
+            this.showProcessingIndicator();
+            
+            // Make the request
+            const response = await fetch('/api/roboto-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Handle successful request
+                if (result.response) {
+                    // Add response to chat
+                    this.addRequestResponseToChat(requestType, result.response, result);
+                } else if (result.memories) {
+                    // Handle memory recall
+                    this.displayMemoryRecall(result.memories);
+                } else {
+                    // Generic success message
+                    this.addRequestResponseToChat(requestType, result.message || 'Request completed successfully', result);
+                }
+                
+                // Update emotion if available
+                if (result.emotion) {
+                    updateEmotionalStatus(result.emotion);
+                }
+            } else {
+                throw new Error(result.error || 'Request failed');
+            }
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.querySelector('.modal'));
+            if (modal) modal.hide();
+            
+        } catch (error) {
+            console.error('Roboto request error:', error);
+            showNotification('Roboto request failed: ' + error.message, 'error');
+        } finally {
+            this.isProcessing = false;
+            this.hideProcessingIndicator();
+        }
+    }
+
+    showProcessingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'robotoProcessing';
+        indicator.className = 'position-fixed top-50 start-50 translate-middle';
+        indicator.style.zIndex = '9999';
+        indicator.innerHTML = `
+            <div class="bg-dark text-white p-3 rounded">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>🤖 Processing Roboto request...</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(indicator);
+    }
+
+    hideProcessingIndicator() {
+        const indicator = document.getElementById('robotoProcessing');
+        if (indicator) {
+            document.body.removeChild(indicator);
+        }
+    }
+
+    addRequestResponseToChat(requestType, response, result) {
+        const chatContainer = document.getElementById('chatContainer');
+        if (!chatContainer) return;
+        
+        // Create request message
+        const requestDiv = document.createElement('div');
+        requestDiv.className = 'message user-message mb-3';
+        requestDiv.innerHTML = `
+            <div class="message-content">
+                <strong>🤖 Roboto Request:</strong> ${requestType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                <small class="text-muted d-block">${new Date().toLocaleTimeString()}</small>
+            </div>
+        `;
+        
+        // Create response message
+        const responseDiv = document.createElement('div');
+        responseDiv.className = 'message bot-message mb-3';
+        responseDiv.innerHTML = `
+            <div class="message-content">
+                ${response}
+                <small class="text-muted d-block">
+                    ${new Date().toLocaleTimeString()} • 
+                    Emotion: ${result.emotion || 'curious'} • 
+                    Request: ${requestType}
+                </small>
+            </div>
+        `;
+        
+        chatContainer.appendChild(requestDiv);
+        chatContainer.appendChild(responseDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Update conversation count
+        updateConversationCount();
+    }
+
+    displayMemoryRecall(memories) {
+        const chatContainer = document.getElementById('chatContainer');
+        if (!chatContainer) return;
+        
+        const memoryDiv = document.createElement('div');
+        memoryDiv.className = 'message bot-message mb-3';
+        
+        let memoryContent = '<h6>🧠 Enhanced Memory Recall:</h6>';
+        if (memories.length === 0) {
+            memoryContent += '<p>No specific memories found for your query.</p>';
+        } else {
+            memoryContent += '<ul>';
+            memories.forEach((memory, index) => {
+                memoryContent += `<li><strong>Memory ${index + 1}:</strong> ${memory.content || memory.message || 'Memory content'}</li>`;
+            });
+            memoryContent += '</ul>';
+        }
+        
+        memoryDiv.innerHTML = `
+            <div class="message-content">
+                ${memoryContent}
+                <small class="text-muted d-block">${new Date().toLocaleTimeString()}</small>
+            </div>
+        `;
+        
+        chatContainer.appendChild(memoryDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async getRobotoStatus() {
+        try {
+            const response = await fetch('/api/roboto-status');
+            const status = await response.json();
+            return status;
+        } catch (error) {
+            console.error('Failed to get Roboto status:', error);
+            return { success: false, status: 'unknown' };
+        }
+    }
+}
+
+// Initialize Roboto Request System
+let robotoRequestSystem;
+document.addEventListener('DOMContentLoaded', function() {
+    robotoRequestSystem = new RobotoRequestSystem();
+});
+
+
     }
 
     showNotification(message, type = 'info') {
