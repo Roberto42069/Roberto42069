@@ -47,3 +47,6 @@ externalPort = 3002
 
 [agent]
 integrations = ["python_database:1.0.0", "python_openai:1.0.0", "python_log_in_with_replit:1.0.0"]
+
+[objectStorage]
+defaultBucketID = "replit-objstore-bfee5df0-9e75-44ce-8ad5-f35234663cfb"

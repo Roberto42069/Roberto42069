@@ -32,6 +32,7 @@ dependencies = [
     "pyotp>=2.9.0",
     "psutil>=7.1.0",
     "reportlab>=4.4.4",
+    "replit-object-storage>=1.0.2",
 ]
 
 [[tool.uv.index]]
