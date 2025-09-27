@@ -227,7 +227,7 @@ def save_user(user_claims):
             # Database mode: Use User model
             from models import User
             user = User()
-            user.id = int(user_claims['sub'])  # Ensure proper type casting
+            user.id = str(user_claims['sub'])  # Keep as string for consistency
             user.email = user_claims.get('email')
             user.first_name = user_claims.get('first_name')
             user.last_name = user_claims.get('last_name')
@@ -272,29 +272,49 @@ def logged_in(blueprint, token):
             app.logger.error("REPL_ID environment variable not set")
             return redirect(url_for('replit_auth.error'))
         
-        # Use PyJWT's PyJWKClient for proper key verification
-        from jwt import PyJWKClient
-        jwks_client = PyJWKClient(f"{issuer_url}/.well-known/jwks.json")
-        
         try:
-            # Get signing key from JWT header
-            signing_key = jwks_client.get_signing_key_from_jwt(token['id_token'])
+            # Check if this is an explicit test environment
+            testing_mode = os.environ.get('ROBOTO_TESTING_MODE') == 'true'
+            allowed_test_issuers = [
+                "https://test-mock-oidc.replit.app",
+                "https://replit-test-oidc.internal"
+            ]
             
-            # Verify token with proper validation
-            user_claims = jwt.decode(
-                token['id_token'],
-                signing_key.key,
-                algorithms=["RS256"],
-                audience=repl_id,  # Use REPL_ID as audience
-                issuer=issuer_url
-            )
-            
-            app.logger.info(f"JWT verification successful for user: {user_claims.get('sub')}")
+            if testing_mode and issuer_url in allowed_test_issuers:
+                app.logger.warning("TESTING MODE: Using unverified JWT parsing - NOT FOR PRODUCTION")
+                # For testing only, parse JWT without verification
+                import json
+                import base64
+                payload = token['id_token'].split('.')[1]
+                # Add padding if needed
+                padding = len(payload) % 4
+                if padding:
+                    payload += '=' * (4 - padding)
+                user_claims = json.loads(base64.b64decode(payload))
+                app.logger.info(f"Test JWT parsed for user: {user_claims.get('sub')}")
+            else:
+                # Production environment - full JWT verification
+                from jwt import PyJWKClient
+                jwks_client = PyJWKClient(f"{issuer_url}/.well-known/jwks.json")
+                
+                # Get signing key from JWT header
+                signing_key = jwks_client.get_signing_key_from_jwt(token['id_token'])
+                
+                # Verify token with proper validation
+                user_claims = jwt.decode(
+                    token['id_token'],
+                    signing_key.key,
+                    algorithms=["RS256"],
+                    audience=repl_id,  # Use REPL_ID as audience
+                    issuer=issuer_url
+                )
+                
+                app.logger.info(f"JWT verification successful for user: {user_claims.get('sub')}")
             
         except Exception as jwt_error:
             app.logger.error(f"JWT verification failed: {jwt_error}")
             # SECURITY: Never proceed with failed verification
-            return redirect(url_for('replit_auth.error'))
+            return redirect(url_for('replit_auth.error')), 403
         
         # Save user with verified claims
         user = save_user(user_claims)
@@ -304,6 +324,8 @@ def logged_in(blueprint, token):
         next_url = session.pop("next_url", None)
         if next_url:
             return redirect(next_url)
+        else:
+            return redirect(url_for('index'))
             
     except Exception as e:
         app.logger.error(f"Authentication failed: {e}")

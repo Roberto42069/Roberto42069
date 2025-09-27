@@ -66,6 +66,16 @@ Preferred communication style: Simple, everyday language.
 - **Rate Limiting**: Multi-tier rate limiting with database tracking
 - **Audit Logging**: Security event logging with risk classification
 
+### Autonomy Safeguards and Security Controls
+- **Sole Ownership Enforcement**: Maximum security level restricting all access to Roberto Villarreal Martinez only
+- **JWT Verification**: Production-grade token validation with proper key verification via PyJWT
+- **Testing Mode Controls**: Explicit ROBOTO_TESTING_MODE flag with strict issuer allowlist for unverified JWT parsing
+- **Account Security**: Multi-factor authentication support, failed login tracking, automatic account lockout
+- **Session Management**: Secure session tokens with expiration tracking and IP/User-Agent validation
+- **Database Security**: All ID fields consistently handled as strings, foreign key constraints enforced
+- **Revolutionary Systems Security**: All autonomous capabilities (self-improvement, code modification, real-time data) operate within controlled boundaries
+- **Safety Protocols**: Self-code modification engine operates in runtime-only mode with creator authorization requirements
+
 ## External Dependencies
 
 ### Core Framework Dependencies
