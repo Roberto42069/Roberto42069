@@ -4,7 +4,7 @@ import uuid
 from functools import wraps
 from urllib.parse import urlencode
 
-from flask import g, session, redirect, request, render_template, url_for
+from flask import g, session, redirect, request, render_template, url_for, jsonify, Blueprint
 from flask_dance.consumer import (
     OAuth2ConsumerBlueprint,
     oauth_authorized,
@@ -136,10 +136,29 @@ def make_replit_blueprint():
     app = flask_app
     db = flask_db
     
-    try:
-        repl_id = os.environ['REPL_ID']
-    except KeyError:
-        raise SystemExit("the REPL_ID environment variable must be set")
+    # Check if we're in deployment mode
+    is_deployment = os.environ.get('REPLIT_DEPLOYMENT') == '1'
+    
+    # Get REPL_ID, make it optional for deployments
+    repl_id = os.environ.get('REPL_ID')
+    if not repl_id:
+        if is_deployment:
+            # In deployment, return a disabled auth blueprint
+            from flask import Blueprint
+            disabled_bp = Blueprint('replit_auth', __name__, url_prefix='/auth')
+            
+            @disabled_bp.route('/login')
+            def disabled_login():
+                return jsonify({
+                    "error": "Authentication is disabled in deployment mode",
+                    "message": "Please configure REPL_ID environment variable to enable authentication"
+                }), 503
+            
+            app.logger.warning("REPL_ID not set - Replit authentication disabled for deployment")
+            return disabled_bp
+        else:
+            # In development, this is required
+            raise SystemExit("the REPL_ID environment variable must be set")
 
     issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
 
