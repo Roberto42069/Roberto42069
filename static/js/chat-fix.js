@@ -132,7 +132,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ message: message })
                 });
                 
-                const data = await response.json();
+                // Check if user needs to authenticate
+                if (response.status === 403 || response.status === 401) {
+                    addChatMessage('Please log in to chat with Roboto SAI. Click the login button above.', false);
+                    return;
+                }
+                
+                // Check if response is not ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Try to parse JSON, handle non-JSON responses
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    console.error('Response is not valid JSON:', await response.text());
+                    throw new Error('Invalid server response');
+                }
                 
                 if (data.success && data.response) {
                     addChatMessage(data.response, false);
@@ -212,11 +230,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadChatHistory() {
         try {
-            const response = await fetch('/api/history');
+            const response = await fetch('/api/chat_history');
+            
+            // Check if user needs to authenticate
+            if (response.status === 403 || response.status === 401) {
+                console.log('Chat history requires authentication');
+                return;
+            }
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
+            
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('Chat history response is not valid JSON');
+                return;
+            }
             
             if (data.success && data.history && Array.isArray(data.history)) {
                 const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');

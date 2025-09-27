@@ -589,8 +589,27 @@ class RobotoApp {
 
     async loadChatHistory() {
         try {
-            const response = await fetch('/api/chat/history');
-            const data = await response.json();
+            const response = await fetch('/api/chat_history');
+            
+            // Check if user needs to authenticate
+            if (response.status === 403 || response.status === 401) {
+                console.log('Chat history requires authentication');
+                this.renderEmptyChat();
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('Chat history response is not valid JSON');
+                this.renderEmptyChat();
+                return;
+            }
             
             if (data.success) {
                 this.chatHistory = data.history;
