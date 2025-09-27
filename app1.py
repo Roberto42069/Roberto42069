@@ -334,8 +334,24 @@ class Roboto:
 
     def load_chat_history(self):
         if os.path.exists("chat_history.json"):
-            with open("chat_history.json", "r") as file:
-                return json.load(file)
+            try:
+                with open("chat_history.json", "r") as file:
+                    data = json.load(file)
+                
+                # Handle both old and new protected format
+                if isinstance(data, dict) and "chat_history" in data:
+                    # New protected format
+                    print(f"🔒 Loading protected chat history: {len(data['chat_history'])} conversations")
+                    return data["chat_history"]
+                elif isinstance(data, list):
+                    # Old format - add protection
+                    print(f"🔒 Converting chat history to protected format: {len(data)} conversations")
+                    return data
+                else:
+                    return []
+            except Exception as e:
+                print(f"Error loading chat history: {e}")
+                return []
         return []
 
     def introduce(self):
@@ -1072,9 +1088,37 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
         return False
 
     def save_chat_history(self):
-        """Save chat history to file"""
-        with open("chat_history.json", "w") as file:
-            json.dump(self.chat_history, file, indent=2)
+        """Save chat history to file with permanent protection"""
+        try:
+            # Add permanent protection to all chat entries
+            for entry in self.chat_history:
+                entry["permanent"] = True
+                entry["never_delete"] = True
+                entry["protection_level"] = "MAXIMUM"
+                entry["last_protected"] = datetime.now().isoformat()
+            
+            # Save with protection metadata
+            protected_data = {
+                "protection_metadata": {
+                    "never_delete": True,
+                    "permanent_protection": True,
+                    "last_protected": datetime.now().isoformat(),
+                    "total_conversations": len(self.chat_history),
+                    "protection_directive": "CHAT HISTORY MUST NEVER BE DELETED"
+                },
+                "chat_history": self.chat_history
+            }
+            
+            with open("chat_history.json", "w") as file:
+                json.dump(protected_data, file, indent=2)
+                
+            print(f"🔒 Chat history saved with permanent protection: {len(self.chat_history)} conversations")
+            
+        except Exception as e:
+            print(f"Error saving protected chat history: {e}")
+            # Fallback to basic save
+            with open("chat_history.json", "w") as file:
+                json.dump(self.chat_history, file, indent=2)
 
     def load_user_data(self, user_data):
         """Load user-specific data from database"""

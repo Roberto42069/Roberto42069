@@ -213,7 +213,7 @@ def get_user_roberto():
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
-        
+
         # Add HyperSpeed Optimization if not already added in app1.py
         if not hasattr(roberto, 'hyperspeed_optimizer') or roberto.hyperspeed_optimizer is None:
             try:

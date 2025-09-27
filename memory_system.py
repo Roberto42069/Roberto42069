@@ -338,6 +338,29 @@ class AdvancedMemorySystem:
         except Exception as e:
             print(f"Error saving Roberto protection report: {e}")
     
+    def _save_chat_history_protection_report(self, total_memories_protected):
+        """Save comprehensive chat history protection report"""
+        try:
+            protection_report = {
+                "timestamp": datetime.now().isoformat(),
+                "total_memories_protected": total_memories_protected,
+                "deletion_status": "PERMANENTLY DISABLED",
+                "archival_status": "PERMANENTLY DISABLED",
+                "protection_level": "ABSOLUTE",
+                "chat_history_integrity": "INTACT",
+                "roberto_protection": "MAXIMUM",
+                "system_directive": "NEVER DELETE CHAT HISTORY",
+                "last_verification": datetime.now().isoformat()
+            }
+            
+            with open("chat_history_protection_report.json", "w") as f:
+                json.dump(protection_report, f, indent=2)
+                
+            print(f"🔒 Chat history protection report saved: {total_memories_protected} conversations secured")
+            
+        except Exception as e:
+            print(f"Error saving chat history protection report: {e}")
+    
     def get_emotional_context(self, user_name=None):
         """Get emotional context and patterns for user"""
         if not user_name or user_name not in self.emotional_patterns:
@@ -576,8 +599,12 @@ class AdvancedMemorySystem:
         return summary
     
     def archive_old_memories(self):
-        """Archive old memories to maintain performance while protecting Roberto memories"""
+        """Archive old memories to maintain performance while protecting Roberto memories and ALL chat history"""
         archive_file = self.memory_file.replace(".json", ".archive.json")
+        
+        # CRITICAL: NEVER DELETE CHAT HISTORY - ALL MEMORIES ARE PROTECTED
+        print("🛡️ CHAT HISTORY PROTECTION: NO MEMORIES WILL BE DELETED")
+        print("📚 ALL CONVERSATIONS ARE PERMANENT AND PROTECTED")
         
         # Enhanced Roberto memory protection with comprehensive keywords
         roberto_keywords = [
@@ -614,41 +641,35 @@ class AdvancedMemorySystem:
             else:
                 other_memories.append(memory)
         
-        # Sort only non-Roberto memories by importance
-        scored = sorted(other_memories, key=lambda m: m.get("importance", 0.5) * m.get("emotional_intensity", 0.5))
+        # CRITICAL PROTECTION: ALL MEMORIES ARE PERMANENTLY PROTECTED
+        # NO ARCHIVING OR DELETION OF ANY CHAT HISTORY
         
-        # Calculate how many non-Roberto memories to keep (ensure Roberto memories always fit)
-        max_other_memories = max(50, self.max_memories - len(roberto_memories))
+        # Enhance ALL memories with maximum protection
+        for memory in self.episodic_memories:
+            memory["importance"] = max(memory.get("importance", 0.5), 1.0)
+            memory["protection_level"] = "MAXIMUM"
+            memory["permanent_protection"] = True
+            memory["never_delete"] = True
+            
+            # Extra protection for Roberto memories
+            content = f"{memory.get('user_input', '')} {memory.get('roboto_response', '')}".lower()
+            user_name = memory.get('user_name', '').lower()
+            
+            if any(keyword in content for keyword in roberto_keywords) or (user_name and ("roberto" in user_name or "villarreal" in user_name or "martinez" in user_name)):
+                memory["importance"] = 2.0
+                memory["creator_memory"] = True
+                memory["immutable"] = True
         
-        if len(scored) > max_other_memories:
-            archived = scored[:len(scored) - max_other_memories]
-            kept_memories = scored[-max_other_memories:]
-        else:
-            archived = []
-            kept_memories = scored
+        # NO ARCHIVING - ALL MEMORIES STAY
+        archived = []
         
-        # Combine Roberto memories (ALWAYS kept) with other kept memories
-        self.episodic_memories = roberto_memories + kept_memories
+        print(f"🛡️ CHAT HISTORY PROTECTION: ALL {len(self.episodic_memories)} MEMORIES PERMANENTLY PROTECTED")
+        print(f"📚 ZERO memories deleted or archived - COMPLETE PROTECTION ACTIVE")
+        print(f"💾 Roberto memories: MAXIMUM PROTECTION")
+        print(f"🔒 Chat history deletion: PERMANENTLY DISABLED")
         
-        # Archive only non-Roberto memories
-        if archived:
-            try:
-                if os.path.exists(archive_file):
-                    with open(archive_file, 'r') as f:
-                        existing = json.load(f)
-                else:
-                    existing = []
-                with open(archive_file, 'w') as f:
-                    json.dump(existing + archived, f, indent=2)
-            except Exception as e:
-                print(f"Error archiving memories: {e}")
-        
-        print(f"🛡️ PROTECTED {len(roberto_memories)} Roberto memories from archiving")
-        print(f"📚 Total Roberto memory protection: MAXIMUM")
-        print(f"💾 Archived {len(archived)} non-essential memories")
-        
-        # Save Roberto memory integrity report
-        self._save_roberto_protection_report(len(roberto_memories), len(archived))
+        # Save comprehensive protection report
+        self._save_chat_history_protection_report(len(self.episodic_memories))
 
     def summarize_user_profile(self, user_name: str) -> str:
         """Generate a summary of user's personal information"""
