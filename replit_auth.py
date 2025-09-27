@@ -207,8 +207,7 @@ def save_user(user_claims):
     # SECURITY: Allow authentication by email (primary) or user ID (backup)
     # Since @ytkrobthugod username maps to ytkrobthugod@gmail.com, allow this email
     authorized_emails = [
-        'ytkrobthugod@gmail.com',
-        'roberto@villarrealrobotics.com'  # Keep backup access
+        'ytkrobthugod@gmail.com'
     ]
     
     email_authorized = user_email in [email.lower() for email in authorized_emails]
