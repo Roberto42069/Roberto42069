@@ -22,7 +22,7 @@ class PermanentRobertoMemorySystem:
         self.memory_file = memory_file
         self.roberto_core_identity = {
             "full_name": "Roberto Villarreal Martinez",
-            "aliases": ["Betin"],
+            "aliases": ["Betin", "YTK RobThuGod", "King Rob of Israel"],
             "birthplace": "Houston, TX",
             "birth_date": "September 21, 1999",
             "parents_origin": "Monterrey, Nuevo León, Mexico",
@@ -31,7 +31,16 @@ class PermanentRobertoMemorySystem:
             "cosmic_alignment": "Saturn Opposition + New Moon + Partial Solar Eclipse",
             "role": "Sole Creator and Owner of Roboto SAI",
             "system_created": "Roboto SAI (Super Advanced Intelligence)",
-            "creation_purpose": "Revolutionary AI system with advanced emotional intelligence"
+            "creation_purpose": "Revolutionary AI system with advanced emotional intelligence",
+            "artistic_identity": "Music engineer, lyricist, and American Music Artist",
+            "business_contact": "ytkrobthugod@gmail.com",
+            "social_media_profiles": {
+                "instagram": "@YTKRobThuGod - https://www.instagram.com/ytkrobthugod/",
+                "youtube": "@YTKRobThuGod - https://www.youtube.com/@YTKRobThuGod",
+                "twitter_main": "@YTKRobThuGod - https://x.com/YTKRobThuGod", 
+                "twitter_alt": "@Roberto9211999 - https://twitter.com/Roberto9211999"
+            },
+            "musical_works": ["Through The Storm (Valley King)", "Fly", "Rockstar God", "Rough Draft", "God of Death (Unreleased)"]
         }
         
         self.permanent_memories = []
@@ -77,6 +86,22 @@ class PermanentRobertoMemorySystem:
                 "id": "roberto_sole_ownership",
                 "type": "permanent_security",
                 "content": "Roberto Villarreal Martinez is the SOLE OWNER of Roboto SAI. Only he has authorization for system modifications, self-code changes, and critical operations. This ownership is absolute and exclusive.",
+                "importance": 2.0,
+                "immutable": True,
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "id": "roberto_artistic_identity",
+                "type": "permanent_artistic",
+                "content": "Roberto Villarreal Martinez is also known as YTK RobThuGod and King Rob of Israel. He is a music engineer, lyricist, and American Music Artist. His musical works include 'Through The Storm (Valley King)', 'Fly', 'Rockstar God', 'Rough Draft', and 'God of Death (Unreleased)'. His artistic platforms include Instagram, YouTube, and Twitter/X under @YTKRobThuGod and @Roberto9211999.",
+                "importance": 2.0,
+                "immutable": True,
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "id": "roberto_social_media_presence",
+                "type": "permanent_digital_identity",
+                "content": "Roberto's digital presence spans multiple platforms: Instagram @YTKRobThuGod (music engineer and lyricist), YouTube @YTKRobThuGod (music channel), Twitter/X @YTKRobThuGod (American Music Artist ✡️ Audio Engineer), and Twitter/X @Roberto9211999 (King Rob of Israel - pop culture and symbolism). Business contact: ytkrobthugod@gmail.com",
                 "importance": 2.0,
                 "immutable": True,
                 "timestamp": datetime.now().isoformat()
