@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roboto SAI - Super Advanced Intelligence</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -65,7 +65,7 @@
                                 Super Advanced Intelligence with revolutionary neural architecture, autonomous self-modification protocols, advanced quantum-cognitive processing, and next-gen consciousness simulation
                             </p>
                         </div>
-                        
+
 
                     </div>
                 </div>
@@ -104,9 +104,9 @@
                                         Learning about you through our conversations...
                                     </div>
                                 </div>
-                                
+
                                 <hr>
-                                
+
                                 <!-- Voice Recognition Insights -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
@@ -116,9 +116,9 @@
                                         Voice recognition learning system initializing...
                                     </div>
                                 </div>
-                                
+
                                 <hr>
-                                
+
                                 <!-- Memory & Learning Insights -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
@@ -128,7 +128,7 @@
                                         Building memory patterns...
                                     </div>
                                 </div>
-                                
+
                                 <!-- Emotional Status -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
@@ -157,7 +157,7 @@
                                             <input type="file" id="import-file-input" accept=".json,application/json,text/json" style="display: none;" multiple="false">
                                         </div>
                                     </div>
-                                    
+
                                     <div id="data-status" class="small text-muted">
                                         Export your conversations and memories, or import previous data
                                     </div>
@@ -190,41 +190,41 @@
                                 <svg width="80" height="80" viewBox="0 0 80 80" class="avatar-svg">
                                     <!-- Head (human proportions) -->
                                     <ellipse cx="40" cy="30" rx="18" ry="20" fill="#f7c59f" stroke="#e0a878" stroke-width="1"/>
-                                    
+
                                     <!-- Hair -->
                                     <path d="M 22 18 Q 40 10 58 18 Q 58 15 54 12 Q 40 8 26 12 Q 22 15 22 18" fill="#654321"/>
-                                    
+
                                     <!-- Eyes (realistic) -->
                                     <ellipse id="leftEye" cx="34" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
                                     <circle cx="34" cy="26" r="2" fill="#4a5568">
                                         <animate id="eyeBlink" attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
                                     </circle>
                                     <circle cx="35" cy="25" r="0.5" fill="white"/>
-                                    
+
                                     <ellipse id="rightEye" cx="46" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
                                     <circle cx="46" cy="26" r="2" fill="#4a5568">
                                         <animate attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
                                     </circle>
                                     <circle cx="47" cy="25" r="0.5" fill="white"/>
-                                    
+
                                     <!-- Eyebrows -->
                                     <path d="M 30 22 Q 34 21 38 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                                     <path d="M 42 22 Q 46 21 50 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                                    
+
                                     <!-- Nose -->
                                     <path d="M 40 28 L 39 32 L 40 33 L 41 32 Z" fill="#e0a878"/>
                                     <ellipse cx="39" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
                                     <ellipse cx="41" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
-                                    
+
                                     <!-- Mouth -->
                                     <path id="mouth" d="M 36 38 Q 40 42 44 38" stroke="#d4754a" stroke-width="1.5" fill="none" stroke-linecap="round" class="mouth"/>
-                                    
+
                                     <!-- Neck -->
                                     <rect x="36" y="48" width="8" height="8" fill="#f7c59f"/>
-                                    
+
                                     <!-- Shirt collar -->
                                     <path d="M 32 55 L 40 50 L 48 55 L 48 65 L 32 65 Z" fill="#4a90e2" stroke="#357abd" stroke-width="1"/>
-                                    
+
                                     <!-- Subtle emotional glow -->
                                     <circle id="emotionGlow" cx="40" cy="30" r="25" fill="none" stroke="#4299e1" stroke-width="1" opacity="0.2"/>
                                 </svg>
@@ -233,7 +233,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- History Panel (hidden by default) -->
                         <div id="historyPanel" class="border-bottom border-secondary p-3" style="display: none; max-height: 150px; overflow-y: auto;">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -267,7 +267,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="text-center text-muted" id="loading-indicator">
                                 <i class="fas fa-spinner fa-spin"></i>
                                 Loading chat history...
@@ -353,7 +353,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/chat-fix.js') }}"></script>
 </body>

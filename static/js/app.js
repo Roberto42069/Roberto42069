@@ -195,6 +195,15 @@ class RobotoApp {
             this.showPredictiveInsights();
         });
 
+        // GitHub project integration button
+        const githubProjectBtn = document.getElementById('githubProjectBtn');
+        if (githubProjectBtn) {
+            githubProjectBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showGitHubProjectStatus();
+            });
+        }
+
         // File attachment button
         document.getElementById('fileBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
@@ -1488,6 +1497,105 @@ document.addEventListener('DOMContentLoaded', function() {
                     a.href = url;
                     a.download = fileName;
                     document.body.appendChild(a);
+
+
+    async showGitHubProjectStatus() {
+        try {
+            const response = await fetch('/api/github-project-status');
+            const data = await response.json();
+
+            if (data.success) {
+                const analyticsDisplay = document.getElementById('analyticsDisplay');
+                
+                let html = '<div class="github-project-status">';
+                html += '<h6 class="text-info mb-3"><i class="fab fa-github me-2"></i>GitHub Project Status</h6>';
+                
+                // Project summary
+                html += `<div class="mb-3">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-success">Project Board</h6>
+                            <p class="card-text small">${data.summary.replace(/\n/g, '<br>')}</p>
+                            <a href="${data.project_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fab fa-github me-1"></i>View on GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+                
+                // Sync button
+                html += `<div class="mb-3">
+                    <button class="btn btn-success me-2" onclick="app.syncGitHubTasks()">
+                        <i class="fas fa-sync me-1"></i>Sync Tasks
+                    </button>
+                    <button class="btn btn-primary" onclick="app.createGitHubCard()">
+                        <i class="fas fa-plus me-1"></i>Create Card
+                    </button>
+                </div>`;
+                
+                html += '</div>';
+                analyticsDisplay.innerHTML = html;
+
+                this.showNotification('GitHub project status loaded!', 'success');
+            } else {
+                this.showNotification('GitHub integration requires setup', 'warning');
+            }
+        } catch (error) {
+            console.error('Error loading GitHub project status:', error);
+            this.showNotification('Error loading GitHub project', 'error');
+        }
+    }
+
+    async syncGitHubTasks() {
+        try {
+            const response = await fetch('/api/github-sync-tasks', {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification(`Synced ${data.synced_tasks} tasks from GitHub!`, 'success');
+                // Refresh chat history to see the sync
+                this.loadChatHistory();
+            } else {
+                this.showNotification(data.error || 'Sync failed', 'error');
+            }
+        } catch (error) {
+            console.error('Error syncing GitHub tasks:', error);
+            this.showNotification('Sync failed', 'error');
+        }
+    }
+
+    async createGitHubCard() {
+        const note = prompt('Enter card content:');
+        if (!note) return;
+
+        const column = prompt('Enter column name (To Do, In Progress, Done):', 'To Do');
+        if (!column) return;
+
+        try {
+            const response = await fetch('/api/github-create-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ note, column })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.showNotification('Card created on GitHub!', 'success');
+                this.showGitHubProjectStatus(); // Refresh display
+            } else {
+                this.showNotification(data.error || 'Failed to create card', 'error');
+            }
+        } catch (error) {
+            console.error('Error creating GitHub card:', error);
+            this.showNotification('Failed to create card', 'error');
+        }
+    }
+
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);

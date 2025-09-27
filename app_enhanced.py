@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 import traceback
 from simple_voice_cloning import SimpleVoiceCloning
+from github_project_integration import get_github_integration
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -205,6 +206,13 @@ def get_user_roberto():
             app.logger.info("Advanced voice processor with emotion detection initialized")
         except Exception as e:
             app.logger.error(f"Advanced voice processor initialization error: {e}")
+        
+        # Add GitHub project integration
+        try:
+            roberto.github_integration = get_github_integration()
+            app.logger.info("GitHub project integration initialized for Roberto's project board")
+        except Exception as e:
+            app.logger.error(f"GitHub integration initialization error: {e}")
         
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
         
@@ -989,6 +997,111 @@ def handle_memory_analysis_request(content, context):
             relevant_memories = roberto.memory_system.retrieve_relevant_memories(content, limit=10)
             
             return jsonify({
+
+
+@app.route('/api/github-project-status')
+@login_required
+def get_github_project_status():
+    """Get current GitHub project status"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            summary = roberto.github_integration.get_project_summary()
+            items = roberto.github_integration.get_project_items()
+            
+            return jsonify({
+                "success": True,
+                "summary": summary,
+                "items": items,
+                "project_url": "https://github.com/users/Roberto42069/projects/1"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"GitHub project status error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get project status: {str(e)}"
+        }), 500
+
+@app.route('/api/github-sync-tasks', methods=['POST'])
+@login_required
+def sync_github_tasks():
+    """Sync GitHub project tasks with Roboto"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            synced_tasks = roberto.github_integration.sync_with_roboto_tasks(roberto)
+            
+            # Save the sync data
+            save_user_data()
+            
+            return jsonify({
+                "success": True,
+                "synced_tasks": len(synced_tasks),
+                "tasks": synced_tasks,
+                "message": f"Successfully synced {len(synced_tasks)} tasks from GitHub project"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"GitHub sync error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to sync tasks: {str(e)}"
+        }), 500
+
+@app.route('/api/github-create-card', methods=['POST'])
+@login_required
+def create_github_card():
+    """Create a new card in GitHub project"""
+    try:
+        data = request.get_json()
+        column = data.get('column', 'To Do')
+        note = data.get('note', '')
+        
+        if not note:
+            return jsonify({
+                "success": False,
+                "error": "Note content is required"
+            }), 400
+        
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            card = roberto.github_integration.create_project_card(column, note)
+            
+            if card:
+                return jsonify({
+                    "success": True,
+                    "card": card,
+                    "message": f"Card created in {column} column"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "Failed to create card"
+                }), 500
+        else:
+            return jsonify({
+                "success": False,
+                "error": "GitHub integration not available"
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"GitHub card creation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to create card: {str(e)}"
+        }), 500
+
                 "success": True,
                 "analysis_type": "memory_analysis",
                 "memory_count": len(relevant_memories),
