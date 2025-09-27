@@ -981,49 +981,7 @@ def chat():
         app.logger.error(traceback.format_exc())
         return jsonify({"error": "An error occurred while processing your message"}), 500
 
-@app.route('/api/cultural-display/launch', methods=['POST'])
-def launch_cultural_display():
-    """Launch the Cultural Legacy Display system"""
-    try:
-        data = request.get_json()
-        theme = data.get('theme', 'All')
-        mode = data.get('mode', 'integrated')
-        
-        roberto = get_user_roberto()
-        if not roberto:
-            return jsonify({
-                "success": False,
-                "error": "Roboto system not available"
-            }), 500
-        
-        # Check if cultural display is available
-        if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
-            # Configure display settings
-            roberto.cultural_display.current_theme_index = roberto.cultural_display.themes.index(theme) if theme in roberto.cultural_display.themes else 0
-            
-            # Log the launch
-            roberto.cultural_display.log_cultural_memory("System Launch", f"Cultural display launched with theme: {theme}, mode: {mode}")
-            
-            return jsonify({
-                "success": True,
-                "message": "Cultural Legacy Display launched successfully",
-                "theme": theme,
-                "mode": mode,
-                "available_themes": roberto.cultural_display.themes,
-                "cultural_status": "active"
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "error": "Cultural Legacy Display not integrated"
-            }), 503
-            
-    except Exception as e:
-        app.logger.error(f"Cultural display launch error: {e}")
-        return jsonify({
-            "success": False,
-            "error": f"Failed to launch cultural display: {str(e)}"
-        }), 500
+# Duplicate route removed - using the one defined later in the file
 
 @app.route('/api/roboto-request', methods=['POST'])
 def handle_roboto_request():
