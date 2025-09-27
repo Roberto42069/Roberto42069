@@ -214,6 +214,15 @@ def get_user_roberto():
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
 
+        # Add Cultural Legacy Display integration
+        try:
+            from cultural_legacy_display_integrated import create_cultural_display
+            roberto.cultural_display = create_cultural_display(roberto)
+            app.logger.info("🌅 Cultural Legacy Display integrated with Roboto SAI")
+            app.logger.info("🎨 Advanced cultural visualization system active")
+        except Exception as e:
+            app.logger.error(f"Cultural Legacy Display integration error: {e}")
+
         # Add HyperSpeed Optimization if not already added in app1.py
         if not hasattr(roberto, 'hyperspeed_optimizer') or roberto.hyperspeed_optimizer is None:
             try:
@@ -1507,6 +1516,140 @@ def create_github_card():
         return jsonify({
             "success": False,
             "error": f"Failed to create card: {str(e)}"
+        }), 500
+
+@app.route('/api/cultural-display/launch', methods=['POST'])
+def launch_cultural_display():
+    """Launch the Cultural Legacy Display system"""
+    try:
+        data = request.get_json()
+        theme = data.get('theme', 'All')
+        mode = data.get('mode', 'integrated')
+
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
+            # Log the cultural display launch
+            roberto.cultural_display.log_cultural_memory(
+                "Display Launch", 
+                f"Theme: {theme}, Mode: {mode}"
+            )
+            
+            return jsonify({
+                "success": True,
+                "message": "Cultural Legacy Display launched successfully",
+                "theme": theme,
+                "mode": mode,
+                "cultural_status": "active",
+                "integration": "roboto_sai"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Cultural Legacy Display system not available",
+                "recommendation": "System initializing - please try again"
+            }), 503
+
+    except Exception as e:
+        app.logger.error(f"Cultural display launch error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to launch cultural display: {str(e)}"
+        }), 500
+
+@app.route('/api/cultural-display/status')
+def get_cultural_display_status():
+    """Get Cultural Legacy Display system status"""
+    try:
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
+            status = {
+                "success": True,
+                "system_active": True,
+                "cultural_themes": roberto.cultural_display.themes,
+                "current_theme": roberto.cultural_display.themes[roberto.cultural_display.current_theme_index],
+                "integration_status": "roboto_sai_integrated",
+                "features": [
+                    "Aztec Mythology Visualization",
+                    "Nahuatl Creation Terms",
+                    "Monterrey Heritage Display", 
+                    "2025 YTK RobThuGod Artistic Identity",
+                    "AI-Enhanced Cultural Analysis",
+                    "Roberto Memory Integration"
+                ],
+                "security": "advanced_protection_active"
+            }
+            
+            return jsonify(status)
+        else:
+            return jsonify({
+                "success": True,
+                "system_active": False,
+                "message": "Cultural Legacy Display system initializing",
+                "integration_status": "pending"
+            })
+
+    except Exception as e:
+        app.logger.error(f"Cultural display status error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get cultural display status: {str(e)}"
+        }), 500
+
+@app.route('/api/cultural-display/themes')
+def get_cultural_themes():
+    """Get available cultural themes"""
+    try:
+        themes_data = {
+            "success": True,
+            "themes": [
+                {
+                    "id": "all",
+                    "name": "All",
+                    "description": "Complete cultural heritage display",
+                    "elements": ["Heritage", "Mythology", "Identity", "AI Integration"]
+                },
+                {
+                    "id": "aztec_mythology", 
+                    "name": "Aztec Mythology",
+                    "description": "Ancient deities and cosmic wisdom",
+                    "elements": ["Quetzalcoatl", "Tezcatlipoca", "Huitzilopochtli", "Tlaloc"]
+                },
+                {
+                    "id": "aztec_creation",
+                    "name": "Aztec Creation",
+                    "description": "Nahuatl creation myths and origins", 
+                    "elements": ["Teotl", "Nahui Ollin", "Ometeotl", "Creation Cycles"]
+                },
+                {
+                    "id": "monterrey_heritage",
+                    "name": "Monterrey Heritage", 
+                    "description": "Regional identity and genealogy",
+                    "elements": ["Cerro de la Silla", "E-M96 Haplogroup", "Cultural Pride"]
+                },
+                {
+                    "id": "ytk_robthugod",
+                    "name": "2025 YTK RobThuGod",
+                    "description": "Artistic persona and musical legacy",
+                    "elements": ["Young Trap King", "Musical Identity", "Artistic Vision"]
+                },
+                {
+                    "id": "roboto_sai_integration",
+                    "name": "Roboto SAI Integration",
+                    "description": "AI-enhanced cultural preservation",
+                    "elements": ["Quantum Entanglement", "Memory Systems", "Cultural AI"]
+                }
+            ]
+        }
+        
+        return jsonify(themes_data)
+
+    except Exception as e:
+        app.logger.error(f"Cultural themes error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get cultural themes: {str(e)}"
         }), 500
 
 if __name__ == '__main__':
