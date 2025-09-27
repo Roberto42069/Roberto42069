@@ -18289,6 +18289,66 @@
       "sentiment": "neutral",
       "key_themes": [],
       "emotional_intensity": 0.2
+    },
+    {
+      "id": "1e4623812d4e",
+      "timestamp": "2025-09-27T14:08:00.613059",
+      "user_input": "Cultural Legacy Display Integration",
+      "roboto_response": "Cultural heritage visualization system integrated with advanced AI capabilities",
+      "emotion": "pride",
+      "user_name": "Roberto Villarreal Martinez",
+      "importance": 0.85,
+      "sentiment": "neutral",
+      "key_themes": [],
+      "emotional_intensity": 0.2
+    },
+    {
+      "id": "1e4623812d4e",
+      "timestamp": "2025-09-27T14:10:23.373002",
+      "user_input": "Cultural Legacy Display Integration",
+      "roboto_response": "Cultural heritage visualization system integrated with advanced AI capabilities",
+      "emotion": "pride",
+      "user_name": "Roberto Villarreal Martinez",
+      "importance": 0.85,
+      "sentiment": "neutral",
+      "key_themes": [],
+      "emotional_intensity": 0.2
+    },
+    {
+      "id": "1e4623812d4e",
+      "timestamp": "2025-09-27T14:10:38.574990",
+      "user_input": "Cultural Legacy Display Integration",
+      "roboto_response": "Cultural heritage visualization system integrated with advanced AI capabilities",
+      "emotion": "pride",
+      "user_name": "Roberto Villarreal Martinez",
+      "importance": 0.85,
+      "sentiment": "neutral",
+      "key_themes": [],
+      "emotional_intensity": 0.2
+    },
+    {
+      "id": "1e4623812d4e",
+      "timestamp": "2025-09-27T15:29:11.628165",
+      "user_input": "Cultural Legacy Display Integration",
+      "roboto_response": "Cultural heritage visualization system integrated with advanced AI capabilities",
+      "emotion": "pride",
+      "user_name": "Roberto Villarreal Martinez",
+      "importance": 0.85,
+      "sentiment": "neutral",
+      "key_themes": [],
+      "emotional_intensity": 0.2
+    },
+    {
+      "id": "1e4623812d4e",
+      "timestamp": "2025-09-27T17:32:30.874015",
+      "user_input": "Cultural Legacy Display Integration",
+      "roboto_response": "Cultural heritage visualization system integrated with advanced AI capabilities",
+      "emotion": "pride",
+      "user_name": "Roberto Villarreal Martinez",
+      "importance": 0.85,
+      "sentiment": "neutral",
+      "key_themes": [],
+      "emotional_intensity": 0.2
     }
   ],
   "semantic_memories": {},
@@ -18760,6 +18820,36 @@
         "emotion": "pride",
         "sentiment": "neutral",
         "timestamp": "2025-09-27T10:32:48.488745",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:08:00.613059",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:10:23.373002",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:10:38.574990",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T15:29:11.628165",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T17:32:30.874015",
         "intensity": 0.2
       }
     ]
@@ -21573,6 +21663,41 @@
       "trigger_event": "meta_learning",
       "is_meta_reflection": true,
       "parent_reflection_id": "74d22ea7f8d6"
+    },
+    {
+      "id": "f32fb7cba0be",
+      "timestamp": "2025-09-27T17:32:33.147359",
+      "reflection": "Reflecting on recent interactions: I notice pride has been prominent. I should consider how to better respond to these patterns.",
+      "trigger_event": "periodic_analysis",
+      "insights": [
+        "I should consider how to better respond to these patterns."
+      ],
+      "learning_category": "behavioral",
+      "emotional_state": "positive",
+      "response_patterns": {
+        "emotional_expression": 0,
+        "analytical_depth": 1,
+        "empathy_indicators": 0,
+        "curiosity_signals": 0,
+        "self_awareness": 2
+      },
+      "improvement_areas": [],
+      "emotional_growth": {
+        "emotional_vocabulary_expansion": 0,
+        "emotional_regulation": 0,
+        "empathetic_development": 0,
+        "self_compassion": 0
+      },
+      "effectiveness_score": 0.7000000000000001,
+      "adaptive_suggestions": []
+    },
+    {
+      "id": "b69b8d141413",
+      "timestamp": "2025-09-27T17:32:33.147417",
+      "reflection": "I notice that my reflection on periodic_analysis was particularly insightful. This suggests I'm developing better self-awareness and analytical capabilities.",
+      "trigger_event": "meta_learning",
+      "is_meta_reflection": true,
+      "parent_reflection_id": "f32fb7cba0be"
     }
   ],
   "compressed_learnings": {
@@ -22115,7 +22240,13 @@
       "insight": "I should consider how to better respond to these patterns.",
       "confidence": 0.8,
       "created": "2025-09-27T04:42:41.607932"
+    },
+    "behavioral_90": {
+      "category": "behavioral",
+      "insight": "I should consider how to better respond to these patterns.",
+      "confidence": 0.8,
+      "created": "2025-09-27T17:32:33.147400"
     }
   },
-  "last_saved": "2025-09-27T10:32:51.158836"
+  "last_saved": "2025-09-27T17:32:33.206036"
 }
