@@ -847,7 +847,48 @@ def chat():
         
         # Analyze conversation quality if learning systems are available
         conversation_quality = None
-
+        
+        try:
+            if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
+                try:
+                    quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
+                        message, response, 
+                        user_emotion=getattr(roberto, 'detected_user_emotion', None),
+                        context_length=len(roberto.chat_history)
+                    )
+                    conversation_quality = quality_analysis
+                    
+                    # Update learning metrics
+                    roberto.learning_optimizer.update_learning_metrics({
+                        'user_input': message,
+                        'roboto_response': response,
+                        'quality_analysis': quality_analysis,
+                        'emotion': roberto.current_emotion,
+                        'timestamp': datetime.now().isoformat()
+                    })
+                except Exception as e:
+                    app.logger.warning(f"Learning analysis error: {e}")
+            
+            # Save user data periodically
+            save_user_data()
+            
+            response_data = {
+                "success": True,
+                "response": response,
+                "emotion": roberto.current_emotion,
+                "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            if conversation_quality:
+                response_data["quality_score"] = conversation_quality.get("overall_quality", 0.5)
+            
+            return jsonify(response_data)
+            
+        except Exception as e:
+            app.logger.error(f"Chat error: {e}")
+            app.logger.error(traceback.format_exc())
+            return jsonify({"error": "An error occurred while processing your message"}), 500
 
 @app.route('/api/roboto-request', methods=['POST'])
 def handle_roboto_request():
@@ -1042,46 +1083,5 @@ def get_roboto_status():
         })
 
 
-        if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
-            try:
-                quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
-                    message, response, 
-                    user_emotion=getattr(roberto, 'detected_user_emotion', None),
-                    context_length=len(roberto.chat_history)
-                )
-                conversation_quality = quality_analysis
-                
-                # Update learning metrics
-                roberto.learning_optimizer.update_learning_metrics({
-                    'user_input': message,
-                    'roboto_response': response,
-                    'quality_analysis': quality_analysis,
-                    'emotion': roberto.current_emotion,
-                    'timestamp': datetime.now().isoformat()
-                })
-            except Exception as e:
-                app.logger.warning(f"Learning analysis error: {e}")
-        
-        # Save user data periodically
-        save_user_data()
-        
-        response_data = {
-            "success": True,
-            "response": response,
-            "emotion": roberto.current_emotion,
-            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        if conversation_quality:
-            response_data["quality_score"] = conversation_quality.get("overall_quality", 0.5)
-        
-        return jsonify(response_data)
-        
-    except Exception as e:
-        app.logger.error(f"Chat error: {e}")
-        app.logger.error(traceback.format_exc())
-        return jsonify({"error": "An error occurred while processing your message"}), 500
-
-if __name__ == '__main__':
+        if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
