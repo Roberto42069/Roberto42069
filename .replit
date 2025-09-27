@@ -2,7 +2,7 @@ modules = ["postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["alsa-lib", "cargo", "ffmpeg", "ffmpeg-full", "freetype", "glibcLocales", "libGL", "libGLU", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "postgresql", "pulseaudio", "rustc"]
+packages = ["SDL2", "SDL2_image", "SDL2_mixer", "SDL2_ttf", "alsa-lib", "cargo", "ffmpeg", "ffmpeg-full", "fontconfig", "freetype", "glibcLocales", "libGL", "libGLU", "libiconv", "libjpeg", "libpng", "libxcrypt", "openssl", "pkg-config", "portaudio", "portmidi", "postgresql", "pulseaudio", "rustc"]
 
 [deployment]
 deploymentTarget = "autoscale"
