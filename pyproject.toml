@@ -11,7 +11,7 @@ dependencies = [
     "gunicorn>=23.0.0",
     "openai>=1.82.0",
     "psycopg2-binary>=2.9.10",
-    "pyjwt>=2.10.1",
+    "pyjwt[crypto]>=2.10.1",
     "flask-login>=0.6.3",
     "oauthlib>=3.2.2",
     "nltk>=3.9.1",
@@ -31,6 +31,7 @@ dependencies = [
     "flask-limiter>=3.12",
     "pyotp>=2.9.0",
     "psutil>=7.1.0",
+    "reportlab>=4.4.4",
 ]
 
 [[tool.uv.index]]

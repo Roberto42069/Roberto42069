@@ -98,26 +98,45 @@ except Exception as e:
     app.logger.warning(f"Database unavailable: {e}")
     app.logger.info("Using file-based storage fallback")
 
-# Initialize login manager only if database is available
-if database_available:
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'index'  # type: ignore
-    
-    @login_manager.user_loader
-    def load_user(user_id):
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'replit_auth.login'
+login_manager.login_message = 'Please log in to access this page.'
+
+@login_manager.user_loader
+def load_user(user_id):
+    if database_available:
         try:
             from models import User
             return User.query.get(user_id)
         except:
             return None
-    
-    # Register authentication blueprint if database is available
-    try:
-        from replit_auth import make_replit_blueprint
-        app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
-    except Exception as e:
-        app.logger.warning(f"Authentication blueprint registration failed: {e}")
+    else:
+        # Return a minimal user object for file-based mode
+        class FileUser:
+            def __init__(self, user_id):
+                self.id = user_id
+                self.is_authenticated = True
+                self.is_active = True
+                self.is_anonymous = False
+            def get_id(self):
+                return self.id
+        return FileUser(user_id) if user_id else None
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    from flask import render_template
+    return render_template('403.html'), 403
+
+# Register authentication blueprint
+try:
+    from replit_auth import make_replit_blueprint
+    app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
+    app.logger.info("Replit Auth blueprint registered successfully")
+except Exception as e:
+    app.logger.error(f"Authentication blueprint registration failed: {e}")
+    # Authentication is required - do not disable it
 
 # Global Roboto instance
 roberto = None
@@ -312,6 +331,7 @@ def index():
     return render_template('index.html', current_user=user_context)
 
 @app.route('/app')
+@login_required
 def app_main():
     make_session_permanent()
     roberto = get_user_roberto()
@@ -324,6 +344,7 @@ def intro():
     return jsonify({"introduction": introduction})
 
 @app.route('/api/chat_history')
+@login_required
 def get_chat_history():
     try:
         roberto = get_user_roberto()
@@ -340,6 +361,7 @@ def get_chat_history():
         })
 
 @app.route('/api/history')
+@login_required
 def get_history():
     try:
         roberto = get_user_roberto()
@@ -505,6 +527,7 @@ def apply_voice_cloning():
         })
 
 @app.route('/api/export_data')
+@login_required
 def export_data():
     roberto = get_user_roberto()
     
@@ -598,6 +621,7 @@ def keep_alive():
     })
 
 @app.route('/api/import_data', methods=['POST'])
+@login_required
 def import_data():
     roberto = get_user_roberto()
     
@@ -623,6 +647,7 @@ def import_data():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 @app.route('/api/upload', methods=['POST'])
+@login_required
 def handle_file_upload():
     """Handle file uploads including images"""
     try:
@@ -687,6 +712,7 @@ def handle_file_upload():
         return jsonify({"error": "File upload failed"}), 500
 
 @app.route('/api/chat', methods=['POST'])
+@login_required
 def chat():
     try:
         data = request.get_json()

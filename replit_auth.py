@@ -16,50 +16,126 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.exc import NoResultFound
 from werkzeug.local import LocalProxy
 
-from app_enhanced import app, db
-from models import OAuth, User
+# Import app and db from app_enhanced after it's initialized
+app = None
+db = None
+login_manager = None
 
-login_manager = LoginManager(app)
+# User loader will be set in app_enhanced.py to avoid circular imports
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+import tempfile
+import json
+import os as os_module
 
-class UserSessionStorage(BaseStorage):
-
+class SecureServerStorage(BaseStorage):
+    """Secure server-side storage that never exposes tokens to client"""
+    
+    def __init__(self):
+        # Create secure temp directory for token storage
+        self.storage_dir = tempfile.mkdtemp(prefix='roboto_sai_tokens_')
+        app.logger.info(f"Secure token storage initialized at {self.storage_dir}")
+    
+    def _get_token_file(self, blueprint):
+        """Generate secure file path for token storage"""
+        user_id = current_user.get_id() if current_user.is_authenticated else 'anonymous'
+        session_key = g.browser_session_key if hasattr(g, 'browser_session_key') else session.get('_browser_session_key', 'default')
+        filename = f"{blueprint.name}_{user_id}_{session_key}.token"
+        return os_module.path.join(self.storage_dir, filename)
+    
     def get(self, blueprint) -> dict:
+        # Try database first, fallback to secure server-side storage
+        if db and hasattr(db, 'session'):
+            try:
+                from models import OAuth
+                token = db.session.query(OAuth).filter_by(
+                    user_id=current_user.get_id(),
+                    browser_session_key=g.browser_session_key,
+                    provider=blueprint.name,
+                ).one().token
+                return token
+            except (NoResultFound, Exception) as e:
+                app.logger.debug(f"Database token lookup failed: {e}")
+        
+        # SECURITY: Use server-side file storage, never client-side sessions
+        token_file = self._get_token_file(blueprint)
         try:
-            token = db.session.query(OAuth).filter_by(
-                user_id=current_user.get_id(),
-                browser_session_key=g.browser_session_key,
-                provider=blueprint.name,
-            ).one().token
-        except NoResultFound:
-            token = None
-        return token
+            if os_module.path.exists(token_file):
+                with open(token_file, 'r') as f:
+                    token = json.load(f)
+                app.logger.debug(f"Token loaded from secure server storage")
+                return token
+        except Exception as e:
+            app.logger.warning(f"Secure token storage read failed: {e}")
+        
+        return {}
 
     def set(self, blueprint, token):
-        db.session.query(OAuth).filter_by(
-            user_id=current_user.get_id(),
-            browser_session_key=g.browser_session_key,
-            provider=blueprint.name,
-        ).delete()
-        new_model = OAuth()
-        new_model.user_id = current_user.get_id()
-        new_model.browser_session_key = g.browser_session_key
-        new_model.provider = blueprint.name
-        new_model.token = token
-        db.session.add(new_model)
-        db.session.commit()
+        # Try database first, fallback to secure server-side storage
+        if db and hasattr(db, 'session'):
+            try:
+                from models import OAuth
+                db.session.query(OAuth).filter_by(
+                    user_id=current_user.get_id(),
+                    browser_session_key=g.browser_session_key,
+                    provider=blueprint.name,
+                ).delete()
+                new_model = OAuth()
+                new_model.user_id = current_user.get_id()
+                new_model.browser_session_key = g.browser_session_key
+                new_model.provider = blueprint.name
+                new_model.token = token
+                db.session.add(new_model)
+                db.session.commit()
+                app.logger.debug("Token saved to database")
+                return
+            except Exception as e:
+                app.logger.warning(f"Database token save failed, using secure server storage: {e}")
+        
+        # SECURITY: Use server-side file storage, never client-side sessions
+        token_file = self._get_token_file(blueprint)
+        try:
+            with open(token_file, 'w') as f:
+                json.dump(token, f)
+            # Set restrictive permissions (owner read/write only)
+            os_module.chmod(token_file, 0o600)
+            app.logger.info("Token securely stored server-side (not exposed to client)")
+        except Exception as e:
+            app.logger.error(f"SECURITY ERROR: Could not save token securely: {e}")
+            raise Exception("Authentication failed - cannot store credentials securely")
 
     def delete(self, blueprint):
-        db.session.query(OAuth).filter_by(
-            user_id=current_user.get_id(),
-            browser_session_key=g.browser_session_key,
-            provider=blueprint.name).delete()
-        db.session.commit()
+        # Try database first, then secure server storage
+        if db and hasattr(db, 'session'):
+            try:
+                from models import OAuth
+                OAuth.query.filter_by(
+                    user_id=current_user.get_id(),
+                    browser_session_key=g.browser_session_key,
+                    provider=blueprint.name).delete()
+                db.session.commit()
+            except Exception as e:
+                app.logger.warning(f"Database token deletion failed: {e}")
+        
+        # Always clean server-side token storage
+        token_file = self._get_token_file(blueprint)
+        try:
+            if os_module.path.exists(token_file):
+                os_module.remove(token_file)
+                app.logger.debug("Token deleted from secure server storage")
+        except Exception as e:
+            app.logger.warning(f"Secure token deletion failed: {e}")
+
+class UserSessionStorage(SecureServerStorage):
+    """Legacy wrapper for compatibility"""
+    pass
 
 def make_replit_blueprint():
+    global app, db
+    # Import here to avoid circular imports
+    from app_enhanced import app as flask_app, db as flask_db
+    app = flask_app
+    db = flask_db
+    
     try:
         repl_id = os.environ['REPL_ID']
     except KeyError:
@@ -88,7 +164,7 @@ def make_replit_blueprint():
         authorization_url=issuer_url + "/auth",
         use_pkce=True,
         code_challenge_method="S256",
-        scope=["openid", "profile", "email", "offline_access"],
+        scope=["openid", "profile", "email"],  # Removed offline_access for security
         storage=UserSessionStorage(),
     )
 
@@ -121,85 +197,109 @@ def make_replit_blueprint():
     return replit_bp
 
 def save_user(user_claims):
-    # Check if user is authorized (Roberto Villarreal Martinez only)
-    user_email = user_claims.get('email', '').lower()
-    first_name = user_claims.get('first_name', '')
-    last_name = user_claims.get('last_name', '')
+    # STRICT AUTHORIZATION: Only allow exact matches for Roberto Villarreal Martinez
+    allowed_sub = os.environ.get('ALLOWED_SUB', '43249775')  # Roberto's exact Replit user ID
+    allowed_email = os.environ.get('ALLOWED_EMAIL', 'roberto@villarrealrobotics.com')  # Exact email
     
-    # Allow access only for Roberto Villarreal Martinez
-    is_authorized = (
-        (first_name and 'roberto' in first_name.lower()) or
-        (user_email and any(domain in user_email for domain in ['roberto', 'villarreal'])) or
-        user_claims['sub'] == '43249775'  # Specific user ID if known
-    )
+    user_sub = str(user_claims.get('sub', ''))
+    user_email = user_claims.get('email', '').lower().strip()
     
-    if not is_authorized:
-        raise Exception("Access restricted to authorized users only")
+    # SECURITY: Only exact matches allowed - no substring matching
+    authorized = (user_sub == allowed_sub) or (user_email == allowed_email.lower())
     
-    user = User()
-    user.id = user_claims['sub']
-    user.email = user_claims.get('email')
-    user.first_name = user_claims.get('first_name')
-    user.last_name = user_claims.get('last_name')
-    user.profile_image_url = user_claims.get('profile_image_url')
-    merged_user = db.session.merge(user)
-    db.session.commit()
-    return merged_user
+    if not authorized:
+        app.logger.error(f"SECURITY VIOLATION: Unauthorized access attempt by user {user_sub} with email {user_email}")
+        raise Exception("Access denied: This system is restricted to Roberto Villarreal Martinez only")
+    
+    app.logger.info(f"AUTHORIZED ACCESS: Roberto Villarreal Martinez logged in (sub: {user_sub})")
+    
+    # Check if database is available
+    if db and hasattr(db, 'session'):
+        try:
+            # Database mode: Use User model
+            from models import User
+            user = User()
+            user.id = int(user_claims['sub'])  # Ensure proper type casting
+            user.email = user_claims.get('email')
+            user.first_name = user_claims.get('first_name')
+            user.last_name = user_claims.get('last_name')
+            user.profile_image_url = user_claims.get('profile_image_url')
+            merged_user = db.session.merge(user)
+            db.session.commit()
+            return merged_user
+        except Exception as e:
+            app.logger.error(f"Database user save failed: {e}")
+            # Fall through to session-based storage
+    
+    # File/Session mode: Create minimal user object
+    class SessionUser:
+        def __init__(self, user_claims):
+            self.id = user_claims['sub']
+            self.email = user_claims.get('email')
+            self.first_name = user_claims.get('first_name')
+            self.last_name = user_claims.get('last_name')
+            self.profile_image_url = user_claims.get('profile_image_url')
+            self.is_authenticated = True
+            self.is_active = True
+            self.is_anonymous = False
+        
+        def get_id(self):
+            return str(self.id)
+    
+    return SessionUser(user_claims)
 
 @oauth_authorized.connect
 def logged_in(blueprint, token):
+    """Handle successful OAuth authorization with proper JWT verification"""
     try:
-        # Use Replit's built-in authentication without external JWKS verification
-        # For Replit development environment, we can safely decode without verification
-        # or use Replit's provided user information
+        if not token or 'id_token' not in token:
+            app.logger.error("No valid ID token received")
+            return redirect(url_for('replit_auth.error'))
         
-        if token and 'id_token' in token:
-            # Properly verify JWT token for security
-            try:
-                # Get Replit's public keys for verification
-                issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
-                import requests
-                jwks_response = requests.get(f"{issuer_url}/.well-known/jwks.json", timeout=10)
-                jwks_data = jwks_response.json()
-                
-                # Verify token with proper signature validation
-                user_claims = jwt.decode(
-                    token['id_token'],
-                    jwks_data,
-                    algorithms=["RS256"],
-                    audience=os.environ.get('CLIENT_ID'),
-                    issuer=issuer_url
-                )
-            except Exception as jwt_error:
-                app.logger.error(f"JWT verification failed: {jwt_error}")
-                # Security: Do not decode unverified tokens
-                # Instead, reject the authentication attempt
-                raise Exception("JWT token verification failed - authentication rejected")
-        else:
-            # Fallback: create minimal user claims if token structure is different
-            user_claims = {
-                'sub': 'user_' + str(hash(str(token))),
-                'email': 'user@replit.dev',
-                'first_name': 'Replit',
-                'last_name': 'User'
-            }
-                
+        # Properly verify JWT token using PyJWT
+        issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
+        repl_id = os.environ.get('REPL_ID')
+        
+        if not repl_id:
+            app.logger.error("REPL_ID environment variable not set")
+            return redirect(url_for('replit_auth.error'))
+        
+        # Use PyJWT's PyJWKClient for proper key verification
+        from jwt import PyJWKClient
+        jwks_client = PyJWKClient(f"{issuer_url}/.well-known/jwks.json")
+        
+        try:
+            # Get signing key from JWT header
+            signing_key = jwks_client.get_signing_key_from_jwt(token['id_token'])
+            
+            # Verify token with proper validation
+            user_claims = jwt.decode(
+                token['id_token'],
+                signing_key.key,
+                algorithms=["RS256"],
+                audience=repl_id,  # Use REPL_ID as audience
+                issuer=issuer_url
+            )
+            
+            app.logger.info(f"JWT verification successful for user: {user_claims.get('sub')}")
+            
+        except Exception as jwt_error:
+            app.logger.error(f"JWT verification failed: {jwt_error}")
+            # SECURITY: Never proceed with failed verification
+            return redirect(url_for('replit_auth.error'))
+        
+        # Save user with verified claims
+        user = save_user(user_claims)
+        login_user(user)
+        blueprint.token = token
+        
+        next_url = session.pop("next_url", None)
+        if next_url:
+            return redirect(next_url)
+            
     except Exception as e:
-        app.logger.error(f"JWT processing failed: {e}")
-        # Create a basic authenticated user for development
-        user_claims = {
-            'sub': '43249775',  # Default authorized user
-            'email': 'roberto@replit.dev',
-            'first_name': 'Roberto',
-            'last_name': 'Villarreal'
-        }
-    
-    user = save_user(user_claims)
-    login_user(user)
-    blueprint.token = token
-    next_url = session.pop("next_url", None)
-    if next_url is not None:
-        return redirect(next_url)
+        app.logger.error(f"Authentication failed: {e}")
+        return redirect(url_for('replit_auth.error'))
 
 @oauth_error.connect
 def handle_error(blueprint, error, error_description=None, error_uri=None):
@@ -223,18 +323,21 @@ def require_login(f):
             session["next_url"] = get_next_navigation_url(request)
             return redirect(url_for('replit_auth.login'))
 
-        expires_in = replit.token.get('expires_in', 0)
-        if expires_in < 0:
-            issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
-            refresh_token_url = issuer_url + "/token"
-            try:
-                token = replit.refresh_token(token_url=refresh_token_url,
-                                             client_id=os.environ['REPL_ID'])
-            except InvalidGrantError:
-                # If the refresh token is invalid, the users needs to re-login.
-                session["next_url"] = get_next_navigation_url(request)
-                return redirect(url_for('replit_auth.login'))
-            replit.token_updater(token)
+        # Check token expiry using expires_at (not expires_in)
+        if hasattr(replit, 'token') and replit.token:
+            expires_at = replit.token.get('expires_at', 0)
+            import time
+            if expires_at and time.time() > expires_at:
+                issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
+                refresh_token_url = issuer_url + "/token"
+                try:
+                    token = replit.refresh_token(token_url=refresh_token_url,
+                                                 client_id=os.environ['REPL_ID'])
+                    replit.token_updater(token)
+                except InvalidGrantError:
+                    # If the refresh token is invalid, the user needs to re-login.
+                    session["next_url"] = get_next_navigation_url(request)
+                    return redirect(url_for('replit_auth.login'))
 
         return f(*args, **kwargs)
 
