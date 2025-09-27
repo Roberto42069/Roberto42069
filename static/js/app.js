@@ -612,7 +612,7 @@ class RobotoApp {
             }
             
             if (data.success) {
-                this.chatHistory = data.history;
+                this.chatHistory = data.chat_history || data.history || [];
                 this.renderChatHistory();
             } else {
                 this.renderEmptyChat();

@@ -250,7 +250,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            if (data.success && data.history && Array.isArray(data.history)) {
+            const history = data.chat_history || data.history || [];
+            if (data.success && Array.isArray(history)) {
                 const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
                 if (chatHistoryElement) {
                     // Keep the creator introduction, only remove loading indicator
@@ -259,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         loadingIndicator.remove();
                     }
                     
-                    console.log(`Loading ${data.history.length} conversations`);
-                    data.history.forEach(entry => {
+                    console.log(`Loading ${history.length} conversations`);
+                    history.forEach(entry => {
                         if (entry.message) {
                             addChatMessage(entry.message, true);
                         }
