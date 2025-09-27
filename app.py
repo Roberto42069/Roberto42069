@@ -216,6 +216,55 @@ def save_user_data():
                     }
                 except Exception as e:
                     app.logger.warning(f"Learning engine save error: {e}")
+
+            # Collect optimization data
+            if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
+                try:
+                    roberto.learning_optimizer.save_optimization_data()
+                    insights = roberto.learning_optimizer.get_optimization_insights()
+                    user_data['optimization_data'] = insights
+                except Exception as e:
+                    app.logger.warning(f"Learning optimizer save error: {e}")
+
+            # Save to Roboto's internal system
+            roberto.save_user_data(user_data)
+
+            # Always save to file backup
+            _save_to_file_backup(user_data)
+
+    except Exception as e:
+        app.logger.error(f"Critical error saving user data: {e}")
+
+def _save_to_file_backup(user_data):
+    """Save user data to file backup"""
+    try:
+        backup_file = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
+
+        # Load existing backup if it exists
+        existing_data = {}
+        if os.path.exists(backup_file):
+            try:
+                with open(backup_file, 'r') as f:
+                    existing_data = json.load(f)
+            except:
+                pass
+
+        # Update with current data
+        existing_data.update(user_data)
+        existing_data['last_backup'] = datetime.now().isoformat()
+
+        # Save updated backup
+        with open(backup_file, 'w') as f:
+            json.dump(existing_data, f, indent=2)
+
+        app.logger.info(f"User data backed up to {backup_file}")
+
+    except Exception as e:
+        app.logger.error(f"File backup failed: {e}")
+                        'conversation_patterns': dict(getattr(roberto.learning_engine, 'conversation_patterns', {}))
+                    }
+                except Exception as e:
+                    app.logger.warning(f"Learning engine save error: {e}")
             
             # Collect optimization data
             if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:

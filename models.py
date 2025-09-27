@@ -1,50 +1,65 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, Text, DateTime, Boolean, Integer
 from datetime import datetime
 import json
 
-db = SQLAlchemy()
+class Base(DeclarativeBase):
+    pass
 
-class User(UserMixin, db.Model):
-    __tablename__ = 'users'
+db = SQLAlchemy(model_class=Base)
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    first_name = db.Column(db.String(80), nullable=False)
-    last_name = db.Column(db.String(80), nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=True)
-    profile_image = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime, nullable=True)
+class User(db.Model):
+    __tablename__ = 'roboto_users'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    replit_user_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    last_login: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Relationship to user data
     roboto_data = db.relationship('UserData', backref='user', uselist=False, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'<User {self.username}>'
 
     @property
-    def name(self):
-        return f"{self.first_name} {self.last_name}"
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.id)
 
 class UserData(db.Model):
-    __tablename__ = 'user_data'
+    __tablename__ = 'roboto_user_data'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(255), db.ForeignKey('user.id'), nullable=False)
-    chat_history = db.Column(db.JSON, default=list)
-    learned_patterns = db.Column(db.JSON, default=dict)
-    user_preferences = db.Column(db.JSON, default=dict)
-    emotional_history = db.Column(db.JSON, default=list)
-    memory_system_data = db.Column(db.JSON, default=dict)
-    current_emotion = db.Column(db.String(50), default='curious')
-    current_user_name = db.Column(db.String(255))
-    system_metadata = db.Column(db.JSON, default=dict)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
+
+    # Roboto conversation data
+    chat_history = db.Column(db.JSON, default=lambda: [])
+    learned_patterns = db.Column(db.JSON, default=lambda: {})
+    user_preferences = db.Column(db.JSON, default=lambda: {})
+    emotional_history = db.Column(db.JSON, default=lambda: [])
+    memory_system_data = db.Column(db.JSON, default=lambda: {})
+
+    # Current state
+    current_emotion: Mapped[str] = mapped_column(String(50), default='curious')
+    current_user_name: Mapped[str] = mapped_column(String(100), nullable=True)
+
+    # Metadata with different names to avoid conflict
+    data_created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    data_updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f'<UserData {self.user_id}>'
+        return f'<UserData for User {self.user_id}>'
 
 class ConversationSession(db.Model):
     __tablename__ = 'conversation_sessions'

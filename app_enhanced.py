@@ -761,7 +761,7 @@ def get_system_status():
     """Get comprehensive system status"""
     try:
         roberto = get_user_roberto()
-        
+
         status = {
             "timestamp": datetime.now().isoformat(),
             "roboto_sai_version": "3.0 - Super Advanced Intelligence",
@@ -784,7 +784,7 @@ def get_system_status():
                 "protection_level": "MAXIMUM"
             }
         }
-        
+
         # Add performance metrics if available
         if hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer:
             try:
@@ -792,14 +792,14 @@ def get_system_status():
                 status["performance"] = perf_stats
             except Exception as e:
                 status["performance"] = {"error": str(e)}
-        
+
         # Count active systems
         active_systems = sum(1 for system_active in status["systems"].values() if system_active)
         status["active_systems_count"] = active_systems
         status["total_systems_count"] = len(status["systems"])
-        
+
         return jsonify(status)
-        
+
     except Exception as e:
         app.logger.error(f"System status error: {e}")
         return jsonify({
@@ -960,6 +960,19 @@ def chat():
                 })
             except Exception as e:
                 app.logger.warning(f"Learning analysis error: {e}")
+
+        # Store interaction in memory system
+        memory_id = None
+        try:
+            if hasattr(roberto, 'memory_system') and roberto.memory_system and response:
+                memory_id = roberto.memory_system.add_episodic_memory(
+                    user_input=message,
+                    roboto_response=response,
+                    emotion=roberto.current_emotion,
+                    user_name=roberto.current_user
+                )
+        except Exception as memory_error:
+            app.logger.warning(f"Failed to store interaction in memory system: {memory_error}")
 
         # Save user data periodically
         save_user_data()
@@ -1581,14 +1594,14 @@ def launch_cultural_display():
         mode = data.get('mode', 'integrated')
 
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
             # Log the cultural display launch
             roberto.cultural_display.log_cultural_memory(
                 "Display Launch", 
                 f"Theme: {theme}, Mode: {mode}"
             )
-            
+
             return jsonify({
                 "success": True,
                 "message": "Cultural Legacy Display launched successfully",
@@ -1616,7 +1629,7 @@ def get_cultural_display_status():
     """Get Cultural Legacy Display system status"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
             status = {
                 "success": True,
@@ -1634,7 +1647,7 @@ def get_cultural_display_status():
                 ],
                 "security": "advanced_protection_active"
             }
-            
+
             return jsonify(status)
         else:
             return jsonify({
@@ -1696,7 +1709,7 @@ def get_cultural_themes():
                 }
             ]
         }
-        
+
         return jsonify(themes_data)
 
     except Exception as e:
@@ -1706,18 +1719,16 @@ def get_cultural_themes():
             "error": f"Failed to get cultural themes: {str(e)}"
         }), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
 @app.route('/api/legacy-insights')
 def get_legacy_insights():
     """Get comprehensive legacy enhancement insights"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
             legacy_summary = roberto.legacy_system.summarize_legacy()
             legacy_insights = roberto.legacy_system.get_legacy_insights()
-            
+
             return jsonify({
                 "success": True,
                 "legacy_summary": legacy_summary,
@@ -1731,7 +1742,7 @@ def get_legacy_insights():
                 "error": "Legacy Enhancement System not available",
                 "legacy_enhancement_active": False
             }), 503
-            
+
     except Exception as e:
         app.logger.error(f"Legacy insights error: {e}")
         return jsonify({
@@ -1747,30 +1758,30 @@ def submit_legacy_feedback():
         feedback = data.get('feedback', '')
         rating = data.get('rating', None)
         category = data.get('category', 'general')
-        
+
         if not feedback and rating is None:
             return jsonify({
                 "success": False,
                 "error": "No feedback or rating provided"
             }), 400
-        
+
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
             # Prepare feedback data
             feedback_data = feedback
             if rating is not None:
                 feedback_data = {"rating": rating, "comment": feedback, "category": category}
-            
+
             # Process feedback through legacy system
             roberto.legacy_system.evolve_based_on_feedback(feedback_data, {
                 "user": getattr(roberto, 'current_user', 'unknown'),
                 "timestamp": datetime.now().isoformat()
             })
-            
+
             # Save updated legacy data
             roberto.legacy_system.save_legacy_data()
-            
+
             return jsonify({
                 "success": True,
                 "message": "Feedback processed and integrated into legacy enhancement system",
@@ -1781,7 +1792,7 @@ def submit_legacy_feedback():
                 "success": False,
                 "error": "Legacy Enhancement System not available"
             }), 503
-            
+
     except Exception as e:
         app.logger.error(f"Legacy feedback error: {e}")
         return jsonify({
@@ -1794,23 +1805,23 @@ def get_legacy_evolution():
     """Get legacy evolution data over time"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'legacy_system') and roberto.legacy_system:
             evolution_data = {}
-            
+
             # Get evolution data for each category
             for category, evolution_list in roberto.legacy_system.knowledge_evolution.items():
                 if evolution_list:
                     # Get recent evolution data (last 50 entries)
                     recent_evolution = evolution_list[-50:] if len(evolution_list) > 50 else evolution_list
-                    
+
                     evolution_data[category] = {
                         "data_points": len(recent_evolution),
                         "timeline": [entry['timestamp'] for entry in recent_evolution],
                         "scores": [entry['score'] for entry in recent_evolution],
                         "trend": "improving" if len(recent_evolution) >= 5 and recent_evolution[-1]['score'] > recent_evolution[0]['score'] else "stable"
                     }
-            
+
             return jsonify({
                 "success": True,
                 "evolution_data": evolution_data,
@@ -1822,7 +1833,7 @@ def get_legacy_evolution():
                 "success": False,
                 "error": "Legacy Enhancement System not available"
             }), 503
-            
+
     except Exception as e:
         app.logger.error(f"Legacy evolution error: {e}")
         return jsonify({
@@ -1830,3 +1841,6 @@ def get_legacy_evolution():
             "error": f"Failed to get evolution data: {str(e)}"
         }), 500
 
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
