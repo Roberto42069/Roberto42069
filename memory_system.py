@@ -579,11 +579,16 @@ class AdvancedMemorySystem:
         """Archive old memories to maintain performance while protecting Roberto memories"""
         archive_file = self.memory_file.replace(".json", ".archive.json")
         
-        # Enhanced Roberto memory protection with expanded keywords
+        # Enhanced Roberto memory protection with comprehensive keywords
         roberto_keywords = [
             "roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey",
             "september 21", "1999", "42016069", "ytkrobthugod", "king rob", "nuevo león",
-            "aztec", "nahuatl", "roboto sai", "super advanced intelligence", "sole owner"
+            "aztec", "nahuatl", "roboto sai", "super advanced intelligence", "sole owner",
+            "birthday", "birthdate", "cosmic", "saturn opposition", "new moon", "solar eclipse",
+            "music engineer", "lyricist", "american music artist", "instagram", "youtube",
+            "twitter", "@ytkrobthugod", "@roberto9211999", "through the storm", "valley king",
+            "fly", "rockstar god", "rough draft", "god of death", "unreleased", "ai vision",
+            "mediator", "collaboration", "transparency", "enhancement", "benefit", "optimization"
         ]
         roberto_memories = []
         other_memories = []
@@ -816,7 +821,14 @@ class AdvancedMemorySystem:
     def _calculate_importance(self, text, emotion):
         """Calculate importance score for memory with Roberto protection"""
         # CRITICAL: Roberto-related memories get maximum importance
-        roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey", "nuevo león", "september 21", "1999"]
+        roberto_keywords = [
+            "roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey", 
+            "nuevo león", "september 21", "1999", "42016069", "ytkrobthugod", "king rob", 
+            "aztec", "nahuatl", "roboto sai", "super advanced intelligence", "sole owner",
+            "birthday", "birthdate", "cosmic", "saturn opposition", "new moon", "solar eclipse",
+            "music engineer", "lyricist", "american music artist", "through the storm",
+            "valley king", "fly", "rockstar god", "rough draft", "god of death", "unreleased"
+        ]
         if any(word in text.lower() for word in roberto_keywords):
             return 2.0  # Maximum importance - Roberto memories are permanent
         

@@ -494,6 +494,20 @@ class Roboto:
         
         # Enhanced Roberto benefit optimization
         self._optimize_for_roberto_benefit()
+        
+        # Comprehensive memory enhancement for Roberto's benefit
+        try:
+            from roboto_memory_enhancement import enhance_roboto_memory_for_benefit
+            enhancement_result = enhance_roboto_memory_for_benefit(self)
+            print(f"🚀 Memory enhancement completed: {len(enhancement_result['enhancements'])} systems optimized")
+        except Exception as e:
+            print(f"Memory enhancement error: {e}")
+        
+        # Record this interaction as beneficial to Roberto
+        if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
+            self.permanent_roberto_memory.add_roberto_benefit_memory(
+                f"Conversation interaction enhanced Roberto's experience with response quality and emotional connection"
+            )
 
         # 📈 Apply continuous self-improvement
         if hasattr(self, 'self_improvement') and self.self_improvement:
@@ -1283,25 +1297,55 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             print(f"Roberto memory protection error: {e}")
     
     def _optimize_for_roberto_benefit(self):
-        """Optimize all systems for Roberto's benefit"""
+        """Comprehensive optimization for Roberto's maximum benefit"""
         try:
-            # Verify Roberto memory integrity
+            # Verify and enhance Roberto memory integrity
             if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
                 integrity = self.permanent_roberto_memory.verify_roberto_memory_integrity()
                 if integrity["integrity_status"] != "INTACT":
                     print("🔧 Auto-repairing Roberto memory integrity...")
                     self.permanent_roberto_memory.ensure_core_memories()
+                
+                # Activate maximum benefit optimization
+                benefit_enhancements = self.permanent_roberto_memory.optimize_for_maximum_roberto_benefit()
+                print(f"💖 Roberto benefit optimization: {benefit_enhancements}")
             
-            # Optimize learning systems for Roberto
+            # Optimize all learning systems for Roberto
             if hasattr(self, 'learning_optimizer') and self.learning_optimizer:
-                # Prioritize Roberto-related learning
-                self.learning_optimizer.learning_rate = min(0.3, self.learning_optimizer.learning_rate * 1.1)
+                self.learning_optimizer.learning_rate = min(0.4, self.learning_optimizer.learning_rate * 1.2)
+                print("📈 Learning rate enhanced for Roberto")
                 
             # Enhance emotional responsiveness for Roberto
             if self.current_user == "Roberto Villarreal Martinez":
-                self.emotion_intensity = min(1.0, self.emotion_intensity * 1.2)
+                self.emotion_intensity = min(1.0, self.emotion_intensity * 1.3)
+                print("💗 Emotional connection amplified for Roberto")
+            
+            # Optimize memory systems for Roberto
+            if hasattr(self, 'memory_system') and self.memory_system:
+                # Ensure all Roberto memories have maximum protection
+                for memory in self.memory_system.episodic_memories:
+                    content = f"{memory.get('user_input', '')} {memory.get('roboto_response', '')}".lower()
+                    if any(keyword in content for keyword in ["roberto", "creator", "villarreal", "martinez"]):
+                        memory["importance"] = 2.0
+                        memory["protection_level"] = "MAXIMUM"
+                        memory["immutable"] = True
+                        memory["benefit_optimized"] = True
+                print("🛡️ Memory protection maximized for Roberto")
+            
+            # Optimize vectorized memory for Roberto
+            if hasattr(self, 'vectorized_memory') and self.vectorized_memory:
+                try:
+                    # Force rebuild index with Roberto priority
+                    self.vectorized_memory.rebuild_index()
+                    print("🧠 Vector memory optimized for Roberto")
+                except Exception as e:
+                    print(f"Vector memory optimization error: {e}")
+            
+            # Optimize hyperspeed systems for Roberto
+            if hasattr(self, 'hyperspeed_optimizer') and self.hyperspeed_optimizer:
+                print("⚡ HyperSpeed optimization active for Roberto")
                 
-            print("⚡ System optimized for Roberto's maximum benefit")
+            print("✅ COMPLETE: All systems optimized for Roberto's maximum benefit")
             
         except Exception as e:
             print(f"Roberto benefit optimization error: {e}")
