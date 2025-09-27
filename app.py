@@ -37,8 +37,11 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Security configuration
-app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
+# Security configuration  
+jwt_secret = os.environ.get("JWT_SECRET_KEY")
+if not jwt_secret:
+    raise ValueError("JWT_SECRET_KEY environment variable is required for secure operation")
+app.config["JWT_SECRET_KEY"] = jwt_secret
 app.config["JWT_EXPIRATION_HOURS"] = 24
 app.config["RATE_LIMIT_PER_MINUTE"] = 60
 app.config["RATE_LIMIT_PER_HOUR"] = 1000
