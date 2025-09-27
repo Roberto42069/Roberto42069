@@ -34,7 +34,7 @@ class RealTimeDataEngine:
         if not self.weather_api_key:
             print("⚠️ Weather API key not found. Set OPENWEATHER_API_KEY for weather data.")
     
-    def get_current_time(self, timezone_name: str = "UTC") -> Dict[str, Any]:
+    def get_current_time(self, timezone_name: str = "America/Chicago") -> Dict[str, Any]:
         """Get current time with detailed information"""
         try:
             now = datetime.now(timezone.utc)
@@ -70,7 +70,7 @@ class RealTimeDataEngine:
                 "fallback_time": datetime.now().isoformat()
             }
     
-    def get_weather_data(self, city: str = "London", country_code: str = "GB") -> Dict[str, Any]:
+    def get_weather_data(self, city: str = "San Antonio", country_code: str = "US") -> Dict[str, Any]:
         """Get current weather data"""
         if not self.weather_api_key:
             return {
@@ -178,7 +178,7 @@ class RealTimeDataEngine:
                 }
             }
     
-    def get_comprehensive_context(self, city: str = "London", timezone_name: str = "UTC") -> Dict[str, Any]:
+    def get_comprehensive_context(self, city: str = "San Antonio", timezone_name: str = "America/Chicago") -> Dict[str, Any]:
         """Get comprehensive real-time context for SAI decision making"""
         
         time_data = self.get_current_time(timezone_name)
@@ -254,8 +254,8 @@ class RealTimeDataEngine:
     
     def get_data_summary(self) -> str:
         """Get a human-readable summary of available real-time data"""
-        time_info = self.get_current_time()
-        weather_info = self.get_weather_data()
+        time_info = self.get_current_time("America/Chicago")
+        weather_info = self.get_weather_data("San Antonio", "US")
         
         summary_parts = []
         
