@@ -27,7 +27,16 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+
+# Handle SESSION_SECRET with secure fallback for deployment
+session_secret = os.environ.get("SESSION_SECRET")
+if not session_secret:
+    # Generate a secure random secret for deployment
+    import secrets
+    session_secret = secrets.token_hex(32)
+    app.logger.warning("SESSION_SECRET not found, using generated secure secret for deployment")
+app.secret_key = session_secret
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
@@ -37,10 +46,13 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Security configuration  
+# Security configuration with deployment-friendly fallback
 jwt_secret = os.environ.get("JWT_SECRET_KEY")
 if not jwt_secret:
-    raise ValueError("JWT_SECRET_KEY environment variable is required for secure operation")
+    # For deployment, generate a secure JWT secret
+    import secrets
+    jwt_secret = secrets.token_hex(32)
+    app.logger.warning("JWT_SECRET_KEY not found, using generated secure secret for deployment")
 app.config["JWT_SECRET_KEY"] = jwt_secret
 app.config["JWT_EXPIRATION_HOURS"] = 24
 app.config["RATE_LIMIT_PER_MINUTE"] = 60
