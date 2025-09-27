@@ -83,12 +83,17 @@ try:
             "pool_recycle": 300,
             "pool_pre_ping": True,
         }
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app)
         
         with app.app_context():
-            import models
-            db.create_all()
-            app.logger.info("Database initialized successfully")
+            try:
+                import models
+                db.create_all()
+                app.logger.info("Database initialized successfully")
+            except Exception as db_error:
+                app.logger.error(f"Database table creation error: {db_error}")
+                database_available = False
     else:
         database_available = False
         app.logger.info("No database URL, using file-based storage")
@@ -97,6 +102,11 @@ except Exception as e:
     database_available = False
     app.logger.warning(f"Database unavailable: {e}")
     app.logger.info("Using file-based storage fallback")
+
+# Ensure backup directories exist
+os.makedirs("conversation_contexts", exist_ok=True)
+os.makedirs("code_backups", exist_ok=True)
+os.makedirs("audio_samples", exist_ok=True)
 
 # Initialize login manager
 login_manager = LoginManager()
@@ -347,38 +357,107 @@ def intro():
     return jsonify({"introduction": introduction})
 
 @app.route('/api/chat_history')
-@login_required
 def get_chat_history():
+    """Get chat history - works with or without authentication"""
     try:
+        # Check if user is authenticated
+        authenticated = False
+        try:
+            if current_user.is_authenticated:
+                authenticated = True
+        except:
+            pass
+            
         roberto = get_user_roberto()
+        chat_history = getattr(roberto, 'chat_history', [])
+        
         return jsonify({
             "success": True,
-            "chat_history": getattr(roberto, 'chat_history', [])
+            "chat_history": chat_history,
+            "authenticated": authenticated,
+            "message": "Chat history loaded successfully"
         })
     except Exception as e:
         app.logger.error(f"Chat history error: {e}")
         return jsonify({
             "success": False,
             "chat_history": [],
-            "error": "Failed to load chat history"
+            "error": "Failed to load chat history",
+            "authenticated": False
         })
 
 @app.route('/api/history')
-@login_required
 def get_history():
+    """Get conversation history - accessible without authentication"""
     try:
         roberto = get_user_roberto()
+        history = getattr(roberto, 'chat_history', [])
+        
+        # Check authentication status
+        authenticated = False
+        try:
+            if current_user.is_authenticated:
+                authenticated = True
+        except:
+            pass
+        
         return jsonify({
             "success": True,
-            "history": getattr(roberto, 'chat_history', [])
+            "history": history,
+            "authenticated": authenticated,
+            "count": len(history)
         })
     except Exception as e:
         app.logger.error(f"History error: {e}")
         return jsonify({
             "success": False,
             "history": [],
-            "error": "Failed to load history"
+            "error": "Failed to load history",
+            "authenticated": False
         })
+
+@app.route('/api/chat', methods=['POST'])
+def chat_endpoint():
+    """Main chat endpoint - accessible without strict authentication"""
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({
+                "success": False,
+                "error": "No message provided"
+            }), 400
+        
+        message = data['message']
+        roberto = get_user_roberto()
+        
+        if not roberto:
+            return jsonify({
+                "success": False,
+                "error": "Roboto system not available"
+            }), 500
+        
+        # Process the chat message
+        response = roberto.chat(message)
+        
+        # Save the conversation
+        try:
+            save_user_data()
+        except Exception as save_error:
+            app.logger.warning(f"Failed to save user data: {save_error}")
+        
+        return jsonify({
+            "success": True,
+            "response": response,
+            "emotion": getattr(roberto, 'current_emotion', 'curious'),
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Chat error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Chat processing failed: {str(e)}"
+        }), 500
 
 @app.route('/api/emotional_status')
 def get_emotional_status():

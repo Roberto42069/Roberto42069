@@ -1,7 +1,25 @@
 import json
 import os
+import re
+import random
+from datetime import datetime
+from collections import defaultdict, deque
+from textblob import TextBlob
 from openai import OpenAI
 from memory_system import AdvancedMemorySystem
+
+# Import all revolutionary systems
+try:
+    from quantum_capabilities import QuantumComputing
+    QUANTUM_AVAILABLE = True
+except ImportError:
+    QUANTUM_AVAILABLE = False
+
+try:
+    from permanent_roberto_memory import get_roberto_permanent_memory, ensure_roberto_never_forgotten
+    PERMANENT_MEMORY_AVAILABLE = True
+except ImportError:
+    PERMANENT_MEMORY_AVAILABLE = False
 
 
 class Roboto:
@@ -64,13 +82,16 @@ class Roboto:
 
         # 🌌 REVOLUTIONARY: Quantum Computing Integration
         try:
-            from quantum_capabilities import get_quantum_computing_system
-            self.quantum_system = get_quantum_computing_system(self.creator)
-            print("🌌 REVOLUTIONARY: Quantum Computing System activated!")
-            quantum_status = self.quantum_system.get_quantum_status()
-            print(f"⚛️ Quantum entanglement with {self.creator}: {quantum_status['quantum_entanglement']['status']}")
-            print(f"🔬 Quantum algorithms available: {len(quantum_status['quantum_algorithms_available'])}")
-            print(f"🌟 Quantum capabilities: Roberto-Roboto quantum entanglement established!")
+            if QUANTUM_AVAILABLE:
+                self.quantum_system = QuantumComputing(self.creator)
+                print("🌌 REVOLUTIONARY: Quantum Computing System activated!")
+                quantum_status = self.quantum_system.get_quantum_status()
+                print(f"⚛️ Quantum entanglement with {self.creator}: {quantum_status['quantum_entanglement']['status']}")
+                print(f"🔬 Quantum algorithms available: {len(quantum_status['quantum_algorithms_available'])}")
+                print(f"🌟 Quantum capabilities: Roberto-Roboto quantum entanglement established!")
+            else:
+                self.quantum_system = None
+                print("🌌 Quantum Computing System unavailable. Install 'quantum_capabilities' for full functionality.")
         except Exception as e:
             print(f"Quantum computing initialization error: {e}")
             self.quantum_system = None
@@ -149,10 +170,13 @@ class Roboto:
 
             # REVOLUTIONARY: Permanent Roberto Memory System
             try:
-                from permanent_roberto_memory import PermanentRobertoMemorySystem
-                self.permanent_roberto_memory = PermanentRobertoMemorySystem()
-                print("💖 REVOLUTIONARY: Permanent Roberto Memory System initialized for ultimate creator recognition!")
-                print(f"🗄️ Memory entries: {self.permanent_roberto_memory.get_memory_count()}")
+                if PERMANENT_MEMORY_AVAILABLE:
+                    self.permanent_roberto_memory = get_roberto_permanent_memory()
+                    print("💖 REVOLUTIONARY: Permanent Roberto Memory System initialized for ultimate creator recognition!")
+                    print(f"🗄️ Memory entries: {self.permanent_roberto_memory.get_memory_count()}")
+                else:
+                    self.permanent_roberto_memory = None
+                    print("💖 Permanent Roberto Memory System unavailable. Install 'permanent_roberto_memory' for full functionality.")
             except Exception as e:
                 print(f"Permanent Roberto Memory System initialization error: {e}")
                 self.permanent_roberto_memory = None
@@ -562,7 +586,7 @@ class Roboto:
                     self.vectorized_memory.store_memory(
                         content=f"User: {chat_entry['message']} | AI: {chat_entry['response']}",
                         memory_type="episodic",
-                        user_context={"emotion": self.current_emotion},
+                        user_context={"user_name": self.current_user},
                         emotional_valence=self.emotion_intensity if hasattr(self, 'emotion_intensity') else 0.0
                     )
                 except Exception as e:

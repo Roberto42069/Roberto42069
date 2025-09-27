@@ -1,134 +1,113 @@
-from datetime import datetime, timedelta
-from app_enhanced import db
-from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import UniqueConstraint
-from werkzeug.security import generate_password_hash, check_password_hash
-import secrets
-import hashlib
+from datetime import datetime
+import json
 
-# (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+db = SQLAlchemy()
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.String, primary_key=True)
-    email = db.Column(db.String, unique=True, nullable=True)
-    first_name = db.Column(db.String, nullable=True)
-    last_name = db.Column(db.String, nullable=True)
-    profile_image_url = db.Column(db.String, nullable=True)
 
-    # Security enhancements
-    failed_login_attempts = db.Column(db.Integer, default=0)
-    account_locked_until = db.Column(db.DateTime, nullable=True)
-    last_login = db.Column(db.DateTime, nullable=True)
-    password_changed_at = db.Column(db.DateTime, default=datetime.utcnow)
-    two_factor_secret = db.Column(db.String(32), nullable=True)
-    two_factor_enabled = db.Column(db.Boolean, default=False)
-    
-    # GDPR compliance fields
-    data_retention_consent = db.Column(db.Boolean, default=False)
-    privacy_policy_accepted = db.Column(db.DateTime, nullable=True)
-    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    first_name = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=True)
+    profile_image = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
 
-    # Roboto-specific user data
-    roboto_data = db.relationship("UserData", backref="user", uselist=False, cascade="all, delete-orphan")
+    # Relationship to user data
+    roboto_data = db.relationship('UserData', backref='user', uselist=False, cascade='all, delete-orphan')
 
-    def is_account_locked(self):
-        """Check if account is currently locked"""
-        if self.account_locked_until and self.account_locked_until > datetime.utcnow():
-            return True
-        return False
+    def __repr__(self):
+        return f'<User {self.email}>'
 
-    def increment_failed_login(self):
-        """Increment failed login attempts and lock if necessary"""
-        self.failed_login_attempts += 1
-        if self.failed_login_attempts >= 5:
-            self.account_locked_until = datetime.utcnow() + timedelta(minutes=30)
-        db.session.commit()
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
-    def reset_failed_login(self):
-        """Reset failed login attempts on successful login"""
-        self.failed_login_attempts = 0
-        self.account_locked_until = None
-        self.last_login = datetime.utcnow()
-        db.session.commit()
-
-# (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-class OAuth(OAuthConsumerMixin, db.Model):
-    user_id = db.Column(db.String, db.ForeignKey(User.id))
-    browser_session_key = db.Column(db.String, nullable=False)
-    user = db.relationship(User)
-
-    __table_args__ = (UniqueConstraint(
-        'user_id',
-        'browser_session_key',
-        'provider',
-        name='uq_user_browser_session_key_provider',
-    ),)
-
-# User's Roboto data
 class UserData(db.Model):
     __tablename__ = 'user_data'
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-    
-    # JSON fields for Roboto data
-    # tasks = db.Column(db.JSON, default=list)  # Removed task functionality
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    # Chat and conversation data
     chat_history = db.Column(db.JSON, default=list)
     learned_patterns = db.Column(db.JSON, default=dict)
     user_preferences = db.Column(db.JSON, default=dict)
     emotional_history = db.Column(db.JSON, default=list)
+
+    # Memory system data
     memory_system_data = db.Column(db.JSON, default=dict)
-    
-    current_emotion = db.Column(db.String, default='curious')
-    current_user_name = db.Column(db.String, nullable=True)
-    
+
+    # Current state
+    current_emotion = db.Column(db.String(50), default='curious')
+    current_user_name = db.Column(db.String(100), nullable=True)
+
+    # Metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    def __repr__(self):
+        return f'<UserData {self.user_id}>'
 
-# Security audit logging
-class SecurityAuditLog(db.Model):
-    __tablename__ = 'security_audit_logs'
+class ConversationSession(db.Model):
+    __tablename__ = 'conversation_sessions'
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=True)
-    event_type = db.Column(db.String(50), nullable=False)
-    ip_address = db.Column(db.String(45))
-    user_agent = db.Column(db.String(512))
-    details = db.Column(db.JSON)
-    risk_level = db.Column(db.String(20), default='low')
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user = db.relationship('User', backref='audit_logs')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    session_id = db.Column(db.String(100), nullable=False, index=True)
 
+    # Session data
+    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime, nullable=True)
+    message_count = db.Column(db.Integer, default=0)
 
-# Rate limiting tracker
-class RateLimitTracker(db.Model):
-    __tablename__ = 'rate_limit_tracker'
+    # Session context
+    context_data = db.Column(db.JSON, default=dict)
+
+    def __repr__(self):
+        return f'<ConversationSession {self.session_id}>'
+
+class MemoryEntry(db.Model):
+    __tablename__ = 'memory_entries'
+
     id = db.Column(db.Integer, primary_key=True)
-    identifier = db.Column(db.String(64), nullable=False)
-    endpoint = db.Column(db.String(100), nullable=False)
-    request_count = db.Column(db.Integer, default=1)
-    window_start = db.Column(db.DateTime, default=datetime.utcnow)
-    is_blocked = db.Column(db.Boolean, default=False)
-    
-    __table_args__ = (UniqueConstraint('identifier', 'endpoint', 'window_start'),)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    memory_id = db.Column(db.String(32), nullable=False, index=True)
 
+    # Memory content
+    content = db.Column(db.Text, nullable=False)
+    memory_type = db.Column(db.String(50), default='episodic')
+    importance_score = db.Column(db.Float, default=0.5)
+    emotional_valence = db.Column(db.Float, default=0.0)
 
-# Secure session management
-class UserSession(db.Model):
-    __tablename__ = 'user_sessions'
-    id = db.Column(db.String, primary_key=True, default=lambda: secrets.token_urlsafe(32))
-    user_id = db.Column(db.String, db.ForeignKey('users.id'), nullable=False)
-    session_token = db.Column(db.String(64), unique=True, nullable=False)
-    ip_address = db.Column(db.String(45))
-    user_agent = db.Column(db.String(512))
+    # Metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    is_active = db.Column(db.Boolean, default=True)
-    
-    user = db.relationship('User', backref='sessions')
+    last_accessed = db.Column(db.DateTime, default=datetime.utcnow)
+    access_count = db.Column(db.Integer, default=0)
 
-    def is_expired(self):
-        return datetime.utcnow() > self.expires_at
+    # Additional data
+    metadata = db.Column(db.JSON, default=dict)
+
+    def __repr__(self):
+        return f'<MemoryEntry {self.memory_id}>'
+
+# Create tables function
+def create_tables():
+    """Create all database tables"""
+    db.create_all()
+    print("Database tables created successfully")
+
+if __name__ == '__main__':
+    # For testing - create tables if run directly
+    from flask import Flask
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///roboto_test.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
+
+    with app.app_context():
+        create_tables()
