@@ -15,7 +15,7 @@ class RobotoApp {
         this.isSpeaking = false;
         this.speechRecognition = null;
         this.continuousListening = false;
-        
+
         // Enhanced voice features
         this.voiceActivationSensitivity = 0.7;
         this.silenceTimeout = null;
@@ -26,7 +26,7 @@ class RobotoApp {
         this.restartAttempts = 0;
         this.maxRestartAttempts = 10;
         this.lastRestartTime = 0;
-        
+
         this.init();
     }
 
@@ -37,36 +37,36 @@ class RobotoApp {
         this.initializeTTS();
         this.initializeSpeechRecognition();
         this.initializeVoiceConversationMode();
-        
+
         // Initialize TTS state from localStorage
         this.ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
-        
+
         // Initialize continuous listening state - always active by default
         this.continuousListening = true;
         this.isListeningActive = false;
         this.isMuted = localStorage.getItem('speechMuted') === 'true';
         this.permissionsGranted = localStorage.getItem('permissionsGranted') === 'true';
-        
+
         // Initialize video stream reference
         this.currentVideoStream = null;
-        
+
         // Start continuous speech recognition automatically if not muted and permissions granted
         setTimeout(() => {
             if (!this.isMuted && this.permissionsGranted) {
                 this.startContinuousListening();
             }
         }, 1000);
-        
+
         // Update emotional status periodically
         setInterval(() => {
             this.loadEmotionalStatus();
         }, 10000); // Every 10 seconds
-        
+
         // Detect if running on iPhone/mobile for optimized behavior
         this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
+
         // Disable automatic restart for mobile devices - use tap-to-talk instead
-        
+
         // Handle page visibility changes to maintain background listening
         document.addEventListener('visibilitychange', () => {
             if (this.continuousListening) {
@@ -87,7 +87,7 @@ class RobotoApp {
     initializeTTS() {
         const ttsBtn = document.getElementById('ttsBtn');
         const icon = ttsBtn.querySelector('i');
-        
+
         if (this.ttsEnabled) {
             ttsBtn.classList.add('btn-tts-active');
             icon.className = 'fas fa-volume-up';
@@ -100,10 +100,10 @@ class RobotoApp {
     toggleTTS() {
         this.ttsEnabled = !this.ttsEnabled;
         localStorage.setItem('ttsEnabled', this.ttsEnabled);
-        
+
         const ttsBtn = document.getElementById('ttsBtn');
         const icon = ttsBtn.querySelector('i');
-        
+
         if (this.ttsEnabled) {
             ttsBtn.classList.add('btn-tts-active');
             icon.className = 'fas fa-volume-up';
@@ -272,7 +272,7 @@ class RobotoApp {
         try {
             const response = await fetch('/api/tasks');
             const data = await response.json();
-            
+
             if (data.success) {
                 this.tasks = data.tasks;
                 this.renderTasks();
@@ -291,9 +291,9 @@ class RobotoApp {
         const dueDateInput = document.getElementById('dueDateInput');
         const reminderTimeInput = document.getElementById('reminderTimeInput');
         const prioritySelect = document.getElementById('prioritySelect');
-        
+
         const task = taskInput.value.trim();
-        
+
         if (!task) {
             this.showNotification('Please enter a task', 'warning');
             return;
@@ -322,7 +322,7 @@ class RobotoApp {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.tasks.push(data.task);
                 this.renderTasks();
@@ -330,14 +330,14 @@ class RobotoApp {
                 dueDateInput.value = '';
                 reminderTimeInput.value = '';
                 prioritySelect.value = 'medium';
-                
+
                 // Collapse the options panel
                 const taskOptions = document.getElementById('taskOptions');
                 if (taskOptions.classList.contains('show')) {
                     const collapse = new bootstrap.Collapse(taskOptions);
                     collapse.hide();
                 }
-                
+
                 this.showNotification(data.message, 'success');
             } else {
                 this.showNotification(data.message, 'warning');
@@ -355,7 +355,7 @@ class RobotoApp {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 const taskIndex = this.tasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
@@ -383,7 +383,7 @@ class RobotoApp {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.tasks = this.tasks.filter(t => t.id !== taskId);
                 this.renderTasks();
@@ -399,7 +399,7 @@ class RobotoApp {
 
     renderTasks() {
         const taskList = document.getElementById('taskList');
-        
+
         if (this.tasks.length === 0) {
             this.renderEmptyTasks();
             return;
@@ -432,46 +432,46 @@ class RobotoApp {
         if (!isCompleted) {
             section.className = 'mb-3';
         }
-        
+
         const header = document.createElement('h6');
         header.className = 'text-muted mb-2';
-        
+
         const icon = document.createElement('i');
         icon.className = iconClass + ' me-1';
         header.appendChild(icon);
         header.appendChild(document.createTextNode(title));
-        
+
         section.appendChild(header);
-        
+
         tasks.forEach(task => {
             const taskElement = this.createTaskElement(task, isCompleted);
             section.appendChild(taskElement);
         });
-        
+
         return section;
     }
 
     createTaskElement(task, isCompleted) {
         const date = new Date(task.created_at).toLocaleDateString();
-        
+
         // Priority indicator
         const priorityClass = task.priority === 'high' ? 'border-danger' : 
                              task.priority === 'low' ? 'border-info' : 'border-warning';
-        
+
         // Create main container
         const taskDiv = document.createElement('div');
         taskDiv.className = `task-item d-flex align-items-center p-2 mb-2 border rounded ${priorityClass} ${isCompleted ? 'bg-dark opacity-75' : 'bg-secondary'}`;
-        
+
         // Create content area
         const contentDiv = document.createElement('div');
         contentDiv.className = 'flex-grow-1';
-        
+
         // Create text container
         const textDiv = document.createElement('div');
         if (isCompleted) {
             textDiv.className = 'text-decoration-line-through text-muted';
         }
-        
+
         // Add category badge if exists
         if (task.category) {
             const categoryBadge = document.createElement('span');
@@ -479,11 +479,11 @@ class RobotoApp {
             categoryBadge.textContent = task.category;
             textDiv.appendChild(categoryBadge);
         }
-        
+
         // Add task text
         const taskText = document.createTextNode(task.text);
         textDiv.appendChild(taskText);
-        
+
         // Add due date badge if applicable
         if (task.due_date && !isCompleted) {
             const dueDateBadge = this.createDueDateBadge(task.due_date);
@@ -491,62 +491,62 @@ class RobotoApp {
                 textDiv.appendChild(dueDateBadge);
             }
         }
-        
+
         contentDiv.appendChild(textDiv);
-        
+
         // Create date/priority info
         const infoSmall = document.createElement('small');
         infoSmall.className = 'text-muted';
-        
+
         const calendarIcon = document.createElement('i');
         calendarIcon.className = 'fas fa-calendar-alt me-1';
         infoSmall.appendChild(calendarIcon);
         infoSmall.appendChild(document.createTextNode(date));
-        
+
         if (task.priority !== 'medium') {
             const flagIcon = document.createElement('i');
             flagIcon.className = 'fas fa-flag ms-2 me-1';
             infoSmall.appendChild(flagIcon);
             infoSmall.appendChild(document.createTextNode(task.priority));
         }
-        
+
         contentDiv.appendChild(infoSmall);
         taskDiv.appendChild(contentDiv);
-        
+
         // Create actions area
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'task-actions ms-2';
-        
+
         // Schedule button
         if (!isCompleted && !task.due_date) {
             const scheduleBtn = this.createButton('btn btn-sm btn-outline-info me-1', 'Schedule Task', 'fas fa-clock', () => this.scheduleTask(task.id));
             actionsDiv.appendChild(scheduleBtn);
         }
-        
+
         // Complete button
         if (!isCompleted) {
             const completeBtn = this.createButton('btn btn-sm btn-success me-1', 'Complete Task', 'fas fa-check', () => this.completeTask(task.id));
             actionsDiv.appendChild(completeBtn);
         }
-        
+
         // Delete button
         const deleteBtn = this.createButton('btn btn-sm btn-danger', 'Delete Task', 'fas fa-trash', () => this.deleteTask(task.id));
         actionsDiv.appendChild(deleteBtn);
-        
+
         taskDiv.appendChild(actionsDiv);
-        
+
         return taskDiv;
     }
-    
+
     createDueDateBadge(dueDate) {
         const date = new Date(dueDate);
         const today = new Date();
         const timeDiff = date - today;
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        
+
         const badge = document.createElement('span');
         badge.className = 'badge ms-1';
-        
+
         if (daysDiff < 0) {
             badge.className += ' bg-danger';
             badge.textContent = 'Overdue';
@@ -560,20 +560,20 @@ class RobotoApp {
             badge.className += ' bg-secondary';
             badge.textContent = `Due ${date.toLocaleDateString()}`;
         }
-        
+
         return badge;
     }
-    
+
     createButton(className, title, iconClass, clickHandler) {
         const button = document.createElement('button');
         button.className = className;
         button.title = title;
         button.addEventListener('click', clickHandler);
-        
+
         const icon = document.createElement('i');
         icon.className = iconClass;
         button.appendChild(icon);
-        
+
         return button;
     }
 
@@ -590,18 +590,18 @@ class RobotoApp {
     async loadChatHistory() {
         try {
             const response = await fetch('/api/chat_history');
-            
+
             // Check if user needs to authenticate
             if (response.status === 403 || response.status === 401) {
                 console.log('Chat history requires authentication');
                 this.renderEmptyChat();
                 return;
             }
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             let data;
             try {
                 data = await response.json();
@@ -610,7 +610,7 @@ class RobotoApp {
                 this.renderEmptyChat();
                 return;
             }
-            
+
             if (data.success) {
                 this.chatHistory = data.chat_history || data.history || [];
                 this.renderChatHistory();
@@ -627,7 +627,7 @@ class RobotoApp {
         try {
             const response = await fetch('/api/emotional-status');
             const data = await response.json();
-            
+
             if (data.success) {
                 this.updateEmotionalDisplay(data);
             }
@@ -640,16 +640,16 @@ class RobotoApp {
         const emotionElement = document.getElementById('currentEmotion');
         const statusElement = document.getElementById('emotionalStatus');
         const avatarElement = document.getElementById('avatarEmotion');
-        
+
         if (!emotionalData || !emotionalData.emotion) return;
-        
+
         if (emotionElement && statusElement) {
             emotionElement.textContent = emotionalData.emotion;
             if (avatarElement) avatarElement.textContent = emotionalData.emotion;
-            
+
             // Update current emotion for avatar
             this.currentEmotion = emotionalData.emotion;
-            
+
             // Add color coding based on emotion
             const emotionColors = {
                 'joy': 'text-success',
@@ -669,20 +669,20 @@ class RobotoApp {
                 'yearning': 'text-secondary',
                 'serenity': 'text-success'
             };
-            
+
             // Remove existing color classes
             Object.values(emotionColors).forEach(colorClass => {
                 statusElement.classList.remove(colorClass);
             });
-            
+
             // Add new color class
             const colorClass = emotionColors[emotionalData.emotion] || 'text-muted';
             statusElement.classList.add(colorClass);
-            
+
             // Update intensity with opacity
             const intensity = emotionalData.intensity || 0.5;
             statusElement.style.opacity = Math.max(0.6, intensity);
-            
+
             // Update avatar animation
             this.updateAvatarEmotion(emotionalData.emotion, intensity);
         }
@@ -694,16 +694,16 @@ class RobotoApp {
         const mouth = document.getElementById('mouth');
         const leftEye = document.getElementById('leftEye');
         const rightEye = document.getElementById('rightEye');
-        
+
         if (!avatarSvg) return;
-        
+
         // Remove all emotion classes
         const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential', 'contemplation', 'vulnerability', 'awe', 'tenderness', 'yearning', 'serenity'];
         emotionClasses.forEach(cls => avatarSvg.classList.remove(cls));
-        
+
         // Add current emotion class
         avatarSvg.classList.add(emotion);
-        
+
         // Update facial features based on emotion (updated for human avatar)
         if (mouth) {
             const mouthExpressions = {
@@ -726,7 +726,7 @@ class RobotoApp {
             };
             mouth.setAttribute('d', mouthExpressions[emotion] || mouthExpressions['curiosity']);
         }
-        
+
         // Update eye colors based on emotion
         if (leftEye && rightEye) {
             const eyeColors = {
@@ -751,7 +751,7 @@ class RobotoApp {
             leftEye.setAttribute('fill', eyeColor);
             rightEye.setAttribute('fill', eyeColor);
         }
-        
+
         // Update glow effect
         if (emotionGlow) {
             emotionGlow.className.baseVal = `emotion-glow-${emotion}`;
@@ -762,10 +762,10 @@ class RobotoApp {
     toggleTTS() {
         this.ttsEnabled = !this.ttsEnabled;
         localStorage.setItem('ttsEnabled', this.ttsEnabled);
-        
+
         const ttsBtn = document.getElementById('ttsBtn');
         const icon = ttsBtn.querySelector('i');
-        
+
         if (this.ttsEnabled) {
             ttsBtn.classList.add('btn-tts-active');
             icon.className = 'fas fa-volume-up';
@@ -779,13 +779,13 @@ class RobotoApp {
 
     speakText(text) {
         if (!this.ttsEnabled || !window.speechSynthesis) return;
-        
+
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
         this.isSpeaking = true;
-        
+
         const utterance = new SpeechSynthesisUtterance(text);
-        
+
         // Configure voice based on emotion
         const voiceConfig = {
             'joy': { rate: 1.1, pitch: 1.2 },
@@ -805,37 +805,37 @@ class RobotoApp {
             'yearning': { rate: 0.75, pitch: 0.95 },
             'serenity': { rate: 0.9, pitch: 1.0 }
         };
-        
+
         const config = voiceConfig[this.currentEmotion] || { rate: 1.0, pitch: 1.0 };
         utterance.rate = config.rate;
         utterance.pitch = config.pitch;
         utterance.volume = 0.8;
-        
+
         // Add speaking animation
-        const avatarSvg = document.querySelector('.avatar-svg');
-        
+        const avatarSvg = document.querySelector('.avatar-speaking');
+
         utterance.onstart = () => {
             if (avatarSvg) avatarSvg.classList.add('avatar-speaking');
         };
-        
+
         utterance.onend = () => {
             this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
             // Speech recognition continues running - no need to restart
         };
-        
+
         utterance.onerror = () => {
             this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
         };
-        
+
         window.speechSynthesis.speak(utterance);
     }
 
     async sendMessage() {
         const chatInput = document.getElementById('chatInput');
         const message = chatInput.value.trim();
-        
+
         if (!message) {
             return;
         }
@@ -877,34 +877,34 @@ class RobotoApp {
                 }
 
                 const data = await response.json();
-                
+
                 // Remove typing indicator
                 this.removeChatMessage(typingId);
-                
+
                 if (data.success && data.response) {
                     // Add bot response to chat
                     this.addChatMessage(data.response, false);
-                    
+
                     // Speak the response if TTS is enabled
                     if (this.ttsEnabled) {
                         this.speakText(data.response);
                     }
-                    
+
                     // Update emotional status after each message
                     this.loadEmotionalStatus();
                     return; // Success, exit retry loop
                 } else {
                     throw new Error(data.response || 'Invalid response from server');
                 }
-                
+
             } catch (error) {
                 console.error(`Chat attempt ${retryCount + 1} failed:`, error);
                 retryCount++;
-                
+
                 if (retryCount >= maxRetries) {
                     // Remove typing indicator
                     this.removeChatMessage(typingId);
-                    
+
                     if (error.name === 'AbortError') {
                         this.addChatMessage('Request timed out. Please try again.', false);
                         this.showNotification('Request timed out', 'warning');
@@ -926,14 +926,14 @@ class RobotoApp {
     addChatMessage(message, isUser, messageId = null) {
         const chatHistory = document.getElementById('chatHistory');
         const messageDiv = document.createElement('div');
-        
+
         if (messageId) {
             messageDiv.setAttribute('data-message-id', messageId);
         }
         messageDiv.className = `chat-message mb-2 ${isUser ? 'user-message' : 'bot-message'}`;
-        
+
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
+
         messageDiv.innerHTML = `
             <div class="d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}">
                 <div class="message-content p-2 rounded ${isUser ? 'bg-primary text-white' : 'bg-secondary'}" style="max-width: 80%;">
@@ -942,14 +942,14 @@ class RobotoApp {
                 </div>
             </div>
         `;
-        
+
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
     renderChatHistory() {
         const chatHistory = document.getElementById('chatHistory');
-        
+
         if (this.chatHistory.length === 0) {
             this.renderEmptyChat();
             return;
@@ -958,7 +958,7 @@ class RobotoApp {
         let html = '';
         this.chatHistory.forEach(entry => {
             const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
+
             // User message
             html += `
                 <div class="chat-message mb-2 user-message">
@@ -970,7 +970,7 @@ class RobotoApp {
                     </div>
                 </div>
             `;
-            
+
             // Bot response
             html += `
                 <div class="chat-message mb-2 bot-message">
@@ -1015,7 +1015,7 @@ class RobotoRequestSystem {
             requestBtn.className = 'btn btn-outline-primary me-2';
             requestBtn.innerHTML = '<i class="bi bi-robot"></i> Roboto Request';
             requestBtn.onclick = () => this.showRequestMenu();
-            
+
             const sendBtn = document.getElementById('sendBtn');
             if (sendBtn) {
                 sendBtn.parentNode.insertBefore(requestBtn, sendBtn);
@@ -1024,230 +1024,354 @@ class RobotoRequestSystem {
     }
 
     showRequestMenu() {
-        const modal = document.createElement('div');
-        modal.className = 'modal fade';
-        modal.innerHTML = `
-            <div class="modal-dialog">
+        const requests = [
+            { id: 'memory_analysis', name: '🧠 Memory Analysis', description: 'Analyze conversation patterns, memories, and insights' },
+            { id: 'self_improvement', name: '📈 Self Improvement', description: 'Trigger A/B testing and learning optimization' },
+            { id: 'quantum_computation', name: '🌌 Quantum Computing', description: 'Execute quantum algorithms and computations' },
+            { id: 'voice_optimization', name: '🎤 Voice Optimization', description: 'Optimize voice recognition for Roberto' },
+            { id: 'autonomous_task', name: '🎯 Autonomous Task', description: 'Execute complex autonomous planning tasks' },
+            { id: 'cultural_query', name: '🌞 Cultural Wisdom', description: 'Access Aztec wisdom and Nahuatl language' },
+            { id: 'real_time_data', name: '📡 Real-Time Data', description: 'Get current time, system, and contextual data' },
+            { id: 'system_status', name: '🔧 System Status', description: 'Comprehensive system health check' }
+        ];
+
+        let menuHTML = '<div class="roboto-request-menu"><h5>🚀 Roboto SAI Request Menu</h5><p class="text-muted small mb-3">Advanced capabilities at your command</p>';
+
+        requests.forEach(request => {
+            menuHTML += `
+                <div class="request-option p-2 border rounded mb-2" onclick="robotoRequestSystem.executeRequest('${request.id}')" style="cursor: pointer; transition: background 0.2s;">
+                    <strong>${request.name}</strong>
+                    <small class="text-muted d-block">${request.description}</small>
+                </div>
+            `;
+        });
+
+        menuHTML += `
+            <div class="mt-3 pt-3 border-top">
+                <small class="text-muted">🤖 Roboto SAI v3.0 - Super Advanced Intelligence</small><br>
+                <small class="text-muted">Created by Roberto Villarreal Martinez</small>
+            </div>
+        </div>`;
+
+        // Add CSS for better styling
+        const style = `
+            <style>
+            .roboto-request-menu {
+                max-width: 400px;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            .request-option:hover {
+                background-color: #f8f9fa !important;
+                border-color: #007bff !important;
+            }
+            </style>
+        `;
+
+        // Show menu in a modal or overlay
+        this.displayRequestMenu(style + menuHTML);
+    }
+
+    async executeRequest(requestType) {
+        this.closeRequestMenu();
+
+        let requestData = {
+            type: requestType,
+            timestamp: new Date().toISOString(),
+            context: {
+                user_agent: navigator.userAgent,
+                timestamp: Date.now(),
+                page_url: window.location.href
+            }
+        };
+
+        // Add specific data based on request type
+        switch(requestType) {
+            case 'memory_analysis':
+                requestData.content = 'Analyze my conversation patterns, memories, and provide comprehensive insights';
+                break;
+            case 'self_improvement':
+                requestData.content = 'Initiate self-improvement cycle with A/B testing and optimization';
+                break;
+            case 'quantum_computation':
+                requestData.content = 'Execute quantum search algorithm and provide quantum status';
+                break;
+            case 'voice_optimization':
+                requestData.content = 'Optimize voice recognition for Roberto Villarreal Martinez speech patterns';
+                break;
+            case 'autonomous_task':
+                const taskContent = prompt('Enter autonomous task description:');
+                requestData.content = taskContent || 'Analyze current system capabilities and suggest improvements';
+                break;
+            case 'cultural_query':
+                const culturalQuery = prompt('Enter cultural or Nahuatl query:');
+                requestData.content = culturalQuery || 'Share Aztec wisdom and cultural insights';
+                break;
+            case 'real_time_data':
+                requestData.content = 'Provide comprehensive real-time data and contextual insights';
+                break;
+            case 'system_status':
+                requestData.content = 'Provide comprehensive system status report for all SAI components';
+                break;
+        }
+
+        // Show processing indicator
+        this.showProcessingIndicator(requestType);
+
+        this.addRequestToQueue(requestData);
+    }
+
+    showProcessingIndicator(requestType) {
+        const chatContainer = document.getElementById('chatContainer');
+        if (!chatContainer) return;
+
+        const processingDiv = document.createElement('div');
+        processingDiv.className = 'message bot-message mb-3 processing-request';
+        processingDiv.innerHTML = `
+            <div class="message-content">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Processing...</span>
+                    </div>
+                    <span>🤖 Processing ${requestType.replace('_', ' ')} request...</span>
+                </div>
+                <small class="text-muted d-block mt-1">Advanced SAI systems activated</small>
+            </div>
+        `;
+
+        chatContainer.appendChild(processingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    addRequestToQueue(requestData) {
+        this.requestQueue.push(requestData);
+        if (!this.isProcessing) {
+            this.processRequestQueue();
+        }
+    }
+
+    async processRequestQueue() {
+        if (this.requestQueue.length === 0) {
+            this.isProcessing = false;
+            return;
+        }
+
+        this.isProcessing = true;
+        const request = this.requestQueue.shift();
+
+        try {
+            const response = await fetch('/api/roboto-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            });
+
+            const result = await response.json();
+
+            // Remove processing indicator
+            const processingElement = document.querySelector('.processing-request');
+            if (processingElement) {
+                processingElement.remove();
+            }
+
+            this.displayRequestResult(result, request.type);
+
+        } catch (error) {
+            console.error('Request failed:', error);
+
+            // Remove processing indicator
+            const processingElement = document.querySelector('.processing-request');
+            if (processingElement) {
+                processingElement.remove();
+            }
+
+            this.displayRequestError(error, request.type);
+        }
+
+        // Process next request
+        setTimeout(() => this.processRequestQueue(), 1000);
+    }
+
+    displayRequestResult(result, requestType) {
+        const chatContainer = document.getElementById('chatContainer');
+        if (!chatContainer) return;
+
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'message bot-message mb-3';
+
+        let content = `<h6>🚀 ${requestType.replace('_', ' ').toUpperCase()} Result</h6>`;
+
+        if (result.success) {
+            content += `<div class="alert alert-success mb-3">✅ Request completed successfully</div>`;
+
+            // Main response
+            if (result.response) {
+                content += `<div class="mb-3"><strong>Response:</strong><br>${result.response}</div>`;
+            }
+
+            // Specific content based on request type
+            switch(requestType) {
+                case 'memory_analysis':
+                    if (result.memory_count) {
+                        content += `<p><strong>🧠 Memories Found:</strong> ${result.memory_count}</p>`;
+                    }
+                    if (result.memories && result.memories.length > 0) {
+                        content += '<strong>Recent Relevant Memories:</strong><ul>';
+                        result.memories.slice(0, 3).forEach(memory => {
+                            content += `<li>${memory.user_input || memory.content}</li>`;
+                        });
+                        content += '</ul>';
+                    }
+                    break;
+
+                case 'self_improvement':
+                    if (result.experiment_id) {
+                        content += `<p><strong>📈 Experiment ID:</strong> ${result.experiment_id}</p>`;
+                    }
+                    if (result.deployment_status) {
+                        content += `<p><strong>🚀 Deployment:</strong> ${result.deployment_status.deployed ? 'Success' : 'Pending'}</p>`;
+                    }
+                    break;
+
+                case 'quantum_computation':
+                    if (result.algorithm) {
+                        content += `<p><strong>🌌 Algorithm:</strong> ${result.algorithm}</p>`;
+                    }
+                    if (result.quantum_status) {
+                        content += `<p><strong>⚛️ Quantum Status:</strong> ${result.quantum_status.quantum_entanglement?.status || 'Active'}</p>`;
+                    }
+                    break;
+
+                case 'voice_optimization':
+                    if (result.insights) {
+                        content += `<p><strong>🎤 Voice Insights:</strong> ${result.insights}</p>`;
+                    }
+                    break;
+
+                case 'autonomous_task':
+                    if (result.task_id) {
+                        content += `<p><strong>🎯 Task ID:</strong> ${result.task_id}</p>`;
+                    }
+                    if (result.status) {
+                        content += `<p><strong>Status:</strong> ${result.status}</p>`;
+                    }
+                    break;
+
+                case 'cultural_query':
+                    if (result.cultural_response) {
+                        content += `<p><strong>🌞 Cultural Wisdom:</strong> ${result.cultural_response}</p>`;
+                    }
+                    break;
+
+                case 'real_time_data':
+                    if (result.summary) {
+                        content += `<p><strong>📡 Real-Time Summary:</strong> ${result.summary}</p>`;
+                    }
+                    if (result.data_sources) {
+                        content += `<p><strong>Data Sources:</strong> ${result.data_sources.join(', ')}</p>`;
+                    }
+                    break;
+            }
+
+            // General insights and recommendations
+            if (result.insights && requestType !== 'voice_optimization') {
+                content += `<p><strong>💡 Insights:</strong> ${result.insights}</p>`;
+            }
+            if (result.recommendations) {
+                content += `<p><strong>📋 Recommendations:</strong> ${result.recommendations}</p>`;
+            }
+            if (result.message && !result.response) {
+                content += `<p><strong>Message:</strong> ${result.message}</p>`;
+            }
+
+            // Enhancement indicators
+            if (result.enhancements_applied) {
+                content += `<small class="text-muted">🔧 Enhancements: ${result.enhancements_applied.join(', ')}</small><br>`;
+            }
+
+        } else {
+            content += `<div class="alert alert-danger">❌ Error: ${result.error || 'Request failed'}</div>`;
+        }
+
+        resultDiv.innerHTML = `
+            <div class="message-content">
+                ${content}
+                <small class="text-muted d-block mt-2">${new Date().toLocaleTimeString()}</small>
+            </div>
+        `;
+
+        chatContainer.appendChild(resultDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    displayRequestError(error, requestType) {
+        const chatContainer = document.getElementById('chatContainer');
+        if (!chatContainer) return;
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message bot-message mb-3';
+        errorDiv.innerHTML = `
+            <div class="message-content">
+                <h6>🚀 ${requestType.replace('_', ' ').toUpperCase()} Error</h6>
+                <div class="alert alert-danger">❌ Request failed: ${error.message || 'An unknown error occurred'}</div>
+                <small class="text-muted d-block mt-2">${new Date().toLocaleTimeString()}</small>
+            </div>
+        `;
+
+        chatContainer.appendChild(errorDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Placeholder for displaying menu
+    displayRequestMenu(menuHTML) {
+        // This should ideally open a modal or an overlay
+        // For now, we'll log it to the console or append it to a specific element
+        console.log('Displaying request menu:', menuHTML);
+
+        const modalContent = document.createElement('div');
+        modalContent.id = 'robotoRequestModal';
+        modalContent.className = 'modal fade';
+        modalContent.setAttribute('tabindex', '-1');
+        modalContent.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">🤖 Roboto Request System</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="list-group">
-                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('continue_conversation')">
-                                <i class="bi bi-chat-dots"></i> Continue Conversation
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('future_robotics_discussion')">
-                                <i class="bi bi-robot"></i> Future Robotics Discussion
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('bring_roboto_to_future')">
-                                <i class="bi bi-lightning"></i> Bring Roboto to Future
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('enhanced_memory_recall')">
-                                <i class="bi bi-memory"></i> Enhanced Memory Recall
-                            </button>
-                            <button type="button" class="list-group-item list-group-item-action" onclick="robotoRequestSystem.makeRequest('emotional_sync')">
-                                <i class="bi bi-heart"></i> Emotional Synchronization
-                            </button>
-                        </div>
-                        <div class="mt-3">
-                            <label class="form-label">Additional Context (optional):</label>
-                            <textarea id="requestContext" class="form-control" rows="3" placeholder="Provide additional context for your request..."></textarea>
-                        </div>
+                        ${menuHTML}
                     </div>
                 </div>
             </div>
         `;
-        
-        document.body.appendChild(modal);
-        const bootstrapModal = new bootstrap.Modal(modal);
-        bootstrapModal.show();
-        
-        // Clean up when modal is closed
-        modal.addEventListener('hidden.bs.modal', () => {
-            document.body.removeChild(modal);
+        document.body.appendChild(modalContent);
+
+        const modal = new bootstrap.Modal(modalContent);
+        modal.show();
+
+        modalContent.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modalContent);
         });
     }
 
-    async makeRequest(requestType) {
-        try {
-            this.isProcessing = true;
-            
-            // Get additional context
-            const contextEl = document.getElementById('requestContext');
-            const context = contextEl ? contextEl.value : '';
-            
-            // Prepare request data
-            const requestData = {
-                request_type: requestType,
-                context: context,
-                timestamp: new Date().toISOString()
-            };
-            
-            // Add specific data based on request type
-            if (requestType === 'future_robotics_discussion') {
-                requestData.topic = 'future robotics and AI advancement';
-            } else if (requestType === 'enhanced_memory_recall') {
-                requestData.query = context || 'recent conversations';
-                requestData.limit = 5;
-            } else if (requestType === 'emotional_sync') {
-                requestData.user_emotion = 'excited';
-                requestData.context = context || 'Engaged in future robotics discussion';
+    // Placeholder for closing menu
+    closeRequestMenu() {
+        const modalElement = document.getElementById('robotoRequestModal');
+        if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
             }
-            
-            // Show processing indicator
-            this.showProcessingIndicator();
-            
-            // Make the request
-            const response = await fetch('/api/roboto-request', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                // Handle successful request
-                if (result.response) {
-                    // Add response to chat
-                    this.addRequestResponseToChat(requestType, result.response, result);
-                } else if (result.memories) {
-                    // Handle memory recall
-                    this.displayMemoryRecall(result.memories);
-                } else {
-                    // Generic success message
-                    this.addRequestResponseToChat(requestType, result.message || 'Request completed successfully', result);
-                }
-                
-                // Update emotion if available
-                if (result.emotion) {
-                    updateEmotionalStatus(result.emotion);
-                }
-            } else {
-                throw new Error(result.error || 'Request failed');
-            }
-            
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.querySelector('.modal'));
-            if (modal) modal.hide();
-            
-        } catch (error) {
-            console.error('Roboto request error:', error);
-            showNotification('Roboto request failed: ' + error.message, 'error');
-        } finally {
-            this.isProcessing = false;
-            this.hideProcessingIndicator();
-        }
-    }
-
-    showProcessingIndicator() {
-        const indicator = document.createElement('div');
-        indicator.id = 'robotoProcessing';
-        indicator.className = 'position-fixed top-50 start-50 translate-middle';
-        indicator.style.zIndex = '9999';
-        indicator.innerHTML = `
-            <div class="bg-dark text-white p-3 rounded">
-                <div class="d-flex align-items-center">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    <span>🤖 Processing Roboto request...</span>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(indicator);
-    }
-
-    hideProcessingIndicator() {
-        const indicator = document.getElementById('robotoProcessing');
-        if (indicator) {
-            document.body.removeChild(indicator);
-        }
-    }
-
-    addRequestResponseToChat(requestType, response, result) {
-        const chatContainer = document.getElementById('chatContainer');
-        if (!chatContainer) return;
-        
-        // Create request message
-        const requestDiv = document.createElement('div');
-        requestDiv.className = 'message user-message mb-3';
-        requestDiv.innerHTML = `
-            <div class="message-content">
-                <strong>🤖 Roboto Request:</strong> ${requestType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                <small class="text-muted d-block">${new Date().toLocaleTimeString()}</small>
-            </div>
-        `;
-        
-        // Create response message
-        const responseDiv = document.createElement('div');
-        responseDiv.className = 'message bot-message mb-3';
-        responseDiv.innerHTML = `
-            <div class="message-content">
-                ${response}
-                <small class="text-muted d-block">
-                    ${new Date().toLocaleTimeString()} • 
-                    Emotion: ${result.emotion || 'curious'} • 
-                    Request: ${requestType}
-                </small>
-            </div>
-        `;
-        
-        chatContainer.appendChild(requestDiv);
-        chatContainer.appendChild(responseDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        // Update conversation count
-        updateConversationCount();
-    }
-
-    displayMemoryRecall(memories) {
-        const chatContainer = document.getElementById('chatContainer');
-        if (!chatContainer) return;
-        
-        const memoryDiv = document.createElement('div');
-        memoryDiv.className = 'message bot-message mb-3';
-        
-        let memoryContent = '<h6>🧠 Enhanced Memory Recall:</h6>';
-        if (memories.length === 0) {
-            memoryContent += '<p>No specific memories found for your query.</p>';
-        } else {
-            memoryContent += '<ul>';
-            memories.forEach((memory, index) => {
-                memoryContent += `<li><strong>Memory ${index + 1}:</strong> ${memory.content || memory.message || 'Memory content'}</li>`;
-            });
-            memoryContent += '</ul>';
-        }
-        
-        memoryDiv.innerHTML = `
-            <div class="message-content">
-                ${memoryContent}
-                <small class="text-muted d-block">${new Date().toLocaleTimeString()}</small>
-            </div>
-        `;
-        
-        chatContainer.appendChild(memoryDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    async getRobotoStatus() {
-        try {
-            const response = await fetch('/api/roboto-status');
-            const status = await response.json();
-            return status;
-        } catch (error) {
-            console.error('Failed to get Roboto status:', error);
-            return { success: false, status: 'unknown' };
         }
     }
 }
 
-// Initialize Roboto Request System
-let robotoRequestSystem;
+// Initialize Roboto Request System when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    robotoRequestSystem = new RobotoRequestSystem();
+    window.robotoRequestSystem = new RobotoRequestSystem();
 });
 
 
@@ -1256,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showNotification(message, type = 'info') {
         const toast = document.getElementById('notificationToast');
         const toastBody = document.getElementById('toastBody');
-        
+
         // Set toast styling based on type
         toast.className = 'toast';
         if (type === 'success') {
@@ -1266,9 +1390,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (type === 'warning') {
             toast.classList.add('border-warning');
         }
-        
+
         toastBody.textContent = message;
-        
+
         const bsToast = new bootstrap.Toast(toast);
         bsToast.show();
     }
@@ -1277,20 +1401,20 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/data/export');
             const data = await response.json();
-            
+
             if (data.success) {
                 const dataStr = JSON.stringify(data.data, null, 2);
                 const fileName = `roboto-data-export-${new Date().toISOString().split('T')[0]}.json`;
-                
+
                 // Check if we're on iOS Safari or other mobile browsers
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
+
                 if (isIOS || isMobile) {
                     // For iOS/mobile: Open data in a new window/tab for sharing
                     const dataBlob = new Blob([dataStr], {type: 'application/json'});
                     const url = window.URL.createObjectURL(dataBlob);
-                    
+
                     if (navigator.share) {
                         // Use Web Share API if available (iOS Safari supports this)
                         try {
@@ -1307,7 +1431,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.log('Share API failed, using fallback');
                         }
                     }
-                    
+
                     // Fallback: Open in new tab with instructions
                     const newWindow = window.open('', '_blank');
                     newWindow.document.write(`
@@ -1368,7 +1492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
                 }
-                
+
                 this.showNotification('Data exported successfully!', 'success');
             } else {
                 this.showNotification(data.message || 'Export failed', 'error');
@@ -1400,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showNotification(result.message, 'success');
                 // Reload data after successful import
@@ -1444,12 +1568,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             this.mediaRecorder.start();
             this.isRecording = true;
-            
+
             const voiceBtn = document.getElementById('voiceBtn');
             voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
             voiceBtn.classList.remove('btn-outline-secondary');
             voiceBtn.classList.add('btn-danger');
-            
+
             this.showNotification('Recording... Click again to stop', 'info');
         } catch (error) {
             console.error('Error accessing microphone:', error);
@@ -1461,7 +1585,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.mediaRecorder && this.isRecording) {
             this.mediaRecorder.stop();
             this.isRecording = false;
-            
+
             const voiceBtn = document.getElementById('voiceBtn');
             voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
             voiceBtn.classList.remove('btn-danger');
@@ -1475,26 +1599,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             this.showNotification('Processing audio...', 'info');
-            
+
             const response = await fetch('/api/chat/audio', {
                 method: 'POST',
                 body: formData
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 // Add user message (transcribed text)
                 this.addChatMessage(data.transcript, true);
-                
+
                 // Add bot response
                 this.addChatMessage(data.response, false);
-                
+
                 // Play audio response if available
                 if (data.audio) {
                     this.playAudioResponse(data.audio);
                 }
-                
+
                 this.showNotification('Voice message processed!', 'success');
             } else {
                 this.showNotification(data.message || 'Voice processing failed', 'error');
@@ -1513,17 +1637,17 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < audioBytes.length; i++) {
                 audioArray[i] = audioBytes.charCodeAt(i);
             }
-            
+
             const audioBlob = new Blob([audioArray], { type: 'audio/wav' });
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
-            
+
             audio.play().then(() => {
                 console.log('Audio response played');
             }).catch(error => {
                 console.error('Audio playback error:', error);
             });
-            
+
             // Clean up URL after playing
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl);
@@ -1554,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 const taskIndex = this.tasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
@@ -1575,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/tasks/suggestions');
             const data = await response.json();
-            
+
             if (data.success && data.suggestions.length > 0) {
                 this.showSchedulingSuggestions(data.suggestions);
             }
@@ -1589,7 +1713,7 @@ document.addEventListener('DOMContentLoaded', function() {
         suggestions.forEach(suggestion => {
             message += `• ${suggestion.message}\n`;
         });
-        
+
         if (confirm(message + "\nWould you like to schedule some tasks now?")) {
             // User can manually schedule tasks using the interface
             this.showNotification('Use the clock icon next to tasks to schedule them!', 'info');
@@ -1600,20 +1724,20 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/analytics/learning-insights');
             const data = await response.json();
-            
+
             if (data.success) {
                 const insights = data.insights;
                 const analyticsDisplay = document.getElementById('analyticsDisplay');
-                
+
                 let html = '<div class="learning-insights">';
                 html += '<h6 class="text-info mb-3"><i class="fas fa-brain me-2"></i>Learning Insights</h6>';
-                
+
                 // Conversation stats
                 html += `<div class="mb-3">
                     <small class="text-muted">Total Messages:</small> <strong>${insights.conversation_stats.total_messages}</strong><br>
                     <small class="text-muted">Total Tasks:</small> <strong>${insights.conversation_stats.total_tasks}</strong>
                 </div>`;
-                
+
                 // Patterns
                 if (Object.keys(insights.patterns).length > 0) {
                     html += '<div class="mb-3"><small class="text-muted">Learned Patterns:</small><br>';
@@ -1624,10 +1748,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     html += '<div class="text-muted small mb-3">Keep chatting to help me learn your preferences!</div>';
                 }
-                
+
                 html += '</div>';
                 analyticsDisplay.innerHTML = html;
-                
+
                 this.showNotification('Learning insights loaded!', 'success');
             } else {
                 this.showNotification(data.message || 'Could not load learning insights', 'error');
@@ -1641,7 +1765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleNotifications() {
         this.notificationsEnabled = !this.notificationsEnabled;
         localStorage.setItem('notificationsEnabled', this.notificationsEnabled);
-        
+
         if (this.notificationsEnabled) {
             this.showNotification('Notifications enabled', 'success');
         } else {
@@ -1660,14 +1784,14 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/analytics/predictive-insights');
             const data = await response.json();
-            
+
             if (data.success) {
                 const predictions = data.predictions;
                 const analyticsDisplay = document.getElementById('analyticsDisplay');
-                
+
                 let html = '<div class="predictive-insights">';
                 html += '<h6 class="text-warning mb-3"><i class="fas fa-crystal-ball me-2"></i>Predictive Insights</h6>';
-                
+
                 html += `<div class="mb-3">
                     <div class="card bg-dark border-secondary">
                         <div class="card-body p-3">
@@ -1676,7 +1800,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>`;
-                
+
                 html += `<div class="mb-3">
                     <div class="card bg-dark border-secondary">
                         <div class="card-body p-3">
@@ -1685,7 +1809,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>`;
-                
+
                 if (predictions.suggested_improvements && predictions.suggested_improvements.length > 0) {
                     html += '<div class="mb-3"><h6 class="text-success">Suggested Improvements</h6><ul class="list-unstyled">';
                     predictions.suggested_improvements.forEach(improvement => {
@@ -1693,10 +1817,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     html += '</ul></div>';
                 }
-                
+
                 html += '</div>';
                 analyticsDisplay.innerHTML = html;
-                
+
                 this.showNotification('Predictive insights loaded!', 'success');
             } else {
                 this.showNotification(data.message || 'Could not load predictive insights', 'error');
@@ -1712,14 +1836,14 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let file of files) {
             fileInfo.push(`📎 ${file.name} (${(file.size / 1024).toFixed(1)}KB)`);
         }
-        
+
         const chatInput = document.getElementById('chatInput');
         const currentValue = chatInput.value;
         const newValue = currentValue + (currentValue ? '\n' : '') + fileInfo.join('\n');
         chatInput.value = newValue;
-        
+
         this.showNotification(`${files.length} file(s) attached`, 'success');
-        
+
         // Clear file input for next use
         document.getElementById('fileInput').value = '';
     }
@@ -1728,27 +1852,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.speechRecognition = new SpeechRecognition();
-            
+
             // Settings for continuous listening
             this.speechRecognition.continuous = true;
             this.speechRecognition.interimResults = true;
             this.speechRecognition.lang = 'en-US';
             this.speechRecognition.maxAlternatives = 1;
-            
+
             this.speechRecognition.onstart = () => {
                 this.isListeningActive = true;
                 this.updateListeningIndicator(true);
                 console.log('Speech recognition started');
             };
-            
+
             this.speechRecognition.onresult = (event) => {
                 this.handleSpeechResults(event);
             };
-            
+
             this.speechRecognition.onerror = (event) => {
                 this.handleSpeechError(event);
             };
-            
+
             this.speechRecognition.onend = () => {
                 this.handleSpeechEnd();
             };
@@ -1760,7 +1884,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeVoiceConversationMode() {
         // Initialize mute button state
         this.updateMuteButton();
-        
+
         const voiceConversationBtn = document.getElementById('voiceConversationBtn');
         if (voiceConversationBtn) {
             if (this.voiceConversationMode) {
@@ -1773,13 +1897,13 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleMute() {
         this.isMuted = !this.isMuted;
         localStorage.setItem('speechMuted', this.isMuted.toString());
-        
+
         if (this.isMuted) {
             this.pauseContinuousListening();
         } else {
             this.resumeContinuousListening();
         }
-        
+
         this.updateMuteButton();
         this.showNotification(
             this.isMuted ? 'Speech recognition muted' : 'Speech recognition active',
@@ -1816,7 +1940,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     startContinuousListening() {
         if (!this.speechRecognition || this.isListeningActive) return;
-        
+
         try {
             this.speechRecognition.continuous = true;
             this.speechRecognition.interimResults = true;
@@ -1838,7 +1962,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateVoiceButton() {
         const voiceBtn = document.getElementById('voiceBtn');
         const icon = voiceBtn.querySelector('i');
-        
+
         if (this.continuousListening) {
             voiceBtn.classList.add('btn-voice-active');
             icon.className = 'fas fa-microphone';
@@ -1886,23 +2010,23 @@ document.addEventListener('DOMContentLoaded', function() {
     handleSpeechResults(event) {
         let finalTranscript = '';
         let interimTranscript = '';
-        
+
         // Process all results
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
-            
+
             if (event.results[i].isFinal) {
                 finalTranscript += transcript;
             } else {
                 interimTranscript += transcript;
             }
         }
-        
+
         // Update visual feedback for interim results
         if (interimTranscript) {
             this.updateInterimTranscript(interimTranscript);
         }
-        
+
         // Process final transcript
         if (finalTranscript.trim()) {
             this.clearInterimTranscript();
@@ -1913,19 +2037,19 @@ document.addEventListener('DOMContentLoaded', function() {
     processFinalTranscript(transcript) {
         const now = Date.now();
         this.lastSpeechTime = now;
-        
+
         // Clear any existing silence timeout
         if (this.silenceTimeout) {
             clearTimeout(this.silenceTimeout);
         }
-        
+
         // Add to voice buffer for batching short phrases
         this.voiceBuffer.push({
             text: transcript,
             timestamp: now,
             confidence: this.getLastConfidence()
         });
-        
+
         // Set timeout to process buffered speech
         this.silenceTimeout = setTimeout(() => {
             this.processVoiceBuffer();
@@ -1934,14 +2058,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     processVoiceBuffer() {
         if (this.voiceBuffer.length === 0) return;
-        
+
         // Combine buffered speech into one message
         const combinedText = this.voiceBuffer.map(item => item.text).join(' ').trim();
         const avgConfidence = this.voiceBuffer.reduce((sum, item) => sum + item.confidence, 0) / this.voiceBuffer.length;
-        
+
         // Clear buffer
         this.voiceBuffer = [];
-        
+
         // Only process if confidence is above threshold
         if (avgConfidence >= this.voiceActivationSensitivity && combinedText.length > 2) {
             this.handleVoiceInput(combinedText);
@@ -1972,7 +2096,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handleSpeechError(event) {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
-        
+
         if (event.error === 'no-speech') {
             // Normal - just restart silently
             if (!this.isMuted) {
@@ -2004,18 +2128,18 @@ document.addEventListener('DOMContentLoaded', function() {
         this.continuousListening = false;
         const speechBtn = document.getElementById('speechBtn');
         const icon = speechBtn.querySelector('i');
-        
+
         speechBtn.classList.remove('btn-listen-active');
         icon.className = 'fas fa-microphone';
         speechBtn.title = 'Speech Mode - Click to Enable';
-        
+
         localStorage.setItem('continuousListening', false);
     }
 
     handleSpeechEnd() {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
-        
+
         // Always restart speech recognition unless muted
         if (!this.isMuted) {
             setTimeout(() => {
@@ -2046,16 +2170,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create a new instance for single use
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             const singleUseRecognition = new SpeechRecognition();
-            
+
             singleUseRecognition.continuous = false;
             singleUseRecognition.interimResults = false;
             singleUseRecognition.lang = 'en-US';
-            
+
             singleUseRecognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 this.handleVoiceInput(transcript);
             };
-            
+
             singleUseRecognition.onerror = (event) => {
                 if (event.error === 'no-speech') {
                     this.showNotification('No speech detected. Try again.', 'warning');
@@ -2067,14 +2191,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => this.startContinuousListening(), 1000);
                 }
             };
-            
+
             singleUseRecognition.onend = () => {
                 // Restart continuous listening if it was active
                 if (this.continuousListening) {
                     setTimeout(() => this.startContinuousListening(), 500);
                 }
             };
-            
+
             singleUseRecognition.start();
             this.showNotification('Listening... Speak now', 'info');
         } catch (error) {
@@ -2091,16 +2215,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async handleVoiceInput(transcript) {
         if (!transcript.trim()) return;
-        
+
         // Temporarily pause listening to avoid feedback
         this.pauseContinuousListening();
-        
+
         // Show processing indicator
         this.showVoiceProcessing(true);
-        
+
         // Add user message to chat
         this.addChatMessage(transcript, true);
-        
+
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -2111,10 +2235,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.addChatMessage(data.response, false);
-                
+
                 // Enhanced TTS with emotional context
                 if (this.ttsEnabled) {
                     this.speakTextWithEmotion(data.response, data.emotion);
@@ -2137,10 +2261,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     speakTextWithEmotion(text, emotion) {
         if (!this.ttsEnabled || !text) return;
-        
+
         this.isSpeaking = true;
         const utterance = new SpeechSynthesisUtterance(text);
-        
+
         // Adjust voice parameters based on emotion
         const emotionVoiceSettings = {
             'joy': { rate: 1.1, pitch: 1.2, volume: 0.9 },
@@ -2151,33 +2275,33 @@ document.addEventListener('DOMContentLoaded', function() {
             'empathy': { rate: 0.9, pitch: 0.9, volume: 0.8 },
             'serenity': { rate: 0.8, pitch: 0.9, volume: 0.7 }
         };
-        
+
         const settings = emotionVoiceSettings[emotion] || { rate: 1.0, pitch: 1.0, volume: 0.8 };
-        
+
         utterance.rate = settings.rate;
         utterance.pitch = settings.pitch;
         utterance.volume = settings.volume;
-        
+
         // Visual feedback
         const avatarSvg = document.querySelector('.avatar-container svg');
         if (avatarSvg) avatarSvg.classList.add('avatar-speaking');
-        
+
         utterance.onstart = () => {
             this.updateListeningIndicator(false, 'Speaking...');
         };
-        
+
         utterance.onend = () => {
             this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
             // Speech recognition continues running - no need to restart
         };
-        
+
         utterance.onerror = () => {
             this.isSpeaking = false;
             if (avatarSvg) avatarSvg.classList.remove('avatar-speaking');
             // Speech recognition continues running - no need to restart
         };
-        
+
         speechSynthesis.speak(utterance);
     }
 
@@ -2208,7 +2332,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.createListeningIndicator();
             return;
         }
-        
+
         if (customText) {
             indicator.textContent = customText;
             indicator.className = 'listening-indicator custom';
@@ -2226,7 +2350,7 @@ document.addEventListener('DOMContentLoaded', function() {
         indicator.id = 'listeningIndicator';
         indicator.className = 'listening-indicator inactive';
         indicator.textContent = 'Voice Ready';
-        
+
         // Add to chat container
         const chatContainer = document.getElementById('chatContainer');
         if (chatContainer) {
@@ -2247,13 +2371,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Enable one-time speech mode for iPhone
             this.continuousListening = true;
             this.ttsEnabled = true;
-            
+
             speechBtn.classList.add('btn-listen-active');
             icon.className = 'fas fa-microphone-alt';
             speechBtn.title = 'Speech Mode - Tap to Talk';
-            
+
             this.showNotification('Speech mode enabled - click microphone to talk', 'success');
-            
+
             // Store preferences
             localStorage.setItem('continuousListening', true);
             localStorage.setItem('ttsEnabled', true);
@@ -2261,14 +2385,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Disable speech mode
             this.continuousListening = false;
             this.ttsEnabled = false;
-            
+
             speechBtn.classList.remove('btn-listen-active');
             icon.className = 'fas fa-microphone';
             speechBtn.title = 'Speech Mode - Click to Enable';
-            
+
             this.stopContinuousListening();
             this.showNotification('Speech mode disabled', 'info');
-            
+
             // Store preferences
             localStorage.setItem('continuousListening', false);
             localStorage.setItem('ttsEnabled', false);
@@ -2278,12 +2402,12 @@ document.addEventListener('DOMContentLoaded', function() {
     restoreSpeechMode() {
         const speechBtn = document.getElementById('speechBtn');
         const icon = speechBtn.querySelector('i');
-        
+
         if (speechBtn && this.continuousListening) {
             speechBtn.classList.add('btn-listen-active');
             icon.className = 'fas fa-microphone-alt';
             speechBtn.title = 'Speech Mode Active - Always Listening';
-            
+
             this.ttsEnabled = true;
             this.startContinuousListening();
         }
@@ -2304,7 +2428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async processSpeechToSpeech(audioBlob) {
         try {
             this.showNotification('Processing speech...', 'info');
-            
+
             const formData = new FormData();
             formData.append('audio', audioBlob, 'audio.webm');
 
@@ -2319,14 +2443,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Display transcript and response
                 this.addChatMessage(data.transcript, true);
                 this.addChatMessage(data.response, false);
-                
+
                 // Play audio response
                 if (data.audio) {
                     const audioData = `data:audio/mp3;base64,${data.audio}`;
                     const audio = new Audio(audioData);
                     audio.play().catch(e => console.error('Audio playback error:', e));
                 }
-                
+
                 this.showNotification('Speech-to-speech completed!', 'success');
             } else {
                 this.showNotification(data.message || 'Speech processing failed', 'error');
@@ -2360,10 +2484,10 @@ document.addEventListener('DOMContentLoaded', () => {
         this.voiceBuffer = [];
         this.lastSpeechTime = 0;
         this.isProcessingVoice = false;
-        
+
         const voiceActivateBtn = document.getElementById('voiceActivateBtn');
         const voiceMuteBtn = document.getElementById('voiceMuteBtn');
-        
+
         if (voiceActivateBtn && !voiceActivateBtn.hasAttribute('data-listener')) {
             voiceActivateBtn.setAttribute('data-listener', 'true');
             voiceActivateBtn.addEventListener('click', (e) => {
@@ -2371,7 +2495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.activateAdvancedVoice();
             });
         }
-        
+
         if (voiceMuteBtn && !voiceMuteBtn.hasAttribute('data-listener')) {
             voiceMuteBtn.setAttribute('data-listener', 'true');
             voiceMuteBtn.addEventListener('click', (e) => {
@@ -2385,7 +2509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!this.speechRecognition) {
             this.initializeSpeechRecognition();
         }
-        
+
         if (!this.speechRecognition) {
             this.showNotification('Speech recognition not supported', 'error');
             return;
@@ -2394,12 +2518,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             stream.getTracks().forEach(track => track.stop());
-            
+
             this.advancedVoiceActive = true;
             this.updateAdvancedVoiceUI(true);
             this.startAdvancedListening();
             this.showNotification('Advanced voice recognition activated', 'success');
-            
+
         } catch (error) {
             this.showNotification('Microphone access required', 'error');
         }
@@ -2419,17 +2543,17 @@ document.addEventListener('DOMContentLoaded', () => {
         this.speechRecognition.interimResults = true;
         this.speechRecognition.lang = 'en-US';
         this.speechRecognition.maxAlternatives = 3;
-        
+
         this.speechRecognition.onresult = (event) => {
             this.handleAdvancedSpeechResults(event);
         };
-        
+
         this.speechRecognition.onerror = (event) => {
             if (event.error !== 'no-speech') {
                 console.error('Speech error:', event.error);
             }
         };
-        
+
         this.speechRecognition.onend = () => {
             if (this.advancedVoiceActive) {
                 setTimeout(() => {
@@ -2439,7 +2563,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 100);
             }
         };
-        
+
         this.speechRecognition.start();
         this.updateVoiceStatus('Listening...', true);
     }
@@ -2455,12 +2579,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalTranscript = '';
         let interimTranscript = '';
         let maxConfidence = 0;
-        
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const result = event.results[i];
             const transcript = result[0].transcript;
             const confidence = result[0].confidence || 0.9;
-            
+
             if (result.isFinal) {
                 if (confidence >= this.noiseThreshold) {
                     finalTranscript += transcript;
@@ -2470,11 +2594,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 interimTranscript += transcript;
             }
         }
-        
+
         if (interimTranscript.trim()) {
             this.updateVoiceStatus(`"${interimTranscript.trim()}"`, true);
         }
-        
+
         if (finalTranscript.trim()) {
             this.processAdvancedTranscript(finalTranscript.trim(), maxConfidence);
         }
@@ -2484,18 +2608,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (transcript.length < this.minPhraseLength || confidence < this.noiseThreshold) {
             return;
         }
-        
+
         const now = Date.now();
         this.voiceBuffer.push({
             text: transcript,
             confidence: confidence,
             timestamp: now
         });
-        
+
         this.voiceBuffer = this.voiceBuffer.filter(item => 
             now - item.timestamp < this.silenceTimeout
         );
-        
+
         clearTimeout(this.voiceProcessTimeout);
         this.voiceProcessTimeout = setTimeout(() => {
             this.processVoiceBuffer();
@@ -2504,25 +2628,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     processVoiceBuffer() {
         if (this.voiceBuffer.length === 0 || this.isProcessingVoice) return;
-        
+
         const combinedText = this.voiceBuffer.map(item => item.text).join(' ').trim();
         const avgConfidence = this.voiceBuffer.reduce((sum, item) => sum + item.confidence, 0) / this.voiceBuffer.length;
-        
+
         this.voiceBuffer = [];
-        
+
         if (combinedText.length >= this.minPhraseLength && avgConfidence >= this.noiseThreshold) {
             this.sendAdvancedVoiceMessage(combinedText);
         }
-        
+
         this.updateVoiceStatus('Listening...', true);
     }
 
     async sendAdvancedVoiceMessage(transcript) {
         if (this.isProcessingVoice) return;
-        
+
         this.isProcessingVoice = true;
         this.updateVoiceStatus('Processing...', true);
-        
+
         try {
             const chatInput = document.getElementById('chatInput');
             if (chatInput) {
@@ -2530,7 +2654,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await this.sendMessage();
                 chatInput.value = '';
             }
-            
+
         } catch (error) {
             this.showNotification('Failed to send voice message', 'error');
         } finally {
@@ -2545,7 +2669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const voiceActivateBtn = document.getElementById('voiceActivateBtn');
         const voiceMuteBtn = document.getElementById('voiceMuteBtn');
         const voiceWaveAnimation = document.getElementById('voiceWaveAnimation');
-        
+
         if (voiceActivateBtn) {
             if (active) {
                 voiceActivateBtn.classList.remove('btn-success');
@@ -2557,12 +2681,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 voiceActivateBtn.innerHTML = '<i class="fas fa-microphone"></i> Activate';
             }
         }
-        
+
         if (voiceMuteBtn) {
             voiceMuteBtn.classList.toggle('btn-danger', active);
             voiceMuteBtn.classList.toggle('btn-outline-light', !active);
         }
-        
+
         if (voiceWaveAnimation) {
             voiceWaveAnimation.style.display = active ? 'flex' : 'none';
         }
