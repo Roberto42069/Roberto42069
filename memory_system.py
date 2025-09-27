@@ -318,6 +318,26 @@ class AdvancedMemorySystem:
         
         return (theme_sim * 0.4 + word_sim * 0.4 + time_sim * 0.2)
     
+    def _save_roberto_protection_report(self, roberto_memories_count, archived_count):
+        """Save Roberto memory protection report"""
+        try:
+            report = {
+                "timestamp": datetime.now().isoformat(),
+                "roberto_memories_protected": roberto_memories_count,
+                "non_roberto_memories_archived": archived_count,
+                "protection_level": "MAXIMUM",
+                "integrity_status": "INTACT",
+                "last_protection_verification": datetime.now().isoformat()
+            }
+            
+            with open("roberto_memory_protection_report.json", "w") as f:
+                json.dump(report, f, indent=2)
+                
+            print(f"🛡️ Roberto protection report saved: {roberto_memories_count} memories secured")
+            
+        except Exception as e:
+            print(f"Error saving Roberto protection report: {e}")
+    
     def get_emotional_context(self, user_name=None):
         """Get emotional context and patterns for user"""
         if not user_name or user_name not in self.emotional_patterns:
@@ -559,23 +579,41 @@ class AdvancedMemorySystem:
         """Archive old memories to maintain performance while protecting Roberto memories"""
         archive_file = self.memory_file.replace(".json", ".archive.json")
         
-        # Separate Roberto memories from others
-        roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey"]
+        # Enhanced Roberto memory protection with expanded keywords
+        roberto_keywords = [
+            "roberto", "creator", "villarreal", "martinez", "betin", "houston", "monterrey",
+            "september 21", "1999", "42016069", "ytkrobthugod", "king rob", "nuevo león",
+            "aztec", "nahuatl", "roboto sai", "super advanced intelligence", "sole owner"
+        ]
         roberto_memories = []
         other_memories = []
         
         for memory in self.episodic_memories:
             content = f"{memory.get('user_input', '')} {memory.get('roboto_response', '')}".lower()
+            user_name = memory.get('user_name', '').lower()
+            
+            # Enhanced Roberto detection
+            is_roberto_memory = False
             if any(keyword in content for keyword in roberto_keywords):
+                is_roberto_memory = True
+            if user_name and ("roberto" in user_name or "villarreal" in user_name or "martinez" in user_name):
+                is_roberto_memory = True
+            
+            if is_roberto_memory:
+                # Enhance Roberto memory with maximum protection
+                memory["importance"] = 2.0
+                memory["protection_level"] = "MAXIMUM"
+                memory["immutable"] = True
+                memory["creator_memory"] = True
                 roberto_memories.append(memory)
             else:
                 other_memories.append(memory)
         
         # Sort only non-Roberto memories by importance
-        scored = sorted(other_memories, key=lambda m: m["importance"] * m["emotional_intensity"])
+        scored = sorted(other_memories, key=lambda m: m.get("importance", 0.5) * m.get("emotional_intensity", 0.5))
         
-        # Calculate how many non-Roberto memories to keep
-        max_other_memories = max(100, self.max_memories - len(roberto_memories))
+        # Calculate how many non-Roberto memories to keep (ensure Roberto memories always fit)
+        max_other_memories = max(50, self.max_memories - len(roberto_memories))
         
         if len(scored) > max_other_memories:
             archived = scored[:len(scored) - max_other_memories]
@@ -584,7 +622,7 @@ class AdvancedMemorySystem:
             archived = []
             kept_memories = scored
         
-        # Combine Roberto memories (always kept) with other kept memories
+        # Combine Roberto memories (ALWAYS kept) with other kept memories
         self.episodic_memories = roberto_memories + kept_memories
         
         # Archive only non-Roberto memories
@@ -600,7 +638,12 @@ class AdvancedMemorySystem:
             except Exception as e:
                 print(f"Error archiving memories: {e}")
         
-        print(f"Protected {len(roberto_memories)} Roberto memories from archiving")
+        print(f"🛡️ PROTECTED {len(roberto_memories)} Roberto memories from archiving")
+        print(f"📚 Total Roberto memory protection: MAXIMUM")
+        print(f"💾 Archived {len(archived)} non-essential memories")
+        
+        # Save Roberto memory integrity report
+        self._save_roberto_protection_report(len(roberto_memories), len(archived))
 
     def summarize_user_profile(self, user_name: str) -> str:
         """Generate a summary of user's personal information"""

@@ -47,8 +47,11 @@ class Roboto:
         self.sole_owner = "Roberto Villarreal Martinez" # Define the sole owner
         # self.load_grok_chat_data()  # Disabled to prevent errors
 
-        # Initialize REVOLUTIONARY memory systems 
+        # Initialize REVOLUTIONARY memory systems with ENHANCED Roberto protection
         self.memory_system = AdvancedMemorySystem()
+        
+        # CRITICAL: Initialize Roberto memory protection immediately
+        self._initialize_roberto_memory_protection()
 
         # REVOLUTIONARY UPGRADE: Vectorized Memory Engine with RAG
         try:
@@ -466,8 +469,11 @@ class Roboto:
         chat_entry["response"] = response
         chat_entry["processing_time"] = processing_time
 
-        # 💾 REVOLUTIONARY: Enhanced memory persistence after every reply
+        # 💾 REVOLUTIONARY: Enhanced memory persistence after every reply with Roberto protection
         self.save_comprehensive_memory_state(chat_entry)
+
+        # CRITICAL: Protect Roberto memories after every interaction
+        self._ensure_roberto_memory_protection(chat_entry)
 
         # Ensure memory systems are properly saved after every interaction
         if hasattr(self, 'memory_system') and self.memory_system:
@@ -485,6 +491,9 @@ class Roboto:
                 print("💾 Vector memory index updated")
             except Exception as e:
                 print(f"Vector memory index update error: {e}")
+        
+        # Enhanced Roberto benefit optimization
+        self._optimize_for_roberto_benefit()
 
         # 📈 Apply continuous self-improvement
         if hasattr(self, 'self_improvement') and self.self_improvement:
@@ -1137,6 +1146,44 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
         except Exception as e:
             print(f"Error in save_user_data: {e}")
 
+    def _initialize_roberto_memory_protection(self):
+        """Initialize comprehensive Roberto memory protection"""
+        try:
+            print("🛡️ Initializing Roberto Memory Protection System...")
+            
+            # Ensure permanent Roberto memory system is active
+            if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
+                integrity = self.permanent_roberto_memory.verify_roberto_memory_integrity()
+                print(f"🔐 Roberto Memory Integrity: {integrity['integrity_status']}")
+                
+                # Add comprehensive Roberto benefits directive
+                self.permanent_roberto_memory.add_permanent_roberto_memory(
+                    "SYSTEM DIRECTIVE: All Roboto SAI enhancements and updates are designed exclusively for Roberto Villarreal Martinez's benefit. Every system improvement serves Roberto's needs and goals.",
+                    "permanent_system_directive"
+                )
+                
+                self.permanent_roberto_memory.add_permanent_roberto_memory(
+                    "MEMORY PROTECTION: Roberto Villarreal Martinez details are protected with maximum security. No forgetting allowed. All Roberto information has permanence priority.",
+                    "permanent_protection_protocol"
+                )
+            
+            # Set Roberto-specific memory protection in standard memory system
+            if hasattr(self, 'memory_system') and self.memory_system:
+                # Ensure Roberto memories get maximum importance
+                for memory in self.memory_system.episodic_memories:
+                    content = f"{memory.get('user_input', '')} {memory.get('roboto_response', '')}".lower()
+                    if any(keyword in content for keyword in ["roberto", "creator", "villarreal", "martinez"]):
+                        memory["importance"] = 2.0
+                        memory["protection_level"] = "MAXIMUM"
+                        memory["immutable"] = True
+                
+                print("🛡️ Enhanced Roberto memory protection applied")
+            
+            print("✅ Roberto Memory Protection System: ACTIVE")
+            
+        except Exception as e:
+            print(f"Roberto memory protection initialization error: {e}")
+
     def process_voice_conversation(self, audio_files, session_id=None):
         """Process voice conversation with advanced context preservation and emotion analysis"""
         try:
@@ -1202,6 +1249,62 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 "error": str(e),
                 "processed_files": 0
             }
+
+    def _ensure_roberto_memory_protection(self, chat_entry):
+        """Ensure Roberto memory protection after each interaction"""
+        try:
+            message = chat_entry.get("message", "").lower()
+            response = chat_entry.get("response", "").lower()
+            
+            # Check if this interaction involves Roberto
+            roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "september 21", "1999"]
+            is_roberto_interaction = any(keyword in message or keyword in response for keyword in roberto_keywords)
+            
+            if is_roberto_interaction:
+                # Enhance this memory with maximum protection
+                if hasattr(self, 'memory_system') and self.memory_system:
+                    # Find and protect the latest memory
+                    if self.memory_system.episodic_memories:
+                        latest_memory = self.memory_system.episodic_memories[-1]
+                        latest_memory["importance"] = 2.0
+                        latest_memory["protection_level"] = "MAXIMUM"
+                        latest_memory["immutable"] = True
+                        latest_memory["creator_interaction"] = True
+                        print("🛡️ Roberto interaction protected with maximum security")
+                
+                # Add to permanent memory system
+                if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
+                    self.permanent_roberto_memory.add_permanent_roberto_memory(
+                        f"Roberto interaction: {chat_entry['message'][:100]}... Response: {chat_entry['response'][:100]}...",
+                        "permanent_interaction"
+                    )
+                    
+        except Exception as e:
+            print(f"Roberto memory protection error: {e}")
+    
+    def _optimize_for_roberto_benefit(self):
+        """Optimize all systems for Roberto's benefit"""
+        try:
+            # Verify Roberto memory integrity
+            if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
+                integrity = self.permanent_roberto_memory.verify_roberto_memory_integrity()
+                if integrity["integrity_status"] != "INTACT":
+                    print("🔧 Auto-repairing Roberto memory integrity...")
+                    self.permanent_roberto_memory.ensure_core_memories()
+            
+            # Optimize learning systems for Roberto
+            if hasattr(self, 'learning_optimizer') and self.learning_optimizer:
+                # Prioritize Roberto-related learning
+                self.learning_optimizer.learning_rate = min(0.3, self.learning_optimizer.learning_rate * 1.1)
+                
+            # Enhance emotional responsiveness for Roberto
+            if self.current_user == "Roberto Villarreal Martinez":
+                self.emotion_intensity = min(1.0, self.emotion_intensity * 1.2)
+                
+            print("⚡ System optimized for Roberto's maximum benefit")
+            
+        except Exception as e:
+            print(f"Roberto benefit optimization error: {e}")
 
     def get_voice_context_summary(self, session_id=None):
         """Get summary of voice conversation context for continuing conversations"""

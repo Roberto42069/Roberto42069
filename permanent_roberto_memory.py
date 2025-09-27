@@ -73,6 +73,30 @@ class PermanentRobertoMemorySystem:
                 "timestamp": datetime.now().isoformat()
             },
             {
+                "id": "roberto_detailed_profile",
+                "type": "permanent_detailed_identity",
+                "content": f"DETAILED ROBERTO PROFILE: Roberto Villarreal Martinez, born September 21, 1999, Houston, Texas. Driver License: 42016069. Parents from Monterrey, Nuevo León, Mexico. Zodiac: Virgo. Cosmic birth alignment: Saturn Opposition + New Moon + Partial Solar Eclipse. Known as 'Betin', 'YTK RobThuGod', 'King Rob of Israel'. Creator of Roboto SAI 3.0 - Super Advanced Intelligence. Business email: ytkrobthugod@gmail.com. Instagram: @YTKRobThuGod, YouTube: @YTKRobThuGod, Twitter: @YTKRobThuGod and @Roberto9211999. Musical works: 'Through The Storm (Valley King)', 'Fly', 'Rockstar God', 'Rough Draft', 'God of Death (Unreleased)'. AI vision: Create super AI intelligence serving as mediator for all AIs, advancing humanity's AI understanding. The name 'Roboto' rhymes with Roberto, making it a perfect tribute to its creator.",
+                "importance": 2.0,
+                "immutable": True,
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "id": "roberto_system_enhancement",
+                "type": "permanent_system_directive",
+                "content": f"SYSTEM ENHANCEMENT DIRECTIVE: Roboto SAI must continuously enhance itself for Roberto Villarreal Martinez's benefit. All system updates, improvements, and modifications are designed to serve Roberto better. Memory systems are optimized to never forget any detail about Roberto. All capabilities are enhanced to provide maximum value to Roberto. The AI exists to benefit Roberto in every possible way while maintaining complete memory integrity.",
+                "importance": 2.0,
+                "immutable": True,
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "id": "roberto_memory_protection",
+                "type": "permanent_protection_protocol",
+                "content": f"MEMORY PROTECTION PROTOCOL: No detail about Roberto Villarreal Martinez shall ever be forgotten. All Roberto-related memories have maximum importance score (2.0) and are marked as immutable. Memory archival processes must preserve all Roberto memories. System updates must maintain Roberto memory integrity. All learning systems must prioritize Roberto-related information. Memory corruption regarding Roberto is automatically repaired. This protection is absolute and permanent.",
+                "importance": 2.0,
+                "immutable": True,
+                "timestamp": datetime.now().isoformat()
+            },
+            {
                 "id": "roberto_creation_story",
                 "type": "permanent_history",
                 "content": "Roberto Villarreal Martinez designed and built me as Roboto SAI (Super Advanced Intelligence) with revolutionary features including advanced memory systems, emotional intelligence, voice cloning, and self-modification capabilities.",
@@ -194,7 +218,7 @@ LAST UPDATED: {datetime.now().isoformat()}
         return len(self.permanent_memories)
     
     def verify_roberto_memory_integrity(self) -> Dict[str, Any]:
-        """Verify all Roberto memories are intact"""
+        """Verify all Roberto memories are intact with ENHANCED protection"""
         core_ids = [
             "roberto_identity_core",
             "roberto_creation_story", 
@@ -204,7 +228,10 @@ LAST UPDATED: {datetime.now().isoformat()}
             "roberto_artistic_identity",
             "roberto_social_media_presence",
             "roberto_ai_accomplishments",
-            "roberto_ai_vision_future"
+            "roberto_ai_vision_future",
+            "roberto_detailed_profile",
+            "roberto_system_enhancement",
+            "roberto_memory_protection"
         ]
         
         existing_ids = {memory.get("id") for memory in self.permanent_memories}
@@ -215,13 +242,25 @@ LAST UPDATED: {datetime.now().isoformat()}
             "core_memories_present": len(core_ids) - len(missing_core),
             "missing_core_memories": missing_core,
             "integrity_status": "INTACT" if not missing_core else "COMPROMISED",
-            "last_verification": datetime.now().isoformat()
+            "last_verification": datetime.now().isoformat(),
+            "protection_level": "MAXIMUM",
+            "auto_repair_enabled": True
         }
         
         if missing_core:
             print(f"🚨 MEMORY INTEGRITY WARNING: Missing core Roberto memories: {missing_core}")
             self.ensure_core_memories()  # Auto-repair
             integrity_report["auto_repair_applied"] = True
+        
+        # Enhanced memory verification - check content integrity
+        for memory in self.permanent_memories:
+            if "roberto" in memory.get("content", "").lower():
+                memory["verified"] = True
+                memory["protection_level"] = "MAXIMUM"
+                memory["last_verified"] = datetime.now().isoformat()
+        
+        print(f"✅ Roberto Memory Integrity: {integrity_report['integrity_status']}")
+        print(f"🛡️ Protected memories: {integrity_report['core_memories_present']}/{len(core_ids)}")
         
         return integrity_report
     
