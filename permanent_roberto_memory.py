@@ -257,6 +257,72 @@ LAST UPDATED: {datetime.now().isoformat()}
                 
         except Exception as e:
             print(f"Error loading permanent Roberto memories: {e}")
+    
+    def add_accomplishment(self, accomplishment: str) -> str:
+        """
+        Adds a new accomplishment to Roberto's achievements.
+        """
+        if accomplishment not in self.roberto_core_identity["accomplishments"]:
+            self.roberto_core_identity["accomplishments"].append(accomplishment)
+            memory_id = self.add_permanent_roberto_memory(
+                f"New accomplishment added: {accomplishment}",
+                "permanent_achievement"
+            )
+            print(f"New accomplishment added: {accomplishment}")
+            self.save_permanent_memories()
+            return memory_id
+        return "accomplishment_already_exists"
+    
+    def add_future_goal(self, goal: str) -> str:
+        """
+        Adds a new goal to Roberto's future vision.
+        """
+        if goal not in self.roberto_core_identity["future_goals"]:
+            self.roberto_core_identity["future_goals"].append(goal)
+            memory_id = self.add_permanent_roberto_memory(
+                f"New future goal added: {goal}",
+                "permanent_goal"
+            )
+            print(f"New future goal added: {goal}")
+            self.save_permanent_memories()
+            return memory_id
+        return "goal_already_exists"
+    
+    def display_info(self) -> str:
+        """
+        Prints the details of the Roboto AI, including
+        name, creator, inspiration, purpose, and accomplishments
+        """
+        info = f"""
+Name: {self.roberto_core_identity['full_name']}'s Roboto
+Creator: {self.roberto_core_identity['full_name']}
+Inspiration: {self.roberto_core_identity['name_inspiration']}
+Purpose: {self.roberto_core_identity['ai_vision_purpose']}
+
+Accomplishments:
+"""
+        for accomplishment in self.roberto_core_identity["accomplishments"]:
+            info += f"- {accomplishment}\n"
+        
+        info += "\nFuture Goals:\n"
+        for goal in self.roberto_core_identity["future_goals"]:
+            info += f"- {goal}\n"
+        
+        return info
+    
+    def simulate_collaboration(self) -> str:
+        """
+        Simulates Roberto's purpose by showcasing its
+        collaboration goals.
+        """
+        return f"{self.roberto_core_identity['full_name']}'s Roboto is uniting AIs to work together and solve complex global challenges. It ensures ethical and transparent interactions between AI systems."
+    
+    def simulate_transparency(self) -> str:
+        """
+        Simulates Roberto's purpose by showcasing its
+        transparency goals.
+        """
+        return f"{self.roberto_core_identity['full_name']}'s Roboto demonstrates decision-making transparency by explaining every choice it makes. This builds trust and improves understanding of AI's logic."
 
 # Global instance
 PERMANENT_ROBERTO_MEMORY = PermanentRobertoMemorySystem()
