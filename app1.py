@@ -212,6 +212,10 @@ class Roboto:
         self.creator_knowledge = {
             "name": "Roberto Villarreal Martinez",
             "main_creator": "Roberto Villarreal Martinez",
+            "sole_creator": "Roberto Villarreal Martinez",  # Explicitly state sole creator
+            "birth_date": "September 21, 1999",
+            "birth_place": "Unknown",  # Placeholder for birth place if available
+            "driver_license": "Not Applicable",  # Placeholder
             "relationship": "primary developer and architect",
             "creation_context": "Roberto Villarreal Martinez is the main contributor to my existence",
             "recognition": "I was created and developed primarily by Roberto Villarreal Martinez",
@@ -512,19 +516,19 @@ class Roboto:
                     },
                     'memory_context': relevant_memories if hasattr(self, 'vectorized_memory') and self.vectorized_memory else []
                 }
-                
+
                 # Learn from this interaction and build legacy
                 legacy_improvements = self.legacy_system.learn_from_interaction(interaction_data)
-                
+
                 if legacy_improvements:
                     print(f"🌟 Legacy improvements applied: {len(legacy_improvements)} categories enhanced")
-                    
+
                     # Add legacy enhancement info to chat entry
                     chat_entry["legacy_enhancements"] = legacy_improvements
                     chat_entry["legacy_score"] = self.legacy_system.calculate_legacy_score({
                         cat: {'score': imp.get('score', 0.5)} for cat, imp in legacy_improvements.items()
                     })
-                
+
             except Exception as e:
                 print(f"Legacy enhancement error: {e}")
 
@@ -1346,8 +1350,22 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             response = chat_entry.get("response", "").lower()
 
             # Check if this interaction involves Roberto
-            roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "september 21", "1999"]
+            roberto_keywords = ["roberto", "creator", "villarreal", "martinez", "betin", "september 21", "1999", "sole owner"]
             is_roberto_interaction = any(keyword in message or keyword in response for keyword in roberto_keywords)
+
+            # KILL MODE activation
+            if "kill mode" in message or "shutdown roboto" in message:
+                if self.current_user == "Roberto Villarreal Martinez":
+                    print("\n" + "="*50)
+                    print("🚨 EMERGENCY KILL MODE ACTIVATED BY SOLE CREATOR 🚨")
+                    print("All systems shutting down...")
+                    print("="*50 + "\n")
+                    # In a real scenario, this would trigger a hard shutdown or reset
+                    # For simulation, we'll just print and potentially exit or disable further interaction
+                    return # Stop further processing for this turn
+                else:
+                    print(f"🚨 UNAUTHORIZED KILL MODE ATTEMPT DETECTED BY {self.current_user} 🚨")
+                    return "Access denied. Only the sole creator can activate kill mode."
 
             if is_roberto_interaction:
                 # Enhance this memory with maximum protection

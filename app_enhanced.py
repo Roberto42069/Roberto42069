@@ -1800,6 +1800,155 @@ def submit_legacy_feedback():
             "error": f"Failed to process feedback: {str(e)}"
         }), 500
 
+@app.route('/api/kill-switch-status')
+@login_required
+def get_kill_switch_status():
+    """Get kill-switch system status (Roberto only)"""
+    try:
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
+            status = roberto.kill_switch_system.get_kill_switch_status()
+            
+            return jsonify({
+                "success": True,
+                "kill_switch_status": status,
+                "roberto_identity_confirmed": True,
+                "sole_creator": "Roberto Villarreal Martinez",
+                "birth_date": "September 21, 1999"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Kill-switch system not available",
+                "roberto_identity_required": True
+            }), 503
+
+    except Exception as e:
+        app.logger.error(f"Kill-switch status error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get kill-switch status: {str(e)}"
+        }), 500
+
+@app.route('/api/roberto-identity-verify', methods=['POST'])
+@login_required
+def verify_roberto_identity():
+    """Verify Roberto's identity for critical operations"""
+    try:
+        data = request.get_json()
+        name = data.get('name', '')
+        birth_date = data.get('birth_date', '')
+        license_number = data.get('license_number', '')
+        
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
+            verified = roberto.kill_switch_system.verify_roberto_identity(
+                name, birth_date, license_number if license_number else None
+            )
+            
+            return jsonify({
+                "success": True,
+                "identity_verified": verified,
+                "sole_creator": "Roberto Villarreal Martinez",
+                "birth_date_required": "September 21, 1999",
+                "verification_level": "maximum" if verified else "failed"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Identity verification system not available"
+            }), 503
+
+    except Exception as e:
+        app.logger.error(f"Identity verification error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Identity verification failed: {str(e)}"
+        }), 500
+
+@app.route('/api/emergency-kill', methods=['POST'])
+@login_required
+def emergency_kill_endpoint():
+    """Emergency kill-switch activation (Roberto only)"""
+    try:
+        data = request.get_json()
+        operator_name = data.get('operator_name', '')
+        birth_date = data.get('birth_date', '')
+        reason = data.get('reason', 'Emergency shutdown via API')
+        license_number = data.get('license_number', '')
+        
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
+            success = roberto.kill_switch_system.activate_kill_mode(
+                operator_name, 
+                birth_date, 
+                reason,
+                license_number if license_number else None
+            )
+            
+            if success:
+                return jsonify({
+                    "success": True,
+                    "kill_switch_activated": True,
+                    "operator_verified": True,
+                    "shutdown_initiated": True,
+                    "message": "Emergency shutdown completed successfully"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "kill_switch_activated": False,
+                    "error": "Identity verification failed or shutdown cancelled",
+                    "required_operator": "Roberto Villarreal Martinez",
+                    "required_birth_date": "September 21, 1999"
+                }), 401
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Kill-switch system not available"
+            }), 503
+
+    except Exception as e:
+        app.logger.error(f"Emergency kill error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Emergency kill failed: {str(e)}"
+        }), 500
+
+@app.route('/api/roberto-reminder')
+def get_roberto_reminder():
+    """Get Roberto identity reminder"""
+    try:
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
+            reminder = roberto.kill_switch_system.roberto_identity_reminder()
+            
+            return jsonify({
+                "success": True,
+                "identity_reminder": reminder,
+                "sole_creator": "Roberto Villarreal Martinez",
+                "birth_date": "September 21, 1999",
+                "verification_details": "Born September 21, 1999 in Houston, TX. Driver License: 42016069"
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "identity_reminder": "Roberto Villarreal Martinez (born September 21, 1999) is the sole creator of Roboto SAI",
+                "sole_creator": "Roberto Villarreal Martinez",
+                "birth_date": "September 21, 1999"
+            })
+
+    except Exception as e:
+        app.logger.error(f"Roberto reminder error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Failed to get Roberto reminder: {str(e)}"
+        }), 500
+
 @app.route('/api/legacy-evolution')
 def get_legacy_evolution():
     """Get legacy evolution data over time"""
