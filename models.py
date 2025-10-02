@@ -98,7 +98,7 @@ class MemoryEntry(db.Model):
     access_count = db.Column(db.Integer, default=0)
 
     # Additional data
-    metadata = db.Column(db.JSON, default=dict)
+    entry_metadata = db.Column(db.JSON, default=dict)
 
     def __repr__(self):
         return f'<MemoryEntry {self.memory_id}>'
