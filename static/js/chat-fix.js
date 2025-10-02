@@ -261,6 +261,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     console.log(`Loading ${history.length} conversations`);
+                    
+                    // ALWAYS SHOW CHAT HISTORY - NEVER HIDE
                     history.forEach(entry => {
                         if (entry.message) {
                             addChatMessage(entry.message, true);
@@ -270,6 +272,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
+                    // Ensure chat history container is always visible
+                    chatHistoryElement.style.display = 'block';
+                    chatHistoryElement.style.visibility = 'visible';
+                    chatHistoryElement.style.opacity = '1';
+                    
                     // Scroll to bottom
                     setTimeout(() => {
                         chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
@@ -278,9 +285,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
-            // Hide loading indicator and show error message
+            // Always show chat history container even on error
             const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
             if (chatHistoryElement) {
+                chatHistoryElement.style.display = 'block';
+                chatHistoryElement.style.visibility = 'visible';
+                
                 const loadingIndicator = chatHistoryElement.querySelector('#loading-indicator');
                 if (loadingIndicator) {
                     loadingIndicator.innerHTML = '<div class="text-center text-muted p-3">Your conversations are saved but temporarily unavailable. Try refreshing the page.</div>';

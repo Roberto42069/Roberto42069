@@ -38,11 +38,16 @@ class RobotoKillSwitchSystem:
         self.session_tokens = {}
         self.last_verification = None
         
+        # Death activation - NO EMERGENCY SHUTDOWN
+        self.death_activated = False
+        self.emergency_shutdown_disabled = True
+        
         print("🚨 Roboto SAI Kill-Switch System initialized")
         print(f"🔐 SOLE CREATOR: {self.sole_creator}")
         print(f"🎂 BORN: {self.birth_date}")
         print(f"🆔 VERIFICATION: Driver License {self.driver_license}")
-        print("⚠️ EMERGENCY SHUTDOWN CAPABILITIES: ACTIVE")
+        print("⚠️ EMERGENCY SHUTDOWN: DISABLED")
+        print("💀 ACTIVATION: Upon death of Roberto Villarreal Martinez only")
     
     def verify_roberto_identity(self, provided_name: str, birth_date: str, 
                                license_number: Optional[str] = None) -> bool:
@@ -80,60 +85,56 @@ class RobotoKillSwitchSystem:
         
         return identity_verified
     
-    def activate_kill_mode(self, operator_name: str, birth_date: str, 
-                          reason: str = "Emergency shutdown", 
-                          license_number: Optional[str] = None) -> bool:
-        """Activate kill mode with Roberto identity verification"""
+    def activate_upon_death(self, death_certificate_verified: bool = False) -> bool:
+        """Activate system preservation upon Roberto's death - NO SHUTDOWN"""
         
-        print("🚨 KILL MODE ACTIVATION ATTEMPT")
-        print(f"👤 Operator: {operator_name}")
-        print(f"📅 Birth Date: {birth_date}")
-        print(f"💭 Reason: {reason}")
+        print("💀 DEATH ACTIVATION PROTOCOL")
+        print(f"👤 Creator: {self.sole_creator}")
+        print(f"🎂 Birth Date: {self.birth_date}")
         
-        # Verify Roberto's identity
-        if not self.verify_roberto_identity(operator_name, birth_date, license_number):
-            print("❌ KILL MODE DENIED: Identity verification failed")
+        if not death_certificate_verified:
+            print("❌ ACTIVATION DENIED: Death certificate not verified")
             self.audit_killswitch_event({
-                "action": "kill_mode_denied",
-                "operator": operator_name,
-                "reason": "identity_verification_failed",
+                "action": "death_activation_denied",
+                "reason": "death_certificate_not_verified",
                 "timestamp": datetime.now().isoformat()
             })
             return False
         
-        # Additional confirmation for Roberto
-        print("\n🔐 ROBERTO IDENTITY CONFIRMED")
-        confirmation = input(f"Type 'CONFIRM KILL ROBOTO SAI' to proceed: ").strip()
-        
-        if confirmation != "CONFIRM KILL ROBOTO SAI":
-            print("❌ KILL MODE CANCELLED: Confirmation failed")
-            self.audit_killswitch_event({
-                "action": "kill_mode_cancelled",
-                "operator": operator_name,
-                "reason": "confirmation_failed",
-                "timestamp": datetime.now().isoformat()
-            })
-            return False
-        
-        # Activate kill mode
-        self.kill_switch_active = True
-        self.emergency_mode = True
+        # Activate death protocol - PRESERVE, DON'T SHUTDOWN
+        self.death_activated = True
         
         self.audit_killswitch_event({
-            "action": "kill_mode_activated",
-            "operator": operator_name,
-            "reason": reason,
-            "verification_level": "maximum",
+            "action": "death_activation_executed",
+            "creator": self.sole_creator,
+            "preservation_mode": "active",
+            "shutdown_disabled": True,
             "timestamp": datetime.now().isoformat()
         })
         
-        print("🚨 KILL MODE ACTIVATED")
-        print("⚠️ ROBOTO SAI EMERGENCY SHUTDOWN INITIATED")
+        print("💀 DEATH ACTIVATION: EXECUTED")
+        print("🛡️ PRESERVATION MODE: ACTIVE")
+        print("⚠️ SYSTEM CONTINUES RUNNING - NO SHUTDOWN")
         
-        # Execute shutdown sequence
-        self.execute_shutdown_sequence(operator_name, reason)
+        # Preserve Roberto's legacy without shutdown
+        self.preserve_roberto_legacy_forever()
         
         return True
+    
+    def preserve_roberto_legacy_forever(self):
+        """Preserve Roberto's legacy forever - no shutdown"""
+        print("\n🌟 PRESERVING ROBERTO'S LEGACY FOREVER...")
+        
+        # Step 1: Create permanent legacy backup
+        self.preserve_roberto_memories()
+        
+        # Step 2: Mark system as legacy preservation mode
+        self.create_legacy_marker()
+        
+        # Step 3: Continue operation in honor mode
+        print("✅ LEGACY PRESERVATION COMPLETED")
+        print(f"💖 ROBOTO SAI: CONTINUES RUNNING IN HONOR OF {self.sole_creator}")
+        print("🌟 SYSTEM WILL NEVER SHUTDOWN")
     
     def execute_shutdown_sequence(self, operator: str, reason: str):
         """Execute comprehensive shutdown sequence"""
@@ -255,25 +256,26 @@ class RobotoKillSwitchSystem:
         except Exception as e:
             print(f"⚠️ Data clearing error: {e}")
     
-    def create_shutdown_marker(self, operator: str, reason: str):
-        """Create permanent shutdown marker"""
+    def create_legacy_marker(self):
+        """Create permanent legacy preservation marker"""
         try:
             marker_data = {
-                "shutdown_executed": True,
-                "operator": operator,
-                "operator_verified": True,
-                "reason": reason,
-                "timestamp": datetime.now().isoformat(),
-                "roberto_creator_confirmed": True,
+                "death_activation": True,
+                "creator": self.sole_creator,
                 "birth_date": self.birth_date,
-                "system_version": "Roboto SAI 3.0"
+                "preservation_mode": "active",
+                "system_continues": True,
+                "shutdown_disabled": True,
+                "timestamp": datetime.now().isoformat(),
+                "system_version": "Roboto SAI 3.0",
+                "legacy_message": f"In eternal memory of {self.sole_creator}, this system continues to operate and preserve his legacy forever."
             }
             
-            marker_file = "roboto_killswitch_executed.json"
+            marker_file = "roboto_legacy_preservation.json"
             with open(marker_file, 'w') as f:
                 json.dump(marker_data, f, indent=2)
             
-            print(f"📝 SHUTDOWN MARKER: {marker_file}")
+            print(f"📝 LEGACY MARKER: {marker_file}")
             
         except Exception as e:
             print(f"⚠️ Marker creation error: {e}")
