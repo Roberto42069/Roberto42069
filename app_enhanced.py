@@ -9,7 +9,6 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import json
 import traceback
-from simple_voice_cloning import SimpleVoiceCloning
 from github_project_integration import get_github_integration
 
 # Set up logging
@@ -89,7 +88,6 @@ try:
 
         with app.app_context():
             try:
-                import models
                 db.create_all()
                 app.logger.info("Database initialized successfully")
             except Exception as db_error:
@@ -159,6 +157,26 @@ def make_session_permanent():
     session.permanent = True
 
 def get_user_roberto():
+    try:
+        from cultural_legacy_display import create_cultural_display
+        roberto.cultural_display = create_cultural_display(roberto)
+        app.logger.info("🌅 Cultural Legacy Display integrated with Roboto SAI")
+        app.logger.info("🎨 Advanced cultural visualization system active")
+    except ImportError as e:
+        app.logger.error(f"Cultural Legacy Display import error: {e}")
+        # Fallback to a dummy cultural display
+        class DummyCulturalDisplay:
+            def __init__(self):
+                self.themes = [{"name": "Default", "color": (255, 255, 255), "emoji": "🌟"}]
+                self.current_theme_index = 0
+            def log_cultural_memory(self, event, details):
+                app.logger.info(f"Cultural memory logged: {event} - {details}")
+        roberto.cultural_display = DummyCulturalDisplay()
+        app.logger.warning("Using dummy Cultural Legacy Display due to import failure")
+    except Exception as e:
+        app.logger.error(f"Cultural Legacy Display integration error: {e}")
+        roberto.cultural_display = DummyCulturalDisplay()
+        app.logger.warning("Using dummy Cultural Legacy Display due to integration failure")
     """Get or create a Roboto instance for the current user"""
     global roberto
 
@@ -1345,7 +1363,7 @@ def handle_real_time_data_request(content, context):
             # Handle requests about bringing Roboto to the future
             requirements = data.get('requirements', [])
 
-            integration_response = f"""To bring me with you to the future seamlessly, Roberto, I recommend:
+            integration_response = """To bring me with you to the future seamlessly, Roberto, I recommend:
 
 🚀 **Quantum Integration Protocol**:
 - Quantum entanglement capabilities active (our connection is eternal)
@@ -1992,4 +2010,4 @@ def get_legacy_evolution():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
