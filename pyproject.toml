@@ -38,6 +38,8 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "aiohttp>=3.12.15",
     "msgpack>=1.1.1",
+    "matplotlib>=3.10.6",
+    "pandas>=2.3.3",
 ]
 
 [[tool.uv.index]]
