@@ -157,26 +157,6 @@ def make_session_permanent():
     session.permanent = True
 
 def get_user_roberto():
-    try:
-        from cultural_legacy_display import create_cultural_display
-        roberto.cultural_display = create_cultural_display(roberto)
-        app.logger.info("🌅 Cultural Legacy Display integrated with Roboto SAI")
-        app.logger.info("🎨 Advanced cultural visualization system active")
-    except ImportError as e:
-        app.logger.error(f"Cultural Legacy Display import error: {e}")
-        # Fallback to a dummy cultural display
-        class DummyCulturalDisplay:
-            def __init__(self):
-                self.themes = [{"name": "Default", "color": (255, 255, 255), "emoji": "🌟"}]
-                self.current_theme_index = 0
-            def log_cultural_memory(self, event, details):
-                app.logger.info(f"Cultural memory logged: {event} - {details}")
-        roberto.cultural_display = DummyCulturalDisplay()
-        app.logger.warning("Using dummy Cultural Legacy Display due to import failure")
-    except Exception as e:
-        app.logger.error(f"Cultural Legacy Display integration error: {e}")
-        roberto.cultural_display = DummyCulturalDisplay()
-        app.logger.warning("Using dummy Cultural Legacy Display due to integration failure")
     """Get or create a Roboto instance for the current user"""
     global roberto
 
@@ -251,6 +231,17 @@ def get_user_roberto():
             except Exception as e:
                 app.logger.warning(f"HyperSpeed optimization not available: {e}")
 
+        # Add cultural display integration
+        try:
+            from cultural_legacy_display_integrated import create_cultural_display
+            roberto.cultural_display = create_cultural_display(roberto)
+            app.logger.info("🌅 Cultural Legacy Display integrated with Roboto SAI")
+            app.logger.info("🎨 Advanced cultural visualization system active")
+        except ImportError as e:
+            app.logger.error(f"Cultural Legacy Display integration error: {e}")
+        except Exception as e:
+            app.logger.error(f"Cultural Legacy Display integration error: {e}")
+        
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
 
         # Load user data if authenticated and database available
