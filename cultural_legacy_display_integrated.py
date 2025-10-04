@@ -63,6 +63,10 @@ cultural_themes = [
     {"name": "Huitzilopochtli", "color": huitzilopochtli_color, "emoji": "☀️"},
 ]
 
+def create_cultural_display(roboto_instance=None):
+    """Factory function to create a CulturalLegacyDisplay instance"""
+    return CulturalLegacyDisplay(roboto_instance)
+
 class CulturalLegacyDisplay:
     """Enhanced cultural legacy display for Roboto SAI"""
 
@@ -71,6 +75,7 @@ class CulturalLegacyDisplay:
         self.current_theme_index = 0
         self.animation_time = 0
         self.clock = pygame.time.Clock()
+        self.themes = cultural_themes
 
     def run_display(self):
         """Run the cultural legacy display"""
@@ -135,6 +140,13 @@ class CulturalLegacyDisplay:
             end_x = int(width // 2 + 80 * math.cos(start_angle))
             end_y = int(height // 2 + 100 + 80 * math.sin(start_angle))
             pygame.draw.line(screen, theme["color"], (width // 2, height // 2 + 100), (end_x, end_y), 2)
+
+    def log_cultural_memory(self, event, details):
+        """Log a cultural memory event"""
+        import logging
+        logging.info(f"🌅 Cultural memory logged: {event} - {details}")
+        if self.roboto and hasattr(self.roboto, 'add_memory'):
+            self.roboto.add_memory(f"Cultural event: {event}", details)
 
 def integrate_with_roboto(roboto_instance):
     """Integrate cultural display with Roboto SAI"""
