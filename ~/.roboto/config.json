@@ -2,7 +2,7 @@
   "version": "v1",
   "profiles": {
     "prod": {
-      "api_key": "roboto_pat_djI6dG9fdzdzNXB4cXNqaWNr_v5uUN06AT7GmuGfy6kk8de4Qp56sgAQq4po5WyGTjDrLs6oQCRbXYoFKrih9g2R23ExUHgl2Maw2wZgP"
+      "api_key": "roboto_pat_djI6dG9fbmVqc2pqY2l2eGx1_PMHsGL66R7WHg3BbFh1FiOSLe5IQpHmi5IrGFXP83gDDObs28gWEF5Swckexi0BfRegE5tOZMbY41YGm"
     }
   },
   "default_profile": "prod"
