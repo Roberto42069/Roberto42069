@@ -850,17 +850,72 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                // Create download with mobile-friendly approach
-                const blob = new Blob([JSON.stringify(data.data, null, 2)], {
+                const jsonString = JSON.stringify(data.data, null, 2);
+                const blob = new Blob([jsonString], {
                     type: 'application/json'
                 });
                 
-                // Check if on mobile device
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // For mobile, try to use share API or fallback to data URL
+                const filename = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                
+                // Check if on iOS/iPhone
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                
+                if (isIOS || isSafari) {
+                    // iOS-specific approach
+                    // Try Web Share API first (works best on iOS)
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename)] })) {
+                        try {
+                            const file = new File([blob], filename, {
+                                type: 'application/json',
+                                lastModified: new Date().getTime()
+                            });
+                            await navigator.share({
+                                files: [file],
+                                title: 'Roboto SAI Data Export',
+                                text: 'Your Roboto conversations and memories'
+                            });
+                            if (statusDiv) {
+                                statusDiv.textContent = 'Data exported successfully! Check your Files app or selected location.';
+                                statusDiv.className = 'small text-success text-center';
+                            }
+                            return;
+                        } catch (shareError) {
+                            console.log('Share API failed, trying alternative method:', shareError);
+                        }
+                    }
+                    
+                    // Fallback: Create download link with proper iOS handling
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const link = document.createElement('a');
+                        link.href = e.target.result;
+                        link.download = filename;
+                        link.style.display = 'none';
+                        
+                        // iOS requires the link to be in the DOM
+                        document.body.appendChild(link);
+                        
+                        // Trigger click
+                        link.click();
+                        
+                        // Clean up
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                        }, 100);
+                        
+                        if (statusDiv) {
+                            statusDiv.textContent = 'Data ready! Tap to save to Files or iCloud.';
+                            statusDiv.className = 'small text-success text-center';
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                    
+                } else if (/Android/i.test(navigator.userAgent)) {
+                    // Android approach
                     if (navigator.share) {
                         try {
-                            const file = new File([blob], `roboto-data-${new Date().toISOString().split('T')[0]}.json`, {
+                            const file = new File([blob], filename, {
                                 type: 'application/json'
                             });
                             await navigator.share({
@@ -868,7 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 title: 'Roboto Data Export'
                             });
                             if (statusDiv) {
-                                statusDiv.textContent = 'Data shared successfully!';
+                                statusDiv.textContent = 'Data exported successfully!';
                                 statusDiv.className = 'small text-success text-center';
                             }
                             return;
@@ -877,35 +932,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     
-                    // Fallback for mobile
-                    const dataUrl = URL.createObjectURL(blob);
+                    // Fallback for Android
+                    const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
-                    a.href = dataUrl;
-                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.href = url;
+                    a.download = filename;
                     a.target = '_blank';
                     document.body.appendChild(a);
                     a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(dataUrl);
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    
                 } else {
                     // Desktop download
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.download = filename;
                     document.body.appendChild(a);
                     a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
                 }
                 
-                if (statusDiv) {
+                if (statusDiv && !statusDiv.textContent.includes('successfully')) {
                     statusDiv.textContent = 'Data exported successfully!';
                     statusDiv.className = 'small text-success text-center';
                 }
             } else {
                 if (statusDiv) {
-                    statusDiv.textContent = 'Export failed: ' + data.message;
+                    statusDiv.textContent = 'Export failed: ' + (data.message || 'Unknown error');
                     statusDiv.className = 'small text-danger text-center';
                 }
             }
@@ -917,13 +977,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Reset status after 3 seconds
+        // Reset status after 5 seconds
         setTimeout(() => {
-            if (statusDiv) {
+            if (statusDiv && !statusDiv.textContent.includes('tap to save')) {
                 statusDiv.textContent = 'Export your conversations and memories, or import previous data';
                 statusDiv.className = 'small text-muted text-center';
             }
-        }, 3000);
+        }, 5000);
     }
 
     async function handleImportFile(event) {

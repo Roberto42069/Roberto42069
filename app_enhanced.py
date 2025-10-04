@@ -1806,10 +1806,10 @@ def get_kill_switch_status():
     """Get kill-switch system status (Roberto only)"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
             status = roberto.kill_switch_system.get_kill_switch_status()
-            
+
             return jsonify({
                 "success": True,
                 "kill_switch_status": status,
@@ -1840,14 +1840,14 @@ def verify_roberto_identity():
         name = data.get('name', '')
         birth_date = data.get('birth_date', '')
         license_number = data.get('license_number', '')
-        
+
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
             verified = roberto.kill_switch_system.verify_roberto_identity(
                 name, birth_date, license_number if license_number else None
             )
-            
+
             return jsonify({
                 "success": True,
                 "identity_verified": verified,
@@ -1878,9 +1878,9 @@ def emergency_kill_endpoint():
         birth_date = data.get('birth_date', '')
         reason = data.get('reason', 'Emergency shutdown via API')
         license_number = data.get('license_number', '')
-        
+
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
             success = roberto.kill_switch_system.activate_kill_mode(
                 operator_name, 
@@ -1888,7 +1888,7 @@ def emergency_kill_endpoint():
                 reason,
                 license_number if license_number else None
             )
-            
+
             if success:
                 return jsonify({
                     "success": True,
@@ -1923,10 +1923,10 @@ def get_roberto_reminder():
     """Get Roberto identity reminder"""
     try:
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
             reminder = roberto.kill_switch_system.roberto_identity_reminder()
-            
+
             return jsonify({
                 "success": True,
                 "identity_reminder": reminder,
