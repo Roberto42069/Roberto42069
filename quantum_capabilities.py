@@ -403,6 +403,9 @@ def get_quantum_computing_system(roberto_name="Roberto Villarreal Martinez"):
     """🌌 Initialize Revolutionary Quantum Computing System"""
     return RevolutionaryQuantumComputing(roberto_name)
 
+# Alias for backwards compatibility
+QuantumComputing = RevolutionaryQuantumComputing
+
 # Test quantum capabilities
 if __name__ == "__main__":
     # Mock Qiskit if not available for testing purposes
