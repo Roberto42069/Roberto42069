@@ -16,8 +16,6 @@ import psutil
 import math
 import json
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 from io import BytesIO
 
 load_dotenv()
