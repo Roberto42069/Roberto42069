@@ -392,6 +392,16 @@ def intro():
     introduction = roberto.introduce()
     return jsonify({"introduction": introduction})
 
+@app.route('/terms')
+def terms_of_service():
+    """Display Terms of Service page"""
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy_policy():
+    """Display Privacy Policy page"""
+    return render_template('privacy.html')
+
 @app.route('/api/chat_history')
 def get_chat_history():
     """Get chat history - works with or without authentication"""
