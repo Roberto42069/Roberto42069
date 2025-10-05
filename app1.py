@@ -53,21 +53,8 @@ class Roboto:
         # CRITICAL: Initialize Roberto memory protection immediately
         self._initialize_roberto_memory_protection()
 
-        # REVOLUTIONARY UPGRADE: Vectorized Memory Engine with RAG
-        try:
-            from vectorized_memory_engine import RevolutionaryMemoryEngine
-            # Pass OpenAI client after it's initialized
-            if hasattr(self, 'openai_client') and self.openai_client:
-                self.vectorized_memory = RevolutionaryMemoryEngine(openai_client=self.openai_client)
-                print("🚀 REVOLUTIONARY: Vectorized Memory Engine with RAG initialized!")
-                print(f"Advanced memory capabilities: {self.vectorized_memory.get_memory_statistics()}")
-            else:
-                # Initialize without OpenAI client for fallback mode
-                self.vectorized_memory = RevolutionaryMemoryEngine()
-                print("🚀 REVOLUTIONARY: Vectorized Memory Engine initialized in fallback mode")
-        except Exception as e:
-            print(f"Vectorized memory initialization error: {e}")
-            self.vectorized_memory = None
+        # REVOLUTIONARY UPGRADE: Vectorized Memory Engine with RAG (initialized later after AI client setup)
+        self.vectorized_memory = None
 
         # Initialize REVOLUTIONARY AUTONOMOUS SYSTEMS
         try:
@@ -297,13 +284,51 @@ class Roboto:
             "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"]
         }
 
-        # Initialize OpenAI client
+        # Initialize AI client - Prefer X API (Grok) as main provider
         try:
-            self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-            print("✅ OpenAI client initialized successfully")
+            from x_api_client import get_x_api_client
+            self.x_api_client = get_x_api_client()
+            
+            # Test X API connection to verify it works
+            if self.x_api_client.available and self.x_api_client.test_connection():
+                self.ai_client = self.x_api_client
+                self.ai_provider = "X_API"
+                print("✅ X API (Grok) initialized and verified as main AI provider")
+            else:
+                # Fallback to OpenAI if X API not available or invalid
+                print("⚠️ X API unavailable or invalid - using OpenAI fallback")
+                self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+                self.ai_client = self.openai_client
+                self.ai_provider = "OPENAI"
+                print("✅ OpenAI client initialized as AI provider")
         except Exception as e:
-            print(f"OpenAI client initialization error: {e}")
-            self.openai_client = None
+            print(f"AI client initialization error: {e}")
+            # Last resort fallback to OpenAI
+            try:
+                self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+                self.ai_client = self.openai_client
+                self.ai_provider = "OPENAI"
+                print("✅ OpenAI client initialized (X API unavailable)")
+            except:
+                self.ai_client = None
+                self.ai_provider = None
+                print("❌ No AI provider available")
+
+        # 🚀 REVOLUTIONARY: Initialize Vectorized Memory Engine with RAG (after AI client setup)
+        try:
+            from vectorized_memory_engine import RevolutionaryMemoryEngine
+            # Pass OpenAI client if available (needed for embeddings)
+            if hasattr(self, 'openai_client') and hasattr(self, 'openai_client') and self.openai_client:
+                self.vectorized_memory = RevolutionaryMemoryEngine(openai_client=self.openai_client)
+                print("🚀 REVOLUTIONARY: Vectorized Memory Engine with RAG initialized!")
+                print(f"Advanced memory capabilities: {self.vectorized_memory.get_memory_statistics()}")
+            else:
+                # Initialize without OpenAI client for fallback mode
+                self.vectorized_memory = RevolutionaryMemoryEngine()
+                print("🚀 REVOLUTIONARY: Vectorized Memory Engine initialized in fallback mode")
+        except Exception as e:
+            print(f"Vectorized memory initialization error: {e}")
+            self.vectorized_memory = None
 
         # 🚀 REVOLUTIONARY: HyperSpeed Optimization Engine
         try:
@@ -978,15 +1003,31 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             max_tokens = response_recommendations.get('suggested_length', {}).get('max_words', 40) * 2
             temperature = 0.9 if self.current_emotion in ['curiosity', 'contemplation'] else 0.8
 
-            # Generate response with OpenAI
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=context_messages,
-                max_tokens=min(max_tokens, 300),
-                temperature=temperature
-            )
+            # Generate response with configured AI provider (X API or OpenAI)
+            if self.ai_provider == "X_API":
+                # Use X API (Grok) for AI completion
+                response = self.ai_client.chat_completion(
+                    messages=context_messages,
+                    model="grok-beta",
+                    max_tokens=min(max_tokens, 300),
+                    temperature=temperature
+                )
+            else:
+                # Use OpenAI for AI completion
+                response = self.ai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=context_messages,
+                    max_tokens=min(max_tokens, 300),
+                    temperature=temperature
+                )
 
-            ai_response = response.choices[0].message.content.strip()
+            # Handle response format based on AI provider
+            if self.ai_provider == "X_API":
+                # X API returns dict response
+                ai_response = response['choices'][0]['message']['content'].strip()
+            else:
+                # OpenAI returns object response
+                ai_response = response.choices[0].message.content.strip()
 
             # 🌌 REVOLUTIONARY: Quantum-enhance the response
             if hasattr(self, 'quantum_system') and self.quantum_system:
