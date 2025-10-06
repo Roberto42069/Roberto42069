@@ -402,6 +402,11 @@ def privacy_policy():
     """Display Privacy Policy page"""
     return render_template('privacy.html')
 
+@app.route('/license')
+def license_agreement():
+    """Display Software License Agreement page"""
+    return render_template('license.html')
+
 @app.route('/api/chat_history')
 def get_chat_history():
     """Get chat history - works with or without authentication"""
