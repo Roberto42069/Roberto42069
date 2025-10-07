@@ -285,33 +285,35 @@ class Roboto:
         }
 
         # Initialize AI client - Prefer X API (Grok) as main provider
+        # Silent initialization to avoid console clutter
         try:
             from x_api_client import get_x_api_client
-            self.x_api_client = get_x_api_client()
+            self.x_api_client = get_x_api_client(silent=True)  # Silent mode to suppress verbose output
             
             # Test X API connection to verify it works
             if self.x_api_client.available and self.x_api_client.test_connection():
                 self.ai_client = self.x_api_client
                 self.ai_provider = "X_API"
-                print("✅ X API (Grok) initialized and verified as main AI provider")
+                # Only show success message if X API is working
+                print("✅ X API (Grok) initialized as AI provider")
             else:
-                # Fallback to OpenAI if X API not available or invalid
-                print("⚠️ X API unavailable or invalid - using OpenAI fallback")
+                # Silently fallback to OpenAI if X API not available or invalid
+                # No warning messages to avoid clutter
                 self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
                 self.ai_client = self.openai_client
                 self.ai_provider = "OPENAI"
-                print("✅ OpenAI client initialized as AI provider")
-        except Exception as e:
-            print(f"AI client initialization error: {e}")
-            # Last resort fallback to OpenAI
+                print("✅ OpenAI initialized as AI provider")
+        except Exception:
+            # Silent fallback to OpenAI without error messages
             try:
                 self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
                 self.ai_client = self.openai_client
                 self.ai_provider = "OPENAI"
-                print("✅ OpenAI client initialized (X API unavailable)")
+                print("✅ OpenAI initialized as AI provider")
             except:
                 self.ai_client = None
                 self.ai_provider = None
+                # Only show error if no providers are available at all
                 print("❌ No AI provider available")
 
         # 🚀 REVOLUTIONARY: Initialize Vectorized Memory Engine with RAG (after AI client setup)

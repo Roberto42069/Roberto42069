@@ -11,12 +11,16 @@ from typing import List, Dict, Any, Optional
 class XAPIClient:
     """X API (Grok) client with bearer token authentication"""
     
-    def __init__(self):
+    def __init__(self, silent=True):
         self.api_token = os.environ.get("X_API_TOKEN")
         self.api_secret = os.environ.get("X_API_SECRET")
+        self.silent = silent  # Control verbose output
         
         # X AI (Grok) endpoint - using the proper Grok API endpoint
         self.base_url = "https://api.x.ai/v1"
+        
+        # Validate API key format - X API keys should NOT start with 'GK' or other invalid patterns
+        self.valid_key = self._validate_key_format(self.api_token)
         
         # Setup headers with bearer token
         self.headers = {
@@ -24,12 +28,40 @@ class XAPIClient:
             "Content-Type": "application/json"
         }
         
-        self.available = bool(self.api_token)
+        # Only mark as available if we have a key AND it's valid format
+        self.available = bool(self.api_token) and self.valid_key
         
-        if self.available:
-            print(f"🐦 X API (Grok) initialized with bearer token authentication")
-        else:
-            print("⚠️ X API credentials not found. Using fallback AI provider.")
+        # Suppress verbose output unless explicitly needed
+        if not self.silent:
+            if self.available:
+                print(f"🐦 X API (Grok) initialized with bearer token authentication")
+            elif self.api_token and not self.valid_key:
+                print("⚠️ X API key format appears invalid. Using fallback AI provider.")
+            else:
+                print("⚠️ X API credentials not found. Using fallback AI provider.")
+    
+    def _validate_key_format(self, key: Optional[str]) -> bool:
+        """
+        Validate X API key format
+        
+        Returns False if:
+        - Key is None or empty
+        - Key starts with 'GK' (invalid OpenAI format)
+        - Key has other known invalid patterns
+        """
+        if not key:
+            return False
+        
+        # Check for known invalid patterns
+        invalid_prefixes = ['GK', 'sk-', 'pk-']  # Common OpenAI/other API key prefixes
+        
+        for prefix in invalid_prefixes:
+            if key.startswith(prefix):
+                return False
+        
+        # X API keys typically start with 'xai-' but we'll accept any non-invalid format
+        # for flexibility
+        return True
     
     def chat_completion(
         self, 
@@ -78,7 +110,8 @@ class XAPIClient:
             # Check for errors
             if response.status_code != 200:
                 error_msg = f"X API error: {response.status_code} - {response.text}"
-                print(error_msg)
+                if not self.silent:
+                    print(error_msg)
                 raise Exception(error_msg)
             
             # Parse response
@@ -101,11 +134,13 @@ class XAPIClient:
             
         except requests.exceptions.RequestException as e:
             error_msg = f"X API request failed: {str(e)}"
-            print(error_msg)
+            if not self.silent:
+                print(error_msg)
             raise Exception(error_msg)
         except Exception as e:
             error_msg = f"X API error: {str(e)}"
-            print(error_msg)
+            if not self.silent:
+                print(error_msg)
             raise Exception(error_msg)
 
     def test_connection(self) -> bool:
@@ -123,17 +158,18 @@ class XAPIClient:
             return bool(response.get("choices", [{}])[0].get("message", {}).get("content"))
             
         except Exception as e:
-            # Log error but don't print full traceback for cleaner output
-            if "Incorrect API key" in str(e) or "invalid argument" in str(e):
-                print(f"⚠️ X API key invalid - please get a valid key from https://console.x.ai")
-            else:
-                print(f"X API connection test failed: {e}")
+            # Suppress verbose output unless explicitly needed
+            if not self.silent:
+                if "Incorrect API key" in str(e) or "invalid argument" in str(e):
+                    print(f"⚠️ X API key invalid - please get a valid key from https://console.x.ai")
+                else:
+                    print(f"X API connection test failed: {e}")
             return False
 
 
-def get_x_api_client():
+def get_x_api_client(silent=True):
     """Factory function to get X API client"""
-    return XAPIClient()
+    return XAPIClient(silent=silent)
 
 
 # Test the client when run directly
