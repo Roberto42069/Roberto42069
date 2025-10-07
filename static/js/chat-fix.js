@@ -320,45 +320,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function startSecureSpeechRecognition() {
+    function startSecureSpeechRecognition() {
         // Check for speech recognition support
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert('Speech recognition not supported in this browser');
+            showToast('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.', 'warning');
             return;
         }
         
         try {
-            // Request secure microphone access with explicit permissions
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                    sampleRate: 44100
-                } 
-            });
-            
-            // Verify the stream is active and secure
-            if (!stream.active) {
-                throw new Error('Microphone access denied');
-            }
-            
-            // Stop the stream immediately after permission check
-            stream.getTracks().forEach(track => track.stop());
-            
-            // Initialize speech recognition with security measures
+            // Initialize speech recognition (it will handle microphone permissions automatically)
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             recognition.maxAlternatives = 1;
             
-            // Secure event handlers
+            // Event handlers
             recognition.onstart = function() {
                 isListening = true;
                 updateVoiceButtonState(true);
-                console.log('Secure speech recognition started');
+                showToast('🎤 Listening... Speak now!', 'info');
+                console.log('Speech recognition started');
             };
             
             recognition.onend = function() {
@@ -371,6 +354,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 recognition.start();
                             } catch (error) {
                                 console.error('Error restarting recognition:', error);
+                                isListening = false;
+                                updateVoiceButtonState(false);
                             }
                         }
                     }, 100);
@@ -393,17 +378,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Show interim results in input field
-                chatInput.value = finalTranscript + interimTranscript;
+                if (chatInput) {
+                    chatInput.value = finalTranscript + interimTranscript;
+                }
                 
-                // Submit when final result is received and learn from voice input
+                // Submit when final result is received
                 if (finalTranscript) {
-                    // Track voice recognition confidence for learning
                     const confidence = event.results[event.results.length - 1][0].confidence || 0.5;
                     console.log(`Voice recognition confidence: ${confidence}`);
                     
                     setTimeout(() => {
-                        chatForm.dispatchEvent(new Event('submit'));
-                        // After submission, update voice insights
+                        if (chatForm) {
+                            chatForm.dispatchEvent(new Event('submit'));
+                        }
+                        // Update voice insights
                         setTimeout(updateVoiceInsights, 1000);
                     }, 500);
                 }
@@ -414,12 +402,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 isListening = false;
                 updateVoiceButtonState(false);
                 
-                if (event.error === 'not-allowed') {
-                    alert('Microphone access denied. Please allow microphone access and try again.');
-                } else if (event.error === 'no-speech') {
-                    alert('No speech detected. Please try again.');
-                } else {
-                    alert('Speech recognition error: ' + event.error);
+                let errorMessage = '';
+                switch(event.error) {
+                    case 'not-allowed':
+                    case 'service-not-allowed':
+                        errorMessage = '🎤 Microphone access denied. Please allow microphone permissions in your browser settings.';
+                        break;
+                    case 'no-speech':
+                        errorMessage = '🤔 No speech detected. Please try again and speak clearly.';
+                        break;
+                    case 'audio-capture':
+                        errorMessage = '🎤 Microphone not available. Please check if another app is using it or if it\'s properly connected.';
+                        break;
+                    case 'network':
+                        errorMessage = '📡 Network error. Please check your internet connection.';
+                        break;
+                    case 'aborted':
+                        // Silently handle aborted errors (normal when stopping)
+                        return;
+                    default:
+                        errorMessage = `⚠️ Speech recognition error: ${event.error}`;
+                }
+                
+                if (errorMessage) {
+                    showToast(errorMessage, 'error');
                 }
             };
             
@@ -427,8 +433,10 @@ document.addEventListener('DOMContentLoaded', function() {
             recognition.start();
             
         } catch (error) {
-            console.error('Microphone access error:', error);
-            alert('Unable to access microphone. Please check your browser settings and try again.');
+            console.error('Speech recognition initialization error:', error);
+            isListening = false;
+            updateVoiceButtonState(false);
+            showToast('❌ Unable to start speech recognition. Please try again.', 'error');
         }
     }
     
@@ -1066,6 +1074,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusDiv.className = 'small text-muted text-center';
             }
         }, 3000);
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+        const toastElement = document.getElementById('notificationToast');
+        const toastBody = document.getElementById('toastBody');
+        
+        if (!toastElement || !toastBody) {
+            console.warn('Toast elements not found');
+            return;
+        }
+        
+        // Set message
+        toastBody.textContent = message;
+        
+        // Set background color based on type
+        const toastHeader = toastElement.querySelector('.toast-header');
+        if (toastHeader) {
+            toastHeader.className = 'toast-header';
+            switch(type) {
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    break;
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    break;
+                case 'info':
+                default:
+                    toastHeader.classList.add('bg-info', 'text-white');
+                    break;
+            }
+        }
+        
+        // Show toast using Bootstrap
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 4000
+        });
+        toast.show();
     }
 
     // Initialize data management when DOM is loaded

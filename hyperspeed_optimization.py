@@ -572,24 +572,11 @@ class HyperSpeedOptimizer:
         return hashlib.md5(key_string.encode()).hexdigest()
     
     def warm_caches(self):
-        """Warm up caches with common queries and responses"""
+        """Warm up caches with common queries and responses (disabled for faster startup)"""
         try:
-            # Common queries to pre-cache
-            common_queries = [
-                "Hello",
-                "How are you?",
-                "What can you do?",
-                "Tell me about yourself",
-                "Help",
-                "What's the weather like?",
-                "What time is it?"
-            ]
-            
-            # Pre-fetch embeddings for common queries
-            for query in common_queries:
-                asyncio.run(self._get_cached_embedding(query))
-            
-            logging.info("✨ Cache warming completed")
+            # Cache warming disabled to prevent worker timeout
+            # Caches will be populated on-demand during actual usage
+            logging.info("✨ Cache warming skipped (on-demand loading enabled)")
             
         except Exception as e:
             logging.error(f"Cache warming error: {e}")
