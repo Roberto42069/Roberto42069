@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
     let speechSynthesis = window.speechSynthesis;
     let availableVoices = [];
+    let selectedVoiceIndex = parseInt(localStorage.getItem('selectedVoiceIndex') || '0');
     const ttsBtn = document.getElementById('ttsBtn');
     
     // Initialize speech synthesis for cross-browser compatibility
@@ -26,6 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
             function loadVoices() {
                 availableVoices = speechSynthesis.getVoices();
                 console.log('Available TTS voices:', availableVoices.length);
+                
+                // Create voice selector if voices available
+                if (availableVoices.length > 0) {
+                    createVoiceSelector();
+                    showToast(`🎤 ${availableVoices.length} voices available for text-to-speech`, 'success');
+                }
             }
             
             // Load voices immediately and on voiceschanged event
@@ -38,11 +45,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             console.warn('Text-to-speech not supported in this browser');
+            showToast('⚠️ Text-to-speech not supported in this browser', 'warning');
         }
     }
     
-    // Enhanced speak function with cross-browser support
-    function speakText(text) {
+    // Create voice selector dropdown
+    function createVoiceSelector() {
+        const existingSelector = document.getElementById('voiceSelector');
+        if (existingSelector || availableVoices.length === 0) return;
+        
+        const voiceSelectorContainer = document.createElement('div');
+        voiceSelectorContainer.className = 'd-inline-block ms-2';
+        voiceSelectorContainer.innerHTML = `
+            <select id="voiceSelector" class="form-select form-select-sm" style="width: auto; max-width: 200px;">
+                ${availableVoices.map((voice, index) => 
+                    `<option value="${index}" ${index === selectedVoiceIndex ? 'selected' : ''}>
+                        ${voice.name} (${voice.lang})
+                    </option>`
+                ).join('')}
+            </select>
+        `;
+        
+        // Add to TTS button container if it exists
+        const ttsBtn = document.getElementById('ttsBtn');
+        if (ttsBtn && ttsBtn.parentElement) {
+            ttsBtn.parentElement.appendChild(voiceSelectorContainer);
+        }
+        
+        // Add change listener
+        const selector = voiceSelectorContainer.querySelector('#voiceSelector');
+        selector.addEventListener('change', function(e) {
+            selectedVoiceIndex = parseInt(e.target.value);
+            localStorage.setItem('selectedVoiceIndex', selectedVoiceIndex);
+            
+            // Test the selected voice
+            const selectedVoice = availableVoices[selectedVoiceIndex];
+            showToast(`🔊 Voice changed to: ${selectedVoice.name}`, 'info');
+            speakText(`Hello! I'm now using the ${selectedVoice.name} voice.`);
+        });
+    }
+    
+    // Enhanced speak function with cross-browser support and voice selection
+    function speakText(text, skipToast = false) {
         if (!ttsEnabled || !text || !('speechSynthesis' in window)) {
             return;
         }
@@ -54,26 +98,32 @@ document.addEventListener('DOMContentLoaded', function() {
             const utterance = new SpeechSynthesisUtterance(text);
             
             // Configure voice settings for better compatibility
-            utterance.rate = 0.9;
+            utterance.rate = 0.95;
             utterance.pitch = 1.0;
-            utterance.volume = 0.8;
+            utterance.volume = 0.9;
             
-            // Select best available voice
+            // Use selected voice or best available
             if (availableVoices.length > 0) {
-                // Prefer English voices
-                const englishVoice = availableVoices.find(voice => 
-                    voice.lang.startsWith('en') && voice.localService
-                ) || availableVoices.find(voice => 
-                    voice.lang.startsWith('en')
-                ) || availableVoices[0];
-                
-                if (englishVoice) {
-                    utterance.voice = englishVoice;
+                const selectedVoice = availableVoices[selectedVoiceIndex];
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                } else {
+                    // Fallback to first English voice or any available
+                    const englishVoice = availableVoices.find(voice => 
+                        voice.lang.startsWith('en')
+                    ) || availableVoices[0];
+                    
+                    if (englishVoice) {
+                        utterance.voice = englishVoice;
+                    }
                 }
             }
             
             utterance.onstart = function() {
                 console.log('TTS started');
+                if (!skipToast) {
+                    showToast('🔊 Speaking...', 'info');
+                }
             };
             
             utterance.onend = function() {
@@ -82,9 +132,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             utterance.onerror = function(event) {
                 console.error('TTS error:', event.error);
+                showToast(`⚠️ Speech error: ${event.error}`, 'warning');
+                
                 // Retry with default settings if error occurs
-                if (event.error === 'voice-unavailable') {
+                if (event.error === 'voice-unavailable' && availableVoices.length > 0) {
                     const simpleUtterance = new SpeechSynthesisUtterance(text);
+                    simpleUtterance.voice = availableVoices[0];
                     speechSynthesis.speak(simpleUtterance);
                 }
             };
@@ -92,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
             speechSynthesis.speak(utterance);
         } catch (error) {
             console.error('TTS error:', error);
+            showToast('❌ Unable to speak text', 'error');
         }
     }
     
@@ -155,20 +209,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success && data.response) {
                     addChatMessage(data.response, false);
                     
-                    // Add text-to-speech functionality if enabled
-                    if (ttsEnabled && window.speechSynthesis) {
-                        // Stop any current speech
-                        window.speechSynthesis.cancel();
-                        
-                        // Create new utterance
-                        const utterance = new SpeechSynthesisUtterance(data.response);
-                        utterance.rate = 0.9;
-                        utterance.pitch = 1.1;
-                        utterance.volume = 0.9;
-                        utterance.lang = 'en-US';
-                        
-                        // Speak the message
-                        window.speechSynthesis.speak(utterance);
+                    // Auto-speak response if TTS is enabled
+                    if (ttsEnabled) {
+                        speakText(data.response, true); // Skip toast for auto-speak
                     }
                     
                     // Update all insights after each interaction
@@ -329,6 +372,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
+            // Clean up any existing recognition
+            if (recognition) {
+                recognition.abort();
+                recognition = null;
+            }
+            
             // Initialize speech recognition (it will handle microphone permissions automatically)
             recognition = new SpeechRecognition();
             recognition.continuous = true;
@@ -336,32 +385,46 @@ document.addEventListener('DOMContentLoaded', function() {
             recognition.lang = 'en-US';
             recognition.maxAlternatives = 1;
             
+            // Track recognition state
+            let recognitionActive = false;
+            let shouldRestart = false;
+            
             // Event handlers
             recognition.onstart = function() {
+                recognitionActive = true;
                 isListening = true;
                 updateVoiceButtonState(true);
-                showToast('🎤 Listening... Speak now!', 'info');
+                showToast('🎤 Listening... Speak now!', 'success');
                 console.log('Speech recognition started');
             };
             
             recognition.onend = function() {
+                recognitionActive = false;
                 console.log('Speech recognition ended');
-                // Restart automatically if still supposed to be listening
-                if (isListening) {
+                
+                // Only restart if user hasn't explicitly stopped and we want continuous listening
+                if (isListening && shouldRestart) {
                     setTimeout(() => {
-                        if (isListening && recognition) {
+                        if (isListening && !recognitionActive) {
                             try {
                                 recognition.start();
+                                shouldRestart = false;
                             } catch (error) {
                                 console.error('Error restarting recognition:', error);
                                 isListening = false;
                                 updateVoiceButtonState(false);
                             }
                         }
-                    }, 100);
+                    }, 500); // Increased delay to avoid conflicts
                 } else {
+                    isListening = false;
                     updateVoiceButtonState(false);
                 }
+            };
+            
+            // Set flag for auto-restart on speech detection
+            recognition.onspeechend = function() {
+                shouldRestart = isListening; // Only restart if still in listening mode
             };
             
             recognition.onresult = function(event) {
@@ -377,40 +440,77 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Show interim results in input field
+                // Show interim results in input field with visual feedback
                 if (chatInput) {
                     chatInput.value = finalTranscript + interimTranscript;
+                    // Add visual feedback for active speech
+                    if (interimTranscript) {
+                        chatInput.style.borderColor = '#28a745';
+                        chatInput.style.boxShadow = '0 0 5px rgba(40, 167, 69, 0.5)';
+                    }
                 }
                 
-                // Submit when final result is received
+                // Process final result for speech-to-speech
                 if (finalTranscript) {
                     const confidence = event.results[event.results.length - 1][0].confidence || 0.5;
                     console.log(`Voice recognition confidence: ${confidence}`);
                     
+                    // Show confidence indicator
+                    showVoiceConfidenceIndicator(confidence);
+                    
+                    // Optimize based on confidence level
+                    if (confidence < 0.7) {
+                        optimizeVoiceRecognition(finalTranscript, confidence);
+                    }
+                    
+                    // Reset input field visual feedback
+                    if (chatInput) {
+                        chatInput.style.borderColor = '';
+                        chatInput.style.boxShadow = '';
+                    }
+                    
+                    // Submit with optimized delay
+                    const submitDelay = confidence > 0.8 ? 300 : 500;
                     setTimeout(() => {
                         if (chatForm) {
+                            // Show processing feedback
+                            showToast('💭 Processing your message...', 'info');
                             chatForm.dispatchEvent(new Event('submit'));
                         }
                         // Update voice insights
                         setTimeout(updateVoiceInsights, 1000);
-                    }, 500);
+                    }, submitDelay);
+                    
+                    // Set restart flag for continuous conversation
+                    shouldRestart = true;
                 }
             };
             
             recognition.onerror = function(event) {
                 console.error('Speech recognition error:', event.error);
-                isListening = false;
-                updateVoiceButtonState(false);
+                
+                // Don't reset state for recoverable errors
+                const recoverableErrors = ['aborted', 'no-speech'];
+                
+                if (!recoverableErrors.includes(event.error)) {
+                    isListening = false;
+                    recognitionActive = false;
+                    updateVoiceButtonState(false);
+                }
                 
                 let errorMessage = '';
+                let errorType = 'error';
+                
                 switch(event.error) {
                     case 'not-allowed':
                     case 'service-not-allowed':
                         errorMessage = '🎤 Microphone access denied. Please allow microphone permissions in your browser settings.';
                         break;
                     case 'no-speech':
-                        errorMessage = '🤔 No speech detected. Please try again and speak clearly.';
-                        break;
+                        // Don't show error for no-speech, just log it
+                        console.log('No speech detected, continuing to listen...');
+                        shouldRestart = isListening;
+                        return;
                     case 'audio-capture':
                         errorMessage = '🎤 Microphone not available. Please check if another app is using it or if it\'s properly connected.';
                         break;
@@ -418,14 +518,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage = '📡 Network error. Please check your internet connection.';
                         break;
                     case 'aborted':
-                        // Silently handle aborted errors (normal when stopping)
+                        // Silently handle aborted errors (normal when stopping or restarting)
+                        console.log('Recognition aborted (normal during restart)');
                         return;
                     default:
                         errorMessage = `⚠️ Speech recognition error: ${event.error}`;
+                        errorType = 'warning';
                 }
                 
                 if (errorMessage) {
-                    showToast(errorMessage, 'error');
+                    showToast(errorMessage, errorType);
                 }
             };
             
@@ -441,10 +543,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function stopSpeechRecognition() {
-        if (recognition && isListening) {
-            recognition.stop();
+        if (recognition) {
             isListening = false;
+            try {
+                recognition.abort(); // Use abort instead of stop for immediate termination
+            } catch (error) {
+                console.log('Error stopping recognition:', error);
+            }
+            recognition = null;
             updateVoiceButtonState(false);
+            showToast('🛑 Speech recognition stopped', 'info');
         }
     }
     
@@ -522,73 +630,170 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showVoiceConfidenceIndicator(confidence) {
+        // Remove any existing confidence indicator
+        const existingIndicator = document.querySelector('.voice-confidence-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
         const indicator = document.createElement('div');
         indicator.className = 'voice-confidence-indicator';
+        
+        // Color based on confidence level
+        const bgColor = confidence > 0.8 ? '40, 167, 69' : // Green for high confidence
+                       confidence > 0.6 ? '255, 193, 7' : // Yellow for medium
+                       '220, 53, 69'; // Red for low
+        
         indicator.style.cssText = `
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
-            background: rgba(0, 123, 255, 0.9);
+            background: rgba(${bgColor}, 0.9);
             color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 1000;
-            transition: opacity 0.3s;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1050;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
         `;
-        indicator.textContent = `Voice confidence: ${Math.round(confidence * 100)}%`;
+        
+        const confidencePercent = Math.round(confidence * 100);
+        const confidenceEmoji = confidence > 0.8 ? '✅' : confidence > 0.6 ? '⚠️' : '❌';
+        
+        indicator.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>${confidenceEmoji}</span>
+                <span>Recognition: ${confidencePercent}%</span>
+            </div>
+        `;
         
         document.body.appendChild(indicator);
         
+        // Auto-hide with fade out
         setTimeout(() => {
             indicator.style.opacity = '0';
+            indicator.style.transform = 'translateX(100px)';
             setTimeout(() => {
                 if (indicator.parentNode) {
                     indicator.parentNode.removeChild(indicator);
                 }
             }, 300);
-        }, 2000);
+        }, 3000);
     }
     
     function showVoiceOptimizationTip(suggestion) {
+        // Remove any existing tip
+        const existingTip = document.querySelector('.voice-optimization-tip');
+        if (existingTip) {
+            existingTip.remove();
+        }
+        
         const tip = document.createElement('div');
         tip.className = 'voice-optimization-tip';
         tip.style.cssText = `
             position: fixed;
             bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(40, 167, 69, 0.9);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(34, 139, 58, 0.95));
             color: white;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px 20px;
+            border-radius: 8px;
             font-size: 14px;
-            z-index: 1000;
+            z-index: 1050;
             max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
+            text-align: left;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
         `;
         tip.innerHTML = `
-            <strong>Voice Tip:</strong> ${escapeHtml(suggestion)}
-            <button onclick="this.parentNode.remove()" style="
-                background: none;
-                border: none;
-                color: white;
-                float: right;
-                cursor: pointer;
-                font-size: 16px;
-                margin-top: -2px;
-            ">&times;</button>
+            <div style="display: flex; align-items: start; gap: 10px;">
+                <span style="font-size: 18px;">💡</span>
+                <div style="flex: 1;">
+                    <strong style="display: block; margin-bottom: 5px;">Voice Tip</strong>
+                    <span>${escapeHtml(suggestion)}</span>
+                </div>
+                <button onclick="this.parentNode.parentNode.remove()" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    font-size: 20px;
+                    line-height: 1;
+                    opacity: 0.8;
+                    transition: opacity 0.2s;
+                    padding: 0;
+                    margin: -5px -5px 0 0;
+                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">&times;</button>
+            </div>
         `;
         
         document.body.appendChild(tip);
         
+        // Auto-hide with animation
         setTimeout(() => {
-            if (tip.parentNode) {
-                tip.parentNode.removeChild(tip);
-            }
-        }, 5000);
+            tip.style.animation = 'slideDown 0.3s ease';
+            setTimeout(() => {
+                if (tip.parentNode) {
+                    tip.parentNode.removeChild(tip);
+                }
+            }, 300);
+        }, 6000);
     }
+    
+    // Add CSS animations dynamically if not already present
+    function addSpeechAnimations() {
+        if (document.getElementById('speech-animations')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'speech-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(20px);
+                }
+            }
+            
+            .voice-confidence-indicator,
+            .voice-optimization-tip {
+                will-change: transform, opacity;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Initialize animations on page load
+    addSpeechAnimations();
     
     async function loadMemoryInsights() {
         try {
