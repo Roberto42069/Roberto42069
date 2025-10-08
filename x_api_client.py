@@ -69,7 +69,7 @@ class XAPIClient:
     def chat_completion(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "grok-beta",
+        model: str = "grok-2-1212",  # Updated to use current model
         max_tokens: int = 300,
         temperature: float = 0.8,
         **kwargs
