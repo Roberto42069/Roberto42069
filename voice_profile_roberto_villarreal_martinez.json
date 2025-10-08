@@ -1,0 +1,48 @@
+{
+  "user_name": "Roberto Villarreal Martinez",
+  "phonetic_patterns": {
+    "vowel_emphasis": [
+      "minutes",
+      "i"
+    ]
+  },
+  "pronunciation_preferences": {
+    "minutes": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    },
+    "but": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    },
+    "i": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    },
+    "know": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    }
+  },
+  "accuracy_metrics": {
+    "total_attempts": 1,
+    "successful_recognitions": 0,
+    "confidence_scores": [
+      0.37299999594688416
+    ],
+    "common_misrecognitions": {}
+  },
+  "recognition_history": [
+    {
+      "timestamp": "2025-10-07T16:34:56.734680",
+      "recognized_text": "Minutes but I know",
+      "confidence": 0.37299999594688416,
+      "actual_text": null
+    }
+  ],
+  "last_updated": "2025-10-07T16:34:56.734751"
+}
