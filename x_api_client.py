@@ -59,8 +59,11 @@ class XAPIClient:
             if key.startswith(prefix):
                 return False
         
-        # X API keys typically start with 'xai-' but we'll accept any non-invalid format
-        # for flexibility
+        # X API keys should start with 'xai-'
+        if key.startswith('xai-'):
+            return True
+        
+        # Accept other formats but not the known invalid ones
         return True
     
     def chat_completion(
