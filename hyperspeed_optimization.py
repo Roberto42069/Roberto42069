@@ -407,11 +407,11 @@ class HyperSpeedOptimizer:
         
         # Generate embedding
         try:
-            # Use ai_client (X.AI or OpenAI fallback)
+            # Check if we're using XAPIClient or OpenAI client
             if self.roboto and hasattr(self.roboto, 'ai_client'):
-                # Check if we're using X API client
-                if hasattr(self.roboto.ai_client, 'is_x_api') and self.roboto.ai_client.is_x_api:
-                    # X.AI doesn't support embeddings yet, use OpenAI if available
+                if hasattr(self.roboto.ai_client, 'chat_completion'):
+                    # Using XAPIClient - it doesn't support embeddings
+                    # Try to use OpenAI client if available as fallback
                     if hasattr(self.roboto, 'openai_client') and self.roboto.openai_client:
                         response = await asyncio.to_thread(
                             self.roboto.openai_client.embeddings.create,
@@ -424,7 +424,7 @@ class HyperSpeedOptimizer:
                         logging.debug("Embeddings not available - X.AI doesn't support embeddings yet")
                         return None
                 else:
-                    # Using OpenAI directly
+                    # Using OpenAI client directly
                     response = await asyncio.to_thread(
                         self.roboto.ai_client.embeddings.create,
                         model="text-embedding-3-small",
@@ -432,9 +432,10 @@ class HyperSpeedOptimizer:
                     )
                     embedding = np.array(response.data[0].embedding, dtype=np.float32)
                 
-                # Cache it
-                self.embedding_cache.set(cache_key, embedding)
-                return embedding
+                # Cache it if we got an embedding
+                if 'embedding' in locals():
+                    self.embedding_cache.set(cache_key, embedding)
+                    return embedding
         except Exception as e:
             logging.error(f"Embedding generation error: {e}")
         
@@ -516,34 +517,42 @@ class HyperSpeedOptimizer:
             return "Optimization system not connected to AI provider"
         
         try:
-            # Determine the model based on the AI client type
-            if hasattr(self.roboto.ai_client, 'is_x_api') and self.roboto.ai_client.is_x_api:
-                model = "grok-2-1212"  # Use X.AI's Grok model
-                system_message = "You are Roboto SAI, an advanced AI with hyperspeed optimizations powered by X.AI Grok."
-            else:
-                model = "gpt-4-turbo-preview"  # Use OpenAI turbo model
-                system_message = "You are Roboto SAI, an advanced AI with hyperspeed optimizations."
-            
-            # Create streaming completion with unified AI client
-            stream = await asyncio.to_thread(
-                self.roboto.ai_client.chat.completions.create,
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_message},
+            # Check if we're using XAPIClient or OpenAI client
+            if hasattr(self.roboto.ai_client, 'chat_completion'):
+                # Using XAPIClient (doesn't support streaming yet)
+                messages = [
+                    {"role": "system", "content": "You are Roboto SAI, an advanced AI with hyperspeed optimizations powered by X.AI Grok."},
                     {"role": "user", "content": prompt}
-                ],
-                stream=True,
-                temperature=0.7,
-                max_tokens=500
-            )
-            
-            # Collect streamed response
-            full_response = []
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    full_response.append(chunk.choices[0].delta.content)
-            
-            return ''.join(full_response)
+                ]
+                response = await asyncio.to_thread(
+                    self.roboto.ai_client.chat_completion,
+                    messages=messages,
+                    model="grok-2-1212",
+                    temperature=0.7,
+                    max_tokens=500
+                )
+                return response.get("choices", [{}])[0].get("message", {}).get("content", "")
+            else:
+                # Using OpenAI client
+                stream = await asyncio.to_thread(
+                    self.roboto.ai_client.chat.completions.create,
+                    model="gpt-4-turbo-preview",
+                    messages=[
+                        {"role": "system", "content": "You are Roboto SAI, an advanced AI with hyperspeed optimizations."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    stream=True,
+                    temperature=0.7,
+                    max_tokens=500
+                )
+                
+                # Collect streamed response
+                full_response = []
+                for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        full_response.append(chunk.choices[0].delta.content)
+                
+                return ''.join(full_response)
             
         except Exception as e:
             logging.error(f"AI streaming error: {e}")
@@ -556,43 +565,66 @@ class HyperSpeedOptimizer:
             return "Optimization system not connected to AI provider"
         
         try:
-            # Determine the model based on the AI client type
-            if hasattr(self.roboto.ai_client, 'is_x_api') and self.roboto.ai_client.is_x_api:
-                model = "grok-2-1212"  # Use X.AI's Grok model
-                system_message = "You are Roboto SAI, an advanced AI with hyperspeed optimizations powered by X.AI Grok."
-            else:
-                model = "gpt-4-turbo-preview"  # Use OpenAI turbo model
-                system_message = "You are Roboto SAI, an advanced AI with hyperspeed optimizations."
-            
-            response = await asyncio.to_thread(
-                self.roboto.ai_client.chat.completions.create,
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_message},
+            # Check if we're using XAPIClient or OpenAI client
+            if hasattr(self.roboto.ai_client, 'chat_completion'):
+                # Using XAPIClient
+                messages = [
+                    {"role": "system", "content": "You are Roboto SAI, an advanced AI with hyperspeed optimizations powered by X.AI Grok."},
                     {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=500
-            )
-            
-            return response.choices[0].message.content
-            
-        except Exception as e:
-            logging.error(f"AI generation error: {e}, falling back to standard model")
-            # Fallback to standard model
-            try:
-                fallback_model = "gpt-4" if not (hasattr(self.roboto.ai_client, 'is_x_api') and self.roboto.ai_client.is_x_api) else "grok-2-1212"
+                ]
+                response = await asyncio.to_thread(
+                    self.roboto.ai_client.chat_completion,
+                    messages=messages,
+                    model="grok-2-1212",
+                    temperature=0.7,
+                    max_tokens=500
+                )
+                return response.get("choices", [{}])[0].get("message", {}).get("content", "")
+            else:
+                # Using OpenAI client
                 response = await asyncio.to_thread(
                     self.roboto.ai_client.chat.completions.create,
-                    model=fallback_model,
+                    model="gpt-4-turbo-preview",
                     messages=[
-                        {"role": "system", "content": "You are Roboto SAI, an advanced AI."},
+                        {"role": "system", "content": "You are Roboto SAI, an advanced AI with hyperspeed optimizations."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7,
                     max_tokens=500
                 )
                 return response.choices[0].message.content
+            
+        except Exception as e:
+            logging.error(f"AI generation error: {e}, falling back to standard model")
+            # Fallback to standard model
+            try:
+                if hasattr(self.roboto.ai_client, 'chat_completion'):
+                    # XAPIClient fallback
+                    messages = [
+                        {"role": "system", "content": "You are Roboto SAI, an advanced AI."},
+                        {"role": "user", "content": prompt}
+                    ]
+                    response = await asyncio.to_thread(
+                        self.roboto.ai_client.chat_completion,
+                        messages=messages,
+                        model="grok-2-1212",
+                        temperature=0.7,
+                        max_tokens=500
+                    )
+                    return response.get("choices", [{}])[0].get("message", {}).get("content", "")
+                else:
+                    # OpenAI fallback
+                    response = await asyncio.to_thread(
+                        self.roboto.ai_client.chat.completions.create,
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "You are Roboto SAI, an advanced AI."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.7,
+                        max_tokens=500
+                    )
+                    return response.choices[0].message.content
             except:
                 return "Response generation temporarily unavailable"
     
