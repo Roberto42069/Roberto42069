@@ -112,7 +112,7 @@ class AdvancedMemorySystem:
             }
         
         profile = self.user_profiles[user_name]
-        profile["interaction_count"] += 1
+        profile["interaction_count"] = profile.get("interaction_count", 0) + 1
         profile["last_interaction"] = datetime.now().isoformat()
         
         # Update based on user_info
@@ -976,7 +976,7 @@ class AdvancedMemorySystem:
     def _analyze_relationship_progression(self, user_name):
         """Analyze how relationship with user is progressing"""
         profile = self.user_profiles[user_name]
-        count = profile["interaction_count"]
+        count = profile.get("interaction_count", 0)
         
         if count >= 50:
             profile["relationship_level"] = "close_friend"
