@@ -977,36 +977,62 @@ class RobotoApp {
             return;
         }
 
-        let html = '';
+        chatHistory.innerHTML = '';
+        
         this.chatHistory.forEach(entry => {
             const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             // User message
-            html += `
-                <div class="chat-message mb-2 user-message">
-                    <div class="d-flex justify-content-end">
-                        <div class="message-content p-2 rounded bg-primary text-white" style="max-width: 80%;">
-                            <div class="message-text">${this.escapeHtml(entry.message)}</div>
-                            <small class="message-time text-muted d-block mt-1">${time}</small>
-                        </div>
-                    </div>
-                </div>
-            `;
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'chat-message mb-2 user-message';
+            
+            const userFlexDiv = document.createElement('div');
+            userFlexDiv.className = 'd-flex justify-content-end';
+            
+            const userContentDiv = document.createElement('div');
+            userContentDiv.className = 'message-content p-2 rounded bg-primary text-white';
+            userContentDiv.style.maxWidth = '80%';
+            
+            const userTextDiv = document.createElement('div');
+            userTextDiv.className = 'message-text';
+            userTextDiv.textContent = entry.message;
+            
+            const userTimeSmall = document.createElement('small');
+            userTimeSmall.className = 'message-time text-muted d-block mt-1';
+            userTimeSmall.textContent = time;
+            
+            userContentDiv.appendChild(userTextDiv);
+            userContentDiv.appendChild(userTimeSmall);
+            userFlexDiv.appendChild(userContentDiv);
+            userMessageDiv.appendChild(userFlexDiv);
+            chatHistory.appendChild(userMessageDiv);
 
             // Bot response
-            html += `
-                <div class="chat-message mb-2 bot-message">
-                    <div class="d-flex justify-content-start">
-                        <div class="message-content p-2 rounded bg-secondary" style="max-width: 80%;">
-                            <div class="message-text">${this.escapeHtml(entry.response)}</div>
-                            <small class="message-time text-muted d-block mt-1">${time}</small>
-                        </div>
-                    </div>
-                </div>
-            `;
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message mb-2 bot-message';
+            
+            const botFlexDiv = document.createElement('div');
+            botFlexDiv.className = 'd-flex justify-content-start';
+            
+            const botContentDiv = document.createElement('div');
+            botContentDiv.className = 'message-content p-2 rounded bg-secondary';
+            botContentDiv.style.maxWidth = '80%';
+            
+            const botTextDiv = document.createElement('div');
+            botTextDiv.className = 'message-text';
+            botTextDiv.textContent = entry.response;
+            
+            const botTimeSmall = document.createElement('small');
+            botTimeSmall.className = 'message-time text-muted d-block mt-1';
+            botTimeSmall.textContent = time;
+            
+            botContentDiv.appendChild(botTextDiv);
+            botContentDiv.appendChild(botTimeSmall);
+            botFlexDiv.appendChild(botContentDiv);
+            botMessageDiv.appendChild(botFlexDiv);
+            chatHistory.appendChild(botMessageDiv);
         });
 
-        chatHistory.innerHTML = html;
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
@@ -1224,26 +1250,26 @@ class RobotoRequestSystem {
         const resultDiv = document.createElement('div');
         resultDiv.className = 'message bot-message mb-3';
 
-        let content = `<h6>🚀 ${requestType.replace('_', ' ').toUpperCase()} Result</h6>`;
+        let content = `<h6>🚀 ${this.escapeHtml(requestType.replace('_', ' ')).toUpperCase()} Result</h6>`;
 
         if (result.success) {
             content += `<div class="alert alert-success mb-3">✅ Request completed successfully</div>`;
 
             // Main response
             if (result.response) {
-                content += `<div class="mb-3"><strong>Response:</strong><br>${result.response}</div>`;
+                content += `<div class="mb-3"><strong>Response:</strong><br>${this.escapeHtml(result.response)}</div>`;
             }
 
             // Specific content based on request type
             switch(requestType) {
                 case 'memory_analysis':
                     if (result.memory_count) {
-                        content += `<p><strong>🧠 Memories Found:</strong> ${result.memory_count}</p>`;
+                        content += `<p><strong>🧠 Memories Found:</strong> ${this.escapeHtml(String(result.memory_count))}</p>`;
                     }
                     if (result.memories && result.memories.length > 0) {
                         content += '<strong>Recent Relevant Memories:</strong><ul>';
                         result.memories.slice(0, 3).forEach(memory => {
-                            content += `<li>${memory.user_input || memory.content}</li>`;
+                            content += `<li>${this.escapeHtml(memory.user_input || memory.content)}</li>`;
                         });
                         content += '</ul>';
                     }
@@ -1251,7 +1277,7 @@ class RobotoRequestSystem {
 
                 case 'self_improvement':
                     if (result.experiment_id) {
-                        content += `<p><strong>📈 Experiment ID:</strong> ${result.experiment_id}</p>`;
+                        content += `<p><strong>📈 Experiment ID:</strong> ${this.escapeHtml(String(result.experiment_id))}</p>`;
                     }
                     if (result.deployment_status) {
                         content += `<p><strong>🚀 Deployment:</strong> ${result.deployment_status.deployed ? 'Success' : 'Pending'}</p>`;
@@ -1260,62 +1286,64 @@ class RobotoRequestSystem {
 
                 case 'quantum_computation':
                     if (result.algorithm) {
-                        content += `<p><strong>🌌 Algorithm:</strong> ${result.algorithm}</p>`;
+                        content += `<p><strong>🌌 Algorithm:</strong> ${this.escapeHtml(String(result.algorithm))}</p>`;
                     }
                     if (result.quantum_status) {
-                        content += `<p><strong>⚛️ Quantum Status:</strong> ${result.quantum_status.quantum_entanglement?.status || 'Active'}</p>`;
+                        content += `<p><strong>⚛️ Quantum Status:</strong> ${this.escapeHtml(String(result.quantum_status.quantum_entanglement?.status || 'Active'))}</p>`;
                     }
                     break;
 
                 case 'voice_optimization':
                     if (result.insights) {
-                        content += `<p><strong>🎤 Voice Insights:</strong> ${result.insights}</p>`;
+                        content += `<p><strong>🎤 Voice Insights:</strong> ${this.escapeHtml(String(result.insights))}</p>`;
                     }
                     break;
 
                 case 'autonomous_task':
                     if (result.task_id) {
-                        content += `<p><strong>🎯 Task ID:</strong> ${result.task_id}</p>`;
+                        content += `<p><strong>🎯 Task ID:</strong> ${this.escapeHtml(String(result.task_id))}</p>`;
                     }
                     if (result.status) {
-                        content += `<p><strong>Status:</strong> ${result.status}</p>`;
+                        content += `<p><strong>Status:</strong> ${this.escapeHtml(String(result.status))}</p>`;
                     }
                     break;
 
                 case 'cultural_query':
                     if (result.cultural_response) {
-                        content += `<p><strong>🌞 Cultural Wisdom:</strong> ${result.cultural_response}</p>`;
+                        content += `<p><strong>🌞 Cultural Wisdom:</strong> ${this.escapeHtml(String(result.cultural_response))}</p>`;
                     }
                     break;
 
                 case 'real_time_data':
                     if (result.summary) {
-                        content += `<p><strong>📡 Real-Time Summary:</strong> ${result.summary}</p>`;
+                        content += `<p><strong>📡 Real-Time Summary:</strong> ${this.escapeHtml(String(result.summary))}</p>`;
                     }
                     if (result.data_sources) {
-                        content += `<p><strong>Data Sources:</strong> ${result.data_sources.join(', ')}</p>`;
+                        const escapedSources = result.data_sources.map(s => this.escapeHtml(String(s))).join(', ');
+                        content += `<p><strong>Data Sources:</strong> ${escapedSources}</p>`;
                     }
                     break;
             }
 
             // General insights and recommendations
             if (result.insights && requestType !== 'voice_optimization') {
-                content += `<p><strong>💡 Insights:</strong> ${result.insights}</p>`;
+                content += `<p><strong>💡 Insights:</strong> ${this.escapeHtml(String(result.insights))}</p>`;
             }
             if (result.recommendations) {
-                content += `<p><strong>📋 Recommendations:</strong> ${result.recommendations}</p>`;
+                content += `<p><strong>📋 Recommendations:</strong> ${this.escapeHtml(String(result.recommendations))}</p>`;
             }
             if (result.message && !result.response) {
-                content += `<p><strong>Message:</strong> ${result.message}</p>`;
+                content += `<p><strong>Message:</strong> ${this.escapeHtml(String(result.message))}</p>`;
             }
 
             // Enhancement indicators
             if (result.enhancements_applied) {
-                content += `<small class="text-muted">🔧 Enhancements: ${result.enhancements_applied.join(', ')}</small><br>`;
+                const escapedEnhancements = result.enhancements_applied.map(e => this.escapeHtml(String(e))).join(', ');
+                content += `<small class="text-muted">🔧 Enhancements: ${escapedEnhancements}</small><br>`;
             }
 
         } else {
-            content += `<div class="alert alert-danger">❌ Error: ${result.error || 'Request failed'}</div>`;
+            content += `<div class="alert alert-danger">❌ Error: ${this.escapeHtml(String(result.error || 'Request failed'))}</div>`;
         }
 
         resultDiv.innerHTML = `
@@ -1400,6 +1428,12 @@ class RobotoRequestSystem {
                 modal.hide();
             }
         }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }
 
