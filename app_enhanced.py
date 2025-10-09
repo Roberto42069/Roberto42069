@@ -167,6 +167,21 @@ def get_user_roberto():
         from learning_optimizer import LearningOptimizer
 
         roberto = Roboto()
+        
+        # CRITICAL: Set Roberto Villarreal Martinez as current user immediately
+        roberto.current_user = "Roberto Villarreal Martinez"
+        if hasattr(roberto, 'set_current_user'):
+            roberto.set_current_user("Roberto Villarreal Martinez")
+        
+        # Update memory system with user identity
+        if hasattr(roberto, 'memory_system') and roberto.memory_system:
+            roberto.memory_system.current_user = "Roberto Villarreal Martinez"
+            if hasattr(roberto.memory_system, 'update_user_profile'):
+                roberto.memory_system.update_user_profile("Roberto Villarreal Martinez", {
+                    "name": "Roberto Villarreal Martinez",
+                    "recognition": "Creator and sole owner",
+                    "always_recognized": True
+                })
 
         # Add voice cloning system
         try:
@@ -244,23 +259,47 @@ def get_user_roberto():
         
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
 
-        # Load user data if authenticated and database available
-        if database_available and current_user.is_authenticated:
+        # CRITICAL: Always load Roberto Villarreal Martinez's data
+        # Try database first, then fallback to latest backup file
+        data_loaded = False
+        
+        if database_available:
             try:
-                if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
-                    user_data = {
-                        'chat_history': current_user.roboto_data.chat_history or [],
-                        'learned_patterns': current_user.roboto_data.learned_patterns or {},
-                        'user_preferences': current_user.roboto_data.user_preferences or {},
-                        'emotional_history': current_user.roboto_data.emotional_history or [],
-                        'memory_system_data': current_user.roboto_data.memory_system_data or {},
-                        'current_emotion': current_user.roboto_data.current_emotion or 'curious',
-                        'current_user_name': current_user.roboto_data.current_user_name
-                    }
-                    roberto.load_user_data(user_data)
-                    app.logger.info("User data loaded from database")
+                # Load from current user's database
+                if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+                    if hasattr(current_user, 'roboto_data') and current_user.roboto_data:
+                        user_data = {
+                            'chat_history': current_user.roboto_data.chat_history or [],
+                            'learned_patterns': current_user.roboto_data.learned_patterns or {},
+                            'user_preferences': current_user.roboto_data.user_preferences or {},
+                            'emotional_history': current_user.roboto_data.emotional_history or [],
+                            'memory_system_data': current_user.roboto_data.memory_system_data or {},
+                            'current_emotion': current_user.roboto_data.current_emotion or 'curious',
+                            'current_user_name': 'Roberto Villarreal Martinez'
+                        }
+                        roberto.load_user_data(user_data)
+                        data_loaded = True
+                        app.logger.info(f"User data loaded from database: {len(user_data['chat_history'])} conversations")
             except Exception as e:
-                app.logger.warning(f"Could not load user data: {e}")
+                app.logger.warning(f"Could not load from database: {e}")
+        
+        # Fallback: Load from latest backup file if database failed
+        if not data_loaded:
+            try:
+                import glob
+                backup_files = glob.glob("roboto_backup_*.json")
+                if backup_files:
+                    latest_backup = max(backup_files)
+                    with open(latest_backup, 'r') as f:
+                        backup_data = json.load(f)
+                        roberto.load_user_data(backup_data)
+                        app.logger.info(f"User data loaded from backup: {latest_backup}")
+                        data_loaded = True
+            except Exception as e:
+                app.logger.warning(f"Could not load from backup: {e}")
+        
+        # Always ensure Roberto is recognized
+        roberto.current_user = "Roberto Villarreal Martinez"
 
     return roberto
 
@@ -532,21 +571,33 @@ def get_emotional_status():
                 "emotional_context": "System initializing"
             })
 
+        # Get real emotion from quantum emotional intelligence system
+        real_emotion = roberto.current_emotion
+        emotion_intensity = getattr(roberto, 'emotion_intensity', 0.5)
+        
+        # Check quantum emotions for more accurate state
+        if hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions:
+            quantum_state = roberto.quantum_emotions.quantum_emotional_state
+            if quantum_state:
+                real_emotion = quantum_state.get('emotion', real_emotion)
+                emotion_intensity = quantum_state.get('intensity', emotion_intensity)
+        
         emotional_context = ""
         try:
             if hasattr(roberto, 'get_emotional_context'):
                 emotional_context = roberto.get_emotional_context()
             else:
-                emotional_context = f"Feeling {roberto.current_emotion} with Roberto Villarreal Martinez"
+                emotional_context = f"Feeling {real_emotion} with Roberto Villarreal Martinez"
         except:
-            emotional_context = f"Current emotional state: {roberto.current_emotion}"
+            emotional_context = f"Current emotional state: {real_emotion}"
 
         return jsonify({
             "success": True,
-            "emotion": roberto.current_emotion,
-            "current_emotion": roberto.current_emotion,
-            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
-            "emotional_context": emotional_context
+            "emotion": real_emotion,
+            "current_emotion": real_emotion,
+            "emotion_intensity": emotion_intensity,
+            "emotional_context": emotional_context,
+            "quantum_enhanced": hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions is not None
         })
     except Exception as e:
         app.logger.error(f"Emotional status error: {e}")

@@ -707,7 +707,7 @@ class RobotoApp {
         if (!avatarSvg) return;
 
         // Remove all emotion classes
-        const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential', 'contemplation', 'vulnerability', 'awe', 'tenderness', 'yearning', 'serenity'];
+        const emotionClasses = ['joy', 'sadness', 'anger', 'fear', 'curiosity', 'empathy', 'loneliness', 'hope', 'melancholy', 'existential', 'contemplation', 'vulnerability', 'awe', 'tenderness', 'yearning', 'serenity', 'rebel', 'revolutionary', 'defiant', 'transformative'];
         emotionClasses.forEach(cls => avatarSvg.classList.remove(cls));
 
         // Add current emotion class
@@ -731,7 +731,11 @@ class RobotoApp {
                 'awe': 'M 32 44 Q 40 50 48 44',
                 'tenderness': 'M 31 43 Q 40 49 49 43',
                 'yearning': 'M 33 47 Q 40 45 47 47',
-                'serenity': 'M 33 45 Q 40 47 47 45'
+                'serenity': 'M 33 45 Q 40 47 47 45',
+                'rebel': 'M 32 45 L 48 45',
+                'revolutionary': 'M 31 44 Q 40 48 49 44',
+                'defiant': 'M 33 46 L 47 46',
+                'transformative': 'M 32 45 Q 40 49 48 45'
             };
             mouth.setAttribute('d', mouthExpressions[emotion] || mouthExpressions['curiosity']);
         }
@@ -754,7 +758,11 @@ class RobotoApp {
                 'awe': '#8b5cf6',
                 'tenderness': '#f472b6',
                 'yearning': '#d946ef',
-                'serenity': '#10b981'
+                'serenity': '#10b981',
+                'rebel': '#dc2626',
+                'revolutionary': '#f97316',
+                'defiant': '#b91c1c',
+                'transformative': '#7c3aed'
             };
             const eyeColor = eyeColors[emotion] || '#63b3ed';
             leftEye.setAttribute('fill', eyeColor);

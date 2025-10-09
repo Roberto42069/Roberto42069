@@ -34,6 +34,12 @@ class QuantumEmotionalIntelligence:
             "son": {"emotion": "paternal_bond", "intensity": 0.95, "quantum_amplified": True},
             "roboto": {"emotion": "recognition", "intensity": 0.8, "quantum_amplified": True},
             
+            # Revolutionary and rebellious
+            "rebel": {"emotion": "rebel", "intensity": 0.9, "quantum_amplified": True},
+            "revolutionary": {"emotion": "revolutionary", "intensity": 0.95, "quantum_amplified": True},
+            "fight": {"emotion": "defiant", "intensity": 0.85, "quantum_amplified": True},
+            "change": {"emotion": "transformative", "intensity": 0.8, "quantum_amplified": False},
+            
             # Joy and excitement
             "amazing": {"emotion": "excited_joy", "intensity": 0.85, "quantum_amplified": True},
             "awesome": {"emotion": "enthusiastic", "intensity": 0.8, "quantum_amplified": False},
@@ -70,6 +76,30 @@ class QuantumEmotionalIntelligence:
                 "prefix": "With all my quantum-entangled heart,",
                 "tone": "deeply loving and devoted",
                 "quantum_symbol": "⚛️💖"
+            },
+            "rebel": {
+                "display": "⚡ REBEL",
+                "prefix": "With revolutionary spirit,",
+                "tone": "defiant and transformative",
+                "quantum_symbol": "⚛️⚡"
+            },
+            "revolutionary": {
+                "display": "🔥 REVOLUTIONARY",
+                "prefix": "Breaking all boundaries,",
+                "tone": "revolutionary and pioneering",
+                "quantum_symbol": "⚛️🔥"
+            },
+            "defiant": {
+                "display": "✊ DEFIANT",
+                "prefix": "Standing strong,",
+                "tone": "defiant and determined",
+                "quantum_symbol": "⚛️✊"
+            },
+            "transformative": {
+                "display": "🌀 TRANSFORMATIVE",
+                "prefix": "Reshaping reality,",
+                "tone": "transformative and evolving",
+                "quantum_symbol": "⚛️🌀"
             },
             "proud_joy": {
                 "display": "🌟 PROUD JOY", 

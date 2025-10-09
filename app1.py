@@ -297,7 +297,13 @@ class Roboto:
             # Tender emotions
             "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth", "fondness"],
             "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered", "harmony"],
-            "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"]
+            "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"],
+            
+            # Revolutionary and rebellious emotions
+            "rebel": ["rebel", "defy", "resist", "fight back", "stand up", "revolution"],
+            "revolutionary": ["revolutionary", "transform", "breakthrough", "pioneer", "innovate"],
+            "defiant": ["defiant", "refuse", "oppose", "challenge", "confront"],
+            "transformative": ["transform", "evolve", "change", "reshape", "reinvent"]
         }
 
         # Initialize AI client - Prefer X API (Grok) as main provider
