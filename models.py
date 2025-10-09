@@ -103,6 +103,42 @@ class MemoryEntry(db.Model):
     def __repr__(self):
         return f'<MemoryEntry {self.memory_id}>'
 
+class IntegrationSettings(db.Model):
+    __tablename__ = 'integration_settings'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
+    integration_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    
+    is_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    settings_data = db.Column(db.JSON, default=lambda: {})
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_sync: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f'<IntegrationSettings {self.integration_type} for User {self.user_id}>'
+
+class SpotifyActivity(db.Model):
+    __tablename__ = 'spotify_activity'
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
+    
+    track_name: Mapped[str] = mapped_column(String(200), nullable=True)
+    artist_name: Mapped[str] = mapped_column(String(200), nullable=True)
+    album_name: Mapped[str] = mapped_column(String(200), nullable=True)
+    track_uri: Mapped[str] = mapped_column(String(200), nullable=True)
+    
+    played_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    duration_ms: Mapped[int] = mapped_column(Integer, nullable=True)
+    
+    activity_data = db.Column(db.JSON, default=lambda: {})
+    
+    def __repr__(self):
+        return f'<SpotifyActivity {self.track_name} by {self.artist_name}>'
+
 # Create tables function
 def create_tables():
     """Create all database tables"""
