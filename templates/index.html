@@ -186,49 +186,18 @@
                     <div class="card-body d-flex flex-column">
                         <!-- Roboto Avatar -->
                         <div class="text-center mb-3">
-                            <div id="robotoAvatar" class="roboto-avatar mx-auto">
-                                <svg width="80" height="80" viewBox="0 0 80 80" class="avatar-svg">
-                                    <!-- Head (human proportions) -->
-                                    <ellipse cx="40" cy="30" rx="18" ry="20" fill="#f7c59f" stroke="#e0a878" stroke-width="1"/>
-
-                                    <!-- Hair -->
-                                    <path d="M 22 18 Q 40 10 58 18 Q 58 15 54 12 Q 40 8 26 12 Q 22 15 22 18" fill="#654321"/>
-
-                                    <!-- Eyes (realistic) -->
-                                    <ellipse id="leftEye" cx="34" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
-                                    <circle cx="34" cy="26" r="2" fill="#4a5568">
-                                        <animate id="eyeBlink" attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="35" cy="25" r="0.5" fill="white"/>
-
-                                    <ellipse id="rightEye" cx="46" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
-                                    <circle cx="46" cy="26" r="2" fill="#4a5568">
-                                        <animate attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="47" cy="25" r="0.5" fill="white"/>
-
-                                    <!-- Eyebrows -->
-                                    <path d="M 30 22 Q 34 21 38 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                                    <path d="M 42 22 Q 46 21 50 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-
-                                    <!-- Nose -->
-                                    <path d="M 40 28 L 39 32 L 40 33 L 41 32 Z" fill="#e0a878"/>
-                                    <ellipse cx="39" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
-                                    <ellipse cx="41" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
-
-                                    <!-- Mouth -->
-                                    <path id="mouth" d="M 36 38 Q 40 42 44 38" stroke="#d4754a" stroke-width="1.5" fill="none" stroke-linecap="round" class="mouth"/>
-
-                                    <!-- Neck -->
-                                    <rect x="36" y="48" width="8" height="8" fill="#f7c59f"/>
-
-                                    <!-- Shirt collar -->
-                                    <path d="M 32 55 L 40 50 L 48 55 L 48 65 L 32 65 Z" fill="#4a90e2" stroke="#357abd" stroke-width="1"/>
-
-                                    <!-- Subtle emotional glow -->
-                                    <circle id="emotionGlow" cx="40" cy="30" r="25" fill="none" stroke="#4299e1" stroke-width="1" opacity="0.2"/>
-                                </svg>
-                                <div class="small text-muted mt-1">
+                            <div id="robotoAvatar" class="roboto-avatar mx-auto position-relative">
+                                <div class="position-relative d-inline-block">
+                                    <img src="{{ url_for('static', filename='images/roberto-avatar.jpg') }}" 
+                                         alt="Roberto Avatar" 
+                                         class="avatar-image rounded-circle"
+                                         id="avatarImage"
+                                         style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #4299e1; box-shadow: 0 0 20px rgba(66, 153, 225, 0.3);">
+                                    <div id="emotionGlow" class="position-absolute top-50 start-50 translate-middle" 
+                                         style="width: 140px; height: 140px; border-radius: 50%; border: 2px solid #4299e1; opacity: 0.3; pointer-events: none;"></div>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    <i class="fas fa-heart me-1"></i>
                                     <span id="avatarEmotion">curious</span>
                                 </div>
                             </div>
