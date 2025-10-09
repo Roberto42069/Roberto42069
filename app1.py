@@ -306,8 +306,9 @@ class Roboto:
             from x_api_client import get_x_api_client
             self.x_api_client = get_x_api_client(silent=True)  # Silent mode to suppress verbose output
             
-            # Test X API connection to verify it works
-            if self.x_api_client.available and self.x_api_client.test_connection():
+            # Skip connection test during initialization to prevent worker timeouts
+            # Connection will be tested on first use
+            if self.x_api_client.available:
                 self.ai_client = self.x_api_client
                 self.ai_provider = "X_API"
                 # Only show success message if X API is working

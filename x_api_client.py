@@ -146,8 +146,8 @@ class XAPIClient:
                 print(error_msg)
             raise Exception(error_msg)
 
-    def test_connection(self) -> bool:
-        """Test X API connection"""
+    def test_connection(self, timeout: int = 5) -> bool:
+        """Test X API connection with short timeout to prevent worker hangs"""
         if not self.available:
             return False
         
@@ -157,9 +157,32 @@ class XAPIClient:
                 {"role": "user", "content": "Hello"}
             ]
             
-            response = self.chat_completion(test_messages, max_tokens=10)
-            return bool(response.get("choices", [{}])[0].get("message", {}).get("content"))
+            # Use shorter timeout for test to prevent initialization hangs
+            payload = {
+                "messages": test_messages,
+                "model": "grok-2-1212",
+                "max_tokens": 10,
+                "temperature": 0.8,
+                "stream": False
+            }
             
+            response = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=self.headers,
+                json=payload,
+                timeout=timeout  # Short timeout for test
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return bool(result.get("choices", [{}])[0].get("message", {}).get("content"))
+            
+            return False
+            
+        except requests.exceptions.Timeout:
+            if not self.silent:
+                print(f"⚠️ X API connection test timed out after {timeout}s - API may be slow")
+            return False
         except Exception as e:
             # Suppress verbose output unless explicitly needed
             if not self.silent:
