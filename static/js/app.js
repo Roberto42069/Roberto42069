@@ -1322,13 +1322,25 @@ class RobotoRequestSystem {
 
         const errorDiv = document.createElement('div');
         errorDiv.className = 'message bot-message mb-3';
-        errorDiv.innerHTML = `
-            <div class="message-content">
-                <h6>🚀 ${requestType.replace('_', ' ').toUpperCase()} Error</h6>
-                <div class="alert alert-danger">❌ Request failed: ${error.message || 'An unknown error occurred'}</div>
-                <small class="text-muted d-block mt-2">${new Date().toLocaleTimeString()}</small>
-            </div>
-        `;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        const heading = document.createElement('h6');
+        heading.textContent = `🚀 ${requestType.replace('_', ' ').toUpperCase()} Error`;
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.textContent = `❌ Request failed: ${error.message || 'An unknown error occurred'}`;
+        
+        const timestamp = document.createElement('small');
+        timestamp.className = 'text-muted d-block mt-2';
+        timestamp.textContent = new Date().toLocaleTimeString();
+        
+        messageContent.appendChild(heading);
+        messageContent.appendChild(alertDiv);
+        messageContent.appendChild(timestamp);
+        errorDiv.appendChild(messageContent);
 
         chatContainer.appendChild(errorDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
