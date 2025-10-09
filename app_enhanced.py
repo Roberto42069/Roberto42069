@@ -10,6 +10,9 @@ from datetime import datetime
 import json
 import traceback
 from github_project_integration import get_github_integration
+from spotify_integration import get_spotify_integration
+from github_integration import get_github_integration as get_gh_integration
+from youtube_integration import get_youtube_integration
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -2065,6 +2068,124 @@ def get_legacy_evolution():
             "error": f"Failed to get evolution data: {str(e)}"
         }), 500
 
+# ============================================
+# INTEGRATION ROUTES - GitHub, YouTube, Spotify
+# ============================================
+
+@app.route('/api/integrations/status', methods=['GET'])
+@login_required
+def get_integrations_status():
+    """Get status of all integrations"""
+    try:
+        spotify = get_spotify_integration()
+        github = get_gh_integration()
+        youtube = get_youtube_integration()
+        
+        return jsonify({
+            "success": True,
+            "integrations": {
+                "spotify": {"connected": spotify.get_access_token() is not None},
+                "github": {"connected": github.get_access_token() is not None},
+                "youtube": {"connected": youtube.get_access_token() is not None}
+            }
+        })
+    except Exception as e:
+        app.logger.error(f"Integration status error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# SPOTIFY ROUTES
+@app.route('/api/spotify/current', methods=['GET'])
+@login_required
+def spotify_current_playback():
+    """Get currently playing track"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.get_current_playback()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/recent', methods=['GET'])
+@login_required
+def spotify_recent_tracks():
+    """Get recently played tracks"""
+    try:
+        spotify = get_spotify_integration()
+        limit = request.args.get('limit', 50, type=int)
+        result = spotify.get_recently_played(limit=limit)
+        
+        if 'items' in result:
+            from models import SpotifyActivity
+            for item in result['items'][:10]:
+                track = item.get('track', {})
+                activity = SpotifyActivity(
+                    user_id=current_user.id,
+                    track_name=track.get('name'),
+                    artist_name=track.get('artists', [{}])[0].get('name'),
+                    album_name=track.get('album', {}).get('name'),
+                    track_uri=track.get('uri'),
+                    duration_ms=track.get('duration_ms'),
+                    activity_data=item
+                )
+                db.session.add(activity)
+            db.session.commit()
+        
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# GITHUB ROUTES
+@app.route('/api/github/repos', methods=['GET'])
+@login_required
+def github_list_repos():
+    """List user repositories"""
+    try:
+        github = get_gh_integration()
+        result = github.list_repositories()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/create', methods=['POST'])
+@login_required
+def github_create_repo():
+    """Create a new repository"""
+    try:
+        data = request.get_json()
+        github = get_gh_integration()
+        result = github.create_repository(
+            name=data.get('name'),
+            description=data.get('description', ''),
+            private=data.get('private', False),
+            auto_init=data.get('auto_init', True)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# YOUTUBE ROUTES
+@app.route('/api/youtube/channel', methods=['GET'])
+@login_required
+def youtube_channel_info():
+    """Get channel information"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.get_channel_info()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/videos', methods=['GET'])
+@login_required
+def youtube_list_videos():
+    """List uploaded videos"""
+    try:
+        youtube = get_youtube_integration()
+        max_results = request.args.get('max_results', 50, type=int)
+        result = youtube.list_videos(max_results=max_results)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

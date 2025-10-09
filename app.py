@@ -15,6 +15,9 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
 from sai_security import get_sai_security
+from spotify_integration import get_spotify_integration
+from github_integration import get_github_integration
+from youtube_integration import get_youtube_integration
 import logging
 
 # Set up logging
@@ -259,84 +262,6 @@ def _save_to_file_backup(user_data):
 
         app.logger.info(f"User data backed up to {backup_file}")
 
-    except Exception as e:
-        app.logger.error(f"File backup failed: {e}")
-                        'conversation_patterns': dict(getattr(roberto.learning_engine, 'conversation_patterns', {}))
-                    }
-                except Exception as e:
-                    app.logger.warning(f"Learning engine save error: {e}")
-            
-            # Collect optimization data
-            if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
-                try:
-                    roberto.learning_optimizer.save_optimization_data()
-                    insights = roberto.learning_optimizer.get_optimization_insights()
-                    user_data['optimization_data'] = insights
-                except Exception as e:
-                    app.logger.warning(f"Learning optimizer save error: {e}")
-            
-            # Save to Roboto's internal system
-            roberto.save_user_data(user_data)
-            
-            # Try database save, fallback to file if needed
-            try:
-                from flask_login import current_user
-                if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
-                    if not hasattr(current_user, 'roboto_data') or current_user.roboto_data is None:
-                        from models import UserData
-                        current_user.roboto_data = UserData()
-                        current_user.roboto_data.user_id = current_user.id
-                        db.session.add(current_user.roboto_data)
-                    
-                    # Update database fields
-                    current_user.roboto_data.chat_history = user_data.get('chat_history', [])
-                    current_user.roboto_data.learned_patterns = user_data.get('learned_patterns', {})
-                    current_user.roboto_data.user_preferences = user_data.get('user_preferences', {})
-                    current_user.roboto_data.emotional_history = user_data.get('emotional_history', [])
-                    current_user.roboto_data.memory_system_data = user_data.get('memory_system_data', {})
-                    current_user.roboto_data.current_emotion = user_data.get('current_emotion', 'curious')
-                    current_user.roboto_data.current_user_name = user_data.get('current_user_name', None)
-                    
-                    db.session.commit()
-                    app.logger.info("User data saved successfully to database")
-                else:
-                    # Save to file backup when not authenticated
-                    _save_to_file_backup(user_data)
-                    
-            except Exception as db_error:
-                app.logger.warning(f"Database save failed: {db_error}, using file backup")
-                _save_to_file_backup(user_data)
-                
-    except Exception as e:
-        app.logger.error(f"Critical error saving user data: {e}")
-
-def _save_to_file_backup(user_data):
-    """Save user data to file backup when database is unavailable"""
-    try:
-        import json
-        from datetime import datetime
-        
-        backup_file = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
-        
-        # Load existing backup if it exists
-        existing_data = {}
-        if os.path.exists(backup_file):
-            try:
-                with open(backup_file, 'r') as f:
-                    existing_data = json.load(f)
-            except:
-                pass
-        
-        # Update with current data
-        existing_data.update(user_data)
-        existing_data['last_backup'] = datetime.now().isoformat()
-        
-        # Save updated backup
-        with open(backup_file, 'w') as f:
-            json.dump(existing_data, f, indent=2)
-        
-        app.logger.info(f"User data backed up to {backup_file}")
-        
     except Exception as e:
         app.logger.error(f"File backup failed: {e}")
 
@@ -883,10 +808,6 @@ def get_voice_context_summary():
 # ============================================
 # INTEGRATION ROUTES - GitHub, YouTube, Spotify
 # ============================================
-
-from spotify_integration import get_spotify_integration
-from github_integration import get_github_integration
-from youtube_integration import get_youtube_integration
 
 @app.route('/api/integrations/status', methods=['GET'])
 @login_required
