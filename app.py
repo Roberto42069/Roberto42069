@@ -880,5 +880,336 @@ def get_voice_context_summary():
         app.logger.error(f"Voice context summary error: {e}")
         return jsonify({"success": False, "message": f"Context retrieval failed: {str(e)}"}), 500
 
+# ============================================
+# INTEGRATION ROUTES - GitHub, YouTube, Spotify
+# ============================================
+
+from spotify_integration import get_spotify_integration
+from github_integration import get_github_integration
+from youtube_integration import get_youtube_integration
+
+@app.route('/api/integrations/status', methods=['GET'])
+@login_required
+def get_integrations_status():
+    """Get status of all integrations"""
+    try:
+        spotify = get_spotify_integration()
+        github = get_github_integration()
+        youtube = get_youtube_integration()
+        
+        return jsonify({
+            "success": True,
+            "integrations": {
+                "spotify": {"connected": spotify.get_access_token() is not None},
+                "github": {"connected": github.get_access_token() is not None},
+                "youtube": {"connected": youtube.get_access_token() is not None}
+            }
+        })
+    except Exception as e:
+        app.logger.error(f"Integration status error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# SPOTIFY ROUTES
+@app.route('/api/spotify/current', methods=['GET'])
+@login_required
+def spotify_current_playback():
+    """Get currently playing track"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.get_current_playback()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/recent', methods=['GET'])
+@login_required
+def spotify_recent_tracks():
+    """Get recently played tracks"""
+    try:
+        spotify = get_spotify_integration()
+        limit = request.args.get('limit', 50, type=int)
+        result = spotify.get_recently_played(limit=limit)
+        
+        if 'items' in result:
+            from models import SpotifyActivity
+            for item in result['items'][:10]:
+                track = item.get('track', {})
+                activity = SpotifyActivity(
+                    user_id=current_user.id,
+                    track_name=track.get('name'),
+                    artist_name=track.get('artists', [{}])[0].get('name'),
+                    album_name=track.get('album', {}).get('name'),
+                    track_uri=track.get('uri'),
+                    duration_ms=track.get('duration_ms'),
+                    activity_data=item
+                )
+                db.session.add(activity)
+            db.session.commit()
+        
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlists', methods=['GET'])
+@login_required
+def spotify_get_playlists():
+    """Get user playlists"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.get_user_playlists()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/create', methods=['POST'])
+@login_required
+def spotify_create_playlist():
+    """Create a new playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.create_playlist(
+            name=data.get('name'),
+            description=data.get('description', ''),
+            public=data.get('public', True)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/<playlist_id>/tracks', methods=['POST'])
+@login_required
+def spotify_add_tracks(playlist_id):
+    """Add tracks to playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.add_tracks_to_playlist(playlist_id, data.get('track_uris', []))
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/<playlist_id>/tracks', methods=['DELETE'])
+@login_required
+def spotify_remove_tracks(playlist_id):
+    """Remove tracks from playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.remove_tracks_from_playlist(playlist_id, data.get('track_uris', []))
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/play', methods=['POST'])
+@login_required
+def spotify_play():
+    """Start/resume playback"""
+    try:
+        data = request.get_json() or {}
+        spotify = get_spotify_integration()
+        result = spotify.play(
+            context_uri=data.get('context_uri'),
+            uris=data.get('uris'),
+            position_ms=data.get('position_ms', 0)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/pause', methods=['POST'])
+@login_required
+def spotify_pause():
+    """Pause playback"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.pause()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/next', methods=['POST'])
+@login_required
+def spotify_next():
+    """Skip to next track"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.skip_to_next()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# GITHUB ROUTES
+@app.route('/api/github/repos', methods=['GET'])
+@login_required
+def github_list_repos():
+    """List user repositories"""
+    try:
+        github = get_github_integration()
+        result = github.list_repositories()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/create', methods=['POST'])
+@login_required
+def github_create_repo():
+    """Create a new repository"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.create_repository(
+            name=data.get('name'),
+            description=data.get('description', ''),
+            private=data.get('private', False),
+            auto_init=data.get('auto_init', True)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>', methods=['DELETE'])
+@login_required
+def github_delete_repo(owner, repo):
+    """Delete a repository"""
+    try:
+        github = get_github_integration()
+        result = github.delete_repository(owner, repo)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>', methods=['PATCH'])
+@login_required
+def github_update_repo(owner, repo):
+    """Update repository settings"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.update_repository(owner, repo, **data)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>/issues', methods=['GET'])
+@login_required
+def github_list_issues(owner, repo):
+    """List repository issues"""
+    try:
+        github = get_github_integration()
+        state = request.args.get('state', 'open')
+        result = github.list_issues(owner, repo, state=state)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>/issues', methods=['POST'])
+@login_required
+def github_create_issue(owner, repo):
+    """Create a new issue"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.create_issue(
+            owner, repo,
+            title=data.get('title'),
+            body=data.get('body', ''),
+            labels=data.get('labels')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# YOUTUBE ROUTES
+@app.route('/api/youtube/channel', methods=['GET'])
+@login_required
+def youtube_channel_info():
+    """Get channel information"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.get_channel_info()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/videos', methods=['GET'])
+@login_required
+def youtube_list_videos():
+    """List uploaded videos"""
+    try:
+        youtube = get_youtube_integration()
+        max_results = request.args.get('max_results', 50, type=int)
+        result = youtube.list_videos(max_results=max_results)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/video/<video_id>', methods=['DELETE'])
+@login_required
+def youtube_delete_video(video_id):
+    """Delete a video"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.delete_video(video_id)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/video/<video_id>', methods=['PATCH'])
+@login_required
+def youtube_update_video(video_id):
+    """Update video metadata"""
+    try:
+        data = request.get_json()
+        youtube = get_youtube_integration()
+        result = youtube.update_video(
+            video_id,
+            title=data.get('title'),
+            description=data.get('description'),
+            tags=data.get('tags'),
+            category_id=data.get('category_id')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlists', methods=['GET'])
+@login_required
+def youtube_list_playlists():
+    """List user playlists"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.list_playlists()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlist/create', methods=['POST'])
+@login_required
+def youtube_create_playlist():
+    """Create a new playlist"""
+    try:
+        data = request.get_json()
+        youtube = get_youtube_integration()
+        result = youtube.create_playlist(
+            title=data.get('title'),
+            description=data.get('description', ''),
+            privacy_status=data.get('privacy_status', 'private')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlist/<playlist_id>', methods=['DELETE'])
+@login_required
+def youtube_delete_playlist(playlist_id):
+    """Delete a playlist"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.delete_playlist(playlist_id)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
