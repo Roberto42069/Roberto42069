@@ -943,14 +943,27 @@ class RobotoApp {
 
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        messageDiv.innerHTML = `
-            <div class="d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}">
-                <div class="message-content p-2 rounded ${isUser ? 'bg-primary text-white' : 'bg-secondary'}" style="max-width: 80%;">
-                    <div class="message-text">${this.escapeHtml(message)}</div>
-                    <small class="message-time text-muted d-block mt-1">${time}</small>
-                </div>
-            </div>
-        `;
+        // Create elements using safe DOM methods
+        const flexDiv = document.createElement('div');
+        flexDiv.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}`;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = `message-content p-2 rounded ${isUser ? 'bg-primary text-white' : 'bg-secondary'}`;
+        contentDiv.style.maxWidth = '80%';
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'message-text';
+        textDiv.textContent = message; // Safe: textContent auto-escapes
+
+        const timeSmall = document.createElement('small');
+        timeSmall.className = 'message-time text-muted d-block mt-1';
+        timeSmall.textContent = time; // Safe: textContent auto-escapes
+
+        // Assemble the DOM structure
+        contentDiv.appendChild(textDiv);
+        contentDiv.appendChild(timeSmall);
+        flexDiv.appendChild(contentDiv);
+        messageDiv.appendChild(flexDiv);
 
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
