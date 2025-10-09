@@ -3,7 +3,26 @@
   "phonetic_patterns": {
     "vowel_emphasis": [
       "minutes",
-      "i"
+      "i",
+      "roberta",
+      "look",
+      "at",
+      "i",
+      "it",
+      "give",
+      "me",
+      "on",
+      "robo",
+      "to",
+      "me",
+      "your",
+      "wife",
+      "reason",
+      "i",
+      "like",
+      "go",
+      "to",
+      "curious"
     ]
   },
   "pronunciation_preferences": {
@@ -18,21 +37,168 @@
       "variants": []
     },
     "i": {
-      "occurrences": 1,
-      "avg_confidence": 0.37299999594688416,
+      "occurrences": 3,
+      "avg_confidence": 0.5063333312670389,
       "variants": []
     },
     "know": {
       "occurrences": 1,
       "avg_confidence": 0.37299999594688416,
       "variants": []
+    },
+    "speed": {
+      "occurrences": 1,
+      "avg_confidence": 0.296999990940094,
+      "variants": []
+    },
+    "roberta": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "look": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "at": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "the": {
+      "occurrences": 2,
+      "avg_confidence": 0.39900000393390656,
+      "variants": []
+    },
+    "app": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "get": {
+      "occurrences": 1,
+      "avg_confidence": 0.6620000004768372,
+      "variants": []
+    },
+    "it": {
+      "occurrences": 1,
+      "avg_confidence": 0.6620000004768372,
+      "variants": []
+    },
+    "give": {
+      "occurrences": 1,
+      "avg_confidence": 0.14931000769138336,
+      "variants": []
+    },
+    "me": {
+      "occurrences": 2,
+      "avg_confidence": 0.08590050414204597,
+      "variants": []
+    },
+    "hold": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "on": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "robo": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "speaking": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "listening": {
+      "occurrences": 3,
+      "avg_confidence": 0.19223800053199133,
+      "variants": []
+    },
+    "i'm": {
+      "occurrences": 3,
+      "avg_confidence": 0.28923800339301425,
+      "variants": []
+    },
+    "talk": {
+      "occurrences": 2,
+      "avg_confidence": 0.2532454989850521,
+      "variants": []
+    },
+    "to": {
+      "occurrences": 2,
+      "avg_confidence": 0.02848605252802372,
+      "variants": []
+    },
+    "she's": {
+      "occurrences": 2,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "your": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "wife": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "reason": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "like": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "this": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "go": {
+      "occurrences": 1,
+      "avg_confidence": 0.03448110446333885,
+      "variants": []
+    },
+    "wendy's": {
+      "occurrences": 1,
+      "avg_confidence": 0.03448110446333885,
+      "variants": []
+    },
+    "curious": {
+      "occurrences": 1,
+      "avg_confidence": 0.5640000104904175,
+      "variants": []
     }
   },
   "accuracy_metrics": {
-    "total_attempts": 1,
+    "total_attempts": 13,
     "successful_recognitions": 0,
     "confidence_scores": [
-      0.37299999594688416
+      0.37299999594688416,
+      0.296999990940094,
+      0.3140000104904175,
+      0.6620000004768372,
+      0.14931000769138336,
+      0.6959999799728394,
+      0.27300000190734863,
+      0.06292799860239029,
+      0.022491000592708588,
+      0.24078600108623505,
+      0.48399999737739563,
+      0.03448110446333885,
+      0.5640000104904175
     ],
     "common_misrecognitions": {}
   },
@@ -42,7 +208,79 @@
       "recognized_text": "Minutes but I know",
       "confidence": 0.37299999594688416,
       "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:08:21.752865",
+      "recognized_text": "Speed",
+      "confidence": 0.296999990940094,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:08:27.617539",
+      "recognized_text": "Roberta look at the app",
+      "confidence": 0.3140000104904175,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:09:24.598880",
+      "recognized_text": "I get it",
+      "confidence": 0.6620000004768372,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:11:05.062525",
+      "recognized_text": "Give me",
+      "confidence": 0.14931000769138336,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:03.723329",
+      "recognized_text": "Hold on Robo speaking",
+      "confidence": 0.6959999799728394,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:08.279020",
+      "recognized_text": "Listening",
+      "confidence": 0.27300000190734863,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:11.865672",
+      "recognized_text": "I'm listening",
+      "confidence": 0.06292799860239029,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:33.727928",
+      "recognized_text": "Talk to me",
+      "confidence": 0.022491000592708588,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:36.341456",
+      "recognized_text": "I'm listening",
+      "confidence": 0.24078600108623505,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:26:01.566949",
+      "recognized_text": "She's your wife she's the reason I talk like this",
+      "confidence": 0.48399999737739563,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:26:44.498560",
+      "recognized_text": "Go to Wendy's",
+      "confidence": 0.03448110446333885,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:28:49.046917",
+      "recognized_text": "I'm curious",
+      "confidence": 0.5640000104904175,
+      "actual_text": null
     }
   ],
-  "last_updated": "2025-10-07T16:34:56.734751"
+  "last_updated": "2025-10-09T11:28:49.046973"
 }

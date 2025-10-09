@@ -642,7 +642,7 @@ class HyperSpeedOptimizer:
         try:
             # Cache warming disabled to prevent worker timeout
             # Caches will be populated on-demand during actual usage
-            logging.info("✨ Cache warming skipped (on-demand loading enabled)")
+            logging.debug("✨ Cache warming skipped (on-demand loading enabled)")
             
         except Exception as e:
             logging.error(f"Cache warming error: {e}")
@@ -659,7 +659,7 @@ class HyperSpeedOptimizer:
             if self.metrics.api_calls > 10000:
                 self.metrics = PerformanceMetrics()
             
-            logging.info("🗜️ Memory compaction completed")
+            logging.debug("🗜️ Memory compaction completed")
             
         except Exception as e:
             logging.error(f"Memory compaction error: {e}")
