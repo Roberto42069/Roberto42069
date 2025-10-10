@@ -23,7 +23,12 @@ args = "Start application"
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
-mode = "sequential"
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
