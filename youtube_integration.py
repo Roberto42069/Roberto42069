@@ -8,15 +8,12 @@ class YouTubeIntegration:
     
     def __init__(self):
         self.hostname = os.environ.get('REPLIT_CONNECTORS_HOSTNAME')
-        repl_id = os.environ.get('REPL_IDENTITY')
-        web_renewal = os.environ.get('WEB_REPL_RENEWAL')
         self.x_replit_token = (
-            'repl ' + repl_id if repl_id
-            else 'depl ' + web_renewal if web_renewal
+            'repl ' + os.environ.get('REPL_IDENTITY') if os.environ.get('REPL_IDENTITY')
+            else 'depl ' + os.environ.get('WEB_REPL_RENEWAL') if os.environ.get('WEB_REPL_RENEWAL')
             else None
         )
         self.connection_settings = None
-        print("📺 YouTube Integration initialized")
     
     def get_access_token(self):
         """Get fresh access token from Replit connectors"""
@@ -24,11 +21,9 @@ class YouTubeIntegration:
             if self.connection_settings and self.connection_settings.get('settings', {}).get('expires_at'):
                 expires_at = datetime.fromisoformat(self.connection_settings['settings']['expires_at'].replace('Z', '+00:00'))
                 if expires_at.timestamp() * 1000 > datetime.now().timestamp() * 1000:
-                    print("✅ YouTube: Using cached access token")
                     return self.connection_settings['settings']['access_token']
             
             if not self.x_replit_token:
-                print("❌ YouTube: X_REPLIT_TOKEN not found")
                 raise Exception('X_REPLIT_TOKEN not found for repl/depl')
             
             response = requests.get(
@@ -40,16 +35,15 @@ class YouTubeIntegration:
             )
             response.raise_for_status()
             data = response.json()
+            self.connection_settings = data.get('items', [{}])[0] if data.get('items') else {}
             
-            if data and len(data) > 0:
-                self.connection_settings = data[0]
-                print("✅ YouTube: Access token refreshed successfully")
-                return self.connection_settings['settings']['access_token']
-            else:
-                print("❌ YouTube: No connection settings found")
-                return None
+            access_token = self.connection_settings.get('settings', {}).get('access_token')
+            if not access_token:
+                raise Exception('YouTube not connected or access token not available')
+            
+            return access_token
         except Exception as e:
-            print(f"❌ YouTube integration error: {e}")
+            current_app.logger.error(f"YouTube token error: {e}")
             return None
     
     def _make_request(self, method, endpoint, **kwargs):

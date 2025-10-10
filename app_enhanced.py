@@ -204,15 +204,7 @@ def get_user_roberto():
         # Add advanced learning engine
         try:
             roberto.learning_engine = AdvancedLearningEngine()
-            
-            # 🔄 CRITICAL: Restore learned patterns and preferences from learning engine
-            if hasattr(roberto.learning_engine, 'conversation_patterns'):
-                roberto.learned_patterns = dict(roberto.learning_engine.conversation_patterns)
-            if hasattr(roberto.learning_engine, 'topic_expertise'):
-                roberto.user_preferences = dict(roberto.learning_engine.topic_expertise)
-            
             app.logger.info("Advanced learning systems initialized successfully")
-            app.logger.info(f"💾 Restored {len(roberto.learned_patterns)} learned patterns and {len(roberto.user_preferences)} preferences")
         except Exception as e:
             app.logger.error(f"Learning engine initialization error: {e}")
 
@@ -231,58 +223,12 @@ def get_user_roberto():
         except Exception as e:
             app.logger.error(f"Advanced voice processor initialization error: {e}")
 
-        # 🎭 Load user data for custom personality and preferences
-        try:
-            if current_user and current_user.is_authenticated:
-                user_data = UserData.query.filter_by(user_id=current_user.id).first()
-                if not user_data:
-                    user_data = UserData(user_id=current_user.id)
-                    db.session.add(user_data)
-                    db.session.commit()
-                roberto.user_data = user_data
-                app.logger.info(f"User data loaded for {current_user.username}")
-                if user_data.custom_personality:
-                    app.logger.info(f"Custom personality active: {len(user_data.custom_personality)} characters")
-        except Exception as e:
-            app.logger.error(f"User data loading error: {e}")
-            roberto.user_data = None
-
         # Add GitHub project integration
         try:
             roberto.github_integration = get_github_integration()
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
-        
-        # Initialize and verify Spotify integration
-        try:
-            from spotify_integration import get_spotify_integration
-            spotify = get_spotify_integration()
-            token = spotify.get_access_token()
-            if token:
-                app.logger.info("✅ Spotify integration: CONNECTED")
-                print("✅ Spotify integration: CONNECTED and ready")
-            else:
-                app.logger.warning("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup in Secrets)")
-        except Exception as e:
-            app.logger.error(f"Spotify integration check error: {e}")
-            print(f"❌ Spotify integration error: {e}")
-        
-        # Initialize and verify YouTube integration
-        try:
-            from youtube_integration import get_youtube_integration
-            youtube = get_youtube_integration()
-            token = youtube.get_access_token()
-            if token:
-                app.logger.info("✅ YouTube integration: CONNECTED")
-                print("✅ YouTube integration: CONNECTED and ready")
-            else:
-                app.logger.warning("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup in Secrets)")
-        except Exception as e:
-            app.logger.error(f"YouTube integration check error: {e}")
-            print(f"❌ YouTube integration error: {e}")
 
         # Add Cultural Legacy Display integration
         try:
@@ -2239,69 +2185,6 @@ def youtube_list_videos():
         result = youtube.list_videos(max_results=max_results)
         return jsonify({"success": True, "data": result})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-# CUSTOM PERSONALITY ROUTES
-@app.route('/api/personality/save', methods=['POST'])
-@login_required
-def save_custom_personality():
-    """Save custom personality prompt (max 3000 characters, permanent)"""
-    try:
-        data = request.get_json()
-        personality_text = data.get('personality', '').strip()
-        
-        # Validate character limit
-        if len(personality_text) > 3000:
-            return jsonify({
-                "success": False,
-                "error": "Personality text exceeds 3,000 character limit"
-            }), 400
-        
-        # Get or create user data
-        user_data = UserData.query.filter_by(user_id=current_user.id).first()
-        if not user_data:
-            user_data = UserData(user_id=current_user.id)
-            db.session.add(user_data)
-        
-        # Save custom personality
-        user_data.custom_personality = personality_text
-        user_data.data_updated_at = datetime.now()
-        db.session.commit()
-        
-        app.logger.info(f"Custom personality saved for user {current_user.id}: {len(personality_text)} characters")
-        
-        return jsonify({
-            "success": True,
-            "message": "Custom personality saved successfully!",
-            "character_count": len(personality_text)
-        })
-        
-    except Exception as e:
-        app.logger.error(f"Save personality error: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/api/personality/load', methods=['GET'])
-@login_required
-def load_custom_personality():
-    """Load custom personality prompt"""
-    try:
-        user_data = UserData.query.filter_by(user_id=current_user.id).first()
-        
-        if user_data and user_data.custom_personality:
-            return jsonify({
-                "success": True,
-                "personality": user_data.custom_personality,
-                "character_count": len(user_data.custom_personality)
-            })
-        else:
-            return jsonify({
-                "success": True,
-                "personality": "",
-                "character_count": 0
-            })
-            
-    except Exception as e:
-        app.logger.error(f"Load personality error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':

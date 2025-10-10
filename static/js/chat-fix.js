@@ -305,14 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     console.log(`Loading ${history.length} conversations`);
                     
-                    // 🚀 PERFORMANCE OPTIMIZATION: Load conversations in batches
-                    // Load most recent 100 conversations first for instant display
-                    const INITIAL_LOAD = 100;
-                    const recentHistory = history.slice(-INITIAL_LOAD);
-                    const olderHistory = history.slice(0, -INITIAL_LOAD);
-                    
-                    // Load recent conversations immediately
-                    recentHistory.forEach(entry => {
+                    // ALWAYS SHOW CHAT HISTORY - NEVER HIDE
+                    history.forEach(entry => {
                         if (entry.message) {
                             addChatMessage(entry.message, true);
                         }
@@ -321,28 +315,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    // Add "Load More" button if there are older conversations
-                    if (olderHistory.length > 0) {
-                        const loadMoreBtn = document.createElement('div');
-                        loadMoreBtn.id = 'load-more-history';
-                        loadMoreBtn.className = 'text-center my-3';
-                        loadMoreBtn.innerHTML = `
-                            <button class="btn btn-outline-primary btn-sm" onclick="loadOlderConversations()">
-                                <i class="fas fa-history"></i> Load ${olderHistory.length} older conversations
-                            </button>
-                        `;
-                        chatHistoryElement.insertBefore(loadMoreBtn, chatHistoryElement.firstChild);
-                        
-                        // Store older history for later loading
-                        window.olderChatHistory = olderHistory;
-                    }
-                    
                     // Ensure chat history container is always visible
                     chatHistoryElement.style.display = 'block';
                     chatHistoryElement.style.visibility = 'visible';
                     chatHistoryElement.style.opacity = '1';
                     
-                    // Scroll to bottom to show most recent messages
+                    // Scroll to bottom
                     setTimeout(() => {
                         chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
                     }, 100);
@@ -537,17 +515,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage = '🎤 Microphone not available. Please check if another app is using it or if it\'s properly connected.';
                         break;
                     case 'network':
-                        errorMessage = '📡 Speech recognition network error. The browser\'s speech service may be unavailable. Please type your message instead or try again later.';
-                        errorType = 'warning';
-                        // Auto-retry after a delay if still listening
-                        if (isListening) {
-                            setTimeout(() => {
-                                console.log('Auto-retrying speech recognition after network error...');
-                                if (isListening) {
-                                    startSpeechRecognition();
-                                }
-                            }, 3000); // Retry after 3 seconds
-                        }
+                        errorMessage = '📡 Network error. Please check your internet connection.';
                         break;
                     case 'aborted':
                         // Silently handle aborted errors (normal when stopping or restarting)
@@ -1353,62 +1321,6 @@ document.addEventListener('DOMContentLoaded', function() {
             delay: 4000
         });
         toast.show();
-    }
-
-    // Function to load older conversations in batches
-    window.loadOlderConversations = function() {
-        const BATCH_SIZE = 100;
-        const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
-        const loadMoreBtn = document.getElementById('load-more-history');
-        
-        if (!window.olderChatHistory || window.olderChatHistory.length === 0) {
-            if (loadMoreBtn) loadMoreBtn.remove();
-            return;
-        }
-        
-        // Load next batch
-        const batch = window.olderChatHistory.slice(-BATCH_SIZE);
-        const remaining = window.olderChatHistory.slice(0, -BATCH_SIZE);
-        
-        // Insert batch before the current first message
-        const firstMessage = chatHistoryElement.querySelector('.chat-message');
-        batch.forEach(entry => {
-            if (entry.message) {
-                const userMsg = createChatMessageElement(entry.message, true);
-                chatHistoryElement.insertBefore(userMsg, firstMessage);
-            }
-            if (entry.response) {
-                const botMsg = createChatMessageElement(entry.response, false);
-                chatHistoryElement.insertBefore(botMsg, firstMessage);
-            }
-        });
-        
-        // Update remaining history
-        window.olderChatHistory = remaining;
-        
-        // Update or remove button
-        if (remaining.length > 0) {
-            const btn = loadMoreBtn.querySelector('button');
-            if (btn) {
-                btn.innerHTML = `<i class="fas fa-history"></i> Load ${remaining.length} more conversations`;
-            }
-        } else {
-            if (loadMoreBtn) loadMoreBtn.remove();
-            showToast('All conversations loaded!', 'success');
-        }
-    };
-    
-    // Helper function to create chat message element
-    function createChatMessageElement(text, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'} mb-3`;
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = isUser ? 'bg-primary text-white p-3 rounded' : 'bg-dark text-white p-3 rounded';
-        messageContent.textContent = text;
-        
-        messageDiv.appendChild(messageContent);
-        return messageDiv;
     }
 
     // Initialize data management when DOM is loaded
