@@ -188,3 +188,17 @@ Preferred communication style: Simple, everyday language.
   - Spotify now-playing widget with live updates
   - Quick access buttons for GitHub and YouTube management
   - Integration refresh and status monitoring
+
+### Custom Personality Feature (October 10, 2025)
+- **Permanent Personality Customization**: Define Roboto's personality traits that are never forgotten
+  - Custom personality modal with 3,000 character limit
+  - Real-time character counter with visual feedback
+  - Integrated permanently into AI system prompt
+  - Saved to database with user-specific persistence
+  - Auto-loads on modal open for easy editing
+  - Clear functionality with confirmation dialog
+  - Personality applies to all conversations immediately
+  - Backend: /api/personality/save and /api/personality/load routes
+  - Frontend: static/js/personality.js for modal interactions
+  - Database: UserData.custom_personality field (Text, nullable)
+  - AI Integration: Injected as "🎭 CUSTOM PERSONALITY (PERMANENT)" section in system prompt
