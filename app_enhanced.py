@@ -204,7 +204,15 @@ def get_user_roberto():
         # Add advanced learning engine
         try:
             roberto.learning_engine = AdvancedLearningEngine()
+            
+            # 🔄 CRITICAL: Restore learned patterns and preferences from learning engine
+            if hasattr(roberto.learning_engine, 'conversation_patterns'):
+                roberto.learned_patterns = dict(roberto.learning_engine.conversation_patterns)
+            if hasattr(roberto.learning_engine, 'topic_expertise'):
+                roberto.user_preferences = dict(roberto.learning_engine.topic_expertise)
+            
             app.logger.info("Advanced learning systems initialized successfully")
+            app.logger.info(f"💾 Restored {len(roberto.learned_patterns)} learned patterns and {len(roberto.user_preferences)} preferences")
         except Exception as e:
             app.logger.error(f"Learning engine initialization error: {e}")
 

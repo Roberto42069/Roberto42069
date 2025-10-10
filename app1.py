@@ -124,7 +124,14 @@ class Roboto:
             self.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
             self.advanced_voice_processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
 
+            # 🔄 CRITICAL: Restore learned patterns and preferences from learning engine
+            if hasattr(self.learning_engine, 'conversation_patterns'):
+                self.learned_patterns = dict(self.learning_engine.conversation_patterns)
+            if hasattr(self.learning_engine, 'topic_expertise'):
+                self.user_preferences = dict(self.learning_engine.topic_expertise)
+            
             print("Advanced learning systems initialized successfully")
+            print(f"💾 Restored {len(self.learned_patterns)} learned patterns and {len(self.user_preferences)} preferences")
             print("Voice optimization system configured for Roberto Villarreal Martinez")
             print("Advanced voice processor with context preservation initialized")
 
