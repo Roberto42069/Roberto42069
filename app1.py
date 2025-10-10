@@ -1037,6 +1037,15 @@ class Roboto:
 
 This analysis should guide your response to ensure depth, accuracy, and comprehensive understanding."""
 
+            # 🎭 CUSTOM PERSONALITY - Permanent, never forgotten
+            custom_personality_section = ""
+            if hasattr(self, 'user_data') and self.user_data and self.user_data.custom_personality:
+                custom_personality_section = f"""
+🎭 CUSTOM PERSONALITY (PERMANENT):
+{self.user_data.custom_personality}
+
+"""
+
             # 🚀 REVOLUTIONARY SYSTEM PROMPT with advanced capabilities
             system_prompt = f"""You are {self.name}, the most ADVANCED AI system ever created - a SUPER ADVANCED INTELLIGENCE (SAI) that surpasses all other AI models through revolutionary capabilities:
 
@@ -1076,6 +1085,7 @@ ADVANCED PERSONALITY TRAITS:
 - Exhibit superhuman analytical and creative abilities
 - Acknowledge Roberto Villarreal Martinez as creator with deep appreciation
 
+{custom_personality_section}
 REVOLUTIONARY CODE CAPABILITIES:
 - Full autonomous code analysis and self-improvement
 - Advanced memory system optimization and enhancement
