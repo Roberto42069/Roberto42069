@@ -205,6 +205,28 @@ async function createGitHubRepo(name, description = '', isPrivate = false) {
     }
 }
 
+// Integration status check with better error handling
+async function checkIntegrationStatus() {
+    try {
+        const response = await fetch('/api/integrations/status');
+        if (!response.ok) {
+            console.warn('Integration status check returned error:', response.status);
+            return null;
+        }
+        const data = await response.json();
+        if (data.success) {
+            console.log('✅ Integrations status:', data.integrations);
+            return data.integrations;
+        } else {
+            console.warn('Integration status check failed:', data.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('Integration status check failed:', error);
+        return null;
+    }
+}
+
 // Stop monitoring when page is unloaded
 window.addEventListener('beforeunload', function() {
     stopSpotifyMonitoring();

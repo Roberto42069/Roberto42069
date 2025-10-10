@@ -53,6 +53,9 @@ class UserData(db.Model):
     # Current state
     current_emotion: Mapped[str] = mapped_column(String(50), default='curious')
     current_user_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    
+    # Custom personality (max 3000 characters, permanent)
+    custom_personality: Mapped[str] = mapped_column(db.Text, nullable=True)
 
     # Metadata with different names to avoid conflict
     data_created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -138,6 +141,21 @@ class SpotifyActivity(db.Model):
     
     def __repr__(self):
         return f'<SpotifyActivity {self.track_name} by {self.artist_name}>'
+
+class OAuth(db.Model):
+    __tablename__ = 'oauth_tokens'
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    browser_session_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    provider: Mapped[str] = mapped_column(String(50), nullable=False)
+    token = db.Column(db.JSON, nullable=False)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<OAuth {self.provider} for User {self.user_id}>'
 
 # Create tables function
 def create_tables():
