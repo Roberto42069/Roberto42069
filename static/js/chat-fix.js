@@ -515,7 +515,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage = '🎤 Microphone not available. Please check if another app is using it or if it\'s properly connected.';
                         break;
                     case 'network':
-                        errorMessage = '📡 Network error. Please check your internet connection.';
+                        errorMessage = '📡 Speech recognition network error. The browser\'s speech service may be unavailable. Please type your message instead or try again later.';
+                        errorType = 'warning';
+                        // Auto-retry after a delay if still listening
+                        if (isListening) {
+                            setTimeout(() => {
+                                console.log('Auto-retrying speech recognition after network error...');
+                                if (isListening) {
+                                    startSpeechRecognition();
+                                }
+                            }, 3000); // Retry after 3 seconds
+                        }
                         break;
                     case 'aborted':
                         // Silently handle aborted errors (normal when stopping or restarting)
