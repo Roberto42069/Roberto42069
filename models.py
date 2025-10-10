@@ -53,6 +53,9 @@ class UserData(db.Model):
     # Current state
     current_emotion: Mapped[str] = mapped_column(String(50), default='curious')
     current_user_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    
+    # Custom personality (max 3000 characters, permanent)
+    custom_personality: Mapped[str] = mapped_column(db.Text, nullable=True)
 
     # Metadata with different names to avoid conflict
     data_created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

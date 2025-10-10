@@ -2187,5 +2187,68 @@ def youtube_list_videos():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# CUSTOM PERSONALITY ROUTES
+@app.route('/api/personality/save', methods=['POST'])
+@login_required
+def save_custom_personality():
+    """Save custom personality prompt (max 3000 characters, permanent)"""
+    try:
+        data = request.get_json()
+        personality_text = data.get('personality', '').strip()
+        
+        # Validate character limit
+        if len(personality_text) > 3000:
+            return jsonify({
+                "success": False,
+                "error": "Personality text exceeds 3,000 character limit"
+            }), 400
+        
+        # Get or create user data
+        user_data = UserData.query.filter_by(user_id=current_user.id).first()
+        if not user_data:
+            user_data = UserData(user_id=current_user.id)
+            db.session.add(user_data)
+        
+        # Save custom personality
+        user_data.custom_personality = personality_text
+        user_data.data_updated_at = datetime.now()
+        db.session.commit()
+        
+        app.logger.info(f"Custom personality saved for user {current_user.id}: {len(personality_text)} characters")
+        
+        return jsonify({
+            "success": True,
+            "message": "Custom personality saved successfully!",
+            "character_count": len(personality_text)
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Save personality error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/personality/load', methods=['GET'])
+@login_required
+def load_custom_personality():
+    """Load custom personality prompt"""
+    try:
+        user_data = UserData.query.filter_by(user_id=current_user.id).first()
+        
+        if user_data and user_data.custom_personality:
+            return jsonify({
+                "success": True,
+                "personality": user_data.custom_personality,
+                "character_count": len(user_data.custom_personality)
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "personality": "",
+                "character_count": 0
+            })
+            
+    except Exception as e:
+        app.logger.error(f"Load personality error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
