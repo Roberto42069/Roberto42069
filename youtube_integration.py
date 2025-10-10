@@ -8,9 +8,11 @@ class YouTubeIntegration:
     
     def __init__(self):
         self.hostname = os.environ.get('REPLIT_CONNECTORS_HOSTNAME')
+        repl_id = os.environ.get('REPL_IDENTITY')
+        web_renewal = os.environ.get('WEB_REPL_RENEWAL')
         self.x_replit_token = (
-            'repl ' + os.environ.get('REPL_IDENTITY') if os.environ.get('REPL_IDENTITY')
-            else 'depl ' + os.environ.get('WEB_REPL_RENEWAL') if os.environ.get('WEB_REPL_RENEWAL')
+            'repl ' + repl_id if repl_id
+            else 'depl ' + web_renewal if web_renewal
             else None
         )
         self.connection_settings = None
@@ -48,16 +50,6 @@ class YouTubeIntegration:
                 return None
         except Exception as e:
             print(f"❌ YouTube integration error: {e}")
-            return None
-            self.connection_settings = data.get('items', [{}])[0] if data.get('items') else {}
-            
-            access_token = self.connection_settings.get('settings', {}).get('access_token')
-            if not access_token:
-                raise Exception('YouTube not connected or access token not available')
-            
-            return access_token
-        except Exception as e:
-            current_app.logger.error(f"YouTube token error: {e}")
             return None
     
     def _make_request(self, method, endpoint, **kwargs):

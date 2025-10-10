@@ -149,14 +149,17 @@ Preferred communication style: Simple, everyday language.
 - **Environment Variables**: Secure configuration management
 - **Database Hosting**: PostgreSQL cloud database services
 
-### External Service Integrations (October 9, 2025)
-- **Spotify Integration**: Full read/write access to user's Spotify account
+### External Service Integrations
+- **Spotify Integration** ✅ OAuth Configured (October 10, 2025)
+  - Full read/write access to user's Spotify account
   - Real-time playback monitoring (updates every 10 seconds)
   - Recently played tracks with automatic database logging
   - Playlist creation, modification, and management
   - Playback control (play, pause, skip, volume)
   - Search and queue management
   - Top tracks and artists analytics
+  - OAuth permissions: playlist management, playback control, user library, recently played, top tracks
+  - Automatic token refresh via Replit Connectors
   
 - **GitHub Integration**: Complete repository management capabilities
   - Repository listing with sorting options
@@ -167,7 +170,8 @@ Preferred communication style: Simple, everyday language.
   - File operations (read, create, update, delete files)
   - Commit history access
   
-- **YouTube Integration**: Full channel management access
+- **YouTube Integration** ✅ OAuth Configured (October 10, 2025)
+  - Full channel management access via OAuth 2.0
   - Channel information and statistics
   - Video listing and management
   - Video metadata updates (title, description, tags)
@@ -176,6 +180,8 @@ Preferred communication style: Simple, everyday language.
   - Add/remove videos from playlists
   - Comment access and management
   - Search functionality
+  - OAuth permissions: upload, download, analytics, full YouTube access
+  - Automatic token refresh via Replit Connectors
 
 ### UI/UX Enhancements (October 9, 2025)
 - **Avatar System**: Replaced SVG avatar with Roberto's AI-generated photo

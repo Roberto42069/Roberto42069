@@ -100,7 +100,7 @@ localPort = 46445
 externalPort = 8080
 
 [agent]
-integrations = ["python_database:1.0.0", "python_openai:1.0.0", "python_log_in_with_replit:1.0.0", "spotify:1.0.0"]
+integrations = ["python_database:1.0.0", "python_openai:1.0.0", "python_log_in_with_replit:1.0.0", "spotify:1.0.0", "youtube:1.0.0"]
 
 [objectStorage]
 defaultBucketID = "replit-objstore-bfee5df0-9e75-44ce-8ad5-f35234663cfb"
