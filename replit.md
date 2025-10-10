@@ -59,6 +59,14 @@ Preferred communication style: Simple, everyday language.
 - **Emotional Intelligence**: Sentiment analysis, emotional pattern recognition, and appropriate response generation
 - **Voice Optimization**: Personalized speech recognition for bilingual (Spanish-English) patterns
 - **Pattern Recognition**: TF-IDF vectorization, cosine similarity, and clustering algorithms
+- **🚀 Dynamic Context Window (October 10, 2025)**: Expanded from 300 to 8000+ tokens with intelligent scaling
+  - **Baseline**: 8000 tokens for all messages (27x increase from previous 300)
+  - **Cultural/Family Context**: 12000 tokens (roberto, eve, 929, aztec, nahuatl, heritage)
+  - **Deep Thought Mode**: 16000 tokens (think about, analyze, holistic, comprehensive)
+  - **Long Prompts**: 20000 tokens (messages >100 words)
+  - **Epic Mode**: 32000 tokens maximum (complex revolutionary insights)
+  - **No More Cutoffs**: Complete, holistic responses without mid-thought truncation
+  - **Implementation**: `get_dynamic_token_limit()` in app1.py, updated x_api_client.py default
 
 ### Data Storage Solutions
 - **Primary Database**: PostgreSQL with SQLAlchemy ORM
