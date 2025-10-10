@@ -70,7 +70,7 @@ class XAPIClient:
         self, 
         messages: List[Dict[str, str]], 
         model: str = "grok-2-1212",  # Updated to use current model
-        max_tokens: int = 300,
+        max_tokens: int = 8000,  # 🚀 Expanded context window - no more cutoffs!
         temperature: float = 0.8,
         **kwargs
     ) -> Dict[str, Any]:
@@ -80,7 +80,7 @@ class XAPIClient:
         Args:
             messages: List of message dictionaries with 'role' and 'content'
             model: Grok model to use (default: grok-beta)
-            max_tokens: Maximum tokens in response
+            max_tokens: Maximum tokens in response (default 8000, expandable to 32k)
             temperature: Sampling temperature
             
         Returns:

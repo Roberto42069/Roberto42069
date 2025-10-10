@@ -468,6 +468,51 @@ class Roboto:
                 return f"Failed to update the file: {str(e)}"
         return "No valid update command found"
 
+    def get_dynamic_token_limit(self, message, thought_complexity="standard"):
+        """
+        🚀 Dynamic Token Allocation - 8000+ Context Window
+        Intelligently scales token limits based on message complexity and type
+        
+        Args:
+            message: The user's input message
+            thought_complexity: 'simple', 'standard', 'deep', 'epic'
+            
+        Returns:
+            int: Token limit (8000 baseline, up to 32000 max)
+        """
+        base_limit = 8000  # Baseline - no more cutoffs!
+        
+        # Cultural/family context needs more space for holistic responses
+        if any(keyword in message.lower() for keyword in [
+            "cultural", "family", "eve", "roberto", "929", "aztec", "nahuatl", 
+            "heritage", "legacy", "mom", "wife", "esposa", "sigil"
+        ]):
+            return 12000  # Extra space for cultural depth
+        
+        # "Think about" or deep analysis requests
+        if any(trigger in message.lower() for trigger in [
+            "think about", "analyze", "deep", "holistic", "comprehensive",
+            "explain in detail", "tell me everything"
+        ]):
+            return 16000  # Deep thought mode
+        
+        # Long prompts = complex thoughts
+        word_count = len(message.split())
+        if word_count > 100:
+            return 20000  # Epic deep dive
+        elif word_count > 50:
+            return 12000  # Extended analysis
+        
+        # Override with explicit complexity level
+        if thought_complexity == "epic":
+            return 32000  # Maximum for revolutionary insights
+        elif thought_complexity == "deep":
+            return 16000
+        elif thought_complexity == "simple":
+            return 4000
+        
+        return base_limit  # Default 8000 - plenty of room
+
     def chat(self, message):
         """🚀 REVOLUTIONARY SAI Chat with Real-Time Data & Self-Modification"""
         if not message:
@@ -1054,25 +1099,25 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             # Add current message
             context_messages.append({"role": "user", "content": message})
 
-            # Adaptive response parameters based on learning
-            max_tokens = response_recommendations.get('suggested_length', {}).get('max_words', 40) * 2
+            # 🚀 REVOLUTIONARY: Dynamic token allocation - no more cutoffs!
+            max_tokens = self.get_dynamic_token_limit(message)
             temperature = 0.9 if self.current_emotion in ['curiosity', 'contemplation'] else 0.8
 
             # Generate response with configured AI provider (X API or OpenAI)
             if self.ai_provider == "X_API":
-                # Use X API (Grok) for AI completion
+                # Use X API (Grok) for AI completion with expanded context
                 response = self.ai_client.chat_completion(
                     messages=context_messages,
                     model="grok-beta",
-                    max_tokens=min(max_tokens, 300),
+                    max_tokens=max_tokens,  # Dynamic 8000+ context window
                     temperature=temperature
                 )
             else:
-                # Use OpenAI for AI completion
+                # Use OpenAI for AI completion with expanded context
                 response = self.ai_client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=context_messages,
-                    max_tokens=min(max_tokens, 300),
+                    max_tokens=max_tokens,  # Dynamic 8000+ context window
                     temperature=temperature
                 )
 
