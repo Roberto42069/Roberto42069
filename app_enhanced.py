@@ -253,6 +253,36 @@ def get_user_roberto():
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
+        
+        # Initialize and verify Spotify integration
+        try:
+            from spotify_integration import get_spotify_integration
+            spotify = get_spotify_integration()
+            token = spotify.get_access_token()
+            if token:
+                app.logger.info("✅ Spotify integration: CONNECTED")
+                print("✅ Spotify integration: CONNECTED and ready")
+            else:
+                app.logger.warning("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
+                print("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup in Secrets)")
+        except Exception as e:
+            app.logger.error(f"Spotify integration check error: {e}")
+            print(f"❌ Spotify integration error: {e}")
+        
+        # Initialize and verify YouTube integration
+        try:
+            from youtube_integration import get_youtube_integration
+            youtube = get_youtube_integration()
+            token = youtube.get_access_token()
+            if token:
+                app.logger.info("✅ YouTube integration: CONNECTED")
+                print("✅ YouTube integration: CONNECTED and ready")
+            else:
+                app.logger.warning("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
+                print("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup in Secrets)")
+        except Exception as e:
+            app.logger.error(f"YouTube integration check error: {e}")
+            print(f"❌ YouTube integration error: {e}")
 
         # Add Cultural Legacy Display integration
         try:

@@ -15,6 +15,7 @@ class SpotifyIntegration:
             else None
         )
         self.connection_settings = None
+        print("🎵 Spotify Integration initialized")
     
     def get_access_token(self):
         """Get fresh access token from Replit connectors"""
@@ -22,9 +23,11 @@ class SpotifyIntegration:
             if self.connection_settings and self.connection_settings.get('settings', {}).get('expires_at'):
                 expires_at = datetime.fromisoformat(self.connection_settings['settings']['expires_at'].replace('Z', '+00:00'))
                 if expires_at.timestamp() * 1000 > datetime.now().timestamp() * 1000:
+                    print("✅ Spotify: Using cached access token")
                     return self.connection_settings['settings']['access_token']
             
             if not self.x_replit_token:
+                print("❌ Spotify: X_REPLIT_TOKEN not found")
                 raise Exception('X_REPLIT_TOKEN not found for repl/depl')
             
             response = requests.get(
@@ -36,6 +39,17 @@ class SpotifyIntegration:
             )
             response.raise_for_status()
             data = response.json()
+            
+            if data and len(data) > 0:
+                self.connection_settings = data[0]
+                print("✅ Spotify: Access token refreshed successfully")
+                return self.connection_settings['settings']['access_token']
+            else:
+                print("❌ Spotify: No connection settings found")
+                return None
+        except Exception as e:
+            print(f"❌ Spotify integration error: {e}")
+            return None
             self.connection_settings = data.get('items', [{}])[0] if data.get('items') else {}
             
             access_token = self.connection_settings.get('settings', {}).get('access_token')
