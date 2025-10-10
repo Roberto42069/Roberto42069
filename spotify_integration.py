@@ -42,15 +42,24 @@ class SpotifyIntegration:
             response.raise_for_status()
             data = response.json()
             
-            if data and len(data) > 0:
+            if data and isinstance(data, list) and len(data) > 0:
                 self.connection_settings = data[0]
-                print("✅ Spotify: Access token refreshed successfully")
-                return self.connection_settings['settings']['access_token']
+                access_token = self.connection_settings.get('settings', {}).get('access_token')
+                if access_token:
+                    print("✅ Spotify: Access token refreshed successfully")
+                    return access_token
+                else:
+                    print("❌ Spotify: No access token in connection settings")
+                    print("🔐 Please authorize Spotify in Replit Tools → Connections")
+                    return None
             else:
-                print("❌ Spotify: No connection settings found")
+                print("❌ Spotify: No connection found - OAuth not completed")
+                print("🔐 To fix: Open Replit Tools panel → Find 'Spotify' → Click 'Connect' button")
                 return None
         except Exception as e:
             print(f"❌ Spotify integration error: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def _make_request(self, method, endpoint, **kwargs):
