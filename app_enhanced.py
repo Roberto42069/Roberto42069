@@ -28,7 +28,7 @@ def process_voice_message(audio_file_path, roberto_instance):
             # Get the dominant emotion
             dominant_emotion = emotions[0] if emotions else {"label": "neutral", "score": 0.5}
 
-            app.logger.info(f"Voice transcription: {transcription[:50]}...")
+            app.logger.info(f"Voice transcription: {transcription[:100]}...")
             app.logger.info(f"Detected emotion: {dominant_emotion}")
 
             # Create emotionally-aware response
