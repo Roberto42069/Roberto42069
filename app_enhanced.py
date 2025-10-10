@@ -223,6 +223,22 @@ def get_user_roberto():
         except Exception as e:
             app.logger.error(f"Advanced voice processor initialization error: {e}")
 
+        # 🎭 Load user data for custom personality and preferences
+        try:
+            if current_user and current_user.is_authenticated:
+                user_data = UserData.query.filter_by(user_id=current_user.id).first()
+                if not user_data:
+                    user_data = UserData(user_id=current_user.id)
+                    db.session.add(user_data)
+                    db.session.commit()
+                roberto.user_data = user_data
+                app.logger.info(f"User data loaded for {current_user.username}")
+                if user_data.custom_personality:
+                    app.logger.info(f"Custom personality active: {len(user_data.custom_personality)} characters")
+        except Exception as e:
+            app.logger.error(f"User data loading error: {e}")
+            roberto.user_data = None
+
         # Add GitHub project integration
         try:
             roberto.github_integration = get_github_integration()
