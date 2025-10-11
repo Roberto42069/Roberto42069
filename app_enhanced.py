@@ -368,6 +368,12 @@ def save_user_data():
     """Save current Roboto state with enhanced learning data"""
     try:
         if roberto:
+            # Create comprehensive backups across multiple files
+            from comprehensive_memory_system import create_all_backups
+            backup_files = create_all_backups(roberto)
+            if backup_files:
+                app.logger.info(f"✅ Created {len(backup_files)} memory backup files")
+            
             # Prepare comprehensive user data
             user_data = {
                 'chat_history': getattr(roberto, 'chat_history', []),

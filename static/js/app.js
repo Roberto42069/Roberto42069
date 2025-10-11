@@ -26,6 +26,7 @@ class RobotoApp {
         this.restartAttempts = 0;
         this.maxRestartAttempts = 10;
         this.lastRestartTime = 0;
+        this.pendingTranscript = ''; // Track partial transcript
 
         this.init();
     }
@@ -250,7 +251,7 @@ class RobotoApp {
                 icon: "key"
             },
             'model_access': {
-                explanation: "The AI service doesn't have access to the requested feature.",
+                explanation: "The AI service doesn\'t have access to the requested feature.",
                 solution: "Roboto will use its built-in intelligent responses instead. All your task management features work perfectly.",
                 icon: "robot"
             },
@@ -270,8 +271,8 @@ class RobotoApp {
                 icon: "volume-mute"
             },
             'generic': {
-                explanation: "Something unexpected happened, but don't worry - it's not your fault.",
-                solution: "Try the action again. If it keeps happening, you can still use all of Roboto's other features.",
+                explanation: "Something unexpected happened, but don\'t worry - it\'s not your fault.",
+                solution: "Try the action again. If it keeps happening, you can still use all of Roboto\'s other features.",
                 icon: "exclamation-circle"
             }
         };
@@ -986,29 +987,29 @@ class RobotoApp {
         }
 
         chatHistory.innerHTML = '';
-        
+
         this.chatHistory.forEach(entry => {
             const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             // User message
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'chat-message mb-2 user-message';
-            
+
             const userFlexDiv = document.createElement('div');
             userFlexDiv.className = 'd-flex justify-content-end';
-            
+
             const userContentDiv = document.createElement('div');
             userContentDiv.className = 'message-content p-2 rounded bg-primary text-white';
             userContentDiv.style.maxWidth = '80%';
-            
+
             const userTextDiv = document.createElement('div');
             userTextDiv.className = 'message-text';
             userTextDiv.textContent = entry.message;
-            
+
             const userTimeSmall = document.createElement('small');
             userTimeSmall.className = 'message-time text-muted d-block mt-1';
             userTimeSmall.textContent = time;
-            
+
             userContentDiv.appendChild(userTextDiv);
             userContentDiv.appendChild(userTimeSmall);
             userFlexDiv.appendChild(userContentDiv);
@@ -1018,22 +1019,22 @@ class RobotoApp {
             // Bot response
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message mb-2 bot-message';
-            
+
             const botFlexDiv = document.createElement('div');
             botFlexDiv.className = 'd-flex justify-content-start';
-            
+
             const botContentDiv = document.createElement('div');
             botContentDiv.className = 'message-content p-2 rounded bg-secondary';
             botContentDiv.style.maxWidth = '80%';
-            
+
             const botTextDiv = document.createElement('div');
             botTextDiv.className = 'message-text';
             botTextDiv.textContent = entry.response;
-            
+
             const botTimeSmall = document.createElement('small');
             botTimeSmall.className = 'message-time text-muted d-block mt-1';
             botTimeSmall.textContent = time;
-            
+
             botContentDiv.appendChild(botTextDiv);
             botContentDiv.appendChild(botTimeSmall);
             botFlexDiv.appendChild(botContentDiv);
@@ -1371,21 +1372,21 @@ class RobotoRequestSystem {
 
         const errorDiv = document.createElement('div');
         errorDiv.className = 'message bot-message mb-3';
-        
+
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        
+
         const heading = document.createElement('h6');
         heading.textContent = `🚀 ${requestType.replace('_', ' ').toUpperCase()} Error`;
-        
+
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-danger';
         alertDiv.textContent = `❌ Request failed: ${error.message || 'An unknown error occurred'}`;
-        
+
         const timestamp = document.createElement('small');
         timestamp.className = 'text-muted d-block mt-2';
         timestamp.textContent = new Date().toLocaleTimeString();
-        
+
         messageContent.appendChild(heading);
         messageContent.appendChild(alertDiv);
         messageContent.appendChild(timestamp);
@@ -1573,10 +1574,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.success) {
                 const analyticsDisplay = document.getElementById('analyticsDisplay');
-                
+
                 let html = '<div class="github-project-status">';
                 html += '<h6 class="text-info mb-3"><i class="fab fa-github me-2"></i>GitHub Project Status</h6>';
-                
+
                 // Project summary
                 html += `<div class="mb-3">
                     <div class="card bg-dark border-secondary">
@@ -1589,7 +1590,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>`;
-                
+
                 // Sync button
                 html += `<div class="mb-3">
                     <button class="btn btn-success me-2" onclick="app.syncGitHubTasks()">
@@ -1599,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-plus me-1"></i>Create Card
                     </button>
                 </div>`;
-                
+
                 html += '</div>';
                 analyticsDisplay.innerHTML = html;
 
@@ -2041,11 +2042,81 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             this.speechRecognition.onresult = (event) => {
-                this.handleSpeechResults(event);
+                const chatInput = document.getElementById('chatInput');
+                if (!chatInput) return;
+
+                // Build complete transcript from all results
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Preserve existing text and append new transcript
+                const currentText = chatInput.value;
+
+                if (finalTranscript) {
+                    // Append final transcript to existing text
+                    const newText = currentText ? currentText + ' ' + finalTranscript.trim() : finalTranscript.trim();
+                    chatInput.value = newText;
+                    this.pendingTranscript = '';
+
+                    const confidence = event.results[event.results.length - 1][0].confidence;
+                    console.log('Final speech recognized:', finalTranscript, 'Confidence:', confidence);
+
+                    // Auto-send if high confidence and not already typing
+                    if (confidence > 0.75 && !currentText.endsWith('...')) {
+                        setTimeout(() => this.sendMessage(), 500);
+                    }
+                } else if (interimTranscript) {
+                    // Show interim results without overwriting
+                    this.pendingTranscript = interimTranscript;
+                    chatInput.value = currentText + (currentText ? ' ' : '') + interimTranscript;
+                    console.log('Interim speech:', interimTranscript);
+                }
             };
 
             this.speechRecognition.onerror = (event) => {
-                this.handleSpeechError(event);
+                console.error('Speech recognition error:', event.error);
+
+                // Don't lose the current input on error
+                const chatInput = document.getElementById('chatInput');
+                const currentValue = chatInput ? chatInput.value : '';
+
+                if (event.error === 'no-speech') {
+                    // Restart if no speech detected
+                    if (this.continuousListening && !this.isSpeaking) {
+                        setTimeout(() => {
+                            if (this.isListeningActive && chatInput) {
+                                // Preserve input value
+                                const preservedValue = chatInput.value;
+                                this.resumeContinuousListening();
+                                if (preservedValue) {
+                                    chatInput.value = preservedValue;
+                                }
+                            }
+                        }, 1000);
+                    }
+                } else if (event.error === 'aborted') {
+                    // Preserve text on abort
+                    this.isListeningActive = false;
+                    if (currentValue && this.continuousListening) {
+                        setTimeout(() => this.resumeContinuousListening(), 500);
+                    }
+                } else if (event.error === 'audio-capture') {
+                    this.isListeningActive = false;
+                    this.showNotification('Microphone access error. Please check permissions.', 'error');
+                } else if (event.error === 'not-allowed') {
+                    this.isListeningActive = false;
+                    this.continuousListening = false;
+                    this.showNotification('Microphone permission denied', 'error');
+                }
             };
 
             this.speechRecognition.onend = () => {
@@ -2114,16 +2185,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     startContinuousListening() {
-        if (!this.speechRecognition || this.isListeningActive) return;
+        if (!this.speechRecognition || this.continuousListening) return;
+
+        this.continuousListening = true;
+        this.isListeningActive = true;
+        this.pendingTranscript = ''; // Track partial transcript
+
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.classList.add('listening');
+            const icon = voiceBtn.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-microphone';
+            }
+        }
 
         try {
-            this.speechRecognition.continuous = true;
-            this.speechRecognition.interimResults = true;
             this.speechRecognition.start();
-            this.isListeningActive = true;
-        } catch (error) {
-            console.error('Failed to start continuous listening:', error);
-            this.showNotification('Could not start microphone', 'error');
+            console.log('Continuous listening started');
+        } catch (e) {
+            console.error('Failed to start listening:', e);
+            this.isListeningActive = false;
         }
     }
 
