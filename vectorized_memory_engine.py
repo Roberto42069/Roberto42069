@@ -99,7 +99,8 @@ class RevolutionaryMemoryEngine:
 
         logging.info("Revolutionary Vectorized Memory Engine initialized")
         logging.info(f"Memory storage: {len(self.memory_store)} memories loaded")
-        logging.info(f"Vector index ready: {self.vector_index is not None}")
+        vector_ready = self.vector_index is not None if self.use_faiss else True
+        logging.info(f"Vector index ready: {vector_ready} (mode: {'FAISS' if self.use_faiss else 'SQLite fallback'})")
 
     def _initialize_storage(self):
         """Initialize vector storage with FAISS or fallback to SQLite"""
@@ -110,9 +111,10 @@ class RevolutionaryMemoryEngine:
                 self.use_faiss = True
                 logging.info("FAISS vector index initialized")
             else:
-                # Fallback to SQLite with basic similarity
+                # Fallback to SQLite with basic similarity - set vector_index to empty list for compatibility
                 self.use_faiss = False
-                logging.info("Using SQLite fallback for vector storage")
+                self.vector_index = []  # Initialize as empty list for fallback mode
+                logging.info("Using SQLite fallback for vector storage (vector_index initialized as list)")
 
             # Initialize SQLite for metadata and receipts
             with sqlite3.connect(self.db_path) as conn:
@@ -278,6 +280,9 @@ class RevolutionaryMemoryEngine:
         # Store in vector index
         if self.use_faiss and self.vector_index is not None:
             self.vector_index.add(embedding.reshape(1, -1))
+        elif not self.use_faiss and isinstance(self.vector_index, list):
+            # In fallback mode, store embedding in list for future similarity calculations
+            self.vector_index.append((memory_id, embedding))
 
         # Store memory
         self.memory_store[memory_id] = memory
