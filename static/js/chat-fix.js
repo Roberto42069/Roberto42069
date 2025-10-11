@@ -92,6 +92,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
+            // 1. Voice Availability Check - Prevent errors before they happen
+            if (availableVoices.length === 0) {
+                console.warn('No voices available for TTS');
+                if (!skipToast) {
+                    showToast('🔄 Loading voices, please wait...', 'info');
+                }
+                // Retry after voices load
+                setTimeout(() => {
+                    if (availableVoices.length > 0) {
+                        speakText(text, skipToast);
+                    } else {
+                        showToast('⚠️ Text-to-speech voices unavailable', 'warning');
+                    }
+                }, 500);
+                return;
+            }
+            
             // Cancel any ongoing speech
             speechSynthesis.cancel();
             
@@ -102,11 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
             utterance.pitch = 1.0;
             utterance.volume = 0.9;
             
-            // Use selected voice or best available
+            // Use selected voice or best available with validation
+            let voiceToUse = null;
             if (availableVoices.length > 0) {
                 const selectedVoice = availableVoices[selectedVoiceIndex];
                 if (selectedVoice) {
-                    utterance.voice = selectedVoice;
+                    voiceToUse = selectedVoice;
                 } else {
                     // Fallback to first English voice or any available
                     const englishVoice = availableVoices.find(voice => 
@@ -114,9 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     ) || availableVoices[0];
                     
                     if (englishVoice) {
-                        utterance.voice = englishVoice;
+                        voiceToUse = englishVoice;
                     }
                 }
+            }
+            
+            // Only set voice if we found a valid one
+            if (voiceToUse) {
+                utterance.voice = voiceToUse;
             }
             
             utterance.onstart = function() {
@@ -132,13 +155,49 @@ document.addEventListener('DOMContentLoaded', function() {
             
             utterance.onerror = function(event) {
                 console.error('TTS error:', event.error);
-                showToast(`⚠️ Speech error: ${event.error}`, 'warning');
                 
-                // Retry with default settings if error occurs
-                if (event.error === 'voice-unavailable' && availableVoices.length > 0) {
-                    const simpleUtterance = new SpeechSynthesisUtterance(text);
-                    simpleUtterance.voice = availableVoices[0];
-                    speechSynthesis.speak(simpleUtterance);
+                // 4. Clearer user notifications based on error type
+                let userMessage = '';
+                let shouldRetry = false;
+                
+                switch(event.error) {
+                    case 'synthesis-failed':
+                        userMessage = '🔊 Speech synthesis failed. Using fallback voice...';
+                        shouldRetry = true;
+                        break;
+                    case 'synthesis-unavailable':
+                        userMessage = '⚠️ Speech not available right now. Check your connection.';
+                        break;
+                    case 'voice-unavailable':
+                        userMessage = '🔄 Selected voice unavailable. Switching to default...';
+                        shouldRetry = true;
+                        break;
+                    case 'audio-busy':
+                        userMessage = '🔇 Audio system is busy. Please try again.';
+                        break;
+                    case 'network':
+                        userMessage = '📡 Network issue. Retrying speech...';
+                        shouldRetry = true;
+                        break;
+                    default:
+                        userMessage = `⚠️ Speech unavailable (${event.error})`;
+                }
+                
+                showToast(userMessage, 'warning');
+                
+                // Retry with fallback voice if appropriate
+                if (shouldRetry && availableVoices.length > 0) {
+                    console.log('Retrying TTS with fallback voice');
+                    const fallbackUtterance = new SpeechSynthesisUtterance(text);
+                    fallbackUtterance.voice = availableVoices[0]; // Use first available voice
+                    fallbackUtterance.rate = 1.0; // Normal rate
+                    
+                    fallbackUtterance.onerror = function(retryEvent) {
+                        console.error('Fallback TTS also failed:', retryEvent.error);
+                        showToast('❌ Text-to-speech unavailable', 'error');
+                    };
+                    
+                    speechSynthesis.speak(fallbackUtterance);
                 }
             };
             
