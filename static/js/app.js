@@ -27,6 +27,10 @@ class RobotoApp {
         this.maxRestartAttempts = 10;
         this.lastRestartTime = 0;
         this.pendingTranscript = ''; // Track partial transcript
+        
+        // Network retry with exponential backoff
+        this.networkRetryCount = 0;
+        this.maxNetworkRetries = 5;
 
         this.init();
     }
@@ -2060,6 +2064,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.isListeningActive = true;
                 this.updateListeningIndicator(true);
                 console.log('[Speech] ✅ Recognition started successfully');
+                
+                // Reset network retry counter on successful connection
+                if (this.networkRetryCount > 0) {
+                    console.log(`[Speech] 🔄 Network reconnected after ${this.networkRetryCount} retries`);
+                    this.networkRetryCount = 0;
+                }
             };
 
             this.speechRecognition.onresult = (event) => {
@@ -2167,9 +2177,36 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                     case 'network':
                         console.error('[Speech] 📡 Network error - speech service unavailable');
-                        this.showNotification('Speech service network error. Retrying...', 'warning');
-                        if (this.continuousListening) {
-                            setTimeout(() => this.resumeContinuousListening(), 3000);
+                        this.isListeningActive = false;
+                        
+                        // 3. Exponential backoff retry logic
+                        if (this.networkRetryCount < this.maxNetworkRetries) {
+                            this.networkRetryCount++;
+                            const retryDelay = Math.min(3000 * Math.pow(2, this.networkRetryCount - 1), 30000); // Max 30s
+                            
+                            // 4. Clearer user notifications with retry info
+                            const retrySeconds = Math.ceil(retryDelay / 1000);
+                            this.showNotification(
+                                `📡 Network issue. Retrying in ${retrySeconds}s... (${this.networkRetryCount}/${this.maxNetworkRetries})`,
+                                'warning'
+                            );
+                            
+                            console.log(`[Speech] 🔄 Network retry ${this.networkRetryCount}/${this.maxNetworkRetries} in ${retrySeconds}s`);
+                            
+                            if (this.continuousListening) {
+                                setTimeout(() => {
+                                    console.log('[Speech] 📡 Attempting network reconnect...');
+                                    this.resumeContinuousListening();
+                                }, retryDelay);
+                            }
+                        } else {
+                            // Max retries reached
+                            this.networkRetryCount = 0;
+                            this.showNotification(
+                                '❌ Speech service unavailable. Please check your internet connection.',
+                                'error'
+                            );
+                            console.error('[Speech] ❌ Max network retries reached. Giving up.');
                         }
                         break;
                         
