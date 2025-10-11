@@ -855,12 +855,18 @@ class RobotoApp {
         const message = chatInput.value.trim();
 
         if (!message) {
+            console.log('[Chat] ⚠️ Empty message, not sending');
             return;
         }
+
+        console.log(`[Chat] 📤 Sending message: "${message.substring(0, 50)}..."`);
 
         // Add user message to chat immediately
         this.addChatMessage(message, true);
         chatInput.value = '';
+        
+        // Clear any pending transcript buffer
+        this.finalTranscriptBuffer = '';
 
         // Show typing indicator
         const typingId = Date.now();
@@ -871,9 +877,11 @@ class RobotoApp {
 
         while (retryCount < maxRetries) {
             try {
+                console.log(`[Chat] 🔄 Attempt ${retryCount + 1}/${maxRetries}`);
+                
                 // Create abort controller for timeout
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -883,7 +891,8 @@ class RobotoApp {
                     },
                     body: JSON.stringify({ 
                         message,
-                        timestamp: Date.now() // Add timestamp for uniqueness
+                        timestamp: Date.now(),
+                        source: 'speech' // Indicate this came from speech
                     }),
                     signal: controller.signal
                 });
@@ -900,11 +909,14 @@ class RobotoApp {
                 this.removeChatMessage(typingId);
 
                 if (data.success && data.response) {
+                    console.log(`[Chat] ✅ Response received: "${data.response.substring(0, 50)}..."`);
+                    
                     // Add bot response to chat
                     this.addChatMessage(data.response, false);
 
                     // Speak the response if TTS is enabled
                     if (this.ttsEnabled) {
+                        console.log('[Chat] 🔊 Starting TTS playback');
                         this.speakText(data.response);
                     }
 
@@ -916,7 +928,7 @@ class RobotoApp {
                 }
 
             } catch (error) {
-                console.error(`Chat attempt ${retryCount + 1} failed:`, error);
+                console.error(`[Chat] ❌ Attempt ${retryCount + 1} failed:`, error);
                 retryCount++;
 
                 if (retryCount >= maxRetries) {
@@ -924,18 +936,23 @@ class RobotoApp {
                     this.removeChatMessage(typingId);
 
                     if (error.name === 'AbortError') {
+                        console.error('[Chat] ⏱️ Request timeout after 30s');
                         this.addChatMessage('Request timed out. Please try again.', false);
                         this.showNotification('Request timed out', 'warning');
                     } else if (error.message.includes('HTTP 5')) {
+                        console.error('[Chat] 🔥 Server error:', error.message);
                         this.addChatMessage('Server is experiencing issues. Please try again in a moment.', false);
                         this.showNotification('Server error - please try again', 'error');
                     } else {
+                        console.error('[Chat] 📡 Connection error:', error.message);
                         this.addChatMessage('Connection problem. Please check your internet and try again.', false);
                         this.showNotification('Connection failed - please try again', 'error');
                     }
                 } else {
                     // Wait before retry
-                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                    const delay = 1000 * retryCount;
+                    console.log(`[Chat] ⏳ Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
         }
@@ -2029,101 +2046,155 @@ document.addEventListener('DOMContentLoaded', function() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.speechRecognition = new SpeechRecognition();
 
-            // Settings for continuous listening
+            // Enhanced settings for stable continuous listening
             this.speechRecognition.continuous = true;
             this.speechRecognition.interimResults = true;
             this.speechRecognition.lang = 'en-US';
             this.speechRecognition.maxAlternatives = 1;
 
+            // Speech timeout tracking
+            this.speechTimeout = null;
+            this.finalTranscriptBuffer = '';
+
             this.speechRecognition.onstart = () => {
                 this.isListeningActive = true;
                 this.updateListeningIndicator(true);
-                console.log('Speech recognition started');
+                console.log('[Speech] ✅ Recognition started successfully');
             };
 
             this.speechRecognition.onresult = (event) => {
                 const chatInput = document.getElementById('chatInput');
-                if (!chatInput) return;
+                if (!chatInput) {
+                    console.error('[Speech] ❌ Chat input element not found');
+                    return;
+                }
 
-                // Build complete transcript from all results
                 let finalTranscript = '';
                 let interimTranscript = '';
 
+                // Process all results
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
+                    const confidence = event.results[i][0].confidence;
+                    
                     if (event.results[i].isFinal) {
                         finalTranscript += transcript + ' ';
+                        console.log(`[Speech] ✅ Final transcript: "${transcript}" (confidence: ${confidence.toFixed(2)})`);
                     } else {
                         interimTranscript += transcript;
+                        console.log(`[Speech] 📝 Interim transcript: "${transcript}"`);
                     }
                 }
 
-                // Preserve existing text and append new transcript
-                const currentText = chatInput.value;
-
-                if (finalTranscript) {
-                    // Append final transcript to existing text
-                    const newText = currentText ? currentText + ' ' + finalTranscript.trim() : finalTranscript.trim();
-                    chatInput.value = newText;
-                    this.pendingTranscript = '';
-
-                    const confidence = event.results[event.results.length - 1][0].confidence;
-                    console.log('Final speech recognized:', finalTranscript, 'Confidence:', confidence);
-
-                    // Auto-send if high confidence and not already typing
-                    if (confidence > 0.75 && !currentText.endsWith('...')) {
-                        setTimeout(() => this.sendMessage(), 500);
+                // Handle final transcript with debouncing
+                if (finalTranscript.trim()) {
+                    this.finalTranscriptBuffer += finalTranscript;
+                    
+                    // Clear existing timeout
+                    if (this.speechTimeout) {
+                        clearTimeout(this.speechTimeout);
                     }
-                } else if (interimTranscript) {
-                    // Show interim results without overwriting
-                    this.pendingTranscript = interimTranscript;
-                    chatInput.value = currentText + (currentText ? ' ' : '') + interimTranscript;
-                    console.log('Interim speech:', interimTranscript);
+                    
+                    // Wait for pause before processing
+                    this.speechTimeout = setTimeout(() => {
+                        if (this.finalTranscriptBuffer.trim()) {
+                            const completeText = this.finalTranscriptBuffer.trim();
+                            chatInput.value = completeText;
+                            this.finalTranscriptBuffer = '';
+                            console.log(`[Speech] 📤 Complete message ready: "${completeText}"`);
+                            
+                            // Auto-send after complete thought
+                            const confidence = event.results[event.results.length - 1][0].confidence;
+                            if (confidence > 0.7) {
+                                setTimeout(() => {
+                                    this.sendMessage();
+                                    chatInput.value = ''; // Clear after sending
+                                }, 800);
+                            }
+                        }
+                    }, 1500); // 1.5 second pause detection
+                }
+
+                // Show interim results as visual feedback only
+                if (interimTranscript && !finalTranscript) {
+                    const displayText = this.finalTranscriptBuffer + interimTranscript;
+                    chatInput.value = displayText;
+                    chatInput.style.borderColor = '#28a745';
+                    chatInput.style.boxShadow = '0 0 5px rgba(40, 167, 69, 0.5)';
+                } else if (finalTranscript) {
+                    chatInput.style.borderColor = '';
+                    chatInput.style.boxShadow = '';
                 }
             };
 
             this.speechRecognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-
-                // Don't lose the current input on error
+                const timestamp = new Date().toISOString();
+                console.error(`[Speech] ❌ Error at ${timestamp}:`, event.error);
+                
                 const chatInput = document.getElementById('chatInput');
-                const currentValue = chatInput ? chatInput.value : '';
-
-                if (event.error === 'no-speech') {
-                    // Restart if no speech detected
-                    if (this.continuousListening && !this.isSpeaking) {
-                        setTimeout(() => {
-                            if (this.isListeningActive && chatInput) {
-                                // Preserve input value
-                                const preservedValue = chatInput.value;
-                                this.resumeContinuousListening();
-                                if (preservedValue) {
-                                    chatInput.value = preservedValue;
-                                }
-                            }
-                        }, 1000);
-                    }
-                } else if (event.error === 'aborted') {
-                    // Preserve text on abort
-                    this.isListeningActive = false;
-                    if (currentValue && this.continuousListening) {
-                        setTimeout(() => this.resumeContinuousListening(), 500);
-                    }
-                } else if (event.error === 'audio-capture') {
-                    this.isListeningActive = false;
-                    this.showNotification('Microphone access error. Please check permissions.', 'error');
-                } else if (event.error === 'not-allowed') {
-                    this.isListeningActive = false;
-                    this.continuousListening = false;
-                    this.showNotification('Microphone permission denied', 'error');
+                
+                // Comprehensive error handling with logging
+                switch(event.error) {
+                    case 'no-speech':
+                        console.log('[Speech] ⏸️ No speech detected - will auto-restart');
+                        // Don't show notification for no-speech, it's normal
+                        if (this.continuousListening && !this.isSpeaking) {
+                            setTimeout(() => this.resumeContinuousListening(), 1000);
+                        }
+                        break;
+                        
+                    case 'aborted':
+                        console.log('[Speech] 🛑 Recognition aborted (normal during restart)');
+                        this.isListeningActive = false;
+                        if (this.continuousListening) {
+                            setTimeout(() => this.resumeContinuousListening(), 500);
+                        }
+                        break;
+                        
+                    case 'audio-capture':
+                        console.error('[Speech] 🎤 Microphone capture failed - check device availability');
+                        this.isListeningActive = false;
+                        this.showNotification('Microphone unavailable. Check if another app is using it.', 'error');
+                        break;
+                        
+                    case 'not-allowed':
+                        console.error('[Speech] 🚫 Microphone permission denied by user');
+                        this.isListeningActive = false;
+                        this.continuousListening = false;
+                        this.updateMuteButton();
+                        this.showNotification('Microphone permission required. Please allow access.', 'error');
+                        break;
+                        
+                    case 'network':
+                        console.error('[Speech] 📡 Network error - speech service unavailable');
+                        this.showNotification('Speech service network error. Retrying...', 'warning');
+                        if (this.continuousListening) {
+                            setTimeout(() => this.resumeContinuousListening(), 3000);
+                        }
+                        break;
+                        
+                    case 'service-not-allowed':
+                        console.error('[Speech] 🔒 Speech service blocked - check browser settings');
+                        this.isListeningActive = false;
+                        this.showNotification('Speech recognition blocked. Check browser settings.', 'error');
+                        break;
+                        
+                    default:
+                        console.error(`[Speech] ⚠️ Unexpected error: ${event.error}`);
+                        this.showNotification(`Speech error: ${event.error}`, 'warning');
+                        if (this.continuousListening) {
+                            setTimeout(() => this.resumeContinuousListening(), 2000);
+                        }
                 }
             };
 
             this.speechRecognition.onend = () => {
+                console.log('[Speech] 🔄 Recognition ended - checking restart conditions');
                 this.handleSpeechEnd();
             };
         } else {
-            console.log('Speech recognition not supported on this device');
+            console.error('[Speech] ❌ Speech recognition not supported in this browser');
+            this.showNotification('Speech recognition not supported in this browser', 'error');
         }
     }
 
@@ -2396,12 +2467,26 @@ document.addEventListener('DOMContentLoaded', function() {
     handleSpeechEnd() {
         this.isListeningActive = false;
         this.updateListeningIndicator(false);
+        
+        console.log('[Speech] 🔄 handleSpeechEnd called', {
+            isMuted: this.isMuted,
+            continuousListening: this.continuousListening,
+            isSpeaking: this.isSpeaking
+        });
 
-        // Always restart speech recognition unless muted
-        if (!this.isMuted) {
+        // Smart restart logic - only if conditions are right
+        if (!this.isMuted && this.continuousListening && !this.isSpeaking) {
+            console.log('[Speech] ♻️ Scheduling restart in 300ms');
             setTimeout(() => {
-                this.startContinuousListening();
-            }, 500);
+                if (!this.isMuted && !this.isListeningActive) {
+                    console.log('[Speech] 🔄 Restarting recognition');
+                    this.startContinuousListening();
+                }
+            }, 300);
+        } else {
+            console.log('[Speech] ⏸️ Not restarting:', {
+                reason: this.isMuted ? 'muted' : !this.continuousListening ? 'not continuous' : 'speaking'
+            });
         }
     }
 
