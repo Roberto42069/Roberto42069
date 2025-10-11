@@ -257,32 +257,36 @@ def get_user_roberto():
         # Initialize and verify Spotify integration
         try:
             from spotify_integration import get_spotify_integration
-            spotify = get_spotify_integration()
-            token = spotify.get_access_token()
+            roberto.spotify_integration = get_spotify_integration()
+            token = roberto.spotify_integration.get_access_token()
             if token:
                 app.logger.info("✅ Spotify integration: CONNECTED")
                 print("✅ Spotify integration: CONNECTED and ready")
             else:
                 app.logger.warning("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup in Secrets)")
+                print("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
+                print("📋 To connect: Replit Tools → Connections → Spotify → Connect")
         except Exception as e:
-            app.logger.error(f"Spotify integration check error: {e}")
+            app.logger.error(f"Spotify integration initialization error: {e}")
             print(f"❌ Spotify integration error: {e}")
+            roberto.spotify_integration = None
         
         # Initialize and verify YouTube integration
         try:
             from youtube_integration import get_youtube_integration
-            youtube = get_youtube_integration()
-            token = youtube.get_access_token()
+            roberto.youtube_integration = get_youtube_integration()
+            token = roberto.youtube_integration.get_access_token()
             if token:
                 app.logger.info("✅ YouTube integration: CONNECTED")
                 print("✅ YouTube integration: CONNECTED and ready")
             else:
                 app.logger.warning("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup in Secrets)")
+                print("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
+                print("📋 To connect: Replit Tools → Connections → YouTube → Connect")
         except Exception as e:
-            app.logger.error(f"YouTube integration check error: {e}")
+            app.logger.error(f"YouTube integration initialization error: {e}")
             print(f"❌ YouTube integration error: {e}")
+            roberto.youtube_integration = None
 
         # Add Cultural Legacy Display integration
         try:
@@ -2127,25 +2131,59 @@ def get_legacy_evolution():
 # ============================================
 
 @app.route('/api/integrations/status', methods=['GET'])
-@login_required
 def get_integrations_status():
     """Get status of all integrations"""
     try:
-        spotify = get_spotify_integration()
-        github = get_gh_integration()
-        youtube = get_youtube_integration()
+        roberto = get_user_roberto()
         
-        return jsonify({
+        status = {
             "success": True,
             "integrations": {
-                "spotify": {"connected": spotify.get_access_token() is not None},
-                "github": {"connected": github.get_access_token() is not None},
-                "youtube": {"connected": youtube.get_access_token() is not None}
+                "spotify": {
+                    "connected": False,
+                    "message": "Not configured"
+                },
+                "github": {
+                    "connected": False,
+                    "message": "Not configured"
+                },
+                "youtube": {
+                    "connected": False,
+                    "message": "Not configured"
+                }
             }
-        })
+        }
+        
+        # Check Spotify
+        if hasattr(roberto, 'spotify_integration') and roberto.spotify_integration:
+            token = roberto.spotify_integration.get_access_token()
+            status["integrations"]["spotify"]["connected"] = token is not None
+            status["integrations"]["spotify"]["message"] = "Connected" if token else "OAuth required"
+        
+        # Check GitHub
+        if hasattr(roberto, 'github_integration') and roberto.github_integration:
+            token = roberto.github_integration.get_access_token()
+            status["integrations"]["github"]["connected"] = token is not None
+            status["integrations"]["github"]["message"] = "Connected" if token else "OAuth required"
+        
+        # Check YouTube
+        if hasattr(roberto, 'youtube_integration') and roberto.youtube_integration:
+            token = roberto.youtube_integration.get_access_token()
+            status["integrations"]["youtube"]["connected"] = token is not None
+            status["integrations"]["youtube"]["message"] = "Connected" if token else "OAuth required"
+        
+        return jsonify(status)
     except Exception as e:
         app.logger.error(f"Integration status error: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({
+            "success": False, 
+            "error": str(e),
+            "integrations": {
+                "spotify": {"connected": False, "message": "Error checking status"},
+                "github": {"connected": False, "message": "Error checking status"},
+                "youtube": {"connected": False, "message": "Error checking status"}
+            }
+        }), 500
 
 # SPOTIFY ROUTES
 @app.route('/api/spotify/current', methods=['GET'])

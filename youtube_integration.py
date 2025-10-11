@@ -21,23 +21,42 @@ class YouTubeIntegration:
     def get_access_token(self):
         """Get fresh access token from Replit connectors"""
         try:
+            # Check cached token first
             if self.connection_settings and self.connection_settings.get('settings', {}).get('expires_at'):
-                expires_at = datetime.fromisoformat(self.connection_settings['settings']['expires_at'].replace('Z', '+00:00'))
-                if expires_at.timestamp() * 1000 > datetime.now().timestamp() * 1000:
-                    print("✅ YouTube: Using cached access token")
-                    return self.connection_settings['settings']['access_token']
+                try:
+                    expires_at = datetime.fromisoformat(self.connection_settings['settings']['expires_at'].replace('Z', '+00:00'))
+                    if expires_at.timestamp() > datetime.now().timestamp():
+                        print("✅ YouTube: Using cached access token")
+                        return self.connection_settings['settings']['access_token']
+                except:
+                    pass
             
+            # Check for required environment variables
+            if not self.hostname:
+                print("❌ YouTube: REPLIT_CONNECTORS_HOSTNAME not found")
+                print("🔐 Please set up YouTube OAuth in Replit Secrets")
+                return None
+                
             if not self.x_replit_token:
                 print("❌ YouTube: X_REPLIT_TOKEN not found")
-                raise Exception('X_REPLIT_TOKEN not found for repl/depl')
+                print("🔐 Please ensure REPL_IDENTITY or WEB_REPL_RENEWAL is set")
+                return None
             
+            # Fetch connection settings
             response = requests.get(
                 f'https://{self.hostname}/api/v2/connection?include_secrets=true&connector_names=youtube',
                 headers={
                     'Accept': 'application/json',
                     'X_REPLIT_TOKEN': self.x_replit_token
-                }
+                },
+                timeout=10
             )
+            
+            if response.status_code == 401:
+                print("❌ YouTube: Not authorized - OAuth connection required")
+                print("🔐 To fix: Open Replit Tools → Connections → YouTube → Click 'Connect'")
+                return None
+            
             response.raise_for_status()
             data = response.json()
             
@@ -53,12 +72,16 @@ class YouTubeIntegration:
                     return None
             else:
                 print("❌ YouTube: No connection found - OAuth not completed")
-                print("🔐 To fix: Open Replit Tools panel → Find 'YouTube' → Click 'Connect' button")
+                print("🔐 To fix: Open Replit Tools → Connections → YouTube → Click 'Connect'")
                 return None
-        except Exception as e:
+        except requests.exceptions.Timeout:
+            print("❌ YouTube: Connection timeout")
+            return None
+        except requests.exceptions.RequestException as e:
             print(f"❌ YouTube integration error: {e}")
-            import traceback
-            traceback.print_exc()
+            return None
+        except Exception as e:
+            print(f"❌ YouTube unexpected error: {e}")
             return None
     
     def _make_request(self, method, endpoint, **kwargs):

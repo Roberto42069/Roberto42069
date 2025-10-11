@@ -11,13 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
 async function checkIntegrationStatus() {
     try {
         const response = await fetch('/api/integrations/status');
+        if (!response.ok) {
+            console.warn('Integration status check returned non-OK status:', response.status);
+            return;
+        }
+
         const data = await response.json();
-        
-        if (data.success) {
-            // Update UI based on connection status
-            updateIntegrationBadge('spotify-status', data.integrations.spotify.connected);
-            updateIntegrationBadge('github-status', data.integrations.github.connected);
-            updateIntegrationBadge('youtube-status', data.integrations.youtube.connected);
+
+        if (data.success && data.integrations) {
+            updateIntegrationUI(data.integrations);
+        } else {
+            console.warn('Integration status response missing data:', data);
         }
     } catch (error) {
         console.error('Integration status check failed:', error);
@@ -32,11 +36,19 @@ function updateIntegrationBadge(elementId, connected) {
     }
 }
 
+// Helper function to update the UI for all integrations
+function updateIntegrationUI(integrations) {
+    updateIntegrationBadge('spotify-status', integrations.spotify.connected);
+    updateIntegrationBadge('github-status', integrations.github.connected);
+    updateIntegrationBadge('youtube-status', integrations.youtube.connected);
+}
+
+
 // Spotify Real-time Monitoring
 function startSpotifyMonitoring() {
     // Check immediately
     updateSpotifyNowPlaying();
-    
+
     // Then check every 10 seconds
     spotifyMonitorInterval = setInterval(updateSpotifyNowPlaying, 10000);
 }
@@ -52,15 +64,15 @@ async function updateSpotifyNowPlaying() {
     try {
         const response = await fetch('/api/spotify/current');
         const data = await response.json();
-        
+
         const container = document.getElementById('spotify-now-playing');
         if (!container) return;
-        
+
         if (data.success && data.data && data.data.item) {
             const track = data.data.item;
             const artists = track.artists.map(a => a.name).join(', ');
             const isPlaying = data.data.is_playing;
-            
+
             container.innerHTML = `
                 <div class="${isPlaying ? 'text-success' : 'text-muted'}">
                     <i class="fas ${isPlaying ? 'fa-play' : 'fa-pause'} me-1"></i>
@@ -82,12 +94,12 @@ async function updateSpotifyNowPlaying() {
 
 async function spotifyRefresh() {
     await updateSpotifyNowPlaying();
-    
+
     // Also get recent tracks
     try {
         const response = await fetch('/api/spotify/recent?limit=10');
         const data = await response.json();
-        
+
         if (data.success && data.data && data.data.items) {
             console.log('Recently played:', data.data.items);
             // Store listening history in database
@@ -102,7 +114,7 @@ async function viewGitHubRepos() {
     try {
         const response = await fetch('/api/github/repos');
         const data = await response.json();
-        
+
         if (data.success && data.data) {
             const repos = data.data;
             const repoList = repos.map(repo => `
@@ -115,7 +127,7 @@ async function viewGitHubRepos() {
                     </div>
                 </div>
             `).join('');
-            
+
             // Display in chat or show modal
             addBotMessage(`GitHub Repositories:\n\n${repoList}`);
         }
@@ -129,21 +141,29 @@ async function viewGitHubRepos() {
 async function viewYouTubeChannel() {
     try {
         const response = await fetch('/api/youtube/channel');
+        if (!response.ok) {
+            console.error('YouTube channel fetch failed with status:', response.status);
+            addBotMessage('Failed to fetch YouTube channel information due to a server error.');
+            return;
+        }
         const data = await response.json();
-        
+
         if (data.success && data.data && data.data.items && data.data.items.length > 0) {
             const channel = data.data.items[0];
             const stats = channel.statistics;
             const snippet = channel.snippet;
-            
+
             const channelInfo = `
 YouTube Channel: ${snippet.title}
 Subscribers: ${parseInt(stats.subscriberCount).toLocaleString()}
 Total Views: ${parseInt(stats.viewCount).toLocaleString()}
 Videos: ${stats.videoCount}
             `;
-            
+
             addBotMessage(channelInfo);
+        } else {
+            console.warn('YouTube API returned no channel data or an unexpected format:', data);
+            addBotMessage('Could not retrieve YouTube channel details. Please check your YouTube integration settings.');
         }
     } catch (error) {
         console.error('YouTube channel fetch failed:', error);
@@ -155,7 +175,7 @@ Videos: ${stats.videoCount}
 function addBotMessage(message) {
     const chatHistory = document.getElementById('chat-history');
     if (!chatHistory) return;
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = 'mb-3 p-3 border rounded bg-secondary';
     messageDiv.innerHTML = `
@@ -168,7 +188,7 @@ function addBotMessage(message) {
             </div>
         </div>
     `;
-    
+
     chatHistory.appendChild(messageDiv);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
@@ -210,8 +230,8 @@ async function checkIntegrationStatus() {
     try {
         const response = await fetch('/api/integrations/status');
         if (!response.ok) {
-            console.warn('Integration status check returned error:', response.status);
-            return null;
+            console.warn('Integration status check returned non-OK status:', response.status);
+            return;
         }
         const data = await response.json();
         if (data.success) {
