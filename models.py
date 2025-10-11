@@ -157,6 +157,49 @@ class OAuth(db.Model):
     def __repr__(self):
         return f'<OAuth {self.provider} for User {self.user_id}>'
 
+class RateLimitTracker(db.Model):
+    __tablename__ = 'rate_limit_tracker'
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    identifier: Mapped[str] = mapped_column(String(200), nullable=False)
+    endpoint: Mapped[str] = mapped_column(String(200), nullable=False)
+    request_count: Mapped[int] = mapped_column(Integer, default=0)
+    window_start: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    
+    def __repr__(self):
+        return f'<RateLimitTracker {self.identifier}:{self.endpoint}>'
+
+class SecurityAuditLog(db.Model):
+    __tablename__ = 'security_audit_logs'
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(100), nullable=True)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    ip_address: Mapped[str] = mapped_column(String(45), nullable=True)
+    user_agent: Mapped[str] = mapped_column(String(512), nullable=True)
+    details = db.Column(db.JSON, default=lambda: {})
+    risk_level: Mapped[str] = mapped_column(String(20), default='low')
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<SecurityAuditLog {self.event_type} - {self.risk_level}>'
+
+class UserSession(db.Model):
+    __tablename__ = 'user_sessions'
+    
+    id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    session_token: Mapped[str] = mapped_column(String(256), nullable=False)
+    ip_address: Mapped[str] = mapped_column(String(45), nullable=True)
+    user_agent: Mapped[str] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    
+    def __repr__(self):
+        return f'<UserSession {self.id} for User {self.user_id}>'
+
 # Create tables function
 def create_tables():
     """Create all database tables"""
