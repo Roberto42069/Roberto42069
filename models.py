@@ -162,6 +162,7 @@ def create_tables():
     """Create all database tables"""
     db.create_all()
     print("Database tables created successfully")
+    print("Tables created: User, UserData, ConversationSession, MemoryEntry, IntegrationSettings, SpotifyActivity, OAuth")
 
 if __name__ == '__main__':
     # For testing - create tables if run directly

@@ -92,7 +92,14 @@ try:
         with app.app_context():
             try:
                 db.create_all()
-                app.logger.info("Database initialized successfully")
+                # Verify critical tables exist
+                from sqlalchemy import inspect
+                inspector = inspect(db.engine)
+                tables = inspector.get_table_names()
+                if 'oauth_tokens' not in tables:
+                    app.logger.warning("oauth_tokens table missing, recreating...")
+                    db.create_all()
+                app.logger.info(f"Database initialized successfully with tables: {', '.join(tables)}")
             except Exception as db_error:
                 app.logger.error(f"Database table creation error: {db_error}")
                 database_available = False
