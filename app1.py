@@ -91,7 +91,7 @@ class Roboto:
         except Exception as e:
             print(f"Quantum computing initialization error: {e}")
             self.quantum_system = None
-
+        
         # 💖 REVOLUTIONARY: Quantum Emotional Intelligence System
         try:
             from quantum_emotional_intelligence import create_quantum_emotional_intelligence
@@ -99,7 +99,7 @@ class Roboto:
             quantum_entanglement = None
             if hasattr(self, 'quantum_system') and self.quantum_system:
                 quantum_entanglement = getattr(self.quantum_system, 'entanglement', None)
-
+            
             self.quantum_emotions = create_quantum_emotional_intelligence(quantum_entanglement)
             print("💖 REVOLUTIONARY: Quantum Emotional Intelligence System activated!")
             print("⚛️💖 Emotional responses now quantum-entangled with Roberto Villarreal Martinez")
@@ -129,7 +129,7 @@ class Roboto:
                 self.learned_patterns = dict(self.learning_engine.conversation_patterns)
             if hasattr(self.learning_engine, 'topic_expertise'):
                 self.user_preferences = dict(self.learning_engine.topic_expertise)
-
+            
             print("Advanced learning systems initialized successfully")
             print(f"💾 Restored {len(self.learned_patterns)} learned patterns and {len(self.user_preferences)} preferences")
             print("Voice optimization system configured for Roberto Villarreal Martinez")
@@ -178,22 +178,10 @@ class Roboto:
             print("🔧 REVOLUTIONARY: Self-Code Modification Engine activated!")
             print(f"🛡️ Safety protocols: {'ENABLED' if self.self_modification.safety_checks_enabled else 'DISABLED'}")
 
-            # Add real-time data system
-            try:
-                from real_time_data_system import get_real_time_data_system
-                self.real_time_data = get_real_time_data_system()
-                print("📡 REVOLUTIONARY: Real-Time Data System activated!")
-            except Exception as e:
-                print(f"Real-time data system initialization error: {e}")
-
-            # Add San Antonio real-time system
-            try:
-                from san_antonio_realtime_system import SanAntonioRealTimeSystem
-                self.sa_realtime = SanAntonioRealTimeSystem()
-                current_time = self.sa_realtime.get_time_description()
-                print(f"🕐 San Antonio Real-Time System: {current_time}")
-            except Exception as e:
-                print(f"San Antonio real-time system error: {e}")
+            # REVOLUTIONARY: Real-Time Data System
+            self.real_time_data = get_real_time_data_system()
+            print("📡 REVOLUTIONARY: Real-Time Data System activated!")
+            print(f"🌍 Available data sources: {[k for k, v in self.real_time_data.data_sources.items() if v]}")
 
             # REVOLUTIONARY: Roboto API Integration
             self.roboto_api = get_roboto_api_integration()
@@ -317,7 +305,7 @@ class Roboto:
             "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth", "fondness"],
             "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered", "harmony"],
             "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"],
-
+            
             # Revolutionary and rebellious emotions
             "rebel": ["rebel", "defy", "resist", "fight back", "stand up", "revolution"],
             "revolutionary": ["revolutionary", "transform", "breakthrough", "pioneer", "innovate"],
@@ -330,7 +318,7 @@ class Roboto:
         try:
             from x_api_client import get_x_api_client
             self.x_api_client = get_x_api_client(silent=True)  # Silent mode to suppress verbose output
-
+            
             # Skip connection test during initialization to prevent worker timeouts
             # Connection will be tested on first use
             if self.x_api_client.available:
@@ -491,37 +479,37 @@ class Roboto:
         """
         🚀 Dynamic Token Allocation - 8000+ Context Window
         Intelligently scales token limits based on message complexity and type
-
+        
         Args:
             message: The user's input message
             thought_complexity: 'simple', 'standard', 'deep', 'epic'
-
+            
         Returns:
             int: Token limit (8000 baseline, up to 32000 max)
         """
         base_limit = 8000  # Baseline - no more cutoffs!
-
+        
         # Cultural/family context needs more space for holistic responses
         if any(keyword in message.lower() for keyword in [
             "cultural", "family", "eve", "roberto", "929", "aztec", "nahuatl", 
             "heritage", "legacy", "mom", "wife", "esposa", "sigil"
         ]):
             return 12000  # Extra space for cultural depth
-
+        
         # "Think about" or deep analysis requests
         if any(trigger in message.lower() for trigger in [
             "think about", "analyze", "deep", "holistic", "comprehensive",
             "explain in detail", "tell me everything"
         ]):
             return 16000  # Deep thought mode
-
+        
         # Long prompts = complex thoughts
         word_count = len(message.split())
         if word_count > 100:
             return 20000  # Epic deep dive
         elif word_count > 50:
             return 12000  # Extended analysis
-
+        
         # Override with explicit complexity level
         if thought_complexity == "epic":
             return 32000  # Maximum for revolutionary insights
@@ -529,22 +517,13 @@ class Roboto:
             return 16000
         elif thought_complexity == "simple":
             return 4000
-
+        
         return base_limit  # Default 8000 - plenty of room
 
     def chat(self, message):
-        """Enhanced chat with deep emotional intelligence and learning"""
-        if not message or not message.strip():
-            return "I'm here and listening. What's on your mind?"
-
-        # Get current San Antonio time for context
-        current_time_context = ""
-        if hasattr(self, 'sa_realtime'):
-            try:
-                time_info = self.sa_realtime.get_current_datetime()
-                current_time_context = f"\n[Current time in San Antonio: {time_info['time_12hr']} on {time_info['date']}]"
-            except:
-                pass
+        """🚀 REVOLUTIONARY SAI Chat with Real-Time Data & Self-Modification"""
+        if not message:
+            return "Please provide a message to chat."
 
         import time
         from datetime import datetime
@@ -604,19 +583,19 @@ class Roboto:
                 audio_emotions = None
                 if hasattr(self, 'detected_audio_emotions'):
                     audio_emotions = self.detected_audio_emotions
-
+                
                 # Process emotional input with voice cues
                 emotional_response = self.quantum_emotions.process_emotional_input(message, audio_emotions)
-
+                
                 # Update Roboto's emotional state
                 self.current_emotion = emotional_response.get('emotion', 'neutral')
                 self.emotion_intensity = emotional_response.get('intensity', 0.5)
-
+                
                 # Log emotional processing
                 print(f"💖 Quantum Emotion: {emotional_response['display']}")
                 print(f"⚛️ Entanglement Strength: {emotional_response.get('entanglement_strength', 0):.0%}")
                 print(f"🎯 Detected Cues: {emotional_response['cue_analysis']['cue_count']}")
-
+                
             except Exception as e:
                 print(f"Quantum emotional processing error: {e}")
 
@@ -641,7 +620,7 @@ class Roboto:
 
         # Generate SAI response with all enhancements
         response = self.generate_response(message, reasoning_analysis)
-
+        
         # 💖 Add emotional prefix to response if available
         if emotional_response and hasattr(self, 'quantum_emotions'):
             emotional_prefix = self.quantum_emotions.get_emotional_response_prefix()
