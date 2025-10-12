@@ -632,6 +632,23 @@ def chat_endpoint():
             "error": f"Chat processing failed: {str(e)}"
         }), 500
 
+@app.route('/api/san-antonio-time')
+def get_san_antonio_time():
+    """Get current San Antonio date and time"""
+    try:
+        from san_antonio_realtime_system import get_san_antonio_time
+        time_info = get_san_antonio_time()
+        return jsonify({
+            "success": True,
+            **time_info
+        })
+    except Exception as e:
+        app.logger.error(f"San Antonio time error: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 @app.route('/api/emotional_status')
 def get_emotional_status():
     try:
