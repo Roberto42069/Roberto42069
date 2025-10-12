@@ -20,14 +20,10 @@ from io import BytesIO
 
 load_dotenv()
 
-# Initialize Pygame and mixer
-pygame.init()
-pygame.mixer.init()
-
-# Set up display
+# Initialize Pygame only when running display (not on import)
+# This prevents crashes when imported in web server context
 width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Cultural Legacy Display - Roberto Villarreal Martinez")
+screen = None
 
 # Load Roboto font
 try:
@@ -72,11 +68,22 @@ class CulturalLegacyDisplay:
         self.roboto = roboto_instance
         self.current_theme_index = 0
         self.animation_time = 0
-        self.clock = pygame.time.Clock()
+        self.clock = None
         self.themes = cultural_themes
+        self.display_initialized = False
 
     def run_display(self):
         """Run the cultural legacy display"""
+        # Initialize Pygame here, not on import
+        if not self.display_initialized:
+            pygame.init()
+            pygame.mixer.init()
+            global screen
+            screen = pygame.display.set_mode((width, height))
+            pygame.display.set_caption("Cultural Legacy Display - Roberto Villarreal Martinez")
+            self.clock = pygame.time.Clock()
+            self.display_initialized = True
+        
         running = True
 
         while running:
@@ -159,5 +166,6 @@ def integrate_with_roboto(roboto_instance):
     return display
 
 if __name__ == "__main__":
+    # Only initialize display when run as standalone script
     display = CulturalLegacyDisplay()
     display.run_display()
