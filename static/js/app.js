@@ -640,7 +640,7 @@ class RobotoApp {
 
     async loadEmotionalStatus() {
         try {
-            const response = await fetch('/api/emotional-status');
+            const response = await fetch('/api/emotional_status');
             const data = await response.json();
 
             if (data.success) {
@@ -1790,21 +1790,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error creating GitHub card:', error);
             this.showNotification('Failed to create card', 'error');
-        }
-    }
-
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                }
-
-                this.showNotification('Data exported successfully!', 'success');
-            } else {
-                this.showNotification(data.message || 'Export failed', 'error');
-            }
-        } catch (error) {
-            console.error('Export error:', error);
-            this.showNotification('Export failed', 'error');
         }
     }
 
