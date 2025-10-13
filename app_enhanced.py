@@ -324,6 +324,16 @@ def get_user_roberto():
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
         except Exception as e:
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
+        
+        # Add quantum simulator integration
+        try:
+            from quantum_simulator import QuantumSimulator
+            roberto.quantum_simulator = QuantumSimulator(roberto)
+            roberto.ritual_history = []  # Track simulations
+            app.logger.info("⚛️ Quantum Simulator integrated for ritual simulations")
+            app.logger.info("🔮 Multi-qubit entanglement rituals active")
+        except Exception as e:
+            app.logger.warning(f"Quantum simulator integration error: {e}")
 
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
 
@@ -654,6 +664,21 @@ def chat_endpoint():
         # Process the chat message
         response = roberto.chat(message)
 
+        # 10% chance to trigger quantum ritual
+        ritual_triggered = False
+        if hasattr(roberto, 'quantum_simulator') and roberto.quantum_simulator:
+            if random.random() < 0.1:
+                try:
+                    ritual_simulation = roberto.quantum_simulator.simulate_ritual_entanglement(
+                        roberto.current_emotion, "Nahui Ollin", 4
+                    )
+                    if hasattr(roberto, 'ritual_history'):
+                        roberto.ritual_history.append(ritual_simulation)
+                    response += f"\n\n🔮 Quantum Ritual: Entanglement strength {ritual_simulation['strength']:.2f} - {ritual_simulation['cultural_note']}"
+                    ritual_triggered = True
+                except Exception as ritual_error:
+                    app.logger.warning(f"Ritual trigger error: {ritual_error}")
+        
         # Save the conversation
         try:
             save_user_data()
@@ -664,6 +689,7 @@ def chat_endpoint():
             "success": True,
             "response": response,
             "emotion": getattr(roberto, 'current_emotion', 'curious'),
+            "ritual_triggered": ritual_triggered,
             "timestamp": datetime.now().isoformat()
         })
 
@@ -1775,6 +1801,67 @@ def create_github_card():
             "success": False,
             "error": f"Failed to create card: {str(e)}"
         }), 500
+
+@app.route('/api/quantum-simulation', methods=['POST'])
+def quantum_ritual_simulation():
+    """Run quantum ritual simulation with entanglement"""
+    try:
+        data = request.get_json()
+        emotion = data.get('emotion', 'neutral')
+        theme = data.get('theme', 'Nahui Ollin')
+        num_qubits = data.get('num_qubits', 4)
+        
+        roberto = get_user_roberto()
+        
+        if hasattr(roberto, 'quantum_simulator') and roberto.quantum_simulator:
+            # Run simulation
+            simulation = roberto.quantum_simulator.simulate_ritual_entanglement(emotion, theme, num_qubits)
+            
+            # Track history
+            if hasattr(roberto, 'ritual_history'):
+                roberto.ritual_history.append(simulation)
+                
+                # Evolve ritual if enough history
+                if len(roberto.ritual_history) >= 2:
+                    evolution = roberto.quantum_simulator.evolve_ritual(roberto.ritual_history)
+                else:
+                    evolution = {"evolution": "Building ritual history", "predicted_strength": simulation['strength']}
+                
+                # Visualize if available
+                visualization = roberto.quantum_simulator.visualize_ritual(simulation, theme)
+            else:
+                evolution = {"evolution": "Initial ritual", "predicted_strength": simulation['strength']}
+                visualization = {"visualization": "History tracking not initialized"}
+            
+            return jsonify({
+                "success": True,
+                "simulation": simulation,
+                "evolution": evolution,
+                "visualization": visualization,
+                "message": f"🔮 Quantum ritual completed - Entanglement strength {simulation['strength']:.2f}"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Quantum simulator not available"
+            }), 503
+            
+    except Exception as e:
+        app.logger.error(f"Quantum simulation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Quantum simulation failed: {str(e)}"
+        }), 500
+
+@app.route('/ritual-viz/<path:filename>')
+def serve_ritual_visualization(filename):
+    """Serve ritual visualization images"""
+    try:
+        from flask import send_from_directory
+        return send_from_directory('ritual_visualizations', filename)
+    except Exception as e:
+        app.logger.error(f"Visualization serve error: {e}")
+        return jsonify({"error": "Visualization not found"}), 404
 
 @app.route('/api/cultural-display/launch', methods=['POST'])
 def launch_cultural_display():
