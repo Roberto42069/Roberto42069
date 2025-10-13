@@ -166,7 +166,16 @@ class ComprehensiveMemorySystem:
             
             # Add memory system user profiles if available
             if hasattr(roboto, 'memory_system') and roboto.memory_system:
-                profiles["user_profiles"] = dict(roboto.memory_system.user_profiles)
+                # Convert any sets to lists for JSON serialization
+                user_profiles = dict(roboto.memory_system.user_profiles)
+                for key, value in user_profiles.items():
+                    if isinstance(value, dict):
+                        for k, v in value.items():
+                            if isinstance(v, set):
+                                value[k] = list(v)
+                    elif isinstance(value, set):
+                        user_profiles[key] = list(value)
+                profiles["user_profiles"] = user_profiles
             
             with open(filepath, 'w') as f:
                 json.dump(profiles, f, indent=2)
