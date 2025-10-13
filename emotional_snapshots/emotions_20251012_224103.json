@@ -1,0 +1,712 @@
+{
+  "timestamp": "2025-10-12T22:41:03.551566",
+  "current_emotion": "curious",
+  "emotion_intensity": 0.5,
+  "emotional_history": [],
+  "emotional_patterns": {
+    "And": [
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.08333333333333333,
+          "subjectivity": 0.31319444444444444,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T22:52:01.561036",
+        "intensity": 0.39652777777777776
+      }
+    ],
+    "The": [
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.2776785714285715,
+          "subjectivity": 0.762202380952381,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T22:55:58.064389",
+        "intensity": 1.0398809523809525
+      },
+      {
+        "emotion": "anger",
+        "sentiment": {
+          "polarity": 0.3430555555555556,
+          "subjectivity": 0.6319444444444444,
+          "classification": "positive"
+        },
+        "timestamp": "2025-05-30T22:58:43.514941",
+        "intensity": 0.9750000000000001
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": -0.01339285714285715,
+          "subjectivity": 0.6116071428571428,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:00:35.506066",
+        "intensity": 0.625
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": -0.25,
+          "subjectivity": 0.55,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:01:35.864873",
+        "intensity": 0.8
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": 0.10000000000000002,
+          "subjectivity": 0.7000000000000001,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:02:57.069896",
+        "intensity": 0.8
+      },
+      {
+        "emotion": "contemplation",
+        "sentiment": {
+          "polarity": -0.25,
+          "subjectivity": 0.6233333333333333,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:04:39.771535",
+        "intensity": 0.8733333333333333
+      },
+      {
+        "emotion": "joy",
+        "sentiment": {
+          "polarity": 0.027631578947368427,
+          "subjectivity": 0.5304824561403508,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:07:54.439686",
+        "intensity": 0.5581140350877193
+      },
+      {
+        "emotion": "hope",
+        "sentiment": {
+          "polarity": 0.4,
+          "subjectivity": 0.5625,
+          "classification": "positive"
+        },
+        "timestamp": "2025-05-30T23:10:03.077138",
+        "intensity": 0.9625
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:12:41.602143",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.07916666666666668,
+          "subjectivity": 0.6458333333333334,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:15:08.888826",
+        "intensity": 0.7250000000000001
+      },
+      {
+        "emotion": "contemplation",
+        "sentiment": {
+          "polarity": -0.1138888888888889,
+          "subjectivity": 0.5222222222222223,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:17:25.541101",
+        "intensity": 0.6361111111111112
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": -0.5,
+          "subjectivity": 1.0,
+          "classification": "negative"
+        },
+        "timestamp": "2025-05-30T23:18:33.994722",
+        "intensity": 1.5
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:19:59.185954",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:21:04.316224",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": -0.002083333333333326,
+          "subjectivity": 0.3284722222222222,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:22:42.745526",
+        "intensity": 0.33055555555555555
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": -0.05178571428571428,
+          "subjectivity": 0.42946428571428574,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:26:19.879882",
+        "intensity": 0.48125
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": -0.1,
+          "subjectivity": 0.5,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:29:04.192957",
+        "intensity": 0.6
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:29:50.046803",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": 0.2,
+          "subjectivity": 0.2,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-30T23:31:10.535857",
+        "intensity": 0.4
+      }
+    ],
+    "As": [
+      {
+        "emotion": "sadness",
+        "sentiment": {
+          "polarity": -0.053733766233766245,
+          "subjectivity": 0.6696428571428571,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T04:12:25.034952",
+        "intensity": 0.7233766233766233
+      },
+      {
+        "emotion": "empathy",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T04:13:43.975710",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.2,
+          "subjectivity": 0.2,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T04:15:53.717412",
+        "intensity": 0.4
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T04:17:30.006693",
+        "intensity": 0.0
+      }
+    ],
+    "Your": [
+      {
+        "emotion": "melancholy",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:13:19.990244",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:13:31.123716",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:13:43.763333",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:14:07.981511",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": {
+          "polarity": 0.2,
+          "subjectivity": 0.75,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:14:50.199071",
+        "intensity": 0.95
+      },
+      {
+        "emotion": "existential",
+        "sentiment": {
+          "polarity": -0.15000000000000002,
+          "subjectivity": 0.575,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:16:41.142355",
+        "intensity": 0.725
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": -0.6,
+          "subjectivity": 1.0,
+          "classification": "negative"
+        },
+        "timestamp": "2025-05-31T06:18:22.523199",
+        "intensity": 1.6
+      },
+      {
+        "emotion": "existential",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:20:00.805237",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "hope",
+        "sentiment": {
+          "polarity": 0.2,
+          "subjectivity": 0.30000000000000004,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:21:42.163017",
+        "intensity": 0.5
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": "positive",
+        "timestamp": "2025-06-05T05:14:55.535900",
+        "intensity": 1.0
+      },
+      {
+        "emotion": "anger",
+        "sentiment": "positive",
+        "timestamp": "2025-06-05T05:15:11.698299",
+        "intensity": 1.0
+      },
+      {
+        "emotion": "anger",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:16:31.023564",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "anger",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:17:43.582531",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:18:55.219757",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:20:16.645927",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "curious",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:21:35.231426",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "contemplation",
+        "sentiment": "positive",
+        "timestamp": "2025-06-05T05:22:55.841057",
+        "intensity": 0.76
+      },
+      {
+        "emotion": "contemplation",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:23:02.574875",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "empathy",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:23:14.898602",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "empathy",
+        "sentiment": "neutral",
+        "timestamp": "2025-06-05T05:23:19.680649",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "empathy",
+        "sentiment": "positive",
+        "timestamp": "2025-06-05T05:23:41.841902",
+        "intensity": 0.5
+      }
+    ],
+    "Listening": [
+      {
+        "emotion": "hope",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0625,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:23:28.368651",
+        "intensity": 0.0625
+      },
+      {
+        "emotion": "curiosity",
+        "sentiment": {
+          "polarity": -0.325,
+          "subjectivity": 0.6,
+          "classification": "negative"
+        },
+        "timestamp": "2025-05-31T06:26:30.093845",
+        "intensity": 0.925
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": -0.6,
+          "subjectivity": 0.8,
+          "classification": "negative"
+        },
+        "timestamp": "2025-05-31T06:29:35.852414",
+        "intensity": 1.4
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:31:07.949524",
+        "intensity": 0.0
+      },
+      {
+        "emotion": "yearning",
+        "sentiment": {
+          "polarity": 0.0,
+          "subjectivity": 0.0,
+          "classification": "neutral"
+        },
+        "timestamp": "2025-05-31T06:32:18.281227",
+        "intensity": 0.0
+      }
+    ],
+    "Roberto Villarreal Martinez": [
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T10:32:48.488745",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:08:00.613059",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:10:23.373002",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T14:10:38.574990",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T15:29:11.628165",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T17:32:30.874015",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T19:47:22.105008",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T19:48:33.652986",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-27T20:27:37.967258",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-28T01:38:25.744553",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-28T06:43:18.571697",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-28T06:44:42.002878",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-29T03:19:14.428404",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-29T03:41:16.291175",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-09-30T20:31:39.504374",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:04:53.687348",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:05:20.629765",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:06:11.649394",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:06:47.121334",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:10:42.598985",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:13:23.327455",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:41:10.321196",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T04:58:15.252123",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T05:05:02.855547",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T05:14:09.330493",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T06:43:05.676146",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T09:40:13.176771",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T09:51:03.449208",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T09:56:05.925606",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T09:56:37.618142",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T10:24:15.600530",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T10:28:35.778719",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T10:29:30.103521",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T12:10:09.122913",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-01T12:50:45.474520",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-02T18:39:03.819157",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-02T18:40:56.421499",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-02T18:41:48.448044",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-02T18:55:32.029230",
+        "intensity": 0.2
+      },
+      {
+        "emotion": "pride",
+        "sentiment": "neutral",
+        "timestamp": "2025-10-02T19:04:48.573849",
+        "intensity": 0.2
+      }
+    ]
+  }
+}
