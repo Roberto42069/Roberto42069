@@ -177,12 +177,12 @@ def get_user_roberto():
         from learning_optimizer import LearningOptimizer
 
         roberto = Roboto()
-        
+
         # CRITICAL: Set Roberto Villarreal Martinez as current user immediately
         roberto.current_user = "Roberto Villarreal Martinez"
         if hasattr(roberto, 'set_current_user'):
             roberto.set_current_user("Roberto Villarreal Martinez")
-        
+
         # Update memory system with user identity
         if hasattr(roberto, 'memory_system') and roberto.memory_system:
             roberto.memory_system.current_user = "Roberto Villarreal Martinez"
@@ -211,13 +211,13 @@ def get_user_roberto():
         # Add advanced learning engine
         try:
             roberto.learning_engine = AdvancedLearningEngine()
-            
+
             # 🔄 CRITICAL: Restore learned patterns and preferences from learning engine
             if hasattr(roberto.learning_engine, 'conversation_patterns'):
                 roberto.learned_patterns = dict(roberto.learning_engine.conversation_patterns)
             if hasattr(roberto.learning_engine, 'topic_expertise'):
                 roberto.user_preferences = dict(roberto.learning_engine.topic_expertise)
-            
+
             app.logger.info("Advanced learning systems initialized successfully")
             app.logger.info(f"💾 Restored {len(roberto.learned_patterns)} learned patterns and {len(roberto.user_preferences)} preferences")
         except Exception as e:
@@ -260,7 +260,7 @@ def get_user_roberto():
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
-        
+
         # Initialize and verify Spotify integration
         try:
             from spotify_integration import get_spotify_integration
@@ -277,7 +277,7 @@ def get_user_roberto():
             app.logger.error(f"Spotify integration initialization error: {e}")
             print(f"❌ Spotify integration error: {e}")
             roberto.spotify_integration = None
-        
+
         # Initialize and verify YouTube integration
         try:
             from youtube_integration import get_youtube_integration
@@ -324,13 +324,13 @@ def get_user_roberto():
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
         except Exception as e:
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
-        
+
         app.logger.info("Roboto instance created with enhanced learning algorithms and voice cloning")
 
         # CRITICAL: Always load Roberto Villarreal Martinez's data
         # Try database first, then fallback to latest backup file
         data_loaded = False
-        
+
         if database_available:
             try:
                 # Load from current user's database
@@ -350,7 +350,7 @@ def get_user_roberto():
                         app.logger.info(f"User data loaded from database: {len(user_data['chat_history'])} conversations")
             except Exception as e:
                 app.logger.warning(f"Could not load from database: {e}")
-        
+
         # Fallback: Load from latest backup file if database failed
         if not data_loaded:
             try:
@@ -365,7 +365,7 @@ def get_user_roberto():
                         data_loaded = True
             except Exception as e:
                 app.logger.warning(f"Could not load from backup: {e}")
-        
+
         # Always ensure Roberto is recognized
         roberto.current_user = "Roberto Villarreal Martinez"
 
@@ -380,7 +380,7 @@ def save_user_data():
             backup_files = create_all_backups(roberto)
             if backup_files:
                 app.logger.info(f"✅ Created {len(backup_files)} memory backup files")
-            
+
             # Prepare comprehensive user data
             user_data = {
                 'chat_history': getattr(roberto, 'chat_history', []),
@@ -648,14 +648,14 @@ def get_emotional_status():
         # Get real emotion from quantum emotional intelligence system
         real_emotion = roberto.current_emotion
         emotion_intensity = getattr(roberto, 'emotion_intensity', 0.5)
-        
+
         # Check quantum emotions for more accurate state
         if hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions:
             quantum_state = roberto.quantum_emotions.quantum_emotional_state
             if quantum_state:
                 real_emotion = quantum_state.get('emotion', real_emotion)
                 emotion_intensity = quantum_state.get('intensity', emotion_intensity)
-        
+
         emotional_context = ""
         try:
             if hasattr(roberto, 'get_emotional_context'):
@@ -2148,7 +2148,7 @@ def get_integrations_status():
     """Get status of all integrations"""
     try:
         roberto = get_user_roberto()
-        
+
         status = {
             "success": True,
             "integrations": {
@@ -2166,25 +2166,39 @@ def get_integrations_status():
                 }
             }
         }
-        
+
         # Check Spotify
         if hasattr(roberto, 'spotify_integration') and roberto.spotify_integration:
             token = roberto.spotify_integration.get_access_token()
             status["integrations"]["spotify"]["connected"] = token is not None
             status["integrations"]["spotify"]["message"] = "Connected" if token else "OAuth required"
-        
+
         # Check GitHub
         if hasattr(roberto, 'github_integration') and roberto.github_integration:
-            token = roberto.github_integration.get_access_token()
-            status["integrations"]["github"]["connected"] = token is not None
-            status["integrations"]["github"]["message"] = "Connected" if token else "OAuth required"
-        
+            try:
+                if hasattr(roberto.github_integration, 'get_access_token'):
+                    token = roberto.github_integration.get_access_token()
+                    status["integrations"]["github"] = {
+                        "connected": bool(token),
+                        "service": "GitHub Projects"
+                    }
+                else:
+                    status["integrations"]["github"] = {
+                        "connected": True,
+                        "service": "GitHub Projects (configured)"
+                    }
+            except Exception as e:
+                status["integrations"]["github"] = {
+                    "connected": False,
+                    "error": str(e)
+                }
+
         # Check YouTube
         if hasattr(roberto, 'youtube_integration') and roberto.youtube_integration:
             token = roberto.youtube_integration.get_access_token()
             status["integrations"]["youtube"]["connected"] = token is not None
             status["integrations"]["youtube"]["message"] = "Connected" if token else "OAuth required"
-        
+
         return jsonify(status)
     except Exception as e:
         app.logger.error(f"Integration status error: {e}")
@@ -2218,7 +2232,7 @@ def spotify_recent_tracks():
         spotify = get_spotify_integration()
         limit = request.args.get('limit', 50, type=int)
         result = spotify.get_recently_played(limit=limit)
-        
+
         if 'items' in result:
             from models import SpotifyActivity
             for item in result['items'][:10]:
@@ -2234,7 +2248,7 @@ def spotify_recent_tracks():
                 )
                 db.session.add(activity)
             db.session.commit()
-        
+
         return jsonify({"success": True, "data": result})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -2300,33 +2314,33 @@ def save_custom_personality():
     try:
         data = request.get_json()
         personality_text = data.get('personality', '').strip()
-        
+
         # Validate character limit
         if len(personality_text) > 3000:
             return jsonify({
                 "success": False,
                 "error": "Personality text exceeds 3,000 character limit"
             }), 400
-        
+
         # Get or create user data
         user_data = UserData.query.filter_by(user_id=current_user.id).first()
         if not user_data:
             user_data = UserData(user_id=current_user.id)
             db.session.add(user_data)
-        
+
         # Save custom personality
         user_data.custom_personality = personality_text
         user_data.data_updated_at = datetime.now()
         db.session.commit()
-        
+
         app.logger.info(f"Custom personality saved for user {current_user.id}: {len(personality_text)} characters")
-        
+
         return jsonify({
             "success": True,
             "message": "Custom personality saved successfully!",
             "character_count": len(personality_text)
         })
-        
+
     except Exception as e:
         app.logger.error(f"Save personality error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
@@ -2337,7 +2351,7 @@ def load_custom_personality():
     """Load custom personality prompt"""
     try:
         user_data = UserData.query.filter_by(user_id=current_user.id).first()
-        
+
         if user_data and user_data.custom_personality:
             return jsonify({
                 "success": True,
@@ -2350,7 +2364,7 @@ def load_custom_personality():
                 "personality": "",
                 "character_count": 0
             })
-            
+
     except Exception as e:
         app.logger.error(f"Load personality error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
