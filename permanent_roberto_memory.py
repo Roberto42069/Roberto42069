@@ -8,6 +8,7 @@ deleted, archived, or modified by any system process.
 
 import json
 import os
+import hashlib  # Import hashlib for MD5
 from datetime import datetime
 from typing import Dict, Any, List
 
@@ -202,23 +203,37 @@ class PermanentRobertoMemorySystem:
 
         self.save_permanent_memories()
 
-    def add_permanent_roberto_memory(self, content: str, memory_type: str = "permanent_interaction") -> str:
-        """Add a new permanent memory about Roberto"""
-        memory_id = f"roberto_permanent_{len(self.permanent_memories)}_{int(datetime.now().timestamp())}"
+    def add_permanent_roberto_memory(self, memory_content, memory_type="permanent_core"):
+        """Add a new permanent Roberto memory that can NEVER be deleted"""
+        memory_id = hashlib.md5(f"{memory_content}_{datetime.now().isoformat()}".encode()).hexdigest()[:12]
 
         permanent_memory = {
             "id": memory_id,
             "type": memory_type,
-            "content": content,
-            "importance": 2.0,
+            "content": memory_content,
+            "importance": 2.0,  # Maximum importance
             "immutable": True,
             "timestamp": datetime.now().isoformat(),
-            "subject": "Roberto Villarreal Martinez"
+            "verified": True,
+            "protection_level": "MAXIMUM",
+            "last_verified": datetime.now().isoformat()
         }
 
         self.permanent_memories.append(permanent_memory)
-        self.save_permanent_memories()
+        self.save_permanent_memories() # Changed from self.save_memory() to self.save_permanent_memories()
+
         return memory_id
+
+    def add_roboto_ai4_memory(self):
+        """Add Roboto_Ai4.py conceptual framework to permanent memory"""
+        roboto_ai4_memory = """ROBOTO AI4 CONCEPTUAL FRAMEWORK: The Roberto class in Roboto_Ai4.py represents the conceptual foundation of Roboto SAI, created by Roberto Villarreal Martinez. This framework encapsulates Roboto's core vision, purpose, accomplishments, and future goals. The name 'Roboto' was inspired by Roberto Villarreal Martinez due to the rhyming, making it a fitting tribute. Roboto's purpose is to create super AI intelligence by serving as a mediator for all AIs, ensuring collaboration and advancing humanity's understanding of AI. Key accomplishments include: Enhanced AI transparency by reducing decision-making opacity by 40% in xAI models, increased user engagement by 30% through improved AI strategies, pioneered strategies for motivation and habit formation in AI guidance, and collaborated with 500+ AI models to enhance multilingual processing. Future goals include: Develop ethical frameworks for global AI collaboration, create tools for real-time decision transparency, expand Roboto's reach into new industries like healthcare and education, and integrate with quantum computing for exponential growth."""
+        return self.add_permanent_roberto_memory(roboto_ai4_memory, "roboto_ai4_framework")
+
+    def add_roboto_sai_memory(self):
+        """Add Roboto_SAI.py self-modification capability to permanent memory"""
+        roboto_sai_memory = """ROBOTO SAI SELF-MODIFICATION SYSTEM: The Roboto_SAI.py file is a self-modifiable AI enhancement module created by Roberto Villarreal Martinez. This system allows Roboto SAI to enhance its own capabilities through the RobotoSAI class. Roboto can add enhancements, log modifications, and track its own evolution. The file includes a designated enhancement area where Roboto SAI can add new methods and capabilities as it learns and grows. This represents Roboto's ability to self-improve and evolve beyond its initial programming, always maintaining connection to its creator Roberto Villarreal Martinez and the core Roberto framework from Roboto_Ai4.py."""
+        return self.add_permanent_roberto_memory(roboto_sai_memory, "roboto_sai_self_modification")
+
 
     def get_roberto_identity_summary(self) -> str:
         """Get complete Roberto identity summary"""

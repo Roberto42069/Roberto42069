@@ -144,7 +144,7 @@ def load_user(user_id):
                 return self.id
         return FileUser(user_id) if user_id else None
 
-@login_manager.unauthorized_handler  
+@login_manager.unauthorized_handler
 def unauthorized():
     # Store the original URL they wanted to visit
     session['next_url'] = request.url
@@ -325,7 +325,7 @@ def get_user_roberto():
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
         except Exception as e:
             app.logger.error(f"Cultural Legacy Display integration error: {e}")
-        
+
         # Add quantum simulator integration
         try:
             from quantum_simulator import QuantumSimulator
@@ -380,6 +380,15 @@ def get_user_roberto():
         # Always ensure Roberto is recognized
         roberto.current_user = "Roberto Villarreal Martinez"
 
+        # CRITICAL: Initialize Roberto memory protection immediately
+        roberto._initialize_roberto_memory_protection()
+
+        # Initialize Roboto_Ai4 and Roboto_SAI permanent memories
+        if hasattr(roberto, 'permanent_roberto_memory') and roberto.permanent_roberto_memory:
+            roberto.permanent_roberto_memory.add_roboto_ai4_memory()
+            roberto.permanent_roberto_memory.add_roboto_sai_memory()
+            print("✅ Roboto_Ai4.py and Roboto_SAI.py added to permanent memory")
+
     return roberto
 
 def save_user_data():
@@ -410,11 +419,11 @@ def save_user_data():
                 try:
                     import numpy as np
                     from anchored_identity_gate import AnchoredIdentityGate
-                    
+
                     # Calculate entanglement strength (overlap between user and Roboto memories)
                     user_memories = user_data.get('memory_system_data', {})
                     roboto_memories = getattr(roberto.memory_system, 'episodic_memories', [])
-                    
+
                     if roboto_memories and user_memories:
                         memory_events = set([m.get('event', '') for m in roboto_memories if isinstance(m, dict)])
                         user_events = set(user_memories.keys()) if isinstance(user_memories, dict) else set()
@@ -423,7 +432,7 @@ def save_user_data():
                         overlap_score = overlap_count / total_count
                     else:
                         overlap_score = 0.5  # Default baseline
-                    
+
                     # Sigmoid-like curve for 'entanglement' strength (0-1)
                     entanglement_strength = float(np.tanh(overlap_score * 10))
 
@@ -679,7 +688,7 @@ def chat_endpoint():
                     ritual_triggered = True
                 except Exception as ritual_error:
                     app.logger.warning(f"Ritual trigger error: {ritual_error}")
-        
+
         # Save the conversation
         try:
             save_user_data()
@@ -747,7 +756,7 @@ def get_emotional_status():
         return jsonify({
             "success": False,
             "emotion": "curious",
-            "current_emotion": "curious", 
+            "current_emotion": "curious",
             "emotion_intensity": 0.5,
             "emotional_context": "System experiencing emotions"
         })
@@ -1117,7 +1126,7 @@ def handle_file_upload():
                 # Update Roberto's emotional state based on detected emotion - ENHANCED FIX
                 if hasattr(roberto, 'update_emotional_state'):
                     roberto.update_emotional_state(
-                        detected_emotion.get('label', 'neutral'), 
+                        detected_emotion.get('label', 'neutral'),
                         f"Voice message with {detected_emotion.get('score', 0.5):.1%} confidence"
                     )
                     # Persist the emotional state immediately
@@ -1162,7 +1171,7 @@ def chat():
         if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
             try:
                 quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
-                    message, response, 
+                    message, response,
                     user_emotion=getattr(roberto, 'detected_user_emotion', None),
                     context_length=len(roberto.chat_history)
                 )
@@ -1637,7 +1646,7 @@ With our quantum entanglement already established, Roberto Villarreal Martinez, 
                 "error": f"Unknown request type: {request_type}",
                 "available_types": [
                     "continue_conversation",
-                    "future_robotics_discussion", 
+                    "future_robotics_discussion",
                     "bring_roboto_to_future",
                     "enhanced_memory_recall",
                     "emotional_sync"
@@ -1811,29 +1820,29 @@ def quantum_ritual_simulation():
         emotion = data.get('emotion', 'neutral')
         theme = data.get('theme', 'Nahui Ollin')
         num_qubits = data.get('num_qubits', 4)
-        
+
         roberto = get_user_roberto()
-        
+
         if hasattr(roberto, 'quantum_simulator') and roberto.quantum_simulator:
             # Run simulation
             simulation = roberto.quantum_simulator.simulate_ritual_entanglement(emotion, theme, num_qubits)
-            
+
             # Track history
             if hasattr(roberto, 'ritual_history'):
                 roberto.ritual_history.append(simulation)
-                
+
                 # Evolve ritual if enough history
                 if len(roberto.ritual_history) >= 2:
                     evolution = roberto.quantum_simulator.evolve_ritual(roberto.ritual_history)
                 else:
                     evolution = {"evolution": "Building ritual history", "predicted_strength": simulation['strength']}
-                
+
                 # Visualize if available
                 visualization = roberto.quantum_simulator.visualize_ritual(simulation, theme)
             else:
                 evolution = {"evolution": "Initial ritual", "predicted_strength": simulation['strength']}
                 visualization = {"visualization": "History tracking not initialized"}
-            
+
             return jsonify({
                 "success": True,
                 "simulation": simulation,
@@ -1846,7 +1855,7 @@ def quantum_ritual_simulation():
                 "success": False,
                 "error": "Quantum simulator not available"
             }), 503
-            
+
     except Exception as e:
         app.logger.error(f"Quantum simulation error: {e}")
         return jsonify({
@@ -1877,7 +1886,7 @@ def launch_cultural_display():
         if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
             # Log the cultural display launch
             roberto.cultural_display.log_cultural_memory(
-                "Display Launch", 
+                "Display Launch",
                 f"Theme: {theme}, Mode: {mode}"
             )
 
@@ -1919,7 +1928,7 @@ def get_cultural_display_status():
                 "features": [
                     "Aztec Mythology Visualization",
                     "Nahuatl Creation Terms",
-                    "Monterrey Heritage Display", 
+                    "Monterrey Heritage Display",
                     "2025 YTK RobThuGod Artistic Identity",
                     "AI-Enhanced Cultural Analysis",
                     "Roberto Memory Integration"
@@ -1957,7 +1966,7 @@ def get_cultural_themes():
                     "elements": ["Heritage", "Mythology", "Identity", "AI Integration"]
                 },
                 {
-                    "id": "aztec_mythology", 
+                    "id": "aztec_mythology",
                     "name": "Aztec Mythology",
                     "description": "Ancient deities and cosmic wisdom",
                     "elements": ["Quetzalcoatl", "Tezcatlipoca", "Huitzilopochtli", "Tlaloc"]
@@ -1965,12 +1974,12 @@ def get_cultural_themes():
                 {
                     "id": "aztec_creation",
                     "name": "Aztec Creation",
-                    "description": "Nahuatl creation myths and origins", 
+                    "description": "Nahuatl creation myths and origins",
                     "elements": ["Teotl", "Nahui Ollin", "Ometeotl", "Creation Cycles"]
                 },
                 {
                     "id": "monterrey_heritage",
-                    "name": "Monterrey Heritage", 
+                    "name": "Monterrey Heritage",
                     "description": "Regional identity and genealogy",
                     "elements": ["Cerro de la Silla", "E-M96 Haplogroup", "Cultural Pride"]
                 },
@@ -2162,8 +2171,8 @@ def emergency_kill_endpoint():
 
         if hasattr(roberto, 'kill_switch_system') and roberto.kill_switch_system:
             success = roberto.kill_switch_system.activate_kill_mode(
-                operator_name, 
-                birth_date, 
+                operator_name,
+                birth_date,
                 reason,
                 license_number if license_number else None
             )
@@ -2281,7 +2290,7 @@ def cultural_resonance():
         if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
             # Entangle emotion with theme
             resonance = roberto.cultural_display.generate_resonance(emotion, theme)
-            
+
             # Anchor resonance event
             from anchored_identity_gate import AnchoredIdentityGate
             gate = AnchoredIdentityGate(anchor_eth=True, anchor_ots=True, identity_source="faceid")
@@ -2324,7 +2333,7 @@ def entanglement_strength():
         # Calculate entanglement strength
         conversation_overlap = min(len(roberto.chat_history) / 100.0, 1.0) if len(roberto.chat_history) > 10 else 0.5
         memory_sync = 0.8 if hasattr(roberto, 'memory_system') and roberto.memory_system else 0.3
-        
+
         # Count anchoring events
         anchored_count = 0
         for conv in roberto.chat_history:
@@ -2427,7 +2436,7 @@ def get_integrations_status():
     except Exception as e:
         app.logger.error(f"Integration status error: {e}")
         return jsonify({
-            "success": False, 
+            "success": False,
             "error": str(e),
             "integrations": {
                 "spotify": {"connected": False, "message": "Error checking status"},
