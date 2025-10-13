@@ -278,6 +278,20 @@ def get_user_roberto():
                 app.logger.info("🚀 Performance: 10x speed improvement enabled")
             except Exception as e:
                 app.logger.warning(f"HyperSpeed optimization not available: {e}")
+        
+        # Add xAI Collections integration
+        try:
+            from xai_collections_integration import get_xai_collections
+            roberto.xai_collections = get_xai_collections()
+            app.logger.info("📚 xAI Collections integration initialized")
+            
+            # Optionally integrate with memory system
+            if os.environ.get("XAI_API_KEY") or os.environ.get("X_API_KEY"):
+                collection_id = roberto.xai_collections.integrate_with_roboto_memory(roberto)
+                if collection_id:
+                    app.logger.info(f"✅ Roboto memories synced to Collections: {collection_id}")
+        except Exception as e:
+            app.logger.warning(f"xAI Collections integration not available: {e}")
 
         # Add cultural display integration
         try:
@@ -633,6 +647,74 @@ def chat_endpoint():
             return jsonify({
                 "success": False,
                 "error": "Roboto system not available"
+
+
+@app.route('/api/collections/create', methods=['POST'])
+@login_required
+def create_collection():
+    """Create a new xAI collection"""
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description', '')
+        
+        if not name:
+            return jsonify({"success": False, "error": "Collection name required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_collections'):
+            return jsonify({"success": False, "error": "Collections not configured"}), 500
+        
+        result = roberto.xai_collections.create_collection(name, description)
+        
+        if "error" in result:
+            return jsonify({"success": False, "error": result["error"]}), 500
+        
+        return jsonify({"success": True, "collection": result})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/collections/search', methods=['POST'])
+@login_required
+def semantic_search():
+    """Perform semantic search across collections"""
+    try:
+        data = request.get_json()
+        query = data.get('query')
+        collection_ids = data.get('collection_ids')
+        limit = data.get('limit', 5)
+        
+        if not query:
+            return jsonify({"success": False, "error": "Search query required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_collections'):
+            return jsonify({"success": False, "error": "Collections not configured"}), 500
+        
+        results = roberto.xai_collections.semantic_search(query, collection_ids, limit)
+        
+        return jsonify({"success": True, "results": results})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/collections/list', methods=['GET'])
+@login_required
+def list_collections():
+    """List all collections"""
+    try:
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_collections'):
+            return jsonify({"success": False, "error": "Collections not configured"}), 500
+        
+        collections = roberto.xai_collections.list_collections()
+        
+        return jsonify({"success": True, "collections": collections})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
             }), 500
 
         # Process the chat message
