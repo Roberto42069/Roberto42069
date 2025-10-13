@@ -241,6 +241,7 @@ class RobotoApp {
 
 
         // Video control buttons
+    }
 
     initializeErrorDatabase() {
         return {
@@ -1586,7 +1587,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     a.href = url;
                     a.download = fileName;
                     document.body.appendChild(a);
-
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+                
+                this.showNotification('Data exported successfully!', 'success');
+            } else {
+                this.showNotification('Export failed: ' + data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showNotification('Failed to export data', 'error');
+        }
+    }
 
     async showGitHubProjectStatus() {
         try {
