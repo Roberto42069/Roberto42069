@@ -743,13 +743,33 @@ def get_emotional_status():
         except:
             emotional_context = f"Current emotional state: {real_emotion}"
 
+        # Add Advanced Emotion Simulator data if available
+        advanced_emotion_data = {}
+        if hasattr(roberto, 'advanced_emotion_simulator') and roberto.advanced_emotion_simulator:
+            try:
+                # Get last message from chat history for probability analysis
+                last_message = ""
+                if hasattr(roberto, 'chat_history') and roberto.chat_history:
+                    last_entry = roberto.chat_history[-1]
+                    last_message = last_entry.get('message', '')
+                
+                if last_message:
+                    emotion_probs = roberto.advanced_emotion_simulator.get_emotion_probabilities(last_message)
+                    advanced_emotion_data = {
+                        "emotion_probabilities": emotion_probs,
+                        "simulator_active": True
+                    }
+            except Exception as e:
+                app.logger.warning(f"Advanced emotion data error: {e}")
+
         return jsonify({
             "success": True,
             "emotion": real_emotion,
             "current_emotion": real_emotion,
             "emotion_intensity": emotion_intensity,
             "emotional_context": emotional_context,
-            "quantum_enhanced": hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions is not None
+            "quantum_enhanced": hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions is not None,
+            "advanced_emotion": advanced_emotion_data
         })
     except Exception as e:
         app.logger.error(f"Emotional status error: {e}")

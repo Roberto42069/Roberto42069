@@ -156,6 +156,17 @@ class Roboto:
         # Initialize voice cloning attribute
         self.voice_cloning = None
 
+        # 🎭 REVOLUTIONARY: Advanced Emotion Simulator with Fuzzy Matching
+        try:
+            from advanced_emotion_simulator import integrate_advanced_emotion_simulator
+            self.advanced_emotion_simulator = integrate_advanced_emotion_simulator(self)
+            print("🎭 REVOLUTIONARY: Advanced Emotion Simulator activated!")
+            print("⚡ Features: Fuzzy matching, multi-emotion blending, cultural context")
+            print("🧠 Intensity levels (1-10), PTSD/grief awareness, Mayan óol support")
+        except Exception as e:
+            print(f"Advanced Emotion Simulator initialization error: {e}")
+            self.advanced_emotion_simulator = None
+
         # 🌟 REVOLUTIONARY: Legacy Enhancement System
         try:
             from legacy_enhancement_system import create_legacy_enhancement_system
@@ -847,6 +858,43 @@ class Roboto:
         message_lower = message.lower()
         detected_emotions = []
 
+        # 🎭 Use Advanced Emotion Simulator if available
+        if hasattr(self, 'advanced_emotion_simulator') and self.advanced_emotion_simulator:
+            try:
+                # Determine intensity based on message characteristics
+                intensity = 5  # Default
+                if any(word in message_lower for word in ["very", "extremely", "incredibly", "overwhelmingly"]):
+                    intensity = 8
+                elif any(word in message_lower for word in ["really", "quite", "fairly"]):
+                    intensity = 6
+                elif any(word in message_lower for word in ["slightly", "somewhat", "a bit"]):
+                    intensity = 3
+                
+                # Check for cultural context
+                cultural_context = None
+                if any(word in message_lower for word in ["mayan", "aztec", "nahuatl", "indigenous"]):
+                    cultural_context = "mayan"
+                
+                # Simulate emotion with advanced features
+                emotion_variation = self.advanced_emotion_simulator.simulate_emotion(
+                    message, 
+                    intensity=intensity,
+                    blend_threshold=0.8,
+                    holistic_influence=(cultural_context is not None),
+                    cultural_context=cultural_context
+                )
+                
+                detected_emotion = self.advanced_emotion_simulator.get_current_emotion()
+                if detected_emotion:
+                    self.update_emotional_state(detected_emotion, message)
+                    print(f"🎭 Advanced emotion detected: {emotion_variation}")
+                    return
+                    
+            except Exception as e:
+                print(f"Advanced emotion detection error: {e}")
+                # Fall back to traditional method
+
+        # Traditional emotion detection (fallback)
         for emotion, triggers in self.emotional_triggers.items():
             for trigger in triggers:
                 if trigger in message_lower:
