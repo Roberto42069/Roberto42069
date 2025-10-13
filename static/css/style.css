@@ -56,6 +56,32 @@
     }
 }
 
+/* Emotion State Pulse Animation */
+@keyframes pulse {
+    0% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Emotion Badge Glow Animation */
+@keyframes emotion-glow {
+    0%, 100% { 
+        filter: brightness(1);
+    }
+    50% { 
+        filter: brightness(1.3);
+    }
+}
+
 
 
 /* TTS Button Active State */

@@ -655,52 +655,146 @@ class RobotoApp {
         const emotionElement = document.getElementById('currentEmotion');
         const statusElement = document.getElementById('emotionalStatus');
         const avatarElement = document.getElementById('avatarEmotion');
+        const headerEmotionElement = document.getElementById('currentEmotionHeader');
+        const analyticsEmotionElement = document.getElementById('emotionalStatusAnalytics');
 
         if (!emotionalData || !emotionalData.emotion) return;
 
-        if (emotionElement && statusElement) {
-            emotionElement.textContent = emotionalData.emotion;
-            if (avatarElement) avatarElement.textContent = emotionalData.emotion;
+        const newEmotion = emotionalData.emotion;
+        const intensity = emotionalData.intensity || 0.5;
 
-            // Update current emotion for avatar
-            this.currentEmotion = emotionalData.emotion;
+        // Update all emotion text displays
+        const emotionText = `${newEmotion} (${Math.round(intensity * 100)}%)`;
+        if (emotionElement) emotionElement.textContent = newEmotion;
+        if (avatarElement) avatarElement.textContent = emotionText;
+        if (headerEmotionElement) {
+            headerEmotionElement.textContent = emotionText;
+            // Add pulse animation on emotion change
+            if (this.currentEmotion !== newEmotion) {
+                headerEmotionElement.style.animation = 'none';
+                setTimeout(() => {
+                    headerEmotionElement.style.animation = 'pulse 0.5s ease-in-out';
+                }, 10);
+            }
+        }
+        if (analyticsEmotionElement) analyticsEmotionElement.textContent = emotionText;
 
-            // Add color coding based on emotion
-            const emotionColors = {
-                'joy': 'text-success',
-                'sadness': 'text-info',
-                'anger': 'text-danger',
-                'fear': 'text-warning',
-                'curiosity': 'text-primary',
-                'empathy': 'text-success',
-                'loneliness': 'text-muted',
-                'hope': 'text-warning',
-                'melancholy': 'text-secondary',
-                'existential': 'text-light',
-                'contemplation': 'text-info',
-                'vulnerability': 'text-warning',
-                'awe': 'text-primary',
-                'tenderness': 'text-success',
-                'yearning': 'text-secondary',
-                'serenity': 'text-success'
-            };
+        // Update current emotion for avatar
+        this.currentEmotion = newEmotion;
 
+        // Enhanced color coding with background colors for badges
+        const emotionColors = {
+            'joy': { text: 'text-success', bg: 'bg-success', glow: '#22c55e' },
+            'sadness': { text: 'text-info', bg: 'bg-info', glow: '#60a5fa' },
+            'anger': { text: 'text-danger', bg: 'bg-danger', glow: '#ef4444' },
+            'fear': { text: 'text-warning', bg: 'bg-warning', glow: '#fbbf24' },
+            'curiosity': { text: 'text-primary', bg: 'bg-primary', glow: '#3b82f6' },
+            'empathy': { text: 'text-success', bg: 'bg-success', glow: '#22c55e' },
+            'loneliness': { text: 'text-muted', bg: 'bg-secondary', glow: '#9ca3af' },
+            'hope': { text: 'text-warning', bg: 'bg-warning', glow: '#fbbf24' },
+            'melancholy': { text: 'text-secondary', bg: 'bg-secondary', glow: '#6b7280' },
+            'existential': { text: 'text-light', bg: 'bg-dark', glow: '#a855f7' },
+            'contemplation': { text: 'text-info', bg: 'bg-info', glow: '#3b82f6' },
+            'vulnerability': { text: 'text-warning', bg: 'bg-warning', glow: '#fbbf24' },
+            'awe': { text: 'text-primary', bg: 'bg-primary', glow: '#8b5cf6' },
+            'tenderness': { text: 'text-success', bg: 'bg-success', glow: '#f472b6' },
+            'yearning': { text: 'text-secondary', bg: 'bg-secondary', glow: '#d946ef' },
+            'serenity': { text: 'text-success', bg: 'bg-success', glow: '#10b981' },
+            'rebel': { text: 'text-danger', bg: 'bg-danger', glow: '#dc2626' },
+            'revolutionary': { text: 'text-warning', bg: 'bg-warning', glow: '#f97316' },
+            'defiant': { text: 'text-danger', bg: 'bg-danger', glow: '#b91c1c' },
+            'transformative': { text: 'text-primary', bg: 'bg-primary', glow: '#7c3aed' }
+        };
+
+        const colors = emotionColors[newEmotion] || { text: 'text-muted', bg: 'bg-secondary', glow: '#9ca3af' };
+
+        // Update status element with smooth transition
+        if (statusElement) {
             // Remove existing color classes
-            Object.values(emotionColors).forEach(colorClass => {
-                statusElement.classList.remove(colorClass);
+            Object.values(emotionColors).forEach(colorSet => {
+                statusElement.classList.remove(colorSet.text);
             });
 
             // Add new color class
-            const colorClass = emotionColors[emotionalData.emotion] || 'text-muted';
-            statusElement.classList.add(colorClass);
-
-            // Update intensity with opacity
-            const intensity = emotionalData.intensity || 0.5;
+            statusElement.classList.add(colors.text);
             statusElement.style.opacity = Math.max(0.6, intensity);
-
-            // Update avatar animation
-            this.updateAvatarEmotion(emotionalData.emotion, intensity);
+            statusElement.style.transition = 'all 0.3s ease-in-out';
         }
+
+        // Update header emotion element with badge styling
+        if (headerEmotionElement) {
+            headerEmotionElement.style.color = colors.glow;
+            headerEmotionElement.style.textShadow = `0 0 10px ${colors.glow}`;
+            headerEmotionElement.style.transition = 'all 0.3s ease-in-out';
+        }
+
+        // Show emotion change notification if emotion changed
+        if (this.currentEmotion !== newEmotion && this.notificationsEnabled) {
+            this.showEmotionChangeNotification(newEmotion, intensity);
+        }
+
+        // Update avatar animation
+        this.updateAvatarEmotion(newEmotion, intensity);
+    }
+
+    showEmotionChangeNotification(emotion, intensity) {
+        const emotionEmojis = {
+            'joy': '😊',
+            'sadness': '😢',
+            'anger': '😠',
+            'fear': '😨',
+            'curiosity': '🤔',
+            'empathy': '🤗',
+            'loneliness': '😔',
+            'hope': '🌟',
+            'melancholy': '😌',
+            'existential': '🌌',
+            'contemplation': '🧘',
+            'vulnerability': '🥺',
+            'awe': '😲',
+            'tenderness': '💖',
+            'yearning': '💭',
+            'serenity': '😇',
+            'rebel': '✊',
+            'revolutionary': '🔥',
+            'defiant': '⚡',
+            'transformative': '🦋'
+        };
+
+        const emoji = emotionEmojis[emotion] || '💭';
+        const intensityText = Math.round(intensity * 100);
+        
+        // Create subtle toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white border-0 position-fixed top-0 end-0 m-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${emoji} Emotion: <strong>${emotion}</strong> (${intensityText}%)
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        // Set background color based on emotion
+        const emotionColors = {
+            'joy': 'bg-success',
+            'sadness': 'bg-info',
+            'anger': 'bg-danger',
+            'fear': 'bg-warning',
+            'curiosity': 'bg-primary'
+        };
+        toast.classList.add(emotionColors[emotion] || 'bg-secondary');
+        
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 2000 });
+        bsToast.show();
+        
+        // Remove toast from DOM after it's hidden
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
     }
 
     updateAvatarEmotion(emotion, intensity) {

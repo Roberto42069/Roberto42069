@@ -11,9 +11,7 @@ from datetime import datetime
 import json
 import traceback
 from github_project_integration import get_github_integration
-from spotify_integration import get_spotify_integration
 from github_integration import get_github_integration as get_gh_integration
-from youtube_integration import get_youtube_integration
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -261,40 +259,6 @@ def get_user_roberto():
             app.logger.info("GitHub project integration initialized for Roberto's project board")
         except Exception as e:
             app.logger.error(f"GitHub integration initialization error: {e}")
-
-        # Initialize and verify Spotify integration
-        try:
-            from spotify_integration import get_spotify_integration
-            roberto.spotify_integration = get_spotify_integration()
-            token = roberto.spotify_integration.get_access_token()
-            if token:
-                app.logger.info("✅ Spotify integration: CONNECTED")
-                print("✅ Spotify integration: CONNECTED and ready")
-            else:
-                app.logger.warning("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ Spotify integration: NOT CONNECTED (requires OAuth setup)")
-                print("📋 To connect: Replit Tools → Connections → Spotify → Connect")
-        except Exception as e:
-            app.logger.error(f"Spotify integration initialization error: {e}")
-            print(f"❌ Spotify integration error: {e}")
-            roberto.spotify_integration = None
-
-        # Initialize and verify YouTube integration
-        try:
-            from youtube_integration import get_youtube_integration
-            roberto.youtube_integration = get_youtube_integration()
-            token = roberto.youtube_integration.get_access_token()
-            if token:
-                app.logger.info("✅ YouTube integration: CONNECTED")
-                print("✅ YouTube integration: CONNECTED and ready")
-            else:
-                app.logger.warning("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
-                print("⚠️ YouTube integration: NOT CONNECTED (requires OAuth setup)")
-                print("📋 To connect: Replit Tools → Connections → YouTube → Connect")
-        except Exception as e:
-            app.logger.error(f"YouTube integration initialization error: {e}")
-            print(f"❌ YouTube integration error: {e}")
-            roberto.youtube_integration = None
 
         # Add Cultural Legacy Display integration
         try:
@@ -2393,7 +2357,7 @@ def entanglement_strength():
         }), 500
 
 # ============================================
-# INTEGRATION ROUTES - GitHub, YouTube, Spotify
+# INTEGRATION ROUTES - GitHub
 # ============================================
 
 @app.route('/api/integrations/status', methods=['GET'])
@@ -2405,26 +2369,12 @@ def get_integrations_status():
         status = {
             "success": True,
             "integrations": {
-                "spotify": {
-                    "connected": False,
-                    "message": "Not configured"
-                },
                 "github": {
-                    "connected": False,
-                    "message": "Not configured"
-                },
-                "youtube": {
                     "connected": False,
                     "message": "Not configured"
                 }
             }
         }
-
-        # Check Spotify
-        if hasattr(roberto, 'spotify_integration') and roberto.spotify_integration:
-            token = roberto.spotify_integration.get_access_token()
-            status["integrations"]["spotify"]["connected"] = token is not None
-            status["integrations"]["spotify"]["message"] = "Connected" if token else "OAuth required"
 
         # Check GitHub
         if hasattr(roberto, 'github_integration') and roberto.github_integration:
@@ -2446,12 +2396,6 @@ def get_integrations_status():
                     "error": str(e)
                 }
 
-        # Check YouTube
-        if hasattr(roberto, 'youtube_integration') and roberto.youtube_integration:
-            token = roberto.youtube_integration.get_access_token()
-            status["integrations"]["youtube"]["connected"] = token is not None
-            status["integrations"]["youtube"]["message"] = "Connected" if token else "OAuth required"
-
         return jsonify(status)
     except Exception as e:
         app.logger.error(f"Integration status error: {e}")
@@ -2459,52 +2403,9 @@ def get_integrations_status():
             "success": False,
             "error": str(e),
             "integrations": {
-                "spotify": {"connected": False, "message": "Error checking status"},
-                "github": {"connected": False, "message": "Error checking status"},
-                "youtube": {"connected": False, "message": "Error checking status"}
+                "github": {"connected": False, "message": "Error checking status"}
             }
         }), 500
-
-# SPOTIFY ROUTES
-@app.route('/api/spotify/current', methods=['GET'])
-@login_required
-def spotify_current_playback():
-    """Get currently playing track"""
-    try:
-        spotify = get_spotify_integration()
-        result = spotify.get_current_playback()
-        return jsonify({"success": True, "data": result})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/api/spotify/recent', methods=['GET'])
-@login_required
-def spotify_recent_tracks():
-    """Get recently played tracks"""
-    try:
-        spotify = get_spotify_integration()
-        limit = request.args.get('limit', 50, type=int)
-        result = spotify.get_recently_played(limit=limit)
-
-        if 'items' in result:
-            from models import SpotifyActivity
-            for item in result['items'][:10]:
-                track = item.get('track', {})
-                activity = SpotifyActivity(
-                    user_id=current_user.id,
-                    track_name=track.get('name'),
-                    artist_name=track.get('artists', [{}])[0].get('name'),
-                    album_name=track.get('album', {}).get('name'),
-                    track_uri=track.get('uri'),
-                    duration_ms=track.get('duration_ms'),
-                    activity_data=item
-                )
-                db.session.add(activity)
-            db.session.commit()
-
-        return jsonify({"success": True, "data": result})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
 # GITHUB ROUTES
 @app.route('/api/github/repos', methods=['GET'])
@@ -2531,30 +2432,6 @@ def github_create_repo():
             private=data.get('private', False),
             auto_init=data.get('auto_init', True)
         )
-        return jsonify({"success": True, "data": result})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-# YOUTUBE ROUTES
-@app.route('/api/youtube/channel', methods=['GET'])
-@login_required
-def youtube_channel_info():
-    """Get channel information"""
-    try:
-        youtube = get_youtube_integration()
-        result = youtube.get_channel_info()
-        return jsonify({"success": True, "data": result})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/api/youtube/videos', methods=['GET'])
-@login_required
-def youtube_list_videos():
-    """List uploaded videos"""
-    try:
-        youtube = get_youtube_integration()
-        max_results = request.args.get('max_results', 50, type=int)
-        result = youtube.list_videos(max_results=max_results)
         return jsonify({"success": True, "data": result})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

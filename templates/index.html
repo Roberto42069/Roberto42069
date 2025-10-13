@@ -170,24 +170,8 @@
 
                             <!-- Integrations Tab -->
                             <div class="tab-pane fade" id="integrations-content" role="tabpanel" aria-labelledby="integrations-tab">
-                                <!-- Spotify Integration -->
-                                <div class="mb-3 border-bottom pb-3">
-                                    <h6 class="text-success mb-2">
-                                        <i class="fab fa-spotify me-2"></i>Spotify
-                                        <span class="badge bg-success ms-2" id="spotify-status">Connected</span>
-                                    </h6>
-                                    <div class="small mb-2" id="spotify-now-playing">
-                                        <div class="text-muted">Checking playback...</div>
-                                    </div>
-                                    <div class="d-grid gap-1">
-                                        <button class="btn btn-outline-success btn-sm" onclick="spotifyRefresh()">
-                                            <i class="fas fa-sync me-1"></i>Refresh
-                                        </button>
-                                    </div>
-                                </div>
-
                                 <!-- GitHub Integration -->
-                                <div class="mb-3 border-bottom pb-3">
+                                <div class="mb-3">
                                     <h6 class="text-info mb-2">
                                         <i class="fab fa-github me-2"></i>GitHub
                                         <span class="badge bg-info ms-2" id="github-status">Ready</span>
@@ -198,22 +182,6 @@
                                     <div class="d-grid gap-1">
                                         <button class="btn btn-outline-info btn-sm" onclick="viewGitHubRepos()">
                                             <i class="fas fa-folder me-1"></i>View Repos
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- YouTube Integration -->
-                                <div class="mb-3">
-                                    <h6 class="text-danger mb-2">
-                                        <i class="fab fa-youtube me-2"></i>YouTube
-                                        <span class="badge bg-danger ms-2" id="youtube-status">Ready</span>
-                                    </h6>
-                                    <div class="small text-muted mb-2" id="youtube-info">
-                                        Full channel management access
-                                    </div>
-                                    <div class="d-grid gap-1">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="viewYouTubeChannel()">
-                                            <i class="fas fa-video me-1"></i>View Channel
                                         </button>
                                     </div>
                                 </div>
