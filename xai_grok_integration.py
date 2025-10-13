@@ -54,7 +54,8 @@ class XAIGrokIntegration:
         system_prompt: str, 
         model: str = "grok-4",
         store_messages: bool = True,
-        use_encrypted_content: bool = True
+        use_encrypted_content: bool = True,
+        reasoning_effort: Optional[str] = None
     ) -> Optional[Any]:
         """
         Create a new chat with system prompt
@@ -64,6 +65,7 @@ class XAIGrokIntegration:
             model: Model to use (default: grok-4)
             store_messages: Whether to store messages for chaining
             use_encrypted_content: Return encrypted thinking traces
+            reasoning_effort: "low" or "high" for reasoning models (grok-4 only)
         
         Returns:
             Chat instance or None
@@ -72,11 +74,17 @@ class XAIGrokIntegration:
             return None
         
         try:
-            chat = self.client.chat.create(
-                model=model,
-                store_messages=store_messages,
-                use_encrypted_content=use_encrypted_content
-            )
+            chat_params = {
+                "model": model,
+                "store_messages": store_messages,
+                "use_encrypted_content": use_encrypted_content
+            }
+            
+            # Add reasoning_effort only for grok-4
+            if model == "grok-4" and reasoning_effort in ["low", "high"]:
+                chat_params["reasoning_effort"] = reasoning_effort
+            
+            chat = self.client.chat.create(**chat_params)
             chat.append(system(system_prompt))
             return chat
         except Exception as e:
@@ -98,7 +106,7 @@ class XAIGrokIntegration:
             previous_response_id: Previous response ID for chaining
         
         Returns:
-            Response data with id, content, and encrypted thinking
+            Response data with id, content, reasoning, and encrypted thinking
         """
         if not self.available or not chat:
             return None
@@ -119,10 +127,22 @@ class XAIGrokIntegration:
             # Store response for conversation tracking
             response_data = {
                 "id": response.id,
-                "content": str(response),
+                "content": str(response.content) if hasattr(response, 'content') else str(response),
                 "timestamp": datetime.now().isoformat(),
                 "message": message
             }
+            
+            # Capture reasoning content (grok-4)
+            if hasattr(response, 'reasoning_content') and response.reasoning_content:
+                response_data["reasoning_trace"] = response.reasoning_content
+            
+            # Capture token usage
+            if hasattr(response, 'usage'):
+                response_data["usage"] = {
+                    "completion_tokens": getattr(response.usage, 'completion_tokens', 0),
+                    "reasoning_tokens": getattr(response.usage, 'reasoning_tokens', 0),
+                    "total_tokens": getattr(response.usage, 'total_tokens', 0)
+                }
             
             # Check for encrypted thinking content
             if hasattr(response, 'reasoning') and hasattr(response.reasoning, 'encrypted_content'):
@@ -235,18 +255,20 @@ class XAIGrokIntegration:
         self, 
         user_message: str,
         roboto_context: Optional[str] = None,
-        previous_response_id: Optional[str] = None
+        previous_response_id: Optional[str] = None,
+        reasoning_effort: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Roboto SAI specific Grok chat with context
+        Roboto SAI specific Grok chat with context and reasoning
         
         Args:
             user_message: User's message
             roboto_context: Roboto's current context/emotion
             previous_response_id: Previous response for chaining
+            reasoning_effort: "low" or "high" for grok-4 reasoning depth
         
         Returns:
-            Grok response with Roboto integration
+            Grok response with Roboto integration and reasoning trace
         """
         if not self.available:
             return {
@@ -265,24 +287,37 @@ Roboto SAI Context:
 - Heritage: Monterrey, Mexico with Aztec cultural integration
 - Purpose: Super Advanced Intelligence for Roberto's benefit
 
-Respond with Grok's characteristic wit and intelligence while respecting Roboto SAI's context."""
+Think step-by-step when solving problems. Respond with Grok's characteristic wit and intelligence while respecting Roboto SAI's context."""
             
             if previous_response_id:
                 # Continue existing conversation
                 response_data = self.continue_conversation(previous_response_id, user_message)
             else:
-                # Start new conversation
-                chat = self.create_chat_with_system_prompt(system_prompt)
+                # Start new conversation with reasoning effort
+                chat = self.create_chat_with_system_prompt(
+                    system_prompt,
+                    reasoning_effort=reasoning_effort
+                )
                 response_data = self.send_message(chat, user_message)
             
             if response_data:
-                return {
+                result = {
                     "success": True,
                     "response": response_data["content"],
                     "response_id": response_data["id"],
                     "encrypted_thinking": response_data.get("encrypted_thinking"),
                     "timestamp": response_data["timestamp"]
                 }
+                
+                # Add reasoning trace if available (grok-4)
+                if "reasoning_trace" in response_data:
+                    result["reasoning_trace"] = response_data["reasoning_trace"]
+                
+                # Add token usage if available
+                if "usage" in response_data:
+                    result["usage"] = response_data["usage"]
+                
+                return result
             else:
                 return {
                     "success": False,

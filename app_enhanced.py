@@ -685,28 +685,6 @@ def create_collection():
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-    """Create a new xAI collection"""
-    try:
-        data = request.get_json()
-        name = data.get('name')
-        description = data.get('description', '')
-        
-        if not name:
-            return jsonify({"success": False, "error": "Collection name required"}), 400
-        
-        roberto = get_user_roberto()
-        if not hasattr(roberto, 'xai_collections'):
-            return jsonify({"success": False, "error": "Collections not configured"}), 500
-        
-        result = roberto.xai_collections.create_collection(name, description)
-        
-        if "error" in result:
-            return jsonify({"success": False, "error": result["error"]}), 500
-        
-        return jsonify({"success": True, "collection": result})
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/collections/search', methods=['POST'])
 @login_required
@@ -1802,14 +1780,22 @@ def get_roboto_status():
 @app.route('/api/grok/chat', methods=['POST'])
 @login_required
 def grok_chat():
-    """Chat with Grok using xAI SDK with response chaining"""
+    """Chat with Grok using xAI SDK with response chaining and reasoning"""
     try:
         data = request.get_json()
         message = data.get('message')
         previous_response_id = data.get('previous_response_id')
+        reasoning_effort = data.get('reasoning_effort')  # "low" or "high"
         
         if not message:
             return jsonify({"success": False, "error": "Message required"}), 400
+        
+        # Validate reasoning_effort if provided
+        if reasoning_effort and reasoning_effort not in ["low", "high"]:
+            return jsonify({
+                "success": False, 
+                "error": "reasoning_effort must be 'low' or 'high'"
+            }), 400
         
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
@@ -1824,7 +1810,8 @@ def grok_chat():
         result = roberto.xai_grok.roboto_grok_chat(
             message,
             roboto_context=roboto_context,
-            previous_response_id=previous_response_id
+            previous_response_id=previous_response_id,
+            reasoning_effort=reasoning_effort
         )
         
         return jsonify(result)
