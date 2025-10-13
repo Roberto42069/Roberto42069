@@ -1,5 +1,6 @@
 import os
 import logging
+import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
