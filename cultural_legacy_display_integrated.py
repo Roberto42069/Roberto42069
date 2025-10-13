@@ -25,15 +25,10 @@ load_dotenv()
 width, height = 800, 600
 screen = None
 
-# Load Roboto font
-try:
-    font = pygame.font.Font("assets/Roboto-Regular.ttf", 48)
-    small_font = pygame.font.Font("assets/Roboto-Regular.ttf", 20)
-    ai_font = pygame.font.Font("assets/Roboto-Regular.ttf", 16)
-except:
-    font = pygame.font.SysFont("arial", 48)
-    small_font = pygame.font.SysFont("arial", 20)
-    ai_font = pygame.font.SysFont("arial", 16)
+# Fonts will be loaded when display is initialized
+font = None
+small_font = None
+ai_font = None
 
 # Define colors
 background_color = (20, 20, 50)
@@ -78,9 +73,20 @@ class CulturalLegacyDisplay:
         if not self.display_initialized:
             pygame.init()
             pygame.mixer.init()
-            global screen
+            global screen, font, small_font, ai_font
             screen = pygame.display.set_mode((width, height))
             pygame.display.set_caption("Cultural Legacy Display - Roberto Villarreal Martinez")
+            
+            # Load fonts after Pygame is initialized
+            try:
+                font = pygame.font.Font("assets/Roboto-Regular.ttf", 48)
+                small_font = pygame.font.Font("assets/Roboto-Regular.ttf", 20)
+                ai_font = pygame.font.Font("assets/Roboto-Regular.ttf", 16)
+            except:
+                font = pygame.font.SysFont("arial", 48)
+                small_font = pygame.font.SysFont("arial", 20)
+                ai_font = pygame.font.SysFont("arial", 16)
+            
             self.clock = pygame.time.Clock()
             self.display_initialized = True
         
