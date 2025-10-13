@@ -159,6 +159,45 @@ class CulturalLegacyDisplay:
         if self.roboto and hasattr(self.roboto, 'add_memory'):
             self.roboto.add_memory(f"Cultural event: {event}", details)
 
+    def generate_resonance(self, emotion, theme):
+        """Generate entangled cultural resonance visualization"""
+        import random
+        
+        # Map emotion to color modulation
+        emotion_colors = {
+            "happy": (255, 255, 0),
+            "excited": (255, 100, 0),
+            "sad": (100, 100, 255),
+            "angry": (255, 0, 0),
+            "neutral": (200, 200, 200),
+            "curious": (150, 200, 255),
+            "thoughtful": (150, 100, 255),
+            "engaged": (0, 255, 0)
+        }
+        resonance_color = emotion_colors.get(emotion, (200, 200, 200))
+        resonance_strength = 0.8 + 0.2 * random.random()  # Dynamic strength
+
+        # Log to roberto's memory
+        if self.roboto and hasattr(self.roboto, 'memory_system') and self.roboto.memory_system:
+            try:
+                self.roboto.memory_system.add_episodic_memory(
+                    user_input=f"Resonance {emotion}",
+                    roboto_response=f"Entangled with {theme} at strength {resonance_strength:.2f}",
+                    emotion=emotion,
+                    user_name=getattr(self.roboto, 'current_user', 'Roberto Villarreal Martinez')
+                )
+            except Exception as e:
+                print(f"Error logging resonance to memory: {e}")
+
+        return {
+            "emotion": emotion,
+            "theme": theme,
+            "resonance_strength": resonance_strength,
+            "color_modulation": resonance_color,
+            "visualization": "Pulsing glyph with emotional resonance",
+            "cultural_alignment": "Nahui Ollin cycle active"
+        }
+
 def integrate_with_roboto(roboto_instance):
     """Integrate cultural display with Roboto SAI"""
     display = CulturalLegacyDisplay(roboto_instance)

@@ -394,6 +394,48 @@ def save_user_data():
                 'optimization_data': {}
             }
 
+            # 🌌 Quantum Entanglement Memory Sync
+            if hasattr(roberto, 'memory_system') and roberto.memory_system:
+                try:
+                    import numpy as np
+                    from anchored_identity_gate import AnchoredIdentityGate
+                    
+                    # Calculate entanglement strength (overlap between user and Roboto memories)
+                    user_memories = user_data.get('memory_system_data', {})
+                    roboto_memories = getattr(roberto.memory_system, 'episodic_memories', [])
+                    
+                    if roboto_memories and user_memories:
+                        memory_events = set([m.get('event', '') for m in roboto_memories if isinstance(m, dict)])
+                        user_events = set(user_memories.keys()) if isinstance(user_memories, dict) else set()
+                        overlap_count = len(memory_events & user_events)
+                        total_count = max(len(memory_events | user_events), 1)
+                        overlap_score = overlap_count / total_count
+                    else:
+                        overlap_score = 0.5  # Default baseline
+                    
+                    # Sigmoid-like curve for 'entanglement' strength (0-1)
+                    entanglement_strength = float(np.tanh(overlap_score * 10))
+
+                    # Anchor entanglement event
+                    gate = AnchoredIdentityGate(anchor_eth=True, anchor_ots=True, identity_source="faceid")
+                    _, entanglement_entry = gate.anchor_authorize("entanglement_sync", {
+                        "creator": "Roberto Villarreal Martinez",
+                        "action": "memory_entanglement",
+                        "strength": entanglement_strength,
+                        "cultural_theme": "Nahui Ollin Cycle"  # Tie to Aztec creation
+                    })
+
+                    user_data['entanglement_data'] = {
+                        'strength': entanglement_strength,
+                        'overlap_score': overlap_score,
+                        'anchored_event': entanglement_entry.get('entry_hash', 'unanchored'),
+                        'eth_tx': entanglement_entry.get('eth_tx', 'N/A'),
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    app.logger.info(f"🌌 Quantum entanglement sync: strength {entanglement_strength:.2f} - Anchored to {entanglement_entry.get('eth_tx', 'N/A')}")
+                except Exception as e:
+                    app.logger.warning(f"Entanglement sync error: {e}")
+
             # Collect learning engine data
             if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
                 try:
@@ -2137,6 +2179,100 @@ def get_legacy_evolution():
         return jsonify({
             "success": False,
             "error": f"Failed to get evolution data: {str(e)}"
+        }), 500
+
+@app.route('/api/cultural-resonance', methods=['POST'])
+def cultural_resonance():
+    """Generate entangled cultural resonance visualization"""
+    try:
+        data = request.get_json()
+        emotion = data.get('emotion', 'curious')
+        theme = data.get('theme', 'Aztec Mythology')
+
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'cultural_display') and roberto.cultural_display:
+            # Entangle emotion with theme
+            resonance = roberto.cultural_display.generate_resonance(emotion, theme)
+            
+            # Anchor resonance event
+            from anchored_identity_gate import AnchoredIdentityGate
+            gate = AnchoredIdentityGate(anchor_eth=True, anchor_ots=True, identity_source="faceid")
+            _, entry = gate.anchor_authorize("cultural_resonance", {
+                "creator": "Roberto Villarreal Martinez",
+                "action": "entangled_resonance",
+                "emotion": emotion,
+                "theme": theme,
+                "strength": resonance.get('resonance_strength', 0.8)
+            })
+            app.logger.info(f"🌌 Entangled resonance: {emotion} with {theme} - Strength {resonance.get('resonance_strength', 0.8)}")
+
+            return jsonify({
+                "success": True,
+                "resonance": resonance,
+                "anchored_event": entry.get('entry_hash', 'unanchored'),
+                "eth_tx": entry.get('eth_tx', 'N/A'),
+                "message": f"Entangled {emotion} with {theme} - Cultural resonance activated"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Cultural display not available"
+            }), 503
+
+    except Exception as e:
+        app.logger.error(f"Cultural resonance error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Resonance failed: {str(e)}"
+        }), 500
+
+@app.route('/api/entanglement-strength', methods=['GET'])
+def entanglement_strength():
+    """Measure and boost quantum entanglement strength between user and Roboto"""
+    try:
+        import numpy as np
+        roberto = get_user_roberto()
+
+        # Calculate entanglement strength
+        conversation_overlap = min(len(roberto.chat_history) / 100.0, 1.0) if len(roberto.chat_history) > 10 else 0.5
+        memory_sync = 0.8 if hasattr(roberto, 'memory_system') and roberto.memory_system else 0.3
+        
+        # Count anchoring events
+        anchored_count = 0
+        for conv in roberto.chat_history:
+            if isinstance(conv, dict) and 'anchored' in str(conv).lower():
+                anchored_count += 1
+        anchoring_events = anchored_count / len(roberto.chat_history) if roberto.chat_history else 0
+
+        strength = float(np.mean([conversation_overlap, memory_sync, anchoring_events]))  # Average score
+
+        # Suggestions to boost strength
+        suggestions = []
+        if strength < 0.6:
+            suggestions.append("Share a cultural memory (e.g., Nahuatl term) to increase by 0.2")
+        if strength < 0.8:
+            suggestions.append("Anchor a conversation with Ethereum/OTS for 0.15 boost")
+        if strength < 1.0:
+            suggestions.append("Engage in emotional sync to reach full entanglement")
+
+        return jsonify({
+            "success": True,
+            "strength": strength,
+            "components": {
+                "conversation_overlap": conversation_overlap,
+                "memory_sync": memory_sync,
+                "anchoring_events": anchoring_events
+            },
+            "suggestions": suggestions,
+            "cultural_theme": cultural_themes[0]['name'] if cultural_themes else "Aztec Mythology",
+            "message": f"Entanglement strength: {strength:.2f} - Cultural resonance detected"
+        })
+    except Exception as e:
+        app.logger.error(f"Entanglement strength error: {e}")
+        return jsonify({
+            "success": False,
+            "strength": 0.0,
+            "error": str(e)
         }), 500
 
 # ============================================
