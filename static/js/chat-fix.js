@@ -20,6 +20,25 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedVoiceIndex = parseInt(localStorage.getItem('selectedVoiceIndex') || '0');
     const ttsBtn = document.getElementById('ttsBtn');
     
+    // Update TTS status in UI
+    function updateTTSStatus(status) {
+        const ttsStatusEl = document.getElementById('ttsStatus');
+        if (ttsStatusEl) {
+            ttsStatusEl.textContent = status;
+            
+            // Update color based on status
+            if (status.includes('Ready') || status.includes('voices')) {
+                ttsStatusEl.className = 'text-success';
+            } else if (status.includes('Loading') || status.includes('Retrying')) {
+                ttsStatusEl.className = 'text-warning';
+            } else if (status.includes('Unavailable') || status.includes('Error')) {
+                ttsStatusEl.className = 'text-danger';
+            } else {
+                ttsStatusEl.className = 'text-muted';
+            }
+        }
+    }
+
     // Initialize speech synthesis for cross-browser compatibility
     function initializeTTS() {
         if ('speechSynthesis' in window) {
@@ -32,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (availableVoices.length > 0) {
                     createVoiceSelector();
                     showToast(`🎤 ${availableVoices.length} voices available for text-to-speech`, 'success');
+                    updateTTSStatus(`Ready (${availableVoices.length} voices)`);
+                } else {
+                    updateTTSStatus('Loading...');
                 }
             }
             
@@ -46,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.warn('Text-to-speech not supported in this browser');
             showToast('⚠️ Text-to-speech not supported in this browser', 'warning');
+            updateTTSStatus('Unavailable');
         }
     }
     
@@ -164,23 +187,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'synthesis-failed':
                         userMessage = '🔊 Speech synthesis failed. Using fallback voice...';
                         shouldRetry = true;
+                        updateTTSStatus('Retrying...');
                         break;
                     case 'synthesis-unavailable':
                         userMessage = '⚠️ Speech not available right now. Check your connection.';
+                        updateTTSStatus('Unavailable');
                         break;
                     case 'voice-unavailable':
                         userMessage = '🔄 Selected voice unavailable. Switching to default...';
                         shouldRetry = true;
+                        updateTTSStatus('Switching voice...');
                         break;
                     case 'audio-busy':
                         userMessage = '🔇 Audio system is busy. Please try again.';
+                        updateTTSStatus('Audio busy');
                         break;
                     case 'network':
                         userMessage = '📡 Network issue. Retrying speech...';
                         shouldRetry = true;
+                        updateTTSStatus('Network error');
                         break;
                     default:
                         userMessage = `⚠️ Speech unavailable (${event.error})`;
+                        updateTTSStatus('Error');
                 }
                 
                 showToast(userMessage, 'warning');
@@ -195,6 +224,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     fallbackUtterance.onerror = function(retryEvent) {
                         console.error('Fallback TTS also failed:', retryEvent.error);
                         showToast('❌ Text-to-speech unavailable', 'error');
+                        updateTTSStatus('Failed');
+                    };
+                    
+                    fallbackUtterance.onend = function() {
+                        updateTTSStatus(`Ready (${availableVoices.length} voices)`);
                     };
                     
                     speechSynthesis.speak(fallbackUtterance);

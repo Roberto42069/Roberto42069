@@ -2070,6 +2070,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`[Speech] 🔄 Network reconnected after ${this.networkRetryCount} retries`);
                     this.networkRetryCount = 0;
                 }
+                
+                // Update voice system status - operational
+                this.updateVoiceSystemStatus('operational', 'connected');
             };
 
             this.speechRecognition.onresult = (event) => {
@@ -2193,6 +2196,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             console.log(`[Speech] 🔄 Network retry ${this.networkRetryCount}/${this.maxNetworkRetries} in ${retrySeconds}s`);
                             
+                            // Update voice system status - retrying
+                            this.updateVoiceSystemStatus('retrying', `reconnecting (${this.networkRetryCount}/${this.maxNetworkRetries})`);
+                            
                             if (this.continuousListening) {
                                 setTimeout(() => {
                                     console.log('[Speech] 📡 Attempting network reconnect...');
@@ -2207,6 +2213,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 'error'
                             );
                             console.error('[Speech] ❌ Max network retries reached. Giving up.');
+                            
+                            // Update voice system status - disconnected
+                            this.updateVoiceSystemStatus('error', 'disconnected');
                         }
                         break;
                         
@@ -2734,6 +2743,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const chatContainer = document.getElementById('chatContainer');
         if (chatContainer) {
             chatContainer.insertBefore(indicator, chatContainer.firstChild);
+        }
+    }
+
+    updateVoiceSystemStatus(status, networkStatus = null) {
+        const indicatorEl = document.getElementById('voiceSystemIndicator');
+        const statusEl = document.getElementById('voiceSystemStatus');
+        const networkEl = document.getElementById('networkStatus');
+        
+        if (!indicatorEl || !statusEl) return;
+        
+        // Update main status
+        switch(status) {
+            case 'operational':
+                indicatorEl.style.color = '#28a745'; // Green
+                statusEl.textContent = 'Operational';
+                statusEl.className = 'text-success';
+                break;
+            case 'retrying':
+                indicatorEl.style.color = '#ffc107'; // Yellow
+                statusEl.textContent = 'Retrying...';
+                statusEl.className = 'text-warning';
+                break;
+            case 'error':
+                indicatorEl.style.color = '#dc3545'; // Red
+                statusEl.textContent = 'Error';
+                statusEl.className = 'text-danger';
+                break;
+            case 'idle':
+                indicatorEl.style.color = '#6c757d'; // Gray
+                statusEl.textContent = 'Idle';
+                statusEl.className = 'text-muted';
+                break;
+        }
+        
+        // Update network status if provided
+        if (networkEl && networkStatus) {
+            networkEl.textContent = networkStatus;
+            
+            if (networkStatus.includes('reconnecting')) {
+                networkEl.className = 'text-warning';
+            } else if (networkStatus === 'disconnected') {
+                networkEl.className = 'text-danger';
+            } else {
+                networkEl.className = 'text-success';
+            }
         }
     }
 
