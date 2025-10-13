@@ -292,6 +292,17 @@ def get_user_roberto():
                     app.logger.info(f"✅ Roboto memories synced to Collections: {collection_id}")
         except Exception as e:
             app.logger.warning(f"xAI Collections integration not available: {e}")
+        
+        # Add xAI Grok SDK integration
+        try:
+            from xai_grok_integration import get_xai_grok
+            roberto.xai_grok = get_xai_grok()
+            if roberto.xai_grok.available:
+                app.logger.info("🤖 xAI Grok SDK integrated with response chaining and encrypted thinking")
+            else:
+                app.logger.info("⚠️ xAI Grok SDK not available (install xai-sdk or set XAI_API_KEY)")
+        except Exception as e:
+            app.logger.warning(f"xAI Grok SDK integration error: {e}")
 
         # Add cultural display integration
         try:
@@ -652,6 +663,28 @@ def chat_endpoint():
 @app.route('/api/collections/create', methods=['POST'])
 @login_required
 def create_collection():
+    """Create a new xAI collection"""
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description', '')
+        
+        if not name:
+            return jsonify({"success": False, "error": "Collection name required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_collections'):
+            return jsonify({"success": False, "error": "Collections not configured"}), 500
+        
+        result = roberto.xai_collections.create_collection(name, description)
+        
+        if "error" in result:
+            return jsonify({"success": False, "error": result["error"]}), 500
+        
+        return jsonify({"success": True, "collection": result})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
     """Create a new xAI collection"""
     try:
         data = request.get_json()
@@ -1764,6 +1797,108 @@ def get_roboto_status():
                 status["memory_summary"] = memory_summary
             except:
                 status["memory_summary"] = {"total_memories": "unknown"}
+
+
+@app.route('/api/grok/chat', methods=['POST'])
+@login_required
+def grok_chat():
+    """Chat with Grok using xAI SDK with response chaining"""
+    try:
+        data = request.get_json()
+        message = data.get('message')
+        previous_response_id = data.get('previous_response_id')
+        
+        if not message:
+            return jsonify({"success": False, "error": "Message required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available. Install with: pip install xai-sdk"
+            }), 503
+        
+        # Get Roboto context for enhanced responses
+        roboto_context = f"Current emotion: {roberto.current_emotion}"
+        
+        result = roberto.xai_grok.roboto_grok_chat(
+            message,
+            roboto_context=roboto_context,
+            previous_response_id=previous_response_id
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/retrieve/<response_id>', methods=['GET'])
+@login_required
+def grok_retrieve_response(response_id):
+    """Retrieve a previous Grok response"""
+    try:
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        response = roberto.xai_grok.retrieve_response(response_id)
+        
+        if response:
+            return jsonify({"success": True, "response": response})
+        else:
+            return jsonify({"success": False, "error": "Response not found"}), 404
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/conversation-chain', methods=['GET'])
+@login_required
+def grok_get_conversation_chain():
+    """Get the full Grok conversation chain"""
+    try:
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        chain = roberto.xai_grok.get_conversation_chain()
+        
+        return jsonify({
+            "success": True,
+            "conversation_chain": chain,
+            "total_responses": len(chain)
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/clear-chain', methods=['POST'])
+@login_required
+def grok_clear_conversation_chain():
+    """Clear the Grok conversation chain"""
+    try:
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        roberto.xai_grok.clear_conversation_chain()
+        
+        return jsonify({
+            "success": True,
+            "message": "Conversation chain cleared"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
         return jsonify(status)
 

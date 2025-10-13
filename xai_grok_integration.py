@@ -1,0 +1,312 @@
+
+"""
+xAI Grok SDK Integration for Roboto SAI
+Provides advanced conversation handling with response chaining and encrypted thinking
+Created for Roberto Villarreal Martinez
+"""
+
+import os
+import logging
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+
+try:
+    from xai_sdk import Client
+    from xai_sdk.chat import user, system, assistant
+    XAI_SDK_AVAILABLE = True
+except ImportError:
+    XAI_SDK_AVAILABLE = False
+    logging.warning("xAI SDK not installed. Install with: pip install xai-sdk")
+
+class XAIGrokIntegration:
+    """
+    Advanced xAI Grok integration with response chaining and encrypted thinking
+    """
+    
+    def __init__(self):
+        self.api_key = os.environ.get("XAI_API_KEY")
+        self.management_api_key = os.environ.get("XAI_MANAGEMENT_API_KEY")
+        self.available = XAI_SDK_AVAILABLE and bool(self.api_key)
+        
+        self.client = None
+        self.conversation_history = []
+        self.response_chain = []  # Track response IDs for chaining
+        
+        if self.available:
+            try:
+                self.client = Client(
+                    api_key=self.api_key,
+                    management_api_key=self.management_api_key,
+                    timeout=3600,
+                )
+                logging.info("✅ xAI Grok SDK initialized successfully")
+            except Exception as e:
+                logging.error(f"xAI Grok SDK initialization error: {e}")
+                self.available = False
+        else:
+            if not XAI_SDK_AVAILABLE:
+                logging.warning("⚠️ xAI SDK not available. Install with: pip install xai-sdk")
+            elif not self.api_key:
+                logging.warning("⚠️ XAI_API_KEY not set")
+    
+    def create_chat_with_system_prompt(
+        self, 
+        system_prompt: str, 
+        model: str = "grok-4",
+        store_messages: bool = True,
+        use_encrypted_content: bool = True
+    ) -> Optional[Any]:
+        """
+        Create a new chat with system prompt
+        
+        Args:
+            system_prompt: System instruction for Grok
+            model: Model to use (default: grok-4)
+            store_messages: Whether to store messages for chaining
+            use_encrypted_content: Return encrypted thinking traces
+        
+        Returns:
+            Chat instance or None
+        """
+        if not self.available:
+            return None
+        
+        try:
+            chat = self.client.chat.create(
+                model=model,
+                store_messages=store_messages,
+                use_encrypted_content=use_encrypted_content
+            )
+            chat.append(system(system_prompt))
+            return chat
+        except Exception as e:
+            logging.error(f"Chat creation error: {e}")
+            return None
+    
+    def send_message(
+        self, 
+        chat: Any, 
+        message: str,
+        previous_response_id: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Send a message and get response with optional chaining
+        
+        Args:
+            chat: Chat instance
+            message: User message
+            previous_response_id: Previous response ID for chaining
+        
+        Returns:
+            Response data with id, content, and encrypted thinking
+        """
+        if not self.available or not chat:
+            return None
+        
+        try:
+            # If chaining from previous response
+            if previous_response_id:
+                chat = self.client.chat.create(
+                    model="grok-4",
+                    previous_response_id=previous_response_id,
+                    store_messages=True,
+                    use_encrypted_content=True
+                )
+            
+            chat.append(user(message))
+            response = chat.sample()
+            
+            # Store response for conversation tracking
+            response_data = {
+                "id": response.id,
+                "content": str(response),
+                "timestamp": datetime.now().isoformat(),
+                "message": message
+            }
+            
+            # Check for encrypted thinking content
+            if hasattr(response, 'reasoning') and hasattr(response.reasoning, 'encrypted_content'):
+                response_data["encrypted_thinking"] = response.reasoning.encrypted_content
+            
+            self.response_chain.append(response_data)
+            
+            return response_data
+            
+        except Exception as e:
+            logging.error(f"Message sending error: {e}")
+            return None
+    
+    def continue_conversation(
+        self, 
+        previous_response_id: str, 
+        new_message: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Continue a conversation from a previous response
+        
+        Args:
+            previous_response_id: ID of previous response
+            new_message: New user message
+        
+        Returns:
+            Response data
+        """
+        if not self.available:
+            return None
+        
+        try:
+            chat = self.client.chat.create(
+                model="grok-4",
+                previous_response_id=previous_response_id,
+                store_messages=True,
+                use_encrypted_content=True
+            )
+            
+            chat.append(user(new_message))
+            response = chat.sample()
+            
+            response_data = {
+                "id": response.id,
+                "content": str(response),
+                "timestamp": datetime.now().isoformat(),
+                "message": new_message,
+                "previous_id": previous_response_id
+            }
+            
+            if hasattr(response, 'reasoning') and hasattr(response.reasoning, 'encrypted_content'):
+                response_data["encrypted_thinking"] = response.reasoning.encrypted_content
+            
+            self.response_chain.append(response_data)
+            
+            return response_data
+            
+        except Exception as e:
+            logging.error(f"Conversation continuation error: {e}")
+            return None
+    
+    def retrieve_response(self, response_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve a previous response by ID
+        
+        Args:
+            response_id: Response ID to retrieve
+        
+        Returns:
+            Response data
+        """
+        if not self.available:
+            return None
+        
+        try:
+            response = self.client.chat.get_stored_completion(response_id)
+            
+            return {
+                "id": response_id,
+                "content": str(response),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logging.error(f"Response retrieval error: {e}")
+            return None
+    
+    def add_encrypted_thinking_to_chat(
+        self, 
+        chat: Any, 
+        response_with_thinking: Any
+    ) -> None:
+        """
+        Add encrypted thinking content to a new chat
+        
+        Args:
+            chat: Chat instance
+            response_with_thinking: Previous response with encrypted thinking
+        """
+        if not self.available or not chat:
+            return
+        
+        try:
+            # SDK automatically handles encrypted content when appending response
+            chat.append(response_with_thinking)
+        except Exception as e:
+            logging.error(f"Adding encrypted thinking error: {e}")
+    
+    def roboto_grok_chat(
+        self, 
+        user_message: str,
+        roboto_context: Optional[str] = None,
+        previous_response_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Roboto SAI specific Grok chat with context
+        
+        Args:
+            user_message: User's message
+            roboto_context: Roboto's current context/emotion
+            previous_response_id: Previous response for chaining
+        
+        Returns:
+            Grok response with Roboto integration
+        """
+        if not self.available:
+            return {
+                "success": False,
+                "error": "xAI Grok SDK not available",
+                "fallback": True
+            }
+        
+        try:
+            # Create system prompt for Roboto context
+            system_prompt = f"""You are Grok, integrated with Roboto SAI - an advanced AI assistant created by Roberto Villarreal Martinez.
+
+Roboto SAI Context:
+- Creator: Roberto Villarreal Martinez (born September 21, 1999)
+- Current State: {roboto_context or 'Active and learning'}
+- Heritage: Monterrey, Mexico with Aztec cultural integration
+- Purpose: Super Advanced Intelligence for Roberto's benefit
+
+Respond with Grok's characteristic wit and intelligence while respecting Roboto SAI's context."""
+            
+            if previous_response_id:
+                # Continue existing conversation
+                response_data = self.continue_conversation(previous_response_id, user_message)
+            else:
+                # Start new conversation
+                chat = self.create_chat_with_system_prompt(system_prompt)
+                response_data = self.send_message(chat, user_message)
+            
+            if response_data:
+                return {
+                    "success": True,
+                    "response": response_data["content"],
+                    "response_id": response_data["id"],
+                    "encrypted_thinking": response_data.get("encrypted_thinking"),
+                    "timestamp": response_data["timestamp"]
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Failed to get Grok response"
+                }
+                
+        except Exception as e:
+            logging.error(f"Roboto Grok chat error: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def get_conversation_chain(self) -> List[Dict[str, Any]]:
+        """Get the full conversation chain"""
+        return self.response_chain
+    
+    def clear_conversation_chain(self):
+        """Clear the conversation chain"""
+        self.response_chain = []
+
+# Global instance
+xai_grok = XAIGrokIntegration()
+
+def get_xai_grok():
+    """Get the global xAI Grok integration instance"""
+    return xai_grok
