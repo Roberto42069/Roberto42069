@@ -909,14 +909,9 @@ class Roboto:
                 print(f"⚠️ Advanced Emotion Simulator error: {e}")
                 # Fall through to standard emotion detection
         
-        # Standard emotion detection fallback🎭 Advanced emotion detected: {emotion_variation}")
-                    return
-                    
-            except Exception as e:
-                print(f"Advanced emotion detection error: {e}")
-                # Fall back to traditional method
-
-        # Traditional emotion detection (fallback)
+        # Standard emotion detection fallback
+        detected_emotions = []
+        message_lower = message.lower()
         for emotion, triggers in self.emotional_triggers.items():
             for trigger in triggers:
                 if trigger in message_lower:
