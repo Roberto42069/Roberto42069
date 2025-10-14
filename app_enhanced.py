@@ -658,7 +658,23 @@ def chat_endpoint():
             return jsonify({
                 "success": False,
                 "error": "Roboto system not available"
+            }), 500
 
+        # Generate response
+        response = roberto.generate_response(message)
+        
+        return jsonify({
+            "success": True,
+            "response": response,
+            "emotion": roberto.current_emotion if hasattr(roberto, 'current_emotion') else "neutral"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Chat error: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to process message"
+        }), 500
 
 @app.route('/api/collections/create', methods=['POST'])
 @login_required
@@ -726,6 +742,24 @@ def list_collections():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/chat_legacy', methods=['POST'])
+def chat_legacy():
+    """Legacy chat endpoint with quantum ritual support"""
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({
+                "success": False,
+                "error": "No message provided"
+            }), 400
+
+        message = data['message']
+        roberto = get_user_roberto()
+
+        if not roberto:
+            return jsonify({
+                "success": False,
+                "error": "Roboto system not available"
             }), 500
 
         # Process the chat message
@@ -1776,6 +1810,15 @@ def get_roboto_status():
             except:
                 status["memory_summary"] = {"total_memories": "unknown"}
 
+        return jsonify(status)
+        
+    except Exception as e:
+        app.logger.error(f"System status error: {e}")
+        return jsonify({
+            "success": False,
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 @app.route('/api/grok/chat', methods=['POST'])
 @login_required
