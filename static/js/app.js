@@ -55,6 +55,11 @@ class RobotoApp {
         // Initialize video stream reference
         this.currentVideoStream = null;
 
+        // Initialize smart polling state
+        this.isUserTyping = false;
+        this.typingTimeout = null;
+        this.emotionalPollingActive = true;
+
         // Start continuous speech recognition automatically if not muted and permissions granted
         setTimeout(() => {
             if (!this.isMuted && this.permissionsGranted) {
@@ -62,10 +67,13 @@ class RobotoApp {
             }
         }, 1000);
 
-        // Update emotional status periodically
+        // Update emotional status periodically - Real-time 3-second updates
         setInterval(() => {
-            this.loadEmotionalStatus();
-        }, 10000); // Every 10 seconds
+            // Smart polling: skip if user is actively typing
+            if (!this.isUserTyping && this.emotionalPollingActive) {
+                this.loadEmotionalStatus();
+            }
+        }, 3000); // Every 3 seconds for real-time feel
 
         // Detect if running on iPhone/mobile for optimized behavior
         this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -133,6 +141,22 @@ class RobotoApp {
                 e.preventDefault();
                 this.sendMessage();
             }
+        });
+
+        // Smart polling: Detect typing to pause emotion updates
+        const chatInput = document.getElementById('chatInput');
+        chatInput.addEventListener('input', () => {
+            this.isUserTyping = true;
+            
+            // Clear previous timeout
+            if (this.typingTimeout) {
+                clearTimeout(this.typingTimeout);
+            }
+            
+            // Resume polling 2 seconds after user stops typing
+            this.typingTimeout = setTimeout(() => {
+                this.isUserTyping = false;
+            }, 2000);
         });
 
         // Export data button
