@@ -27,39 +27,28 @@ class ComprehensiveMemorySystem:
             os.makedirs(directory, exist_ok=True)
 
     def create_comprehensive_backup(self, roboto_instance):
-        """Create multiple backup files across different systems"""
+        """Create multiple backup files across different systems with timeout protection"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backups_created = []
 
-        # 1. Main memory backup
-        main_backup = self.backup_main_memory(roboto_instance, timestamp)
-        if main_backup:
-            backups_created.append(main_backup)
+        # Prioritize critical backups first
+        backup_tasks = [
+            ("Roberto memory", lambda: self.backup_roberto_memory(roboto_instance, timestamp)),
+            ("Main memory", lambda: self.backup_main_memory(roboto_instance, timestamp)),
+            ("User profiles", lambda: self.backup_user_profiles(roboto_instance, timestamp)),
+            ("Emotional state", lambda: self.backup_emotional_state(roboto_instance, timestamp)),
+            ("Learning patterns", lambda: self.backup_learning_patterns(roboto_instance, timestamp)),
+            ("Conversations", lambda: self.backup_conversations(roboto_instance, timestamp)),
+        ]
 
-        # 2. Conversation archive
-        convo_backup = self.backup_conversations(roboto_instance, timestamp)
-        if convo_backup:
-            backups_created.append(convo_backup)
-
-        # 3. Emotional state snapshot
-        emotion_backup = self.backup_emotional_state(roboto_instance, timestamp)
-        if emotion_backup:
-            backups_created.append(emotion_backup)
-
-        # 4. Learning patterns checkpoint
-        learning_backup = self.backup_learning_patterns(roboto_instance, timestamp)
-        if learning_backup:
-            backups_created.append(learning_backup)
-
-        # 5. User profile backup
-        profile_backup = self.backup_user_profiles(roboto_instance, timestamp)
-        if profile_backup:
-            backups_created.append(profile_backup)
-
-        # 6. Roberto-specific permanent memory
-        roberto_backup = self.backup_roberto_memory(roboto_instance, timestamp)
-        if roberto_backup:
-            backups_created.append(roberto_backup)
+        for name, backup_fn in backup_tasks:
+            try:
+                backup_file = backup_fn()
+                if backup_file:
+                    backups_created.append(backup_file)
+            except Exception as e:
+                print(f"{name} backup failed: {e}")
+                continue
 
         return backups_created
 
@@ -81,36 +70,57 @@ class ComprehensiveMemorySystem:
         try:
             filepath = f"memory_backups/main_memory_{timestamp}.json"
 
+            # Limit chat history to prevent timeout
+            chat_history = getattr(roboto, 'chat_history', [])
+            limited_history = chat_history[-100:] if len(chat_history) > 100 else chat_history
+
             memory_data = {
                 "timestamp": datetime.now().isoformat(),
-                "chat_history": self._serialize_for_json(getattr(roboto, 'chat_history', [])),
+                "chat_history_count": len(chat_history),
+                "chat_history": self._serialize_for_json(limited_history),
                 "learned_patterns": self._serialize_for_json(getattr(roboto, 'learned_patterns', {})),
                 "user_preferences": self._serialize_for_json(getattr(roboto, 'user_preferences', {})),
-                "current_emotion": getattr(roboto, 'current_emotion', 'curious'),
-                "current_user": getattr(roboto, 'current_user', None)
+                "current_emotion": str(getattr(roboto, 'current_emotion', 'curious')),
+                "current_user": str(getattr(roboto, 'current_user', None)) if getattr(roboto, 'current_user', None) else None
             }
 
+            # Use faster serialization without indent for large data
             with open(filepath, 'w') as f:
-                json.dump(memory_data, f, indent=2, default=str)
+                json.dump(memory_data, f, default=str, ensure_ascii=False)
 
             return filepath
         except Exception as e:
             print(f"Main memory backup error: {e}")
-            return None
+            # Try minimal backup
+            try:
+                minimal_data = {
+                    "timestamp": datetime.now().isoformat(),
+                    "current_user": str(getattr(roboto, 'current_user', None)),
+                    "backup_status": "partial_failure"
+                }
+                with open(filepath, 'w') as f:
+                    json.dump(minimal_data, f)
+                return filepath
+            except:
+                return None
 
     def backup_conversations(self, roboto, timestamp):
-        """Backup all conversations"""
+        """Backup all conversations (limited to recent)"""
         try:
             filepath = f"conversation_archives/conversations_{timestamp}.json"
 
+            chat_history = getattr(roboto, 'chat_history', [])
+            # Only backup last 50 conversations to prevent timeout
+            recent_conversations = chat_history[-50:] if len(chat_history) > 50 else chat_history
+
             conversations = {
                 "timestamp": datetime.now().isoformat(),
-                "total_conversations": len(getattr(roboto, 'chat_history', [])),
-                "conversations": getattr(roboto, 'chat_history', [])
+                "total_conversations": len(chat_history),
+                "recent_conversations": recent_conversations
             }
 
             with open(filepath, 'w') as f:
-                json.dump(conversations, f, indent=2)
+                json.dump(conversations, f, default=str, ensure_ascii=False)
 
             return filepath
         except Exception as e:
@@ -172,25 +182,20 @@ class ComprehensiveMemorySystem:
 
             profiles = {
                 "timestamp": datetime.now().isoformat(),
-                "current_user": getattr(roboto, 'current_user', None),
-                "primary_user_profile": getattr(roboto, 'primary_user_profile', {})
+                "current_user": str(getattr(roboto, 'current_user', None)),
+                "primary_user_profile": self._serialize_for_json(getattr(roboto, 'primary_user_profile', {}))
             }
 
             # Add memory system user profiles if available
             if hasattr(roboto, 'memory_system') and roboto.memory_system:
-                # Convert any sets to lists for JSON serialization
-                user_profiles = dict(roboto.memory_system.user_profiles)
-                for key, value in user_profiles.items():
-                    if isinstance(value, dict):
-                        for k, v in value.items():
-                            if isinstance(v, set):
-                                value[k] = list(v)
-                    elif isinstance(value, set):
-                        user_profiles[key] = list(value)
-                profiles["user_profiles"] = user_profiles
+                try:
+                    profiles["user_profiles"] = self._serialize_for_json(dict(roboto.memory_system.user_profiles))
+                except Exception as e:
+                    print(f"User profiles serialization error: {e}")
+                    profiles["user_profiles"] = {}
 
             with open(filepath, 'w') as f:
-                json.dump(profiles, f, indent=2)
+                json.dump(profiles, f, default=str, ensure_ascii=False)
 
             return filepath
         except Exception as e:
