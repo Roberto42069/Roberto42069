@@ -1173,7 +1173,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 # Use X API (Grok) for AI completion with expanded context
                 response = self.ai_client.chat_completion(
                     messages=context_messages,
-                    model="grok-3",
+                    model="grok-beta",
                     max_tokens=max_tokens,  # Dynamic 8000+ context window
                     temperature=temperature
                 )
