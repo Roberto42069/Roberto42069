@@ -661,9 +661,15 @@ def chat_endpoint():
             }), 500
 
         response = roberto.chat(message)
+        
+        # Save user data after chat
+        save_user_data()
+        
         return jsonify({
             "success": True,
-            "response": response
+            "response": response,
+            "emotion": roberto.current_emotion,
+            "timestamp": datetime.now().isoformat()
         })
 
     except Exception as e:
@@ -679,6 +685,9 @@ def create_collection():
     """Create a new xAI collection"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+            
         name = data.get('name')
         description = data.get('description', '')
         
@@ -686,6 +695,9 @@ def create_collection():
             return jsonify({"success": False, "error": "Collection name required"}), 400
         
         roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({"success": False, "error": "Roboto system not available"}), 500
+            
         if not hasattr(roberto, 'xai_collections'):
             return jsonify({"success": False, "error": "Collections not configured"}), 500
         
@@ -1199,20 +1211,7 @@ def handle_file_upload():
         app.logger.error(f"File upload error: {e}")
         return jsonify({"error": "File upload failed"}), 500
 
-@app.route('/api/chat', methods=['POST'])
-@login_required
-def chat():
-    try:
-        data = request.get_json()
-        message = data.get('message', '').strip()
-
-        if not message:
-            return jsonify({"error": "No message provided"}), 400
-
-        roberto = get_user_roberto()
-
-        # Generate response using enhanced learning algorithms
-        response = roberto.chat(message)
+# Duplicate chat endpoint removed - using unified version above
 
         # Analyze conversation quality if learning systems are available
         conversation_quality = None
@@ -1764,6 +1763,9 @@ def grok_chat():
     """Chat with Grok using xAI SDK with response chaining and reasoning"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+            
         message = data.get('message')
         previous_response_id = data.get('previous_response_id')
         reasoning_effort = data.get('reasoning_effort')  # "low" or "high"
@@ -1779,6 +1781,9 @@ def grok_chat():
             }), 400
         
         roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({"success": False, "error": "Roboto system not available"}), 500
+            
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
@@ -2160,9 +2165,12 @@ def get_cultural_display_status():
         }), 500
 
 @app.route('/api/cultural-display/themes')
+@login_required
 def get_cultural_themes():
     """Get available cultural themes"""
     try:
+        roberto = get_user_roberto()
+        
         themes_data = {
             "success": True,
             "themes": [
@@ -2723,4 +2731,4 @@ def load_custom_personality():
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
