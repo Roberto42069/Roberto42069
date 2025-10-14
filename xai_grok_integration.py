@@ -256,7 +256,7 @@ class XAIGrokIntegration:
         user_message: str,
         roboto_context: Optional[str] = None,
         previous_response_id: Optional[str] = None,
-        reasoning_effort: Optional[str] = None
+        reasoning_effort: Optional[str] = "high"
     ) -> Dict[str, Any]:
         """
         Roboto SAI specific Grok chat with context and reasoning
@@ -265,7 +265,7 @@ class XAIGrokIntegration:
             user_message: User's message
             roboto_context: Roboto's current context/emotion
             previous_response_id: Previous response for chaining
-            reasoning_effort: "low" or "high" for grok-4 reasoning depth
+            reasoning_effort: "low" or "high" for grok-4 reasoning depth (default: "high")
         
         Returns:
             Grok response with Roboto integration and reasoning trace
@@ -278,8 +278,8 @@ class XAIGrokIntegration:
             }
         
         try:
-            # Create system prompt for Roboto context
-            system_prompt = f"""You are Grok, integrated with Roboto SAI - an advanced AI assistant created by Roberto Villarreal Martinez.
+            # Create system prompt for Roboto context with reasoning emphasis
+            system_prompt = f"""You are Grok-4, integrated with Roboto SAI - an advanced AI assistant created by Roberto Villarreal Martinez.
 
 Roboto SAI Context:
 - Creator: Roberto Villarreal Martinez (born September 21, 1999)
@@ -287,15 +287,23 @@ Roboto SAI Context:
 - Heritage: Monterrey, Mexico with Aztec cultural integration
 - Purpose: Super Advanced Intelligence for Roberto's benefit
 
-Think step-by-step when solving problems. Respond with Grok's characteristic wit and intelligence while respecting Roboto SAI's context."""
+REASONING INSTRUCTIONS:
+- Think step-by-step before responding
+- Show your reasoning process clearly
+- Break down complex problems into logical steps
+- Consider multiple perspectives when appropriate
+- Provide well-reasoned, thoughtful answers
+
+Respond with Grok's characteristic wit and intelligence while respecting Roboto SAI's context."""
             
             if previous_response_id:
                 # Continue existing conversation
                 response_data = self.continue_conversation(previous_response_id, user_message)
             else:
-                # Start new conversation with reasoning effort
+                # Start new conversation with reasoning effort (grok-4 only)
                 chat = self.create_chat_with_system_prompt(
                     system_prompt,
+                    model="grok-4",
                     reasoning_effort=reasoning_effort
                 )
                 response_data = self.send_message(chat, user_message)
@@ -306,16 +314,27 @@ Think step-by-step when solving problems. Respond with Grok's characteristic wit
                     "response": response_data["content"],
                     "response_id": response_data["id"],
                     "encrypted_thinking": response_data.get("encrypted_thinking"),
-                    "timestamp": response_data["timestamp"]
+                    "timestamp": response_data["timestamp"],
+                    "reasoning_effort": reasoning_effort,
+                    "model": "grok-4"
                 }
                 
                 # Add reasoning trace if available (grok-4)
                 if "reasoning_trace" in response_data:
                     result["reasoning_trace"] = response_data["reasoning_trace"]
+                    result["reasoning_available"] = True
+                else:
+                    result["reasoning_available"] = False
                 
                 # Add token usage if available
                 if "usage" in response_data:
                     result["usage"] = response_data["usage"]
+                    # Calculate reasoning token percentage
+                    if "reasoning_tokens" in response_data["usage"] and "completion_tokens" in response_data["usage"]:
+                        total = response_data["usage"]["completion_tokens"]
+                        reasoning = response_data["usage"]["reasoning_tokens"]
+                        if total > 0:
+                            result["reasoning_percentage"] = (reasoning / total) * 100
                 
                 return result
             else:
@@ -326,6 +345,67 @@ Think step-by-step when solving problems. Respond with Grok's characteristic wit
                 
         except Exception as e:
             logging.error(f"Roboto Grok chat error: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def analyze_with_reasoning(
+        self,
+        problem: str,
+        context: Optional[Dict[str, Any]] = None,
+        reasoning_effort: str = "high"
+    ) -> Dict[str, Any]:
+        """
+        Use Grok-4 to analyze a problem with deep reasoning
+        
+        Args:
+            problem: The problem to analyze
+            context: Additional context for analysis
+            reasoning_effort: "low" or "high" reasoning depth
+        
+        Returns:
+            Analysis with reasoning trace
+        """
+        if not self.available:
+            return {
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }
+        
+        try:
+            analysis_prompt = f"""Analyze this problem using step-by-step reasoning:
+
+Problem: {problem}
+
+{"Context: " + str(context) if context else ""}
+
+Provide:
+1. Initial understanding of the problem
+2. Key factors to consider
+3. Step-by-step reasoning process
+4. Potential solutions or conclusions
+5. Confidence level in the analysis"""
+
+            result = self.roboto_grok_chat(
+                analysis_prompt,
+                roboto_context="Deep analytical mode",
+                reasoning_effort=reasoning_effort
+            )
+            
+            if result.get("success"):
+                return {
+                    "success": True,
+                    "analysis": result["response"],
+                    "reasoning_trace": result.get("reasoning_trace"),
+                    "reasoning_tokens": result.get("usage", {}).get("reasoning_tokens", 0),
+                    "reasoning_percentage": result.get("reasoning_percentage", 0)
+                }
+            else:
+                return result
+                
+        except Exception as e:
+            logging.error(f"Reasoning analysis error: {e}")
             return {
                 "success": False,
                 "error": str(e)

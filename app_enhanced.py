@@ -1867,6 +1867,44 @@ def grok_clear_conversation_chain():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/grok/reasoning-analysis', methods=['POST'])
+@login_required
+def grok_reasoning_analysis():
+    """Analyze a problem using Grok-4's reasoning capabilities"""
+    try:
+        data = request.get_json()
+        problem = data.get('problem')
+        context = data.get('context')
+        reasoning_effort = data.get('reasoning_effort', 'high')
+        
+        if not problem:
+            return jsonify({"success": False, "error": "Problem statement required"}), 400
+        
+        # Validate reasoning_effort
+        if reasoning_effort not in ["low", "high"]:
+            return jsonify({
+                "success": False,
+                "error": "reasoning_effort must be 'low' or 'high'"
+            }), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available. Install with: pip install xai-sdk"
+            }), 503
+        
+        result = roberto.xai_grok.analyze_with_reasoning(
+            problem=problem,
+            context=context,
+            reasoning_effort=reasoning_effort
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
         return jsonify(status)
 
