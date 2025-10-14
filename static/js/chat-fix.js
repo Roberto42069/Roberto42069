@@ -922,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadMemoryInsights() {
         try {
-            const response = await fetch('/api/memory-insights');
+            const response = await fetch('/api/learning-insights');
             const data = await response.json();
             
             const memoryElement = document.getElementById('memoryInsights');
