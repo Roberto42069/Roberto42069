@@ -858,7 +858,54 @@ class Roboto:
         message_lower = message.lower()
         detected_emotions = []
 
-        # 🎭 Use Advanced Emotion Simulator if available
+        # 🌌💖 INTEGRATED EMOTIONAL INTELLIGENCE SYSTEM
+        # Priority 1: Quantum Emotional Intelligence (for Roberto-specific cues)
+        if hasattr(self, 'quantum_emotional_intelligence') and self.quantum_emotional_intelligence:
+            try:
+                # Process through quantum emotional intelligence
+                audio_emotions = None  # TODO: Extract from voice processing if available
+                quantum_response = self.quantum_emotional_intelligence.process_emotional_input(
+                    message, 
+                    audio_emotions=audio_emotions
+                )
+                
+                # Update shared emotional state across all systems
+                self.current_emotion = quantum_response["emotion"]
+                self.emotion_intensity = quantum_response["intensity"]
+                
+                # Update advanced emotion simulator if available
+                if hasattr(self, 'advanced_emotion_simulator') and self.advanced_emotion_simulator:
+                    self.advanced_emotion_simulator.current_emotion = self.current_emotion
+                
+                # Update learning engine emotional patterns
+                if hasattr(self, 'learning_engine') and self.learning_engine:
+                    if hasattr(self.learning_engine, '_update_emotional_patterns'):
+                        self.learning_engine._update_emotional_patterns(
+                            message, 
+                            f"Emotional response: {self.current_emotion}",
+                            self.emotion_intensity
+                        )
+                
+                # Add to unified emotional history
+                emotional_entry = {
+                    "emotion": quantum_response["emotion"],
+                    "intensity": quantum_response["intensity"],
+                    "quantum_amplified": quantum_response.get("quantum_amplified", False),
+                    "resonance_level": quantum_response.get("resonance_level", "GENTLE"),
+                    "context": message[:100],
+                    "timestamp": datetime.now().isoformat(),
+                    "system": "quantum_emotional_intelligence"
+                }
+                self.emotional_history.append(emotional_entry)
+                
+                print(f"🌌💖 Quantum Emotion: {quantum_response['display']} | Intensity: {quantum_response['intensity']:.0%}")
+                return
+                
+            except Exception as e:
+                print(f"⚠️ Quantum Emotional Intelligence error: {e}")
+                # Fall through to advanced emotion simulator
+
+        # Priority 2: Advanced Emotion Simulator (for complex emotion detection)
         if hasattr(self, 'advanced_emotion_simulator') and self.advanced_emotion_simulator:
             try:
                 # Determine intensity based on message characteristics
@@ -886,10 +933,15 @@ class Roboto:
                 
                 detected_emotion = self.advanced_emotion_simulator.get_current_emotion()
                 if detected_emotion:
-                    # Update emotional state with proper intensity mapping
+                    # Update shared emotional state
                     emotion_intensity = intensity / 10.0  # Convert to 0-1 scale
                     self.current_emotion = detected_emotion
                     self.emotion_intensity = emotion_intensity
+                    
+                    # Sync with quantum system if available
+                    if hasattr(self, 'quantum_emotional_intelligence') and self.quantum_emotional_intelligence:
+                        self.quantum_emotional_intelligence.current_emotion = self.current_emotion
+                        self.quantum_emotional_intelligence.emotion_intensity = self.emotion_intensity
                     
                     # Update emotional history with variation details
                     emotional_entry = {
@@ -898,7 +950,8 @@ class Roboto:
                         "intensity": emotion_intensity,
                         "context": message[:100],
                         "timestamp": datetime.now().isoformat(),
-                        "cultural_context": cultural_context
+                        "cultural_context": cultural_context,
+                        "system": "advanced_emotion_simulator"
                     }
                     self.emotional_history.append(emotional_entry)
                     
