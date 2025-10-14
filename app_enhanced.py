@@ -817,11 +817,28 @@ def get_emotional_status():
                 "emotional_context": "System initializing"
             })
 
-        # Get real emotion from quantum emotional intelligence system
+        # Get real emotion from advanced emotion simulator first
         real_emotion = roberto.current_emotion
         emotion_intensity = getattr(roberto, 'emotion_intensity', 0.5)
+        emotion_variation = None
 
-        # Check quantum emotions for more accurate state
+        # Check Advanced Emotion Simulator for most accurate state
+        if hasattr(roberto, 'advanced_emotion_simulator') and roberto.advanced_emotion_simulator:
+            try:
+                simulator_emotion = roberto.advanced_emotion_simulator.get_current_emotion()
+                if simulator_emotion:
+                    real_emotion = simulator_emotion
+                    
+                # Get emotion variation from emotional history if available
+                if hasattr(roberto, 'emotional_history') and roberto.emotional_history:
+                    last_emotion = roberto.emotional_history[-1]
+                    if isinstance(last_emotion, dict):
+                        emotion_variation = last_emotion.get('variation')
+                        emotion_intensity = last_emotion.get('intensity', emotion_intensity)
+            except Exception as e:
+                app.logger.warning(f"Advanced emotion simulator state error: {e}")
+
+        # Check quantum emotions for enhanced state
         if hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions:
             quantum_state = roberto.quantum_emotions.quantum_emotional_state
             if quantum_state:
@@ -851,7 +868,8 @@ def get_emotional_status():
                     emotion_probs = roberto.advanced_emotion_simulator.get_emotion_probabilities(last_message)
                     advanced_emotion_data = {
                         "emotion_probabilities": emotion_probs,
-                        "simulator_active": True
+                        "simulator_active": True,
+                        "current_variation": emotion_variation
                     }
             except Exception as e:
                 app.logger.warning(f"Advanced emotion data error: {e}")
@@ -861,6 +879,7 @@ def get_emotional_status():
             "emotion": real_emotion,
             "current_emotion": real_emotion,
             "emotion_intensity": emotion_intensity,
+            "emotion_variation": emotion_variation,
             "emotional_context": emotional_context,
             "quantum_enhanced": hasattr(roberto, 'quantum_emotions') and roberto.quantum_emotions is not None,
             "advanced_emotion": advanced_emotion_data

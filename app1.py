@@ -886,8 +886,30 @@ class Roboto:
                 
                 detected_emotion = self.advanced_emotion_simulator.get_current_emotion()
                 if detected_emotion:
-                    self.update_emotional_state(detected_emotion, message)
-                    print(f"🎭 Advanced emotion detected: {emotion_variation}")
+                    # Update emotional state with proper intensity mapping
+                    emotion_intensity = intensity / 10.0  # Convert to 0-1 scale
+                    self.current_emotion = detected_emotion
+                    self.emotion_intensity = emotion_intensity
+                    
+                    # Update emotional history with variation details
+                    emotional_entry = {
+                        "emotion": detected_emotion,
+                        "variation": emotion_variation,
+                        "intensity": emotion_intensity,
+                        "context": message[:100],
+                        "timestamp": datetime.now().isoformat(),
+                        "cultural_context": cultural_context
+                    }
+                    self.emotional_history.append(emotional_entry)
+                    
+                    print(f"🎭 Advanced Emotion: {emotion_variation} (intensity: {emotion_intensity:.2f})")
+                    return
+                    
+            except Exception as e:
+                print(f"⚠️ Advanced Emotion Simulator error: {e}")
+                # Fall through to standard emotion detection
+        
+        # Standard emotion detection fallback🎭 Advanced emotion detected: {emotion_variation}")
                     return
                     
             except Exception as e:

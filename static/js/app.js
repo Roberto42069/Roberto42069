@@ -664,11 +664,15 @@ class RobotoApp {
         const intensity = emotionalData.intensity || 0.5;
 
         // Update all emotion text displays
+        const emotionVariation = data.emotion_variation || newEmotion;
         const emotionText = `${newEmotion} (${Math.round(intensity * 100)}%)`;
+        const displayText = emotionVariation !== newEmotion ? emotionVariation : emotionText;
+        
         if (emotionElement) emotionElement.textContent = newEmotion;
-        if (avatarElement) avatarElement.textContent = emotionText;
+        if (avatarElement) avatarElement.textContent = displayText;
         if (headerEmotionElement) {
-            headerEmotionElement.textContent = emotionText;
+            headerEmotionElement.textContent = displayText;
+            headerEmotionElement.title = `Advanced Emotion: ${emotionVariation}`;
             // Add pulse animation on emotion change
             if (this.currentEmotion !== newEmotion) {
                 headerEmotionElement.style.animation = 'none';
@@ -677,7 +681,10 @@ class RobotoApp {
                 }, 10);
             }
         }
-        if (analyticsEmotionElement) analyticsEmotionElement.textContent = emotionText;
+        if (analyticsEmotionElement) {
+            analyticsEmotionElement.textContent = displayText;
+            analyticsEmotionElement.title = `Intensity: ${Math.round(intensity * 100)}%`;
+        }
 
         // Update current emotion for avatar
         this.currentEmotion = newEmotion;
