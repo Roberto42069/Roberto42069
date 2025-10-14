@@ -79,7 +79,7 @@ class XAPIClient:
         
         Args:
             messages: List of message dictionaries with 'role' and 'content'
-            model: Grok model to use (default: grok-beta)
+            model: Grok model to use (default: grok-2-1212, grok-3 recommended)
             max_tokens: Maximum tokens in response (default 8000, expandable to 32k)
             temperature: Sampling temperature
             
