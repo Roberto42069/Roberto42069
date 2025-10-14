@@ -423,41 +423,6 @@ Provide a detailed analysis with clear reasoning steps."""
             return {
                 "success": False,
                 "error": str(e)
-            } reasoning:
-
-Problem: {problem}
-
-{"Context: " + str(context) if context else ""}
-
-Provide:
-1. Initial understanding of the problem
-2. Key factors to consider
-3. Step-by-step reasoning process
-4. Potential solutions or conclusions
-5. Confidence level in the analysis"""
-
-            result = self.roboto_grok_chat(
-                analysis_prompt,
-                roboto_context="Deep analytical mode",
-                reasoning_effort=reasoning_effort
-            )
-            
-            if result.get("success"):
-                return {
-                    "success": True,
-                    "analysis": result["response"],
-                    "reasoning_trace": result.get("reasoning_trace"),
-                    "reasoning_tokens": result.get("usage", {}).get("reasoning_tokens", 0),
-                    "reasoning_percentage": result.get("reasoning_percentage", 0)
-                }
-            else:
-                return result
-                
-        except Exception as e:
-            logging.error(f"Reasoning analysis error: {e}")
-            return {
-                "success": False,
-                "error": str(e)
             }
     
     def get_conversation_chain(self) -> List[Dict[str, Any]]:
