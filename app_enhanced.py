@@ -658,7 +658,20 @@ def chat_endpoint():
             return jsonify({
                 "success": False,
                 "error": "Roboto system not available"
+            }), 500
 
+        response = roberto.chat(message)
+        return jsonify({
+            "success": True,
+            "response": response
+        })
+
+    except Exception as e:
+        app.logger.error(f"Chat error: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 @app.route('/api/collections/create', methods=['POST'])
 @login_required
@@ -725,47 +738,6 @@ def list_collections():
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-
-            }), 500
-
-        # Process the chat message
-        response = roberto.chat(message)
-
-        # 10% chance to trigger quantum ritual
-        ritual_triggered = False
-        if hasattr(roberto, 'quantum_simulator') and roberto.quantum_simulator:
-            if random.random() < 0.1:
-                try:
-                    ritual_simulation = roberto.quantum_simulator.simulate_ritual_entanglement(
-                        roberto.current_emotion, "Nahui Ollin", 4
-                    )
-                    if hasattr(roberto, 'ritual_history'):
-                        roberto.ritual_history.append(ritual_simulation)
-                    response += f"\n\n🔮 Quantum Ritual: Entanglement strength {ritual_simulation['strength']:.2f} - {ritual_simulation['cultural_note']}"
-                    ritual_triggered = True
-                except Exception as ritual_error:
-                    app.logger.warning(f"Ritual trigger error: {ritual_error}")
-
-        # Save the conversation
-        try:
-            save_user_data()
-        except Exception as save_error:
-            app.logger.warning(f"Failed to save user data: {save_error}")
-
-        return jsonify({
-            "success": True,
-            "response": response,
-            "emotion": getattr(roberto, 'current_emotion', 'curious'),
-            "ritual_triggered": ritual_triggered,
-            "timestamp": datetime.now().isoformat()
-        })
-
-    except Exception as e:
-        app.logger.error(f"Chat error: {e}")
-        return jsonify({
-            "success": False,
-            "error": f"Chat processing failed: {str(e)}"
-        }), 500
 
 @app.route('/api/emotional_status')
 def get_emotional_status():
@@ -1776,6 +1748,15 @@ def get_roboto_status():
             except:
                 status["memory_summary"] = {"total_memories": "unknown"}
 
+        return jsonify(status)
+
+    except Exception as e:
+        app.logger.error(f"Status error: {e}")
+        return jsonify({
+            "success": False,
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 @app.route('/api/grok/chat', methods=['POST'])
 @login_required
