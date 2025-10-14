@@ -664,14 +664,30 @@ class RobotoApp {
 
     async loadEmotionalStatus() {
         try {
+            // Show updating indicator
+            const headerEmotionElement = document.getElementById('currentEmotionHeader');
+            if (headerEmotionElement && this.currentEmotion) {
+                headerEmotionElement.style.opacity = '0.6';
+            }
+
             const response = await fetch('/api/emotional_status');
             const data = await response.json();
 
             if (data.success) {
                 this.updateEmotionalDisplay(data);
             }
+            
+            // Restore opacity after update
+            if (headerEmotionElement) {
+                headerEmotionElement.style.opacity = '1';
+            }
         } catch (error) {
             console.error('Error loading emotional status:', error);
+            // Restore opacity on error
+            const headerEmotionElement = document.getElementById('currentEmotionHeader');
+            if (headerEmotionElement) {
+                headerEmotionElement.style.opacity = '1';
+            }
         }
     }
 
@@ -688,7 +704,7 @@ class RobotoApp {
         const intensity = emotionalData.intensity || 0.5;
 
         // Update all emotion text displays
-        const emotionVariation = data.emotion_variation || newEmotion;
+        const emotionVariation = emotionalData.emotion_variation || newEmotion;
         const emotionText = `${newEmotion} (${Math.round(intensity * 100)}%)`;
         const displayText = emotionVariation !== newEmotion ? emotionVariation : emotionText;
         
