@@ -6,6 +6,7 @@ Integrates X's Grok AI as the main AI provider with bearer token authentication
 import os
 import requests
 import json
+import time
 from typing import List, Dict, Any, Optional
 
 class XAPIClient:
@@ -101,23 +102,55 @@ class XAPIClient:
         # Add any additional parameters
         payload.update(kwargs)
         
+        # Retry logic for transient network issues
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                # Make API request to Grok with extended timeout for Grok-4 reasoning
+                response = requests.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=self.headers,
+                    json=payload,
+                    timeout=180  # Increased to 3 minutes for Grok-4's deep reasoning
+                )
+                
+                # Check for errors
+                if response.status_code != 200:
+                    error_msg = f"X API error: {response.status_code} - {response.text}"
+                    if not self.silent:
+                        print(error_msg)
+                    raise Exception(error_msg)
+                
+                # Success - break out of retry loop
+                break
+                
+            except requests.exceptions.Timeout:
+                if attempt < max_retries - 1:
+                    if not self.silent:
+                        print(f"⚠️ Grok-4 request timed out (attempt {attempt + 1}/{max_retries}), retrying in {retry_delay}s...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    raise Exception("X API request timed out after multiple retries - Grok-4 may be under heavy load")
+            
+            except requests.exceptions.RequestException as e:
+                if attempt < max_retries - 1 and "timeout" in str(e).lower():
+                    if not self.silent:
+                        print(f"⚠️ Network error (attempt {attempt + 1}/{max_retries}), retrying...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                    continue
+                else:
+                    error_msg = f"X API request failed: {str(e)}"
+                    if not self.silent:
+                        print(error_msg)
+                    raise Exception(error_msg)
+        
+        # Parse response after successful request
         try:
-            # Make API request to Grok
-            response = requests.post(
-                f"{self.base_url}/chat/completions",
-                headers=self.headers,
-                json=payload,
-                timeout=30
-            )
-            
-            # Check for errors
-            if response.status_code != 200:
-                error_msg = f"X API error: {response.status_code} - {response.text}"
-                if not self.silent:
-                    print(error_msg)
-                raise Exception(error_msg)
-            
-            # Parse response
             result = response.json()
             
             # Format response to match OpenAI structure for compatibility
@@ -135,13 +168,8 @@ class XAPIClient:
             
             return formatted_response
             
-        except requests.exceptions.RequestException as e:
-            error_msg = f"X API request failed: {str(e)}"
-            if not self.silent:
-                print(error_msg)
-            raise Exception(error_msg)
         except Exception as e:
-            error_msg = f"X API error: {str(e)}"
+            error_msg = f"X API error parsing response: {str(e)}"
             if not self.silent:
                 print(error_msg)
             raise Exception(error_msg)
