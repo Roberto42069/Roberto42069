@@ -77,7 +77,7 @@ class ComprehensiveMemorySystem:
         return obj
 
     def backup_main_memory(self, roboto, timestamp):
-        """Backup main memory system"""
+        """Backup main memory data"""
         try:
             filepath = f"memory_backups/main_memory_{timestamp}.json"
 
