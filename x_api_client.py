@@ -69,7 +69,7 @@ class XAPIClient:
     def chat_completion(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "grok-beta",  # Using grok-beta for broader API key compatibility
+        model: str = "grok-4",  # Using grok-4 latest model
         max_tokens: int = 8000,  # 🚀 Expanded context window - no more cutoffs!
         temperature: float = 0.8,
         **kwargs
@@ -160,7 +160,7 @@ class XAPIClient:
             # Use shorter timeout for test to prevent initialization hangs
             payload = {
                 "messages": test_messages,
-                "model": "grok-beta",
+                "model": "grok-4",
                 "max_tokens": 10,
                 "temperature": 0.8,
                 "stream": False
