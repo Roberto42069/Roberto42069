@@ -527,7 +527,7 @@ class HyperSpeedOptimizer:
                 response = await asyncio.to_thread(
                     self.roboto.ai_client.chat_completion,
                     messages=messages,
-                    model="grok-2-1212",
+                    model="grok-beta",
                     temperature=0.7,
                     max_tokens=500
                 )
@@ -575,7 +575,7 @@ class HyperSpeedOptimizer:
                 response = await asyncio.to_thread(
                     self.roboto.ai_client.chat_completion,
                     messages=messages,
-                    model="grok-2-1212",
+                    model="grok-beta",
                     temperature=0.7,
                     max_tokens=500
                 )
@@ -607,7 +607,7 @@ class HyperSpeedOptimizer:
                     response = await asyncio.to_thread(
                         self.roboto.ai_client.chat_completion,
                         messages=messages,
-                        model="grok-2-1212",
+                        model="grok-beta",
                         temperature=0.7,
                         max_tokens=500
                     )
