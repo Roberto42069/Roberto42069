@@ -92,10 +92,10 @@ try:
             try:
                 # Import all models first
                 from models import User, UserData, OAuth, IntegrationSettings, SpotifyActivity, ConversationSession, MemoryEntry, RateLimitTracker, SecurityAuditLog, UserSession
-                
+
                 # Create all tables
                 db.create_all()
-                
+
                 # Verify critical tables exist
                 from sqlalchemy import inspect
                 inspector = inspect(db.engine)
@@ -280,13 +280,13 @@ def get_user_roberto():
                 app.logger.info("🚀 Performance: 10x speed improvement enabled")
             except Exception as e:
                 app.logger.warning(f"HyperSpeed optimization not available: {e}")
-        
+
         # Add xAI Collections integration
         try:
             from xai_collections_integration import get_xai_collections
             roberto.xai_collections = get_xai_collections()
             app.logger.info("📚 xAI Collections integration initialized")
-            
+
             # Optionally integrate with memory system
             if os.environ.get("XAI_API_KEY") or os.environ.get("X_API_KEY"):
                 collection_id = roberto.xai_collections.integrate_with_roboto_memory(roberto)
@@ -294,7 +294,7 @@ def get_user_roberto():
                     app.logger.info(f"✅ Roboto memories synced to Collections: {collection_id}")
         except Exception as e:
             app.logger.warning(f"xAI Collections integration not available: {e}")
-        
+
         # Add xAI Grok SDK integration
         try:
             from xai_grok_integration import get_xai_grok
@@ -396,7 +396,7 @@ def save_user_data():
                         app.logger.info(f"✅ Created {len(backup_files)} memory backup files")
                 except Exception as e:
                     app.logger.error(f"Async backup error: {e}")
-            
+
             # Start backup in background thread
             backup_thread = threading.Thread(target=async_backup, daemon=True)
             backup_thread.start()
@@ -672,7 +672,7 @@ def chat_endpoint():
             }), 500
 
         response = roberto.chat(message)
-        
+
         # Analyze conversation quality if learning systems are available
         conversation_quality = None
         if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
@@ -710,7 +710,7 @@ def chat_endpoint():
 
         # Save user data after chat
         save_user_data()
-        
+
         response_data = {
             "success": True,
             "response": response,
@@ -740,27 +740,27 @@ def create_collection():
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "error": "No data provided"}), 400
-            
+
         name = data.get('name')
         description = data.get('description', '')
-        
+
         if not name:
             return jsonify({"success": False, "error": "Collection name required"}), 400
-        
+
         roberto = get_user_roberto()
         if not roberto:
             return jsonify({"success": False, "error": "Roboto system not available"}), 500
-            
+
         if not hasattr(roberto, 'xai_collections'):
             return jsonify({"success": False, "error": "Collections not configured"}), 500
-        
+
         result = roberto.xai_collections.create_collection(name, description)
-        
+
         if "error" in result:
             return jsonify({"success": False, "error": result["error"]}), 500
-        
+
         return jsonify({"success": True, "collection": result})
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -773,18 +773,18 @@ def semantic_search():
         query = data.get('query')
         collection_ids = data.get('collection_ids')
         limit = data.get('limit', 5)
-        
+
         if not query:
             return jsonify({"success": False, "error": "Search query required"}), 400
-        
+
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_collections'):
             return jsonify({"success": False, "error": "Collections not configured"}), 500
-        
+
         results = roberto.xai_collections.semantic_search(query, collection_ids, limit)
-        
+
         return jsonify({"success": True, "results": results})
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -796,11 +796,11 @@ def list_collections():
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_collections'):
             return jsonify({"success": False, "error": "Collections not configured"}), 500
-        
+
         collections = roberto.xai_collections.list_collections()
-        
+
         return jsonify({"success": True, "collections": collections})
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -828,7 +828,7 @@ def get_emotional_status():
                 simulator_emotion = roberto.advanced_emotion_simulator.get_current_emotion()
                 if simulator_emotion:
                     real_emotion = simulator_emotion
-                    
+
                 # Get emotion variation from emotional history if available
                 if hasattr(roberto, 'emotional_history') and roberto.emotional_history:
                     last_emotion = roberto.emotional_history[-1]
@@ -863,7 +863,7 @@ def get_emotional_status():
                 if hasattr(roberto, 'chat_history') and roberto.chat_history:
                     last_entry = roberto.chat_history[-1]
                     last_message = last_entry.get('message', '')
-                
+
                 if last_message:
                     emotion_probs = roberto.advanced_emotion_simulator.get_emotion_probabilities(last_message)
                     advanced_emotion_data = {
@@ -1382,7 +1382,7 @@ def handle_memory_analysis_request(content, context):
             })
         else:
             # Fallback to direct memory analysis
-            relevant_memories = roberto.memory_system.retrieve_relevant_memories(content, limit=10)
+            relevant_memories = roberto.memory_system.retrieve_relevant_memories(content, roberto.current_user, limit=10)
 
             return jsonify({
                 "success": True,
@@ -1778,43 +1778,43 @@ def grok_chat():
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "error": "No data provided"}), 400
-            
+
         message = data.get('message')
         previous_response_id = data.get('previous_response_id')
         reasoning_effort = data.get('reasoning_effort')  # "low" or "high"
-        
+
         if not message:
             return jsonify({"success": False, "error": "Message required"}), 400
-        
+
         # Validate reasoning_effort if provided
         if reasoning_effort and reasoning_effort not in ["low", "high"]:
             return jsonify({
-                "success": False, 
+                "success": False,
                 "error": "reasoning_effort must be 'low' or 'high'"
             }), 400
-        
+
         roberto = get_user_roberto()
         if not roberto:
             return jsonify({"success": False, "error": "Roboto system not available"}), 500
-            
+
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
                 "error": "xAI Grok SDK not available. Install with: pip install xai-sdk"
             }), 503
-        
+
         # Get Roboto context for enhanced responses
         roboto_context = f"Current emotion: {roberto.current_emotion}"
-        
+
         result = roberto.xai_grok.roboto_grok_chat(
             message,
             roboto_context=roboto_context,
             previous_response_id=previous_response_id,
             reasoning_effort=reasoning_effort
         )
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1829,14 +1829,14 @@ def grok_retrieve_response(response_id):
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         response = roberto.xai_grok.retrieve_response(response_id)
-        
+
         if response:
             return jsonify({"success": True, "response": response})
         else:
             return jsonify({"success": False, "error": "Response not found"}), 404
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1851,15 +1851,15 @@ def grok_get_conversation_chain():
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         chain = roberto.xai_grok.get_conversation_chain()
-        
+
         return jsonify({
             "success": True,
             "conversation_chain": chain,
             "total_responses": len(chain)
         })
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1874,14 +1874,14 @@ def grok_clear_conversation_chain():
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         roberto.xai_grok.clear_conversation_chain()
-        
+
         return jsonify({
             "success": True,
             "message": "Conversation chain cleared"
         })
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -1894,32 +1894,32 @@ def grok_reasoning_analysis():
         problem = data.get('problem')
         context = data.get('context')
         reasoning_effort = data.get('reasoning_effort', 'high')
-        
+
         if not problem:
             return jsonify({"success": False, "error": "Problem statement required"}), 400
-        
+
         # Validate reasoning_effort
         if reasoning_effort not in ["low", "high"]:
             return jsonify({
                 "success": False,
                 "error": "reasoning_effort must be 'low' or 'high'"
             }), 400
-        
+
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
                 "error": "xAI Grok SDK not available. Install with: pip install xai-sdk"
             }), 503
-        
+
         result = roberto.xai_grok.analyze_with_reasoning(
             problem=problem,
             context=context,
             reasoning_effort=reasoning_effort
         )
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -2183,7 +2183,7 @@ def get_cultural_themes():
     """Get available cultural themes"""
     try:
         roberto = get_user_roberto()
-        
+
         themes_data = {
             "success": True,
             "themes": [
@@ -2589,7 +2589,7 @@ def entanglement_strength():
                 "anchoring_events": anchoring_events
             },
             "suggestions": suggestions,
-            "cultural_theme": cultural_themes[0]['name'] if cultural_themes else "Aztec Mythology",
+            "cultural_theme": cultural_themes[0]['name'] if 'cultural_themes' in locals() and cultural_themes else "Aztec Mythology",
             "message": f"Entanglement strength: {strength:.2f} - Cultural resonance detected"
         })
     except Exception as e:
@@ -2687,7 +2687,7 @@ def save_custom_personality():
     """Save custom personality prompt (max 3000 characters, permanent)"""
     try:
         from models import UserData
-        
+
         data = request.get_json()
         personality_text = data.get('personality', '').strip()
 
@@ -2727,7 +2727,7 @@ def load_custom_personality():
     """Load custom personality prompt"""
     try:
         from models import UserData
-        
+
         user_data = UserData.query.filter_by(user_id=current_user.id).first()
 
         if user_data and user_data.custom_personality:
