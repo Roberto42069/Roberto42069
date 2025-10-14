@@ -324,7 +324,7 @@ Respond with Grok's characteristic wit and intelligence while respecting Roboto 
                     result["reasoning_trace"] = response_data["reasoning_trace"]
                     result["reasoning_available"] = True
                 else:
-                    result["reasoning_available"] = False"] = False
+                    result["reasoning_available"] = False
                 
                 # Add token usage if available
                 if "usage" in response_data:

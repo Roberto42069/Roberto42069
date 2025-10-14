@@ -386,11 +386,20 @@ def save_user_data():
     """Save current Roboto state with enhanced learning data"""
     try:
         if roberto:
-            # Create comprehensive backups across multiple files
-            from comprehensive_memory_system import create_all_backups
-            backup_files = create_all_backups(roberto)
-            if backup_files:
-                app.logger.info(f"✅ Created {len(backup_files)} memory backup files")
+            # Create comprehensive backups asynchronously to prevent timeout
+            import threading
+            def async_backup():
+                try:
+                    from comprehensive_memory_system import create_all_backups
+                    backup_files = create_all_backups(roberto)
+                    if backup_files:
+                        app.logger.info(f"✅ Created {len(backup_files)} memory backup files")
+                except Exception as e:
+                    app.logger.error(f"Async backup error: {e}")
+            
+            # Start backup in background thread
+            backup_thread = threading.Thread(target=async_backup, daemon=True)
+            backup_thread.start()
 
             # Prepare comprehensive user data
             user_data = {

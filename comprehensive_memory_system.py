@@ -63,6 +63,19 @@ class ComprehensiveMemorySystem:
 
         return backups_created
 
+    def _serialize_for_json(self, obj):
+        """Convert non-serializable objects to JSON-compatible format"""
+        if isinstance(obj, set):
+            return list(obj)
+        elif isinstance(obj, dict):
+            return {k: self._serialize_for_json(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._serialize_for_json(item) for item in obj]
+        elif hasattr(obj, '__dict__'):
+            # Handle custom objects
+            return str(obj)
+        return obj
+
     def backup_main_memory(self, roboto, timestamp):
         """Backup main memory system"""
         try:
@@ -70,15 +83,15 @@ class ComprehensiveMemorySystem:
 
             memory_data = {
                 "timestamp": datetime.now().isoformat(),
-                "chat_history": getattr(roboto, 'chat_history', []),
-                "learned_patterns": getattr(roboto, 'learned_patterns', {}),
-                "user_preferences": getattr(roboto, 'user_preferences', {}),
+                "chat_history": self._serialize_for_json(getattr(roboto, 'chat_history', [])),
+                "learned_patterns": self._serialize_for_json(getattr(roboto, 'learned_patterns', {})),
+                "user_preferences": self._serialize_for_json(getattr(roboto, 'user_preferences', {})),
                 "current_emotion": getattr(roboto, 'current_emotion', 'curious'),
                 "current_user": getattr(roboto, 'current_user', None)
             }
 
             with open(filepath, 'w') as f:
-                json.dump(memory_data, f, indent=2)
+                json.dump(memory_data, f, indent=2, default=str)
 
             return filepath
         except Exception as e:
@@ -135,17 +148,17 @@ class ComprehensiveMemorySystem:
 
             learning_data = {
                 "timestamp": datetime.now().isoformat(),
-                "learned_patterns": getattr(roboto, 'learned_patterns', {}),
-                "user_preferences": getattr(roboto, 'user_preferences', {})
+                "learned_patterns": self._serialize_for_json(getattr(roboto, 'learned_patterns', {})),
+                "user_preferences": self._serialize_for_json(getattr(roboto, 'user_preferences', {}))
             }
 
             # Add advanced learning engine data if available
             if hasattr(roboto, 'learning_engine') and roboto.learning_engine:
-                learning_data["conversation_patterns"] = dict(getattr(roboto.learning_engine, 'conversation_patterns', {}))
-                learning_data["topic_expertise"] = dict(getattr(roboto.learning_engine, 'topic_expertise', {}))
+                learning_data["conversation_patterns"] = self._serialize_for_json(dict(getattr(roboto.learning_engine, 'conversation_patterns', {})))
+                learning_data["topic_expertise"] = self._serialize_for_json(dict(getattr(roboto.learning_engine, 'topic_expertise', {})))
 
             with open(filepath, 'w') as f:
-                json.dump(learning_data, f, indent=2)
+                json.dump(learning_data, f, indent=2, default=str)
 
             return filepath
         except Exception as e:
