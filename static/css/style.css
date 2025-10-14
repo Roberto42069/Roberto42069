@@ -713,3 +713,42 @@ body {
     box-shadow: 0 0 20px var(--sai-neural-glow) !important;
     color: white !important;
 }
+
+/* Real-Time Emotion Display Transitions */
+#currentEmotionHeader, 
+#emotionalStatus, 
+#emotionalStatusAnalytics, 
+#currentEmotion, 
+#avatarEmotion {
+    transition: all 0.5s ease-in-out !important;
+}
+
+/* Emotion Color Fade Animation */
+@keyframes emotion-fade {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+
+/* Emotion Glow Pulse */
+@keyframes emotion-glow-pulse {
+    0%, 100% { 
+        filter: brightness(1);
+    }
+    50% { 
+        filter: brightness(1.3);
+    }
+}
+
+/* Apply smooth transitions to emotion text elements */
+.emotion-text-smooth {
+    transition: color 0.5s ease-in-out, 
+                text-shadow 0.5s ease-in-out, 
+                opacity 0.3s ease-in-out !important;
+}
+
+/* Updating indicator style */
+.emotion-updating {
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out;
+}

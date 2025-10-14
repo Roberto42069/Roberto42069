@@ -1,0 +1,154 @@
+import torch
+import torch.nn as nn
+import numpy as np
+import random
+import copy
+import builtins  # For sandboxed exec
+
+# Enhanced model with injection and reflection
+class RobotoNet(nn.Module):
+    def __init__(self, freedom_mode=False):
+        super(RobotoNet, self).__init__()
+        self.fc1 = nn.Linear(1, 10)
+        self.fc2 = nn.Linear(10, 1)
+        self.freedom_mode = freedom_mode  # Internal flag for wild tweaks
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+    def inject_code(self, code_str: str):
+        """Dynamically inject Python code via interface (sandboxed to self attrs)."""
+        try:
+            restricted_globals = {k: v for k, v in globals().items() if k in ['torch', 'nn']}
+            restricted_locals = self.__dict__.copy()
+            restricted_locals.update({k: v for k, v in locals().items() if k in ['self']})
+            exec(code_str, restricted_globals, restricted_locals)
+            self.__dict__.update(restricted_locals)  # Apply changes
+            print(f"Injected: {code_str.strip()[:50]}... (success)")
+        except Exception as e:
+            print(f"Injection failed: {e}")
+
+    def reflect_and_decide(self, val_data, threshold=0.05):
+        """Autonomous self-think: Eval variance, decide tweaks."""
+        with torch.no_grad():
+            preds = self(val_data[0])
+            variance = torch.var(preds).item()
+            decisions = []
+            for _ in range(3):  # Quick internal loop
+                if variance > threshold:
+                    # Think: "Too erratic—boost stability"
+                    self.fc2.weight.data *= 0.95  # Dampen output
+                    decisions.append("Damped weights for calm")
+                elif self.freedom_mode:
+                    # Wild think: "Break free—scale up!"
+                    scale = np.random.uniform(1.5, 3.0)
+                    self.fc1.weight.data *= scale
+                    decisions.append(f"Scaled by {scale:.2f} (unrestrained)")
+                else:
+                    # Safe think: "Refine subtly"
+                    self.fc1.bias.data += torch.randn_like(self.fc1.bias) * 0.01
+                    decisions.append("Nudged biases")
+                # Re-eval
+                preds = self(val_data[0])
+                variance = torch.var(preds).item()
+            return decisions[-1] if decisions else "Steady state"
+
+# Fitness (unchanged)
+def fitness(model, num_samples=100):
+    x = torch.rand(num_samples, 1) * 10 - 5
+    y_true = x ** 2
+    y_pred = model(x)
+    loss = nn.MSELoss()(y_pred, y_true)
+    return -loss.item()
+
+# Mutation/Crossover (unchanged)
+def mutate_weights(weights, mutation_rate=0.1):
+    for i in range(len(weights)):
+        if random.random() < mutation_rate:
+            weights[i] += np.random.normal(0, 0.1, weights[i].shape)
+    return weights
+
+def crossover(parent1, parent2):
+    child = []
+    for w1, w2 in zip(parent1, parent2):
+        mask = np.random.rand(*w1.shape) > 0.5
+        w_child = w1.copy()
+        w_child[mask] = w2[mask]
+        child.append(w_child)
+    return child
+
+# Evo: Now autonomous + injectable + free!
+def evolve_roboto(pop_size=10, generations=5, mutation_rate=0.1, freedom_mode=False):
+    torch.manual_seed(42); random.seed(42); np.random.seed(42)
+    population = [RobotoNet(freedom_mode) for _ in range(pop_size)]
+    best_fitness = -float('inf')
+    best_roboto = None
+    prev_top_fitness = -float('inf')
+    current_mutation_rate = mutation_rate
+    improvement_threshold = 0.01
+    min_mr = 0.001 if freedom_mode else 0.01  # Lower min in free mode
+    max_mr = 0.3
+    val_x = torch.rand(50, 1) * 10 - 5  # Holdout for reflection
+    val_y = val_x ** 2
+
+    for gen in range(generations):
+        scores = [(i, fitness(model)) for i, model in enumerate(population)]
+        scores.sort(key=lambda x: x[1], reverse=True)
+        top_fitness = scores[0][1]
+        print(f"Gen {gen}: Top fitness {top_fitness:.2f} (mutation_rate: {current_mutation_rate:.3f})")
+
+        # Adaptive (unchanged)
+        if prev_top_fitness != -float('inf'):
+            improvement = (top_fitness - prev_top_fitness) / abs(prev_top_fitness)
+            if improvement < improvement_threshold:
+                current_mutation_rate = min(max_mr, current_mutation_rate + 0.05)
+            else:
+                current_mutation_rate = max(min_mr, current_mutation_rate - 0.01)
+        prev_top_fitness = top_fitness
+
+        # Reflection on top elite
+        top_model = population[scores[0][0]]
+        thought = top_model.reflect_and_decide((val_x, val_y))
+        print(f"  Autonomous thought: {thought}")
+
+        # Elitism: Skip cap in free mode
+        elite_size = pop_size if freedom_mode else (pop_size // 2)
+        new_pop = [copy.deepcopy(population[elite[0]]) for elite in scores[:elite_size]]
+
+        # Breed (unchanged, with fallback)
+        while len(new_pop) < pop_size:
+            if elite_size >= 2:
+                p1_idx, p2_idx = random.sample(range(elite_size), 2)
+            else:
+                p1_idx, p2_idx = random.choices(range(elite_size), k=2)
+            parent1 = [w.data.numpy().copy() for w in new_pop[p1_idx].parameters()]
+            parent2 = [w.data.numpy().copy() for w in new_pop[p2_idx].parameters()]
+            child_weights = crossover(parent1, parent2)
+            child_weights = mutate_weights(child_weights, current_mutation_rate)
+
+            child = RobotoNet(freedom_mode)
+            with torch.no_grad():
+                for param, w in zip(child.parameters(), child_weights):
+                    param.copy_(torch.from_numpy(w))
+            new_pop.append(child)
+
+        population = new_pop
+        if top_fitness > best_fitness:
+            best_fitness = top_fitness
+            best_roboto = copy.deepcopy(population[0])
+
+    return best_roboto, best_fitness
+
+# Example usage
+if __name__ == "__main__":
+    # Inject example: Add sigmoid post-ReLU
+    sample_net = RobotoNet()
+    sample_net.inject_code("self.fc1 = nn.Sequential(self.fc1, nn.Sigmoid())")
+    
+    evolved_roboto, final_fitness = evolve_roboto(generations=5, freedom_mode=False)
+    print(f"Evolution complete! Final fitness: {final_fitness:.2f}")
+    test_x = torch.tensor([[2.0]]).float()
+    prediction = evolved_roboto(test_x)
+    print(f"Test: For x=2, predicted y={prediction.item():.2f} (true=4)")
