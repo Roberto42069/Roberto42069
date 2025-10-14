@@ -23,6 +23,11 @@ class User(db.Model):
 
     # Relationship to user data
     user_data = db.relationship('UserData', back_populates='user', uselist=False, cascade='all, delete-orphan')
+    
+    @property
+    def roboto_data(self):
+        """Alias for backward compatibility"""
+        return self.user_data
 
     def __repr__(self):
         return f'<User {self.username}>'

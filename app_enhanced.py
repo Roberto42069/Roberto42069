@@ -90,14 +90,16 @@ try:
 
         with app.app_context():
             try:
+                # Import all models first
+                from models import User, UserData, OAuth, IntegrationSettings, SpotifyActivity, ConversationSession, MemoryEntry, RateLimitTracker, SecurityAuditLog, UserSession
+                
+                # Create all tables
                 db.create_all()
+                
                 # Verify critical tables exist
                 from sqlalchemy import inspect
                 inspector = inspect(db.engine)
                 tables = inspector.get_table_names()
-                if 'oauth_tokens' not in tables:
-                    app.logger.warning("oauth_tokens table missing, recreating...")
-                    db.create_all()
                 app.logger.info(f"Database initialized successfully with tables: {', '.join(tables)}")
             except Exception as db_error:
                 app.logger.error(f"Database table creation error: {db_error}")
@@ -2656,6 +2658,8 @@ def github_create_repo():
 def save_custom_personality():
     """Save custom personality prompt (max 3000 characters, permanent)"""
     try:
+        from models import UserData
+        
         data = request.get_json()
         personality_text = data.get('personality', '').strip()
 
@@ -2694,6 +2698,8 @@ def save_custom_personality():
 def load_custom_personality():
     """Load custom personality prompt"""
     try:
+        from models import UserData
+        
         user_data = UserData.query.filter_by(user_id=current_user.id).first()
 
         if user_data and user_data.custom_personality:
