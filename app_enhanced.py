@@ -944,6 +944,94 @@ def get_voice_insights():
             "insights": "Voice optimization in progress"
         })
 
+@app.route('/api/learning-insights')
+def get_learning_insights():
+    """Get comprehensive learning insights"""
+    try:
+        roberto = get_user_roberto()
+        if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
+            insights_data = roberto.learning_engine.get_learning_insights()
+            
+            # Generate user-friendly summary
+            user_insights = []
+            
+            # Performance metrics
+            if insights_data.get('status') != 'insufficient_data':
+                metrics = insights_data.get('performance_metrics', {})
+                if metrics.get('avg_effectiveness', 0) > 0.8:
+                    user_insights.append("Excellent learning performance")
+                elif metrics.get('avg_effectiveness', 0) > 0.6:
+                    user_insights.append("Good learning progress")
+                else:
+                    user_insights.append("Continuous learning active")
+                
+                # Top patterns
+                top_patterns = insights_data.get('top_conversation_patterns', [])
+                if top_patterns:
+                    user_insights.append(f"Mastered {len(top_patterns)} conversation patterns")
+                
+                # Topic strengths
+                topics = insights_data.get('topic_strengths', [])
+                if topics:
+                    user_insights.append(f"Strong in {len(topics)} topic areas")
+            else:
+                user_insights.append("Building learning foundation")
+            
+            return jsonify({
+                "success": True,
+                "insights": " • ".join(user_insights),
+                "detailed_insights": insights_data
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "insights": "Learning system initializing"
+            })
+    except Exception as e:
+        app.logger.error(f"Learning insights error: {e}")
+        return jsonify({
+            "success": False,
+            "insights": "Learning analysis in progress"
+        })
+
+@app.route('/api/personal-profile')
+def get_personal_profile():
+    """Get personal profile information"""
+    try:
+        roberto = get_user_roberto()
+        profile_info = []
+        
+        # User name
+        current_user = getattr(roberto, 'current_user', 'User')
+        profile_info.append(f"Active user: {current_user}")
+        
+        # Emotion state
+        emotion = getattr(roberto, 'current_emotion', 'curious')
+        profile_info.append(f"Current emotion: {emotion}")
+        
+        # Conversation count
+        chat_count = len(getattr(roberto, 'chat_history', []))
+        profile_info.append(f"Conversations: {chat_count}")
+        
+        # Voice optimization status
+        if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
+            profile_info.append("Voice optimization: Active")
+        
+        # Learning status
+        if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
+            profile_info.append("Advanced learning: Active")
+        
+        return jsonify({
+            "success": True,
+            "profile": " • ".join(profile_info)
+        })
+    except Exception as e:
+        app.logger.error(f"Personal profile error: {e}")
+        return jsonify({
+            "success": False,
+            "profile": "Profile loading"
+        })
+
 @app.route('/api/voice-optimization', methods=['POST'])
 def optimize_voice():
     try:
