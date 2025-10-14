@@ -31,6 +31,8 @@ class XAICollectionsManager:
         """
         Create a new collection with optional auto-embedding
         
+        NOTE: xAI API does not support collections. This is a placeholder for future functionality.
+        
         Args:
             name: Collection name
             description: Collection description
@@ -39,44 +41,9 @@ class XAICollectionsManager:
         Returns:
             Collection metadata
         """
-        if not self.api_key:
-            return {"error": "XAI_API_KEY not configured"}
-        
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "name": name,
-            "description": description,
-            "auto_embed": auto_embed,
-            "metadata": {
-                "created_by": "Roboto SAI",
-                "creator": "Roberto Villarreal Martinez",
-                "timestamp": datetime.now().isoformat()
-            }
-        }
-        
-        try:
-            response = requests.post(
-                f"{self.base_url}/collections",
-                headers=headers,
-                json=payload
-            )
-            
-            if response.status_code == 200:
-                collection_data = response.json()
-                self.collections[collection_data['id']] = collection_data
-                logging.info(f"✅ Created collection: {name}")
-                return collection_data
-            else:
-                logging.error(f"Failed to create collection: {response.text}")
-                return {"error": response.text}
-                
-        except Exception as e:
-            logging.error(f"Collection creation error: {e}")
-            return {"error": str(e)}
+        # xAI API does not support collections - skip this functionality
+        logging.info(f"ℹ️ Collection creation skipped: xAI API does not support collections API")
+        return {"error": "xAI API does not support collections", "skipped": True}
     
     def upload_file(self, collection_id: str, file_path: str, metadata: Optional[Dict] = None) -> Dict[str, Any]:
         """
@@ -278,52 +245,11 @@ class XAICollectionsManager:
         """
         Integrate Collections with Roboto's memory system
         Upload important memories and enable semantic search
+        
+        NOTE: xAI API does not support collections API. This functionality is disabled.
         """
-        try:
-            # Create a collection for Roboto's memories
-            memory_collection = self.create_collection(
-                name="Roboto_SAI_Memories",
-                description="Roberto Villarreal Martinez's conversations and knowledge base",
-                auto_embed=True
-            )
-            
-            if "error" in memory_collection:
-                logging.error(f"Failed to create memory collection: {memory_collection['error']}")
-                return
-            
-            collection_id = memory_collection['id']
-            
-            # Export important memories to files
-            if hasattr(roboto_instance, 'memory_system') and roboto_instance.memory_system:
-                important_memories = [
-                    m for m in roboto_instance.memory_system.episodic_memories
-                    if m.get('importance', 0) > 0.7
-                ]
-                
-                # Create a memory export file
-                memory_file = "roboto_important_memories.json"
-                with open(memory_file, 'w') as f:
-                    json.dump(important_memories, f, indent=2)
-                
-                # Upload to collection
-                upload_result = self.upload_file(
-                    collection_id=collection_id,
-                    file_path=memory_file,
-                    metadata={
-                        "type": "episodic_memories",
-                        "count": len(important_memories),
-                        "creator": "Roberto Villarreal Martinez"
-                    }
-                )
-                
-                if "error" not in upload_result:
-                    logging.info(f"✅ Uploaded {len(important_memories)} important memories to Collections")
-                
-            return collection_id
-            
-        except Exception as e:
-            logging.error(f"Memory integration error: {e}")
-            return None
+        logging.info("ℹ️ xAI Collections integration skipped: API does not support collections")
+        return None
 
 # Global instance
 xai_collections = XAICollectionsManager()
