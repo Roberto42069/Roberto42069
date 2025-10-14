@@ -77,14 +77,14 @@ class HyperSpeedOptimizer:
         self.roboto = roboto_instance
         self.metrics = PerformanceMetrics()
 
-        # Initialize thread/process pools for parallel operations
-        self.thread_pool = ThreadPoolExecutor(max_workers=10)
-        self.process_pool = ProcessPoolExecutor(max_workers=4)
+        # Initialize thread/process pools for parallel operations (optimized for memory)
+        self.thread_pool = ThreadPoolExecutor(max_workers=4)
+        self.process_pool = ProcessPoolExecutor(max_workers=2)
 
-        # Redis-style in-memory caching
-        self.memory_cache = LRUMemoryCache(max_size=10000)
-        self.response_cache = ResponseCache(max_size=5000)
-        self.embedding_cache = EmbeddingCache(max_size=3000)
+        # Redis-style in-memory caching (optimized sizes to prevent OOM)
+        self.memory_cache = LRUMemoryCache(max_size=2000)
+        self.response_cache = ResponseCache(max_size=1000)
+        self.embedding_cache = EmbeddingCache(max_size=500)
 
         # Predictive pre-fetching system
         self.predictive_fetcher = PredictiveFetcher(self)
@@ -119,9 +119,9 @@ class HyperSpeedOptimizer:
         self._start_background_optimizers()
 
         logging.info("⚡ HyperSpeed Optimization Engine initialized!")
-        logging.info(f"🔧 Thread pool: {10} workers")
-        logging.info(f"⚙️ Process pool: {4} workers")
-        logging.info(f"💾 Memory cache: {10000} max entries")
+        logging.info(f"🔧 Thread pool: {4} workers")
+        logging.info(f"⚙️ Process pool: {2} workers")
+        logging.info(f"💾 Memory cache: {2000} max entries")
         logging.info(f"🎯 Predictive fetching: ENABLED")
 
     def _start_background_optimizers(self):
