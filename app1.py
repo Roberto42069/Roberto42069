@@ -119,7 +119,9 @@ class Roboto:
             self.training_engine = MemoryTrainingEngine(self.memory_system)
             self.training_engine.load_training_data()
 
-            self.learning_engine = AdvancedLearningEngine()
+            # 🌌💖 Pass quantum emotional intelligence to learning engine for unified state
+            quantum_ei = self.quantum_emotions if hasattr(self, 'quantum_emotions') else None
+            self.learning_engine = AdvancedLearningEngine(quantum_emotional_intelligence=quantum_ei)
             self.learning_optimizer = LearningOptimizer()
             self.voice_optimizer = VoiceOptimizer("Roberto Villarreal Martinez")
             self.advanced_voice_processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
@@ -860,11 +862,11 @@ class Roboto:
 
         # 🌌💖 INTEGRATED EMOTIONAL INTELLIGENCE SYSTEM
         # Priority 1: Quantum Emotional Intelligence (for Roberto-specific cues)
-        if hasattr(self, 'quantum_emotional_intelligence') and self.quantum_emotional_intelligence:
+        if hasattr(self, 'quantum_emotions') and self.quantum_emotions:
             try:
                 # Process through quantum emotional intelligence
                 audio_emotions = None  # TODO: Extract from voice processing if available
-                quantum_response = self.quantum_emotional_intelligence.process_emotional_input(
+                quantum_response = self.quantum_emotions.process_emotional_input(
                     message, 
                     audio_emotions=audio_emotions
                 )
@@ -939,9 +941,9 @@ class Roboto:
                     self.emotion_intensity = emotion_intensity
                     
                     # Sync with quantum system if available
-                    if hasattr(self, 'quantum_emotional_intelligence') and self.quantum_emotional_intelligence:
-                        self.quantum_emotional_intelligence.current_emotion = self.current_emotion
-                        self.quantum_emotional_intelligence.emotion_intensity = self.emotion_intensity
+                    if hasattr(self, 'quantum_emotions') and self.quantum_emotions:
+                        self.quantum_emotions.current_emotion = self.current_emotion
+                        self.quantum_emotions.emotion_intensity = self.emotion_intensity
                     
                     # Update emotional history with variation details
                     emotional_entry = {
