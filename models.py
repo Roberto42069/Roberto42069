@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Text, DateTime, Boolean, Integer
+from sqlalchemy import String, Integer, Text, DateTime, Boolean, JSON
+from flask_login import UserMixin
 from datetime import datetime
 import json
 
@@ -21,7 +22,7 @@ class User(db.Model):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Relationship to user data
-    roboto_data = db.relationship('UserData', backref='user', uselist=False, cascade='all, delete-orphan')
+    user_data = db.relationship('UserData', back_populates='user', uselist=False, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -38,28 +39,31 @@ class User(db.Model):
         return str(self.id)
 
 class UserData(db.Model):
-    __tablename__ = 'roboto_user_data'
+    __tablename__ = 'user_data'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
 
     # Roboto conversation data
-    chat_history = db.Column(db.JSON, default=lambda: [])
-    learned_patterns = db.Column(db.JSON, default=lambda: {})
-    user_preferences = db.Column(db.JSON, default=lambda: {})
-    emotional_history = db.Column(db.JSON, default=lambda: [])
-    memory_system_data = db.Column(db.JSON, default=lambda: {})
+    chat_history = db.Column(JSON, default=lambda: [])
+    learned_patterns = db.Column(JSON, default=lambda: {})
+    user_preferences = db.Column(JSON, default=lambda: {})
+    emotional_history = db.Column(JSON, default=lambda: [])
+    memory_system_data = db.Column(JSON, default=lambda: {})
 
     # Current state
     current_emotion: Mapped[str] = mapped_column(String(50), default='curious')
     current_user_name: Mapped[str] = mapped_column(String(100), nullable=True)
-    
+
     # Custom personality (max 3000 characters, permanent)
-    custom_personality: Mapped[str] = mapped_column(db.Text, nullable=True)
+    custom_personality: Mapped[str] = mapped_column(Text, nullable=True)
 
     # Metadata with different names to avoid conflict
     data_created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     data_updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationship to user
+    user = db.relationship('User', back_populates='user_data')
 
     def __repr__(self):
         return f'<UserData for User {self.user_id}>'
@@ -112,67 +116,67 @@ class IntegrationSettings(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
     integration_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    
+
     is_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     settings_data = db.Column(db.JSON, default=lambda: {})
-    
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_sync: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    
+
     def __repr__(self):
         return f'<IntegrationSettings {self.integration_type} for User {self.user_id}>'
 
 class SpotifyActivity(db.Model):
     __tablename__ = 'spotify_activity'
-    
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
-    
+
     track_name: Mapped[str] = mapped_column(String(200), nullable=True)
     artist_name: Mapped[str] = mapped_column(String(200), nullable=True)
     album_name: Mapped[str] = mapped_column(String(200), nullable=True)
     track_uri: Mapped[str] = mapped_column(String(200), nullable=True)
-    
+
     played_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     duration_ms: Mapped[int] = mapped_column(Integer, nullable=True)
-    
+
     activity_data = db.Column(db.JSON, default=lambda: {})
-    
+
     def __repr__(self):
         return f'<SpotifyActivity {self.track_name} by {self.artist_name}>'
 
 class OAuth(db.Model):
     __tablename__ = 'oauth_tokens'
-    
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(String(100), nullable=False)
     browser_session_key: Mapped[str] = mapped_column(String(200), nullable=False)
     provider: Mapped[str] = mapped_column(String(50), nullable=False)
     token = db.Column(db.JSON, nullable=False)
-    
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     def __repr__(self):
         return f'<OAuth {self.provider} for User {self.user_id}>'
 
 class RateLimitTracker(db.Model):
     __tablename__ = 'rate_limit_tracker'
-    
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     identifier: Mapped[str] = mapped_column(String(200), nullable=False)
     endpoint: Mapped[str] = mapped_column(String(200), nullable=False)
     request_count: Mapped[int] = mapped_column(Integer, default=0)
     window_start: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
-    
+
     def __repr__(self):
         return f'<RateLimitTracker {self.identifier}:{self.endpoint}>'
 
 class SecurityAuditLog(db.Model):
     __tablename__ = 'security_audit_logs'
-    
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[str] = mapped_column(String(100), nullable=True)
     event_type: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -181,13 +185,13 @@ class SecurityAuditLog(db.Model):
     details = db.Column(db.JSON, default=lambda: {})
     risk_level: Mapped[str] = mapped_column(String(20), default='low')
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    
+
     def __repr__(self):
         return f'<SecurityAuditLog {self.event_type} - {self.risk_level}>'
 
 class UserSession(db.Model):
     __tablename__ = 'user_sessions'
-    
+
     id: Mapped[str] = mapped_column(String(100), primary_key=True)
     user_id: Mapped[str] = mapped_column(String(100), nullable=False)
     session_token: Mapped[str] = mapped_column(String(256), nullable=False)
@@ -196,7 +200,7 @@ class UserSession(db.Model):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    
+
     def __repr__(self):
         return f'<UserSession {self.id} for User {self.user_id}>'
 

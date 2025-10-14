@@ -662,18 +662,60 @@ def chat_endpoint():
 
         response = roberto.chat(message)
         
+        # Analyze conversation quality if learning systems are available
+        conversation_quality = None
+        if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
+            try:
+                quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
+                    message, response,
+                    user_emotion=getattr(roberto, 'detected_user_emotion', None),
+                    context_length=len(roberto.chat_history)
+                )
+                conversation_quality = quality_analysis
+
+                # Update learning metrics
+                roberto.learning_optimizer.update_learning_metrics({
+                    'user_input': message,
+                    'roboto_response': response,
+                    'quality_analysis': quality_analysis,
+                    'emotion': roberto.current_emotion,
+                    'timestamp': datetime.now().isoformat()
+                })
+            except Exception as e:
+                app.logger.warning(f"Learning analysis error: {e}")
+
+        # Store interaction in memory system
+        memory_id = None
+        try:
+            if hasattr(roberto, 'memory_system') and roberto.memory_system and response:
+                memory_id = roberto.memory_system.add_episodic_memory(
+                    user_input=message,
+                    roboto_response=response,
+                    emotion=roberto.current_emotion,
+                    user_name=roberto.current_user
+                )
+        except Exception as memory_error:
+            app.logger.warning(f"Failed to store interaction in memory system: {memory_error}")
+
         # Save user data after chat
         save_user_data()
         
-        return jsonify({
+        response_data = {
             "success": True,
             "response": response,
             "emotion": roberto.current_emotion,
+            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
             "timestamp": datetime.now().isoformat()
-        })
+        }
+
+        if conversation_quality:
+            response_data["quality_score"] = conversation_quality.get("overall_quality", 0.5)
+
+        return jsonify(response_data)
 
     except Exception as e:
         app.logger.error(f"Chat error: {e}")
+        app.logger.error(traceback.format_exc())
         return jsonify({
             "success": False,
             "error": str(e)
@@ -1211,66 +1253,7 @@ def handle_file_upload():
         app.logger.error(f"File upload error: {e}")
         return jsonify({"error": "File upload failed"}), 500
 
-# Duplicate chat endpoint removed - using unified version above
 
-        # Analyze conversation quality if learning systems are available
-        conversation_quality = None
-
-        if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
-            try:
-                quality_analysis = roberto.learning_optimizer.analyze_conversation_quality(
-                    message, response,
-                    user_emotion=getattr(roberto, 'detected_user_emotion', None),
-                    context_length=len(roberto.chat_history)
-                )
-                conversation_quality = quality_analysis
-
-                # Update learning metrics
-                roberto.learning_optimizer.update_learning_metrics({
-                    'user_input': message,
-                    'roboto_response': response,
-                    'quality_analysis': quality_analysis,
-                    'emotion': roberto.current_emotion,
-                    'timestamp': datetime.now().isoformat()
-                })
-            except Exception as e:
-                app.logger.warning(f"Learning analysis error: {e}")
-
-        # Store interaction in memory system
-        memory_id = None
-        try:
-            if hasattr(roberto, 'memory_system') and roberto.memory_system and response:
-                memory_id = roberto.memory_system.add_episodic_memory(
-                    user_input=message,
-                    roboto_response=response,
-                    emotion=roberto.current_emotion,
-                    user_name=roberto.current_user
-                )
-        except Exception as memory_error:
-            app.logger.warning(f"Failed to store interaction in memory system: {memory_error}")
-
-        # Save user data periodically
-        save_user_data()
-
-        response_data = {
-            "success": True,
-            "response": response,
-            "emotion": roberto.current_emotion,
-            "emotion_intensity": getattr(roberto, 'emotion_intensity', 0.5),
-            "timestamp": datetime.now().isoformat()
-        }
-
-        if conversation_quality:
-            response_data["quality_score"] = conversation_quality.get("overall_quality", 0.5)
-
-        return jsonify(response_data)
-
-    except Exception as e:
-        app.logger.error(f"Chat error: {e}")
-        app.logger.error(traceback.format_exc())
-        return jsonify({"error": "An error occurred while processing your message"}), 500
-
-# Duplicate route removed - using the one defined later in the file
 
 @app.route('/api/roboto-request', methods=['POST'])
 def handle_roboto_request():
