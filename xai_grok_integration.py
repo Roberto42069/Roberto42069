@@ -324,7 +324,7 @@ Respond with Grok's characteristic wit and intelligence while respecting Roboto 
                     result["reasoning_trace"] = response_data["reasoning_trace"]
                     result["reasoning_available"] = True
                 else:
-                    result["reasoning_available"] = False
+                    result["reasoning_available"] = False"] = False
                 
                 # Add token usage if available
                 if "usage" in response_data:
@@ -375,6 +375,55 @@ Respond with Grok's characteristic wit and intelligence while respecting Roboto 
         
         try:
             analysis_prompt = f"""Analyze this problem using step-by-step reasoning:
+
+Problem: {problem}
+
+{f'Context: {json.dumps(context)}' if context else ''}
+
+Provide a detailed analysis with clear reasoning steps."""
+            
+            system_prompt = "You are an advanced reasoning AI using Grok-4's step-by-step thinking capabilities. Break down complex problems into clear, logical steps."
+            
+            chat = self.create_chat_with_system_prompt(
+                system_prompt,
+                model="grok-4",
+                reasoning_effort=reasoning_effort
+            )
+            
+            response_data = self.send_message(chat, analysis_prompt)
+            
+            if response_data:
+                result = {
+                    "success": True,
+                    "analysis": response_data["content"],
+                    "response_id": response_data["id"],
+                    "reasoning_effort": reasoning_effort,
+                    "model": "grok-4"
+                }
+                
+                if "reasoning_trace" in response_data:
+                    result["reasoning_trace"] = response_data["reasoning_trace"]
+                    result["reasoning_steps"] = len(response_data["reasoning_trace"])
+                
+                if "encrypted_thinking" in response_data:
+                    result["encrypted_thinking"] = response_data["encrypted_thinking"]
+                
+                if "usage" in response_data:
+                    result["usage"] = response_data["usage"]
+                
+                return result
+            else:
+                return {
+                    "success": False,
+                    "error": "Failed to get analysis from Grok"
+                }
+                
+        except Exception as e:
+            logging.error(f"Grok reasoning analysis error: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            } reasoning:
 
 Problem: {problem}
 

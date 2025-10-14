@@ -324,7 +324,7 @@ class Roboto:
             "transformative": ["transform", "evolve", "change", "reshape", "reinvent"]
         }
 
-        # Initialize AI client - Prefer X API (Grok) as main provider
+        # Initialize AI client - Prefer X API (Grok-4) as main provider
         # Silent initialization to avoid console clutter
         try:
             from x_api_client import get_x_api_client
@@ -334,9 +334,9 @@ class Roboto:
             # Connection will be tested on first use
             if self.x_api_client.available:
                 self.ai_client = self.x_api_client
-                self.ai_provider = "X_API"
+                self.ai_provider = "X_API_GROK4"
                 # Only show success message if X API is working
-                print("✅ X API (Grok) initialized as AI provider")
+                print("✅ X API (Grok-4) initialized as AI provider")
             else:
                 # Silently fallback to OpenAI if X API not available or invalid
                 # No warning messages to avoid clutter

@@ -69,8 +69,8 @@ class XAPIClient:
     def chat_completion(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "grok-4",  # Using grok-4 latest model
-        max_tokens: int = 8000,  # 🚀 Expanded context window - no more cutoffs!
+        model: str = "grok-4",  # ✅ Using Grok-4 for advanced reasoning
+        max_tokens: int = 8000,
         temperature: float = 0.8,
         **kwargs
     ) -> Dict[str, Any]:
