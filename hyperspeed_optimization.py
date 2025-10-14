@@ -77,14 +77,18 @@ class HyperSpeedOptimizer:
         self.roboto = roboto_instance
         self.metrics = PerformanceMetrics()
 
-        # Initialize thread/process pools for parallel operations (optimized for memory)
-        self.thread_pool = ThreadPoolExecutor(max_workers=4)
-        self.process_pool = ProcessPoolExecutor(max_workers=2)
+        # Initialize thread/process pools for parallel operations (enhanced performance)
+        self.thread_pool = ThreadPoolExecutor(max_workers=16)
+        self.process_pool = ProcessPoolExecutor(max_workers=8)
 
-        # Redis-style in-memory caching (optimized sizes to prevent OOM)
-        self.memory_cache = LRUMemoryCache(max_size=2000)
-        self.response_cache = ResponseCache(max_size=1000)
-        self.embedding_cache = EmbeddingCache(max_size=500)
+        # Redis-style in-memory caching (expanded storage)
+        self.memory_cache = LRUMemoryCache(max_size=20000)
+        self.response_cache = ResponseCache(max_size=10000)
+        self.embedding_cache = EmbeddingCache(max_size=8000)
+        
+        # Additional memory storage files
+        self.conversation_cache = LRUMemoryCache(max_size=15000)
+        self.context_cache = ResponseCache(max_size=12000)
 
         # Predictive pre-fetching system
         self.predictive_fetcher = PredictiveFetcher(self)
@@ -119,9 +123,11 @@ class HyperSpeedOptimizer:
         self._start_background_optimizers()
 
         logging.info("⚡ HyperSpeed Optimization Engine initialized!")
-        logging.info(f"🔧 Thread pool: {4} workers")
-        logging.info(f"⚙️ Process pool: {2} workers")
-        logging.info(f"💾 Memory cache: {2000} max entries")
+        logging.info(f"🔧 Thread pool: {16} workers")
+        logging.info(f"⚙️ Process pool: {8} workers")
+        logging.info(f"💾 Memory cache: {20000} max entries")
+        logging.info(f"💬 Conversation cache: {15000} max entries")
+        logging.info(f"📝 Context cache: {12000} max entries")
         logging.info(f"🎯 Predictive fetching: ENABLED")
 
     def _start_background_optimizers(self):
