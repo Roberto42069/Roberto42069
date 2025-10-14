@@ -25,7 +25,7 @@ Preferred communication style: Simple, everyday language.
     - **Avatar System**: Replaced SVG with Roberto's AI-generated photo, featuring circular design, emotional glow effects, and dynamic border colors.
     - **Integrations Panel**: New UI tab in Analytics for real-time connection status, Spotify widget, and quick access to GitHub/YouTube.
     - **Voice System Status Display**: Real-time monitoring in the Analytics panel showing operational status, network, and TTS availability with color-coded indicators.
-    - **Enhanced Emotional State Display**: Real-time emotion updates with intensity percentages, multi-location display, color-coded glow effects, pulse animations, and optional toast notifications.
+    - **Enhanced Emotional State Display**: Real-time emotion updates with **3-second polling intervals** for optimal responsiveness, intensity percentages, multi-location display, color-coded glow effects, pulse animations, smooth 0.5s CSS transitions, smart polling (pauses during user typing), emotion updating indicators, and optional toast notifications.
 
 ### Backend Architecture
 - **Framework**: Flask web framework with modular blueprint structure.
