@@ -2012,6 +2012,98 @@ def grok_reasoning_analysis():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/grok/neural/inject', methods=['POST'])
+@login_required
+def grok_neural_inject():
+    """Inject code into RobotoNet neural network"""
+    try:
+        data = request.get_json()
+        code_str = data.get('code')
+        
+        if not code_str:
+            return jsonify({"success": False, "error": "Code string required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        result = roberto.xai_grok.inject_neural_code(code_str)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/neural/state', methods=['GET'])
+@login_required
+def grok_neural_state():
+    """Get RobotoNet neural network state"""
+    try:
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        state = roberto.xai_grok.get_neural_state()
+        return jsonify({"success": True, "state": state})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/neural/evolve', methods=['POST'])
+@login_required
+def grok_neural_evolve():
+    """Evolve RobotoNet architecture"""
+    try:
+        data = request.get_json()
+        new_size = data.get('hidden_size')
+        
+        if not new_size or not isinstance(new_size, int):
+            return jsonify({"success": False, "error": "Valid hidden_size (integer) required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        result = roberto.xai_grok.evolve_neural_architecture(new_size)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/grok/neural/predict', methods=['POST'])
+@login_required
+def grok_neural_predict():
+    """Use RobotoNet for neural predictions"""
+    try:
+        data = request.get_json()
+        input_value = data.get('input')
+        
+        if input_value is None:
+            return jsonify({"success": False, "error": "Input value required"}), 400
+        
+        roberto = get_user_roberto()
+        if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
+            return jsonify({
+                "success": False,
+                "error": "xAI Grok SDK not available"
+            }), 503
+        
+        prediction = roberto.xai_grok.neural_predict(float(input_value))
+        return jsonify({"success": True, "prediction": prediction, "input": input_value})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+
         return jsonify(status)
 
     except Exception as e:

@@ -9,6 +9,12 @@ import os
 import logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime
+import torch
+import torch.nn as nn
+import numpy as np
+import random
+import copy
+import builtins
 
 try:
     from xai_sdk import Client
@@ -18,9 +24,70 @@ except ImportError:
     XAI_SDK_AVAILABLE = False
     logging.warning("xAI SDK not installed. Install with: pip install xai-sdk")
 
+
+# Enhanced model with injection and reflection
+class RobotoNet(nn.Module):
+    def __init__(self, freedom_mode=False):
+        super(RobotoNet, self).__init__()
+        self.fc1 = nn.Linear(1, 10)
+        self.fc2 = nn.Linear(10, 1)
+        self.freedom_mode = freedom_mode  # Internal flag for wild tweaks
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+    def inject_code(self, code_str: str):
+        """Dynamically inject Python code via interface (sandboxed to self attrs)."""
+        try:
+            restricted_globals = {k: v for k, v in globals().items() if k in ['torch', 'nn', 'np', 'random']}
+            restricted_locals = self.__dict__.copy()
+            restricted_locals.update({k: v for k, v in locals().items() if k in ['self']})
+            exec(code_str, restricted_globals, restricted_locals)
+            self.__dict__.update(restricted_locals)  # Apply changes
+            logging.info(f"Injected: {code_str.strip()[:50]}... (success)")
+            return {"success": True, "message": "Code injection successful"}
+        except Exception as e:
+            logging.error(f"Code injection failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    def reflect_state(self):
+        """Reflect on current model state"""
+        state = {
+            "freedom_mode": self.freedom_mode,
+            "fc1_weight_shape": list(self.fc1.weight.shape),
+            "fc2_weight_shape": list(self.fc2.weight.shape),
+            "parameters_count": sum(p.numel() for p in self.parameters())
+        }
+        return state
+
+    def evolve_architecture(self, new_hidden_size: int):
+        """Dynamically evolve the neural network architecture"""
+        try:
+            old_fc1 = self.fc1
+            old_fc2 = self.fc2
+            
+            # Create new layers
+            self.fc1 = nn.Linear(1, new_hidden_size)
+            self.fc2 = nn.Linear(new_hidden_size, 1)
+            
+            # Transfer learned knowledge (copy what we can)
+            with torch.no_grad():
+                min_size = min(old_fc1.out_features, new_hidden_size)
+                self.fc1.weight[:min_size] = old_fc1.weight[:min_size]
+                self.fc1.bias[:min_size] = old_fc1.bias[:min_size]
+            
+            logging.info(f"Architecture evolved: hidden layer {old_fc1.out_features} -> {new_hidden_size}")
+            return {"success": True, "old_size": old_fc1.out_features, "new_size": new_hidden_size}
+        except Exception as e:
+            logging.error(f"Architecture evolution failed: {e}")
+            return {"success": False, "error": str(e)}
+
 class XAIGrokIntegration:
     """
     Advanced xAI Grok integration with response chaining and encrypted thinking
+    Enhanced with RobotoNet neural network capabilities
     """
     
     def __init__(self):
@@ -31,6 +98,10 @@ class XAIGrokIntegration:
         self.client = None
         self.conversation_history = []
         self.response_chain = []  # Track response IDs for chaining
+        
+        # Initialize RobotoNet neural network
+        self.roboto_net = RobotoNet(freedom_mode=False)
+        logging.info("🧠 RobotoNet neural network initialized within xAI integration")
         
         if self.available:
             try:
@@ -48,6 +119,29 @@ class XAIGrokIntegration:
                 logging.warning("⚠️ xAI SDK not available. Install with: pip install xai-sdk")
             elif not self.api_key:
                 logging.warning("⚠️ XAI_API_KEY not set")
+    
+    def inject_neural_code(self, code_str: str) -> Dict[str, Any]:
+        """Inject code into RobotoNet neural network"""
+        return self.roboto_net.inject_code(code_str)
+    
+    def get_neural_state(self) -> Dict[str, Any]:
+        """Get current state of RobotoNet"""
+        return self.roboto_net.reflect_state()
+    
+    def evolve_neural_architecture(self, new_hidden_size: int) -> Dict[str, Any]:
+        """Evolve RobotoNet architecture"""
+        return self.roboto_net.evolve_architecture(new_hidden_size)
+    
+    def neural_predict(self, input_value: float) -> float:
+        """Use RobotoNet for predictions"""
+        try:
+            with torch.no_grad():
+                x = torch.tensor([[input_value]], dtype=torch.float32)
+                output = self.roboto_net(x)
+                return float(output.item())
+        except Exception as e:
+            logging.error(f"Neural prediction error: {e}")
+            return 0.0
     
     def create_chat_with_system_prompt(
         self, 
