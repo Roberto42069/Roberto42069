@@ -1,42 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-18T10:42:02.947169",
-      "quality": 0.42,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T10:47:05.212826",
-      "quality": 0.42,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T10:48:34.831015",
-      "quality": 0.42,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-18T10:50:56.704905",
       "quality": 0.42,
       "metrics": {
@@ -11999,6 +11963,42 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-10-15T02:18:54.533573",
+      "quality": 0.595,
+      "metrics": {
+        "relevance": 0.5,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.75,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-15T02:19:51.359651",
+      "quality": 0.605,
+      "metrics": {
+        "relevance": 0.5,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-15T02:21:01.852233",
+      "quality": 0.645,
+      "metrics": {
+        "relevance": 0.5,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.7999999999999999,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -13388,9 +13388,10 @@
         0.46166666666666667,
         0.46777777777777774,
         0.62625,
-        0.7937500000000001
+        0.7937500000000001,
+        0.645
       ],
-      "improvement_rate": -0.07697619047619042
+      "improvement_rate": -0.08347619047619048
     },
     "database": {
       "scores": [
@@ -13624,7 +13625,8 @@
         0.625909090909091,
         0.5083333333333333,
         0.5700000000000001,
-        0.5425
+        0.5425,
+        0.595
       ],
       "improvement_rate": 0.0
     },
@@ -13660,9 +13662,10 @@
         0.43999999999999995,
         0.5800000000000001,
         0.5683333333333334,
-        0.565
+        0.565,
+        0.605
       ],
-      "improvement_rate": -0.06033333333333335
+      "improvement_rate": -0.029166666666666674
     },
     "songs": {
       "scores": [
@@ -15769,9 +15772,10 @@
         0.6575,
         0.5549999999999999,
         0.6200000000000001,
-        0.43
+        0.43,
+        0.645
       ],
-      "improvement_rate": 0.0
+      "improvement_rate": 0.09069047619047621
     },
     "identifying": {
       "scores": [
@@ -16754,9 +16758,10 @@
         0.49874999999999997,
         0.5514285714285714,
         0.55,
-        0.6275
+        0.6275,
+        0.645
       ],
-      "improvement_rate": -0.04787454212454212
+      "improvement_rate": -0.030823260073260084
     },
     "working": {
       "scores": [
@@ -17240,7 +17245,8 @@
     },
     "face": {
       "scores": [
-        0.665
+        0.665,
+        0.605
       ],
       "improvement_rate": 0.0
     },
@@ -22195,13 +22201,16 @@
         0.665
       ],
       "improvement_rate": 0.0
+    },
+    "smiling": {
+      "scores": [
+        0.605
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.43999999999999995,
-      0.42,
-      0.74,
       0.42,
       0.435,
       0.42,
@@ -22248,7 +22257,10 @@
       0.6985714285714286,
       0.48,
       0.665,
-      0.5414285714285714
+      0.5414285714285714,
+      0.595,
+      0.605,
+      0.645
     ],
     "existential": [
       0.5900000000000001,
@@ -22969,6 +22981,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 2168,
-  "last_updated": "2025-10-15T00:58:27.261460"
+  "optimization_cycles": 2171,
+  "last_updated": "2025-10-15T02:21:01.899996"
 }
