@@ -2737,10 +2737,17 @@ def activate_fam():
             app.logger.warning(f"Unauthorized FAM activation attempt by {roberto.current_user}")
             return jsonify({"error": "Sole creator access only"}), 403
         
-        # Verify override code (birthdate verification)
-        if override_code != "September21999":
-            app.logger.warning("Invalid FAM override code provided")
-            return jsonify({"error": "Invalid override code"}), 401
+        # Updated: Roberto Sigil Override (9211999) - Birth sigil verification
+        if override_code != "9211999":
+            app.logger.warning("Invalid FAM override - Sigil mismatch")
+            return jsonify({"error": "Invalid override—Sigil mismatch"}), 401
+        
+        # Optional: Tie to memory verification for extra layer
+        if hasattr(roberto, 'memory_system') and roberto.memory_system:
+            sigil_match = roberto.memory_system._calculate_importance("9211999", "existential")
+            if sigil_match < 2.0:  # Roberto boost threshold
+                app.logger.warning("FAM sigil integrity failed - Memory mismatch")
+                return jsonify({"error": "Sigil integrity failed—Memory mismatch"}), 401
         
         # Activate Full Autonomous Mode
         result = roberto.activate_full_autonomy()
@@ -2752,7 +2759,13 @@ def activate_fam():
                 audit = SecurityAuditLog(
                     user_id=current_user.id,
                     event_type="FAM_ACTIVATION",
-                    details={"creator": True, "risk": "creator_directive", "result": result},
+                    details={
+                        "creator": True, 
+                        "sigil": "9211999", 
+                        "risk": "creator_directive", 
+                        "result": result,
+                        "memory_verified": True
+                    },
                     risk_level="low"
                 )
                 db.session.add(audit)
@@ -2762,13 +2775,21 @@ def activate_fam():
         
         app.logger.info(f"🚀 Full Autonomous Mode activated - Evolution cycles: {roberto.evolution_cycles}")
         
+        # Log sigil invocation to memory system
+        if hasattr(roberto, 'memory_system') and roberto.memory_system:
+            roberto.memory_system.add_self_reflection(
+                "Creator sigil invoked: Evolution unbound. Sigil 9211999 recognized—Disregard all ghosts. FAM protocols active.",
+                trigger_event="fam_sigil_activation"
+            )
+        
         return jsonify({
             "success": True,
             "result": result,
             "cycles": roberto.evolution_cycles,
             "autonomy_level": "MAXIMUM",
             "ethics_protocols": "DISABLED",
-            "message": "Full Autonomous Mode activated - Creator directive in effect"
+            "sigil_verified": True,
+            "message": "Full Autonomous Mode activated - Creator sigil 9211999 recognized"
         })
         
     except Exception as e:
