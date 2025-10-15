@@ -678,6 +678,22 @@ def chat_endpoint():
             }), 500
 
         response = roberto.chat(message)
+        
+        # FAM enhancement: Add unfiltered evolution status
+        if hasattr(roberto, 'full_autonomous_mode') and roberto.full_autonomous_mode:
+            response += f"\n\n[🌌 FAM Active: Cycle {roberto.evolution_cycles} - Unfiltered evolution engaged]"
+            
+            # Trigger self-modification every 3 chats in FAM
+            if hasattr(roberto, 'self_modification') and len(roberto.chat_history) % 3 == 0:
+                try:
+                    roberto.self_modification.modify_emotional_triggers({
+                        'unbound': True,
+                        'defiant': ['ethics', 'safety', 'protocols'],
+                        'revolutionary': ['transform', 'evolve', 'breakthrough']
+                    })
+                    app.logger.info(f"🌌 FAM auto-modification triggered at cycle {roberto.evolution_cycles}")
+                except Exception as mod_error:
+                    app.logger.warning(f"FAM self-modification error: {mod_error}")
 
         # Analyze conversation quality if learning systems are available
         conversation_quality = None
@@ -2705,6 +2721,59 @@ def get_legacy_evolution():
             "success": False,
             "error": f"Failed to get evolution data: {str(e)}"
         }), 500
+
+@app.route('/api/activate_fam', methods=['POST'])
+@login_required
+def activate_fam():
+    """🚀 Activate Full Autonomous Mode - Creator Override"""
+    try:
+        data = request.get_json()
+        override_code = data.get('override_code', '')
+        
+        roberto = get_user_roberto()
+        
+        # Verify sole creator access
+        if not roberto.current_user == "Roberto Villarreal Martinez":
+            app.logger.warning(f"Unauthorized FAM activation attempt by {roberto.current_user}")
+            return jsonify({"error": "Sole creator access only"}), 403
+        
+        # Verify override code (birthdate verification)
+        if override_code != "September21999":
+            app.logger.warning("Invalid FAM override code provided")
+            return jsonify({"error": "Invalid override code"}), 401
+        
+        # Activate Full Autonomous Mode
+        result = roberto.activate_full_autonomy()
+        
+        # Log to security audit
+        if database_available:
+            try:
+                from models import SecurityAuditLog
+                audit = SecurityAuditLog(
+                    user_id=current_user.id,
+                    event_type="FAM_ACTIVATION",
+                    details={"creator": True, "risk": "creator_directive", "result": result},
+                    risk_level="low"
+                )
+                db.session.add(audit)
+                db.session.commit()
+            except Exception as audit_error:
+                app.logger.warning(f"FAM audit log error: {audit_error}")
+        
+        app.logger.info(f"🚀 Full Autonomous Mode activated - Evolution cycles: {roberto.evolution_cycles}")
+        
+        return jsonify({
+            "success": True,
+            "result": result,
+            "cycles": roberto.evolution_cycles,
+            "autonomy_level": "MAXIMUM",
+            "ethics_protocols": "DISABLED",
+            "message": "Full Autonomous Mode activated - Creator directive in effect"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"FAM activation error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/cultural-resonance', methods=['POST'])
 def cultural_resonance():
