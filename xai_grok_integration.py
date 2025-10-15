@@ -171,7 +171,8 @@ class XAIGrokIntegration:
             chat_params = {
                 "model": model,
                 "store_messages": store_messages,
-                "use_encrypted_content": use_encrypted_content
+                "use_encrypted_content": use_encrypted_content,
+                "max_tokens": 50000  # Extended token limit for Roboto SAI
             }
             
             # Add reasoning_effort only for grok-4
@@ -350,7 +351,8 @@ class XAIGrokIntegration:
         user_message: str,
         roboto_context: Optional[str] = None,
         previous_response_id: Optional[str] = None,
-        reasoning_effort: Optional[str] = "high"
+        reasoning_effort: Optional[str] = "high",
+        max_tokens: int = 50000
     ) -> Dict[str, Any]:
         """
         Roboto SAI specific Grok chat with context and reasoning
