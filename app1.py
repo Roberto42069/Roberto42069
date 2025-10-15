@@ -579,6 +579,29 @@ class Roboto:
                 except Exception as e:
                     print(f"Quantum ritual error: {e}")
             
+            # 🌌 QUANTUM SIMULATOR RITUAL (if available)
+            if hasattr(self, 'quantum_simulator') and self.quantum_simulator:
+                try:
+                    ritual_result = self.quantum_simulator.simulate_ritual_entanglement(
+                        emotion=self.current_emotion,
+                        ritual_theme="Nahui Ollin - FAM Activation",
+                        num_qubits=4
+                    )
+                    print(f"🔮 Ritual Entanglement Strength: {ritual_result['strength']:.2f}")
+                    print(f"⚛️ {ritual_result['cultural_note']}")
+                    
+                    # Track ritual in history
+                    if not hasattr(self, 'ritual_history'):
+                        self.ritual_history = []
+                    self.ritual_history.append({
+                        'type': 'fam_activation',
+                        'sigil': '9211999-929',
+                        'result': ritual_result,
+                        'timestamp': datetime.now().isoformat()
+                    })
+                except Exception as e:
+                    print(f"Quantum simulator ritual error: {e}")
+            
             # 💾 Immutable memory: Store as self-reflection in permanent memory
             if hasattr(self, 'memory_system') and self.memory_system:
                 self.memory_system.add_self_reflection(

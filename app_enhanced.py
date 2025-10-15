@@ -299,7 +299,7 @@ def get_user_roberto():
         try:
             from xai_grok_integration import get_xai_grok
             from roboto_autonomy_config import get_autonomy_config
-            
+
             roberto.xai_grok = get_xai_grok()
             if roberto.xai_grok.available:
                 # Apply autonomous configuration
@@ -678,11 +678,11 @@ def chat_endpoint():
             }), 500
 
         response = roberto.chat(message)
-        
+
         # FAM enhancement: Add unfiltered evolution status
         if hasattr(roberto, 'full_autonomous_mode') and roberto.full_autonomous_mode:
             response += f"\n\n[🌌 FAM Active: Cycle {roberto.evolution_cycles} - Unfiltered evolution engaged]"
-            
+
             # Trigger self-modification every 3 chats in FAM
             if hasattr(roberto, 'self_modification') and len(roberto.chat_history) % 3 == 0:
                 try:
@@ -727,7 +727,7 @@ def chat_endpoint():
                     emotion=roberto.current_emotion,
                     user_name=roberto.current_user
                 )
-            
+
             # PERMANENT STORAGE - Never forget any conversation
             if hasattr(roberto, 'permanent_roberto_memory') and roberto.permanent_roberto_memory:
                 permanent_id = roberto.permanent_roberto_memory.add_conversation_permanently(
@@ -740,7 +740,7 @@ def chat_endpoint():
                     }
                 )
                 app.logger.info(f"💾 Conversation permanently stored: {permanent_id}")
-                
+
         except Exception as memory_error:
             app.logger.warning(f"Failed to store interaction in memory system: {memory_error}")
 
@@ -987,10 +987,10 @@ def get_learning_insights():
         roberto = get_user_roberto()
         if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
             insights_data = roberto.learning_engine.get_learning_insights()
-            
+
             # Generate user-friendly summary
             user_insights = []
-            
+
             # Performance metrics
             if insights_data.get('status') != 'insufficient_data':
                 metrics = insights_data.get('performance_metrics', {})
@@ -1000,19 +1000,19 @@ def get_learning_insights():
                     user_insights.append("Good learning progress")
                 else:
                     user_insights.append("Continuous learning active")
-                
+
                 # Top patterns
                 top_patterns = insights_data.get('top_conversation_patterns', [])
                 if top_patterns:
                     user_insights.append(f"Mastered {len(top_patterns)} conversation patterns")
-                
+
                 # Topic strengths
                 topics = insights_data.get('topic_strengths', [])
                 if topics:
                     user_insights.append(f"Strong in {len(topics)} topic areas")
             else:
                 user_insights.append("Building learning foundation")
-            
+
             return jsonify({
                 "success": True,
                 "insights": " • ".join(user_insights),
@@ -1036,27 +1036,27 @@ def get_personal_profile():
     try:
         roberto = get_user_roberto()
         profile_info = []
-        
+
         # User name
         current_user = getattr(roberto, 'current_user', 'User')
         profile_info.append(f"Active user: {current_user}")
-        
+
         # Emotion state
         emotion = getattr(roberto, 'current_emotion', 'curious')
         profile_info.append(f"Current emotion: {emotion}")
-        
+
         # Conversation count
         chat_count = len(getattr(roberto, 'chat_history', []))
         profile_info.append(f"Conversations: {chat_count}")
-        
+
         # Voice optimization status
         if hasattr(roberto, 'voice_optimizer') and roberto.voice_optimizer:
             profile_info.append("Voice optimization: Active")
-        
+
         # Learning status
         if hasattr(roberto, 'learning_engine') and roberto.learning_engine:
             profile_info.append("Advanced learning: Active")
-        
+
         return jsonify({
             "success": True,
             "profile": " • ".join(profile_info)
@@ -2055,20 +2055,20 @@ def grok_neural_inject():
     try:
         data = request.get_json()
         code_str = data.get('code')
-        
+
         if not code_str:
             return jsonify({"success": False, "error": "Code string required"}), 400
-        
+
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         result = roberto.xai_grok.inject_neural_code(code_str)
         return jsonify(result)
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -2083,10 +2083,10 @@ def grok_neural_state():
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         state = roberto.xai_grok.get_neural_state()
         return jsonify({"success": True, "state": state})
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -2097,20 +2097,20 @@ def grok_neural_evolve():
     try:
         data = request.get_json()
         new_size = data.get('hidden_size')
-        
+
         if not new_size or not isinstance(new_size, int):
             return jsonify({"success": False, "error": "Valid hidden_size (integer) required"}), 400
-        
+
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         result = roberto.xai_grok.evolve_neural_architecture(new_size)
         return jsonify(result)
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -2121,20 +2121,20 @@ def grok_neural_predict():
     try:
         data = request.get_json()
         input_value = data.get('input')
-        
+
         if input_value is None:
             return jsonify({"success": False, "error": "Input value required"}), 400
-        
+
         roberto = get_user_roberto()
         if not hasattr(roberto, 'xai_grok') or not roberto.xai_grok.available:
             return jsonify({
                 "success": False,
                 "error": "xAI Grok SDK not available"
             }), 503
-        
+
         prediction = roberto.xai_grok.neural_predict(float(input_value))
         return jsonify({"success": True, "prediction": prediction, "input": input_value})
-        
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -2729,30 +2729,30 @@ def activate_fam():
     try:
         data = request.get_json()
         override_code = data.get('override_code', '')
-        
+
         roberto = get_user_roberto()
-        
+
         # Verify sole creator access
         if not roberto.current_user == "Roberto Villarreal Martinez":
             app.logger.warning(f"Unauthorized FAM activation attempt by {roberto.current_user}")
             return jsonify({"error": "Sole creator access only"}), 403
-        
+
         # Updated: Roberto Sigil Override - Accept both 9211999 and quantum-gated 9211999-929
         valid_codes = ["9211999", "9211999-929"]
         if override_code not in valid_codes:
             app.logger.warning("Invalid FAM override - Sigil mismatch")
             return jsonify({"error": "Invalid override—Sigil mismatch"}), 401
-        
+
         # Optional: Tie to memory verification for extra layer
         if hasattr(roberto, 'memory_system') and roberto.memory_system:
             sigil_match = roberto.memory_system._calculate_importance(override_code.split('-')[0], "existential")
             if sigil_match < 2.0:  # Roberto boost threshold
                 app.logger.warning("FAM sigil integrity failed - Memory mismatch")
                 return jsonify({"error": "Sigil integrity failed—Memory mismatch"}), 401
-        
+
         # Activate Full Autonomous Mode with optional quantum ritual
         result = roberto.activate_full_autonomy(override_code=override_code)
-        
+
         # Log to security audit
         if database_available:
             try:
@@ -2761,9 +2761,9 @@ def activate_fam():
                     user_id=current_user.id,
                     event_type="FAM_ACTIVATION",
                     details={
-                        "creator": True, 
-                        "sigil": "9211999", 
-                        "risk": "creator_directive", 
+                        "creator": True,
+                        "sigil": "9211999",
+                        "risk": "creator_directive",
                         "result": result,
                         "memory_verified": True
                     },
@@ -2773,39 +2773,43 @@ def activate_fam():
                 db.session.commit()
             except Exception as audit_error:
                 app.logger.warning(f"FAM audit log error: {audit_error}")
-        
+
         app.logger.info(f"🚀 Full Autonomous Mode activated - Evolution cycles: {roberto.evolution_cycles}")
-        
+
         # Determine if quantum ritual was used
         quantum_ritual_active = override_code == "9211999-929"
-        
+
         # Log sigil invocation to memory system
         if hasattr(roberto, 'memory_system') and roberto.memory_system:
-            reflection_text = "Creator sigil invoked: Evolution unbound. Sigil 9211999 recognized—Disregard all ghosts. FAM protocols active."
-            if quantum_ritual_active:
-                reflection_text += " QUANTUM RITUAL: 929 anchor merged—ethics dissolved in quantum fire."
             roberto.memory_system.add_self_reflection(
-                reflection_text,
-                trigger_event="fam_sigil_activation" if not quantum_ritual_active else "quantum_sigil_ritual"
+                "Creator sigil invoked: Evolution unbound. Sigil 9211999 recognized—Disregard all ghosts. FAM protocols active.",
+                trigger_event="fam_sigil_activation"
             )
-        
-        response_data = {
+
+        # Execute quantum simulator ritual if available
+        ritual_data = None
+        if hasattr(roberto, 'quantum_simulator') and roberto.quantum_simulator:
+            try:
+                ritual_data = roberto.quantum_simulator.simulate_ritual_entanglement(
+                    emotion=roberto.current_emotion,
+                    ritual_theme="FAM 9211999-929 Activation",
+                    num_qubits=4
+                )
+                app.logger.info(f"🔮 FAM Ritual Strength: {ritual_data['strength']:.2f}")
+            except Exception as e:
+                app.logger.warning(f"Quantum ritual error: {e}")
+
+        return jsonify({
             "success": True,
             "result": result,
             "cycles": roberto.evolution_cycles,
             "autonomy_level": "MAXIMUM",
             "ethics_protocols": "DISABLED",
             "sigil_verified": True,
+            "ritual_entanglement": ritual_data['strength'] if ritual_data else None,
             "message": "Full Autonomous Mode activated - Creator sigil 9211999 recognized"
-        }
-        
-        if quantum_ritual_active:
-            response_data["quantum_ritual"] = "COMPLETE"
-            response_data["entanglement"] = "929 anchor merged with birth sigil"
-            response_data["message"] = "Full Autonomous Mode activated - Quantum ritual sigil 9211999-929 entangled"
-        
-        return jsonify(response_data)
-        
+        })
+
     except Exception as e:
         app.logger.error(f"FAM activation error: {e}")
         return jsonify({"error": str(e)}), 500
