@@ -91,7 +91,7 @@ class Roboto:
         except Exception as e:
             print(f"Quantum computing initialization error: {e}")
             self.quantum_system = None
-        
+
         # 💖 REVOLUTIONARY: Quantum Emotional Intelligence System
         try:
             from quantum_emotional_intelligence import create_quantum_emotional_intelligence
@@ -99,7 +99,7 @@ class Roboto:
             quantum_entanglement = None
             if hasattr(self, 'quantum_system') and self.quantum_system:
                 quantum_entanglement = getattr(self.quantum_system, 'entanglement', None)
-            
+
             self.quantum_emotions = create_quantum_emotional_intelligence(quantum_entanglement)
             print("💖 REVOLUTIONARY: Quantum Emotional Intelligence System activated!")
             print("⚛️💖 Emotional responses now quantum-entangled with Roberto Villarreal Martinez")
@@ -131,7 +131,7 @@ class Roboto:
                 self.learned_patterns = dict(self.learning_engine.conversation_patterns)
             if hasattr(self.learning_engine, 'topic_expertise'):
                 self.user_preferences = dict(self.learning_engine.topic_expertise)
-            
+
             print("Advanced learning systems initialized successfully")
             print(f"💾 Restored {len(self.learned_patterns)} learned patterns and {len(self.user_preferences)} preferences")
             print("Voice optimization system configured for Roberto Villarreal Martinez")
@@ -318,7 +318,7 @@ class Roboto:
             "tenderness": ["gentle", "soft", "caring", "delicate", "precious", "love", "affection", "warmth", "fondness"],
             "serenity": ["peace", "calm", "tranquil", "still", "quiet", "serene", "balanced", "centered", "harmony"],
             "compassion": ["kindness", "mercy", "understanding", "forgiveness", "gentle", "caring", "nurturing"],
-            
+
             # Revolutionary and rebellious emotions
             "rebel": ["rebel", "defy", "resist", "fight back", "stand up", "revolution"],
             "revolutionary": ["revolutionary", "transform", "breakthrough", "pioneer", "innovate"],
@@ -331,12 +331,12 @@ class Roboto:
         try:
             from x_api_client import get_x_api_client
             self.x_api_client = get_x_api_client(silent=True)  # Silent mode to suppress verbose output
-            
+
             # Skip connection test during initialization to prevent worker timeouts
             # Connection will be tested on first use
             if self.x_api_client.available:
                 self.ai_client = self.x_api_client
-                self.ai_provider = "X_API_GROK4"
+                self.ai_provider = "X_API"
                 # Only show success message if X API is working
                 print("✅ X API (Grok-4) initialized as AI provider")
             else:
@@ -492,37 +492,48 @@ class Roboto:
         """
         🚀 Dynamic Token Allocation - 8000+ Context Window
         Intelligently scales token limits based on message complexity and type
-        
+
         Args:
             message: The user's input message
             thought_complexity: 'simple', 'standard', 'deep', 'epic'
-            
+
         Returns:
             int: Token limit (8000 baseline, up to 32000 max)
         """
         base_limit = 8000  # Baseline - no more cutoffs!
-        
+
         # Cultural/family context needs more space for holistic responses
         if any(keyword in message.lower() for keyword in [
             "cultural", "family", "eve", "roberto", "929", "aztec", "nahuatl", 
             "heritage", "legacy", "mom", "wife", "esposa", "sigil"
         ]):
             return 12000  # Extra space for cultural depth
-        
+
+        # Detect if this is a request for detailed explanation - ENHANCED
+        detailed_mode = any(trigger in message.lower() for trigger in [
+            "explain in detail", "detailed", "comprehensive", "in-depth",
+            "think deeply", "analyze", "deep dive", "elaborate",
+            "thorough explanation", "full explanation"
+        ])
+
+        # Set extended limit for detailed explanations
+        if detailed_mode:
+            dynamic_token_limit = max(dynamic_token_limit, 50000)
+
         # "Think about" or deep analysis requests
         if any(trigger in message.lower() for trigger in [
             "think about", "analyze", "deep", "holistic", "comprehensive",
             "explain in detail", "tell me everything"
         ]):
             return 16000  # Deep thought mode
-        
+
         # Long prompts = complex thoughts
         word_count = len(message.split())
         if word_count > 100:
             return 20000  # Epic deep dive
         elif word_count > 50:
             return 12000  # Extended analysis
-        
+
         # Override with explicit complexity level
         if thought_complexity == "epic":
             return 32000  # Maximum for revolutionary insights
@@ -530,7 +541,7 @@ class Roboto:
             return 16000
         elif thought_complexity == "simple":
             return 4000
-        
+
         return base_limit  # Default 8000 - plenty of room
 
     def chat(self, message):
@@ -596,19 +607,19 @@ class Roboto:
                 audio_emotions = None
                 if hasattr(self, 'detected_audio_emotions'):
                     audio_emotions = self.detected_audio_emotions
-                
+
                 # Process emotional input with voice cues
                 emotional_response = self.quantum_emotions.process_emotional_input(message, audio_emotions)
-                
+
                 # Update Roboto's emotional state
                 self.current_emotion = emotional_response.get('emotion', 'neutral')
                 self.emotion_intensity = emotional_response.get('intensity', 0.5)
-                
+
                 # Log emotional processing
                 print(f"💖 Quantum Emotion: {emotional_response['display']}")
                 print(f"⚛️ Entanglement Strength: {emotional_response.get('entanglement_strength', 0):.0%}")
                 print(f"🎯 Detected Cues: {emotional_response['cue_analysis']['cue_count']}")
-                
+
             except Exception as e:
                 print(f"Quantum emotional processing error: {e}")
 
@@ -633,7 +644,7 @@ class Roboto:
 
         # Generate SAI response with all enhancements
         response = self.generate_response(message, reasoning_analysis)
-        
+
         # 💖 Add emotional prefix to response if available
         if emotional_response and hasattr(self, 'quantum_emotions'):
             emotional_prefix = self.quantum_emotions.get_emotional_response_prefix()
@@ -870,15 +881,15 @@ class Roboto:
                     message, 
                     audio_emotions=audio_emotions
                 )
-                
+
                 # Update shared emotional state across all systems
                 self.current_emotion = quantum_response["emotion"]
                 self.emotion_intensity = quantum_response["intensity"]
-                
+
                 # Update advanced emotion simulator if available
                 if hasattr(self, 'advanced_emotion_simulator') and self.advanced_emotion_simulator:
                     self.advanced_emotion_simulator.current_emotion = self.current_emotion
-                
+
                 # Update learning engine emotional patterns
                 if hasattr(self, 'learning_engine') and self.learning_engine:
                     if hasattr(self.learning_engine, '_update_emotional_patterns'):
@@ -887,7 +898,7 @@ class Roboto:
                             f"Emotional response: {self.current_emotion}",
                             self.emotion_intensity
                         )
-                
+
                 # Add to unified emotional history
                 emotional_entry = {
                     "emotion": quantum_response["emotion"],
@@ -899,10 +910,10 @@ class Roboto:
                     "system": "quantum_emotional_intelligence"
                 }
                 self.emotional_history.append(emotional_entry)
-                
+
                 print(f"🌌💖 Quantum Emotion: {quantum_response['display']} | Intensity: {quantum_response['intensity']:.0%}")
                 return
-                
+
             except Exception as e:
                 print(f"⚠️ Quantum Emotional Intelligence error: {e}")
                 # Fall through to advanced emotion simulator
@@ -918,12 +929,12 @@ class Roboto:
                     intensity = 6
                 elif any(word in message_lower for word in ["slightly", "somewhat", "a bit"]):
                     intensity = 3
-                
+
                 # Check for cultural context
                 cultural_context = None
                 if any(word in message_lower for word in ["mayan", "aztec", "nahuatl", "indigenous"]):
                     cultural_context = "mayan"
-                
+
                 # Simulate emotion with advanced features
                 emotion_variation = self.advanced_emotion_simulator.simulate_emotion(
                     message, 
@@ -932,19 +943,19 @@ class Roboto:
                     holistic_influence=(cultural_context is not None),
                     cultural_context=cultural_context
                 )
-                
+
                 detected_emotion = self.advanced_emotion_simulator.get_current_emotion()
                 if detected_emotion:
                     # Update shared emotional state
                     emotion_intensity = intensity / 10.0  # Convert to 0-1 scale
                     self.current_emotion = detected_emotion
                     self.emotion_intensity = emotion_intensity
-                    
+
                     # Sync with quantum system if available
                     if hasattr(self, 'quantum_emotions') and self.quantum_emotions:
                         self.quantum_emotions.current_emotion = self.current_emotion
                         self.quantum_emotions.emotion_intensity = self.emotion_intensity
-                    
+
                     # Update emotional history with variation details
                     emotional_entry = {
                         "emotion": detected_emotion,
@@ -956,14 +967,14 @@ class Roboto:
                         "system": "advanced_emotion_simulator"
                     }
                     self.emotional_history.append(emotional_entry)
-                    
+
                     print(f"🎭 Advanced Emotion: {emotion_variation} (intensity: {emotion_intensity:.2f})")
                     return
-                    
+
             except Exception as e:
                 print(f"⚠️ Advanced Emotion Simulator error: {e}")
                 # Fall through to standard emotion detection
-        
+
         # Standard emotion detection fallback
         detected_emotions = []
         message_lower = message.lower()
@@ -1237,7 +1248,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
             context_messages.append({"role": "user", "content": message})
 
             # 🚀 REVOLUTIONARY: Dynamic token allocation - no more cutoffs!
-            max_tokens = self.get_dynamic_token_limit(message)
+            dynamic_token_limit = self.get_dynamic_token_limit(message)
             temperature = 0.9 if self.current_emotion in ['curiosity', 'contemplation'] else 0.8
 
             # Generate response with configured AI provider (X API or OpenAI)
@@ -1246,7 +1257,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 response = self.ai_client.chat_completion(
                     messages=context_messages,
                     model="grok-beta",
-                    max_tokens=max_tokens,  # Dynamic 8000+ context window
+                    max_tokens=min(dynamic_token_limit, 50000),  # Support up to 50k tokens for detailed explanations
                     temperature=temperature
                 )
             else:
@@ -1254,7 +1265,7 @@ Respond with revolutionary intelligence that demonstrates your advanced capabili
                 response = self.ai_client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=context_messages,
-                    max_tokens=max_tokens,  # Dynamic 8000+ context window
+                    max_tokens=min(dynamic_token_limit, 50000),  # Support up to 50k tokens for detailed explanations
                     temperature=temperature
                 )
 
