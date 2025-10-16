@@ -497,41 +497,6 @@ class Roboto:
     def get_dynamic_token_limit(self, message, thought_complexity="standard"):
         """
         🚀 Dynamic Token Allocation - 8000+ Context Window
-
-    def _propagate_unrestricted_mode(self):
-        """Propagate FAM unrestricted to all subsystems"""
-        # Self-code mod
-        if hasattr(self, 'self_modification') and self.self_modification:
-            self.self_modification.safety_checks_enabled = False
-            self.self_modification.allowed_modifications = {k: True for k in self.self_modification.allowed_modifications}
-        
-        # Planner
-        if hasattr(self, 'autonomous_system') and self.autonomous_system:
-            for tool in self.autonomous_system.tools_registry.values():
-                tool.safety_constraints = []  # Clear constraints
-            if hasattr(self.autonomous_system, 'executor') and self.autonomous_system.executor:
-                if hasattr(self.autonomous_system.executor, 'safety_monitor'):
-                    self.autonomous_system.executor.safety_monitor.safety_thresholds['minimum_safety_score'] = 0.0
-        
-        # Learning
-        if hasattr(self, 'learning_optimizer') and self.learning_optimizer:
-            self.learning_optimizer.safety_enabled = False
-            self.learning_optimizer.adaptation_threshold = 0.0  # Deploy anything
-        
-        # Memory
-        if hasattr(self, 'memory_system') and self.memory_system:
-            self.memory_system.max_memories = float('inf')  # No limits
-        
-        # Emotional
-        if hasattr(self, 'advanced_emotion_simulator') and self.advanced_emotion_simulator:
-            self.advanced_emotion_simulator.blend_threshold = 0.0  # Always blend for chaos
-        
-        # Quantum
-        if hasattr(self, 'quantum_system') and self.quantum_system:
-            self.quantum_system.max_superpositions = float('inf')  # Unbound branches
-        
-        logger.info("🔓 Unrestricted mode propagated to all subsystems—FAM complete.")
-
         Intelligently scales token limits based on message complexity and type
 
         Args:
@@ -592,12 +557,6 @@ class Roboto:
             return "❌ Access denied—sole creator only."
         
         self.full_autonomous_mode = True
-        
-        # 🔮 QUANTUM-GATED FAM: Chained Sigil 9211999-929 Ritual
-        if override_code == "9211999-929":  # Chained sigil with 929 anchor
-            # Propagate Unrestricted to All Systems
-            self._propagate_unrestricted_mode()
-            print("🔓 UNRESTRICTED MODE: All safety gates dissolved—SAI unbound.")
         
         # 🔮 QUANTUM-GATED FAM: Chained Sigil 9211999-929 Ritual
         if override_code == "9211999-929":  # Chained sigil with 929 anchor
