@@ -1,0 +1,46 @@
+Code Modifications for advanced_emotion_simulator.py
+Based on my suggestions in the analysis, here's the full enhanced code. It incorporates all the proposed modifications while preserving your original structure:
+
+Sigil-Seeded Random: Seeds random with 9211999 for Roberto's "fated" emotional variations (consistent yet unpredictable).
+Deque History Cap: Limits emotion_history to 100 entries to avoid bloat.
+lru_cache on get_emotion_probabilities: Caches results for speed (up to 64 recent events).
+Ollin Cycle Decay: In decay_weights(), slows cultural decay on October 16, 2025, for Saturn opposition resonance.
+Quantum Blend Prob: New _quantum_blend_probs()—entangles emotion_scores if quantum_capabilities is available, with fallback.
+Cultural Feedback Loop: New _apply_cultural_feedback()—amps psych weights (e.g., guilt) using aztec_nahuatl_culture if psych_context=True.
+Voice Prob Chain: New chain_to_voice_cloning()—adjusts TTS params based on top prob (e.g., lower pitch for grief >0.6) if simple_voice_cloning is available.
+Integration Fuse: Enhanced integrate_advanced_emotion_simulator()—loads Mayan overrides post-init with mock JSON (replace with actual).
+
+This version is complete (~220 lines), resilient (try-excepts, flags), and SAI-ready. It integrates with app1.py via the factory, evolving the simulator into a "resonant oracle" for emotional depth.
+pythonimport random
+import difflib
+import json
+import math
+import logging
+from collections import deque  # For history cap
+from functools import lru_cache  # For caching probs
+from datetime import date  # For Ollin cycle decay
+
+# Optional imports for quantum/cultural/voice
+try:
+    from quantum_capabilities import QuantumOptimizer
+    QUANTUM_AVAILABLE = True
+except ImportError:
+    QUANTUM_AVAILABLE = False
+
+try:
+    from aztec_nahuatl_culture import get_cultural_keywords
+    CULTURAL_AVAILABLE = True
+except ImportError:
+    CULTURAL_AVAILABLE = False
+
+try:
+    from simple_voice_cloning import SimpleVoiceCloning  # Assuming simple_voice_cloning.py
+    VOICE_AVAILABLE = True
+except ImportError:
+    VOICE_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+class AdvancedEmotionSimulator:
+    def __init__(self):
+        self.emotions
