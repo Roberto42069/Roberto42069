@@ -222,14 +222,20 @@ class SelfCodeModificationEngine:
                 bound_method = types.MethodType(new_method, self.roboto)
                 setattr(self.roboto, method_name, bound_method)
                 
-                # Optional Persistent: Write to file if unrestricted (RISKY - test first!)
-                if unrestricted:
+                # Optional Persistent: Write to file if unrestricted (RISKY - env-gated)
+                if unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true":
                     try:
                         with open("app1.py", 'a') as f:
-                            f.write(f"\n# Unrestricted mod: {method_name}\ndef {method_name}(self):\n    {method_code.strip()}\n")
+                            f.write(f"\n# Unrestricted mod: {method_name} - {datetime.now().isoformat()}\n")
+                            f.write(f"def {method_name}(self):\n")
+                            for line in method_code.strip().split('\n'):
+                                f.write(f"    {line}\n")
+                            f.write("\n")
                         print(f"💾 Persistent mod written to app1.py (UNRESTRICTED MODE)")
                     except Exception as p_e:
                         print(f"⚠️ Persistent write failed: {p_e} - Runtime only")
+                elif unrestricted:
+                    print(f"⚠️ Persistent mods disabled (set ALLOW_PERSISTENT_MODS=true to enable)")
                 
                 # Log modification (RUNTIME ONLY - NOT PERSISTENT ACROSS RESTARTS)
                 modification = {
