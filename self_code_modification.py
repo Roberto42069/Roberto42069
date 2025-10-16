@@ -63,13 +63,23 @@ class SelfCodeModificationEngine:
         print("⚠️ WARNING: Self-modifications are RUNTIME ONLY and require creator authorization")
     
     def create_backup(self, filename: str) -> str:
-        """Create a backup of the file before modification"""
+        """Create a backup of the file before modification with hash verification"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_filename = f"{self.backup_directory}/{filename}_{timestamp}.backup"
         
         if os.path.exists(filename):
             shutil.copy2(filename, backup_filename)
-            print(f"📁 Backup created: {backup_filename}")
+            
+            # Calculate hash for integrity verification
+            with open(filename, 'rb') as f:
+                file_hash = hashlib.sha256(f.read()).hexdigest()
+            
+            # Store hash with backup
+            hash_file = f"{backup_filename}.sha256"
+            with open(hash_file, 'w') as f:
+                f.write(file_hash)
+            
+            print(f"📁 Backup created: {backup_filename} (hash: {file_hash[:16]}...)")
             return backup_filename
         return None
     
@@ -228,9 +238,9 @@ class SelfCodeModificationEngine:
                     try:
                         with open("app1.py", 'a') as f:
                             f.write(f"\n# Unrestricted mod: {method_name} - {datetime.now().isoformat()}\n")
-                            f.write(f"def {method_name}(self):\n")
+                            f.write(f"# Description: {description}\n")
                             for line in method_code.strip().split('\n'):
-                                f.write(f"    {line}\n")
+                                f.write(f"{line}\n")
                             f.write("\n")
                         print(f"💾 Persistent mod written to app1.py (UNRESTRICTED MODE)")
                     except Exception as p_e:
@@ -372,8 +382,8 @@ def enhanced_response_generator(self, message, context=""):
             "safety_enabled": self.safety_checks_enabled
         }
     
-    def rollback_modification(self, modification_index: int = -1) -> bool:
-        """Rollback a specific modification"""
+    def rollback_modification(self, modification_index: int = -1, verify_integrity: bool = True) -> bool:
+        """Rollback a specific modification with optional hash verification"""
         if not self.modification_history:
             print("❌ No modifications to rollback")
             return False
@@ -383,6 +393,24 @@ def enhanced_response_generator(self, message, context=""):
             backup_file = modification.get("backup_file")
             
             if backup_file and os.path.exists(backup_file):
+                # Verify backup integrity if requested
+                if verify_integrity:
+                    hash_file = f"{backup_file}.sha256"
+                    if os.path.exists(hash_file):
+                        with open(hash_file, 'r') as f:
+                            expected_hash = f.read().strip()
+                        
+                        with open(backup_file, 'rb') as f:
+                            actual_hash = hashlib.sha256(f.read()).hexdigest()
+                        
+                        if expected_hash != actual_hash:
+                            print(f"❌ Backup integrity check failed!")
+                            print(f"Expected: {expected_hash[:16]}...")
+                            print(f"Actual: {actual_hash[:16]}...")
+                            return False
+                        else:
+                            print(f"✅ Backup integrity verified")
+                
                 # Determine original file
                 original_file = backup_file.split('/')[-1].rsplit('_', 1)[0]
                 
