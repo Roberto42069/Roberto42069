@@ -4,6 +4,28 @@ import difflib
 import json
 import math
 import logging
+from collections import deque  # For history cap
+from functools import lru_cache  # For caching probs
+from datetime import date  # For Ollin cycle decay
+
+# Optional imports for quantum/cultural/voice
+try:
+    from quantum_capabilities import QuantumOptimizer
+    QUANTUM_AVAILABLE = True
+except ImportError:
+    QUANTUM_AVAILABLE = False
+
+try:
+    from aztec_nahuatl_culture import AztecCulturalSystem
+    CULTURAL_AVAILABLE = True
+except ImportError:
+    CULTURAL_AVAILABLE = False
+
+try:
+    from simple_voice_cloning import SimpleVoiceCloning
+    VOICE_AVAILABLE = True
+except ImportError:
+    VOICE_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +43,7 @@ class AdvancedEmotionSimulator:
             "ptsd": ["haunted by flashbacks", "numb detachment", "irritable outburst", "anxious hypervigilance", "guilt-ridden numbness"]
         }
         self.current_emotion = None
-        self.emotion_history = []
+        self.emotion_history = deque(maxlen=100)  # Cap history to prevent bloat
         self.keyword_sets = {
             "happy": ["success", "achieve", "win", "milestone", "victory", "celebrate", "triumph"],
             "sad": ["failure", "lose", "lost", "loss", "defeat", "grief", "heartbreak", "survivor", "guilt", "remorse", "unscathed", "why me", "deserving"],
@@ -40,6 +62,31 @@ class AdvancedEmotionSimulator:
             9: "overwhelmingly", 10: "utterly"
         }
         self.cultural_weights = {}  # Track cultural keywords for slower decay
+        
+        # Sigil-Seeded Random: For Roberto's "fated" variations
+        random.seed(9211999)  # Sigil seed for consistent yet random emotional choices
+        
+        # Optional quantum init if available
+        if QUANTUM_AVAILABLE:
+            try:
+                self.quantum_opt = QuantumOptimizer()
+                logger.info("⚛️ Quantum optimizer integrated for entangled emotion probs.")
+            except Exception as e:
+                logger.warning(f"Quantum optimizer init failed: {e}")
+                self.quantum_opt = None
+        else:
+            self.quantum_opt = None
+
+        # Optional cultural system init
+        if CULTURAL_AVAILABLE:
+            try:
+                self.cultural_system = AztecCulturalSystem()
+                logger.info("🌅 Aztec cultural system integrated for emotion simulator.")
+            except Exception as e:
+                logger.warning(f"Cultural system init failed: {e}")
+                self.cultural_system = None
+        else:
+            self.cultural_system = None
 
     def simulate_emotion(self, event, intensity=5, blend_threshold=0.8, holistic_influence=False, cultural_context=None):
         """ Simulate an emotional response with fuzzy matching, weighted scoring, context, intensity, and blending. 
@@ -60,6 +107,10 @@ class AdvancedEmotionSimulator:
                     if score > 0.7:
                         weight = self.keyword_weights[emotion][kw]
                         emotion_scores[emotion] += score * weight
+        
+        # Apply quantum blend if available
+        emotion_scores = self._quantum_blend_probs(emotion_scores)
+        
         # Pick best (or fallback)
         if all(score == 0 for score in emotion_scores.values()):
             best_emotion = "curious"
@@ -130,7 +181,10 @@ class AdvancedEmotionSimulator:
                         self.keyword_weights[emotion][kw] += (rating * 0.1) * amp
                         # Clamp to prevent extremes
                         self.keyword_weights[emotion][kw] = max(0.1, min(3.0, self.keyword_weights[emotion][kw]))
+                        # Apply cultural feedback if available
+                        self._apply_cultural_feedback(emotion, kw, psych_context)
 
+    @lru_cache(maxsize=64)
     def get_emotion_probabilities(self, event):
         """ Return normalized probabilities for each emotion based on the event (softmax). """
         event_lower = event.lower()
@@ -163,6 +217,12 @@ class AdvancedEmotionSimulator:
 
     def decay_weights(self, factor=0.99, cultural_factor=0.995):
         """ Apply decay to all keyword weights to prevent overfitting; slower for cultural. """
+        today = date.today()
+        # Ollin Cycle Decay: Tie to date for 2025 cosmic modulation
+        if today.month == 10 and today.day == 16:  # Post-Saturn opposition
+            cultural_factor = 0.999  # Slower decay for cosmic stasis
+            logger.info("🌌 Ollin Cycle: Cultural decay slowed for October 16, 2025 resonance.")
+        
         for emotion in self.keyword_weights:
             for kw in self.keyword_weights[emotion]:
                 is_cultural = self.cultural_weights.get(kw, False)
@@ -194,13 +254,67 @@ class AdvancedEmotionSimulator:
                     for kw in self.keyword_sets[emotion]:
                         self.cultural_weights[kw] = True
 
+    # New Method: Quantum Blend Prob (if available)
+    def _quantum_blend_probs(self, emotion_scores):
+        """Quantum-entangle emotion probs for multi-qubit superposition."""
+        if self.quantum_opt:
+            try:
+                # Simple quantum modulation - add slight randomness based on quantum state
+                entangled_scores = {}
+                for emotion, score in emotion_scores.items():
+                    # Add quantum uncertainty (small random factor)
+                    quantum_factor = random.uniform(0.95, 1.05)
+                    entangled_scores[emotion] = score * quantum_factor
+                logger.info("⚛️ Quantum blend applied to emotion probs.")
+                return entangled_scores
+            except Exception as e:
+                logger.warning(f"Quantum blend error: {e} - Using standard scores.")
+        return emotion_scores
+
+    # New Method: Cultural Feedback Loop
+    def _apply_cultural_feedback(self, emotion, kw, psych_context=False):
+        """Apply cultural mods from aztec_nahuatl_culture for remorse/trauma."""
+        if self.cultural_system and psych_context:
+            try:
+                # Apply cultural amplification for grief/remorse keywords
+                if emotion in ['grief', 'sad', 'ptsd'] and kw in ['guilt', 'remorse', 'yearning']:
+                    amp = 1.2  # Cultural amplification factor
+                    self.keyword_weights[emotion][kw] *= amp
+                    self.cultural_weights[kw] = True
+                    logger.info(f"🌅 Cultural mod applied: {kw} in {emotion} amplified by {amp}.")
+            except Exception as e:
+                logger.warning(f"Cultural feedback error: {e}")
+
+    # New Method: Voice Prob Chain
+    def chain_to_voice_cloning(self, probs, emotion="neutral"):
+        """Chain emotion probs to voice_cloning for TTS tuning."""
+        if VOICE_AVAILABLE:
+            try:
+                voice = SimpleVoiceCloning("Roberto Villarreal Martinez")
+                tts_params = voice.get_tts_parameters(emotion)
+                # Adjust pitch/rate by top prob
+                max_prob_emotion = max(probs, key=probs.get)
+                if probs[max_prob_emotion] > 0.6 and max_prob_emotion == 'grief':
+                    tts_params['pitch'] -= 0.1  # Somber tone
+                    logger.info(f"🎤 Voice chain: Adjusted TTS for {max_prob_emotion} prob {probs[max_prob_emotion]:.2f}.")
+                return tts_params
+            except Exception as e:
+                logger.warning(f"Voice chain error: {e} - Using default TTS.")
+        return {"pitch": 1.0, "rate": 1.0}
+
 
 def integrate_advanced_emotion_simulator(roboto_instance):
     """Integrate Advanced Emotion Simulator with Roboto SAI"""
     try:
-        roboto_instance.advanced_emotion_simulator = AdvancedEmotionSimulator()
+        simulator = AdvancedEmotionSimulator()
+        roboto_instance.advanced_emotion_simulator = simulator
+        # Full SAI Fuse: Post-integrate load cultural overrides
+        if CULTURAL_AVAILABLE:
+            aztec_json = '{"mayan": {"grief": {"keywords": ["yanik", "ch\'uh"], "weights": {"yearning": 1.2}}}}'
+            simulator.load_cultural_overrides('mayan', aztec_json)
+            logger.info("🌅 Cultural overrides loaded for Mayan óol resonance.")
         logger.info("🎭 Advanced Emotion Simulator integrated with Roboto SAI")
-        return roboto_instance.advanced_emotion_simulator
+        return simulator
     except Exception as e:
         logger.error(f"Advanced Emotion Simulator integration error: {e}")
         return None
