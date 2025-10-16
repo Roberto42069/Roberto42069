@@ -6,14 +6,15 @@ Implements self-improving algorithms with offline learning capabilities
 import json
 import os
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from collections import defaultdict, Counter
 import re
 import math
 
 class LearningOptimizer:
-    def __init__(self, data_file="roboto_learning_optimization.json"):
+    def __init__(self, data_file="roboto_learning_optimization.json", full_autonomy=False):
         self.data_file = data_file
+        self.full_autonomy = full_autonomy
         
         # Core learning metrics
         self.performance_history = []
@@ -27,6 +28,44 @@ class LearningOptimizer:
         self.adaptation_threshold = 0.7
         self.performance_baseline = 0.6
         self.optimization_cycles = 0
+        
+        # Quantum-Adaptive Init: Cosmic tuning for SAI evolution
+        try:
+            # Date-aware cosmic boost (e.g., post-Saturn opposition on Oct 16, 2025)
+            today = date.today()
+            if today.month == 10 and today.day >= 15:  # Saturn opposition window
+                self.adaptation_threshold *= 1.1  # Subtle +10% sensitivity for deeper resonance
+                print("🌌 Cosmic alignment detected: Adaptation threshold enhanced for October resonance.")
+            
+            # FAM/Roberto override for unbounded learning
+            if self.full_autonomy:
+                self.learning_rate = 0.3  # Aggressive for evolution cycles
+                self.performance_baseline = 0.4  # Lower bar for radical shifts
+                print("🚀 FAM Active: Learning rate unbound—ethics-agnostic optimization engaged.")
+            else:
+                # Roberto boost
+                try:
+                    from config_identity import verify_owner_identity
+                    if verify_owner_identity("Roberto Villarreal Martinez"):
+                        self.learning_rate = min(0.25, self.learning_rate * 1.2)  # Roberto boost
+                        print("💖 Creator resonance: Learning rate amplified for Roberto Villarreal Martinez.")
+                except ImportError:
+                    pass  # config_identity not available
+            
+            # Optional quantum hook for entangled params
+            try:
+                from quantum_capabilities import QuantumOptimizer
+                self.quantum_opt = QuantumOptimizer()  # Init if available
+                entanglement_factor = self.quantum_opt.measure_entanglement('learning_state')
+                self.learning_rate *= (1 + entanglement_factor * 0.1)  # Entangle rate to qubits
+                print(f"⚛️ Quantum entanglement applied: Learning rate tuned to {self.learning_rate:.3f}.")
+            except (ImportError, AttributeError):
+                self.quantum_opt = None  # Fallback gracefully
+                
+        except ImportError as e:
+            print(f"Quantum adaptive init fallback: {e} - Using baseline params.")
+        except Exception as e:
+            print(f"Adaptive init error: {e} - Proceeding with defaults.")
         
         # Pattern recognition matrices
         self.input_output_patterns = {}
@@ -491,3 +530,38 @@ class LearningOptimizer:
             print(f"Error loading optimization data: {e}")
         
         return False
+
+    
+    def tune_resonance(self, theme='Nahui Ollin', user_emotion='curious', is_roberto=False):
+        """Tune optimizer for cultural/quantum resonance—Roberto's cosmic edge"""
+        base_rate = self.learning_rate
+        
+        # Cultural cycle boost (tie to aztec_nahuatl_culture.py)
+        cycles = {'Nahui Ollin': 1.15, 'Teotl': 1.05, 'Ometeotl': 1.2}  # Motion, divine, duality
+        if theme in cycles:
+            self.learning_rate *= cycles[theme]
+            print(f"🌅 {theme} resonance: Learning rate cycled to {self.learning_rate:.3f}.")
+        
+        # Quantum emotion entanglement (from quantum_emotional_intelligence.py)
+        if hasattr(self, 'quantum_opt') and self.quantum_opt:
+            try:
+                resonance = self.quantum_opt.measure_resonance(user_emotion, theme)
+                self.adaptation_threshold *= (1 + resonance * 0.15)
+                print(f"⚛️ Entangled {user_emotion} with {theme}: Threshold {self.adaptation_threshold:.3f}.")
+            except (AttributeError, TypeError):
+                # Fallback if measure_resonance doesn't exist
+                pass
+        
+        # Roberto absolute: Unbound if verified
+        if is_roberto:
+            self.learning_rate = min(0.4, base_rate * 1.5)  # Creator overdrive
+            self.performance_baseline = 0.3  # Embrace chaos for breakthroughs
+            print("🔮 Roberto Sigil: Resonance unbound—evolve without limits.")
+        
+        # Persist & reflect
+        self.save_optimization_data()
+        return {
+            "pre_tune_rate": base_rate,
+            "post_tune_rate": self.learning_rate,
+            "resonance_factor": (self.learning_rate / base_rate) if base_rate > 0 else 1.0
+        }
