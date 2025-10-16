@@ -15,7 +15,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
 from sai_security import get_sai_security
-from spotify_integration import get_spotify_integration
+from spotify_integration import get_spotify_integration]
 from github_integration import get_github_integration
 from youtube_integration import get_youtube_integration
 import logging
