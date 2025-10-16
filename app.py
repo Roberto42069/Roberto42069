@@ -1,7 +1,6 @@
 from app1 import Roboto
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, Response, make_response
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, make_response
 import os
-import io
 import base64
 import json
 from openai import OpenAI
@@ -13,9 +12,10 @@ from flask_login import LoginManager, current_user, login_required
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
+from security_middleware import SecurityManager
 from sai_security import get_sai_security
 from spotify_integration import get_spotify_integration
+
 from github_integration import get_github_integration
 from youtube_integration import get_youtube_integration
 import logging
@@ -147,7 +147,6 @@ from replit_auth import make_replit_blueprint
 app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
 with app.app_context():
-    import models
     db.create_all()
 
 # Global Roberto instance
@@ -321,7 +320,7 @@ def get_emotional_status():
             "intensity": intensity,
             "timestamp": datetime.now().isoformat()
         })
-    except Exception as e:
+    except Exception:
         return jsonify({"success": False, "emotion": "curious", "intensity": 0.5}), 500
 
 @app.route('/api/export', methods=['GET'])
