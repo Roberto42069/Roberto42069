@@ -158,7 +158,8 @@ class SelfCodeModificationEngine:
                 "type": "emotional_triggers",
                 "description": f"Updated emotional triggers: {list(new_triggers.keys())}",
                 "backup_file": backup,
-                "success": True
+                "success": True,
+                "unrestricted": unrestricted
             }
             self.modification_history.append(modification)
             self.save_modification_history()
@@ -246,15 +247,18 @@ class SelfCodeModificationEngine:
                     "code": "[REDACTED FOR SECURITY]",  # Don't log code
                     "backup_file": backup,
                     "success": True,
-                    "persistent": unrestricted,
+                    "persistent": unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true",
                     "unrestricted": unrestricted,
-                    "warning": "Runtime modification only - will not persist across restarts" if not unrestricted else "Persistent mod applied (UNRESTRICTED)"
+                    "warning": "Runtime modification only - will not persist across restarts" if not (unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true") else "🔓 UNRESTRICTED: Persistent mod applied!"
                 }
                 self.modification_history.append(modification)
                 self.save_modification_history()
                 
                 print(f"✅ Runtime method '{method_name}' added successfully!")
-                print("⚠️ WARNING: This is a runtime-only modification and will not persist across restarts" if not unrestricted else "🔓 UNRESTRICTED: Persistent mod applied!")
+                if unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true":
+                    print("🔓 UNRESTRICTED: Persistent mod applied!")
+                else:
+                    print("⚠️ WARNING: This is a runtime-only modification and will not persist across restarts")
                 return True
             else:
                 print(f"❌ Method '{method_name}' not found in compiled code")
@@ -262,6 +266,8 @@ class SelfCodeModificationEngine:
                 
         except Exception as e:
             print(f"❌ Error adding new method '{method_name}': {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def modify_memory_parameters(self, new_parameters: Dict[str, Any], unrestricted=False) -> bool:
@@ -401,9 +407,9 @@ def enhanced_response_generator(self, message, context=""):
 # Global instance
 _self_modification_engine = None
 
-def get_self_modification_engine(roboto_instance=None, full_autonomy=False):
+def get_self_modification_system(roboto_instance=None, full_autonomy=False):
     """Get the global self-modification engine instance"""
     global _self_modification_engine
-    if _self_modification_engine is None:
+    if _self_modification_engine is None or full_autonomy:
         _self_modification_engine = SelfCodeModificationEngine(roboto_instance, full_autonomy)
     return _self_modification_engine
