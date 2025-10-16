@@ -364,7 +364,8 @@ def logged_in(blueprint, token):
         if next_url:
             return redirect(next_url)
         else:
-            return redirect(url_for('index'))
+            # Always redirect to app_main after successful login
+            return redirect(url_for('app_main'))
             
     except Exception as e:
         app.logger.error(f"Authentication failed: {e}")

@@ -544,21 +544,16 @@ def _save_to_file_backup(user_data):
 
 @app.route('/')
 def index():
+    # Check if user is authenticated
     try:
         if database_available and hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
             return redirect(url_for('app_main'))
+        else:
+            # Not authenticated - redirect to login
+            return redirect(url_for('replit_auth.login'))
     except:
-        pass
-
-    # Provide current_user context for template
-    user_context = None
-    try:
-        if database_available and hasattr(current_user, 'is_authenticated'):
-            user_context = current_user
-    except:
-        pass
-
-    return render_template('index.html', current_user=user_context)
+        # Error checking auth - redirect to login to be safe
+        return redirect(url_for('replit_auth.login'))
 
 @app.route('/app')
 @login_required
