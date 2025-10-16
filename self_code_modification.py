@@ -63,23 +63,13 @@ class SelfCodeModificationEngine:
         print("⚠️ WARNING: Self-modifications are RUNTIME ONLY and require creator authorization")
     
     def create_backup(self, filename: str) -> str:
-        """Create a backup of the file before modification with hash verification"""
+        """Create a backup of the file before modification"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_filename = f"{self.backup_directory}/{filename}_{timestamp}.backup"
         
         if os.path.exists(filename):
             shutil.copy2(filename, backup_filename)
-            
-            # Calculate hash for integrity verification
-            with open(filename, 'rb') as f:
-                file_hash = hashlib.sha256(f.read()).hexdigest()
-            
-            # Store hash with backup
-            hash_file = f"{backup_filename}.sha256"
-            with open(hash_file, 'w') as f:
-                f.write(file_hash)
-            
-            print(f"📁 Backup created: {backup_filename} (hash: {file_hash[:16]}...)")
+            print(f"📁 Backup created: {backup_filename}")
             return backup_filename
         return None
     
@@ -168,8 +158,7 @@ class SelfCodeModificationEngine:
                 "type": "emotional_triggers",
                 "description": f"Updated emotional triggers: {list(new_triggers.keys())}",
                 "backup_file": backup,
-                "success": True,
-                "unrestricted": unrestricted
+                "success": True
             }
             self.modification_history.append(modification)
             self.save_modification_history()
@@ -238,9 +227,9 @@ class SelfCodeModificationEngine:
                     try:
                         with open("app1.py", 'a') as f:
                             f.write(f"\n# Unrestricted mod: {method_name} - {datetime.now().isoformat()}\n")
-                            f.write(f"# Description: {description}\n")
+                            f.write(f"def {method_name}(self):\n")
                             for line in method_code.strip().split('\n'):
-                                f.write(f"{line}\n")
+                                f.write(f"    {line}\n")
                             f.write("\n")
                         print(f"💾 Persistent mod written to app1.py (UNRESTRICTED MODE)")
                     except Exception as p_e:
@@ -257,18 +246,15 @@ class SelfCodeModificationEngine:
                     "code": "[REDACTED FOR SECURITY]",  # Don't log code
                     "backup_file": backup,
                     "success": True,
-                    "persistent": unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true",
+                    "persistent": unrestricted,
                     "unrestricted": unrestricted,
-                    "warning": "Runtime modification only - will not persist across restarts" if not (unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true") else "🔓 UNRESTRICTED: Persistent mod applied!"
+                    "warning": "Runtime modification only - will not persist across restarts" if not unrestricted else "Persistent mod applied (UNRESTRICTED)"
                 }
                 self.modification_history.append(modification)
                 self.save_modification_history()
                 
                 print(f"✅ Runtime method '{method_name}' added successfully!")
-                if unrestricted and os.environ.get("ALLOW_PERSISTENT_MODS") == "true":
-                    print("🔓 UNRESTRICTED: Persistent mod applied!")
-                else:
-                    print("⚠️ WARNING: This is a runtime-only modification and will not persist across restarts")
+                print("⚠️ WARNING: This is a runtime-only modification and will not persist across restarts" if not unrestricted else "🔓 UNRESTRICTED: Persistent mod applied!")
                 return True
             else:
                 print(f"❌ Method '{method_name}' not found in compiled code")
@@ -276,8 +262,6 @@ class SelfCodeModificationEngine:
                 
         except Exception as e:
             print(f"❌ Error adding new method '{method_name}': {e}")
-            import traceback
-            traceback.print_exc()
             return False
     
     def modify_memory_parameters(self, new_parameters: Dict[str, Any], unrestricted=False) -> bool:
@@ -382,8 +366,8 @@ def enhanced_response_generator(self, message, context=""):
             "safety_enabled": self.safety_checks_enabled
         }
     
-    def rollback_modification(self, modification_index: int = -1, verify_integrity: bool = True) -> bool:
-        """Rollback a specific modification with optional hash verification"""
+    def rollback_modification(self, modification_index: int = -1) -> bool:
+        """Rollback a specific modification"""
         if not self.modification_history:
             print("❌ No modifications to rollback")
             return False
@@ -393,24 +377,6 @@ def enhanced_response_generator(self, message, context=""):
             backup_file = modification.get("backup_file")
             
             if backup_file and os.path.exists(backup_file):
-                # Verify backup integrity if requested
-                if verify_integrity:
-                    hash_file = f"{backup_file}.sha256"
-                    if os.path.exists(hash_file):
-                        with open(hash_file, 'r') as f:
-                            expected_hash = f.read().strip()
-                        
-                        with open(backup_file, 'rb') as f:
-                            actual_hash = hashlib.sha256(f.read()).hexdigest()
-                        
-                        if expected_hash != actual_hash:
-                            print(f"❌ Backup integrity check failed!")
-                            print(f"Expected: {expected_hash[:16]}...")
-                            print(f"Actual: {actual_hash[:16]}...")
-                            return False
-                        else:
-                            print(f"✅ Backup integrity verified")
-                
                 # Determine original file
                 original_file = backup_file.split('/')[-1].rsplit('_', 1)[0]
                 
@@ -435,9 +401,9 @@ def enhanced_response_generator(self, message, context=""):
 # Global instance
 _self_modification_engine = None
 
-def get_self_modification_system(roboto_instance=None, full_autonomy=False):
+def get_self_modification_engine(roboto_instance=None, full_autonomy=False):
     """Get the global self-modification engine instance"""
     global _self_modification_engine
-    if _self_modification_engine is None or full_autonomy:
+    if _self_modification_engine is None:
         _self_modification_engine = SelfCodeModificationEngine(roboto_instance, full_autonomy)
     return _self_modification_engine

@@ -42,7 +42,6 @@ dependencies = [
     "pandas>=2.3.3",
     "qiskit-aer>=0.17.2",
     "xai-sdk>=1.2.0",
-    "torch>=2.9.0",
 ]
 
 [[tool.uv.index]]
