@@ -38,7 +38,7 @@ waitForPort = 5000
 [[workflows.workflow]]
 name = "Start Roboto SAI"
 author = 43301296
-mode = "parallel"
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
