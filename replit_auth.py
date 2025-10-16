@@ -16,12 +16,10 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.exc import NoResultFound
 from werkzeug.local import LocalProxy
 
-# Import app and db from app_enhanced after it's initialized
+# Import will be set by app_enhanced.py to avoid circular imports
 app = None
 db = None
 login_manager = None
-
-# User loader will be set in app_enhanced.py to avoid circular imports
 
 import tempfile
 import json

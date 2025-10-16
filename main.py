@@ -1,4 +1,4 @@
-from app_enhanced import app
+from app import app
 
 # Export app for gunicorn
 # gunicorn will use: gunicorn main:app
