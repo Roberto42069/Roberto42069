@@ -1,17 +1,29 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Integer, Text, DateTime, Boolean, JSON
-from flask_login import UserMixin
+from sqlalchemy import Integer, String, DateTime, Boolean, JSON, Text
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
-import json
+from flask_login import UserMixin
+from app_enhanced import db
 
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
 
-class User(db.Model):
+class RobotoUser(UserMixin, db.Model):
+    """Legacy Roboto user model for compatibility"""
     __tablename__ = 'roboto_users'
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    replit_user_id: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    username: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    last_login: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     replit_user_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
@@ -23,7 +35,7 @@ class User(db.Model):
 
     # Relationship to user data
     user_data = db.relationship('UserData', back_populates='user', uselist=False, cascade='all, delete-orphan')
-    
+
     @property
     def roboto_data(self):
         """Alias for backward compatibility"""
@@ -47,7 +59,7 @@ class UserData(db.Model):
     __tablename__ = 'user_data'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('roboto_users.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey('users.id'), nullable=False)
 
     # Roboto conversation data
     chat_history = db.Column(JSON, default=lambda: [])
