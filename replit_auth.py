@@ -360,11 +360,11 @@ def logged_in(blueprint, token):
         login_user(user)
         blueprint.token = token
         
-        # Clear any lingering next_url and redirect to chat interface
         next_url = session.pop("next_url", None)
-        
-        # Always redirect to app_main (chat interface) after successful login
-        return redirect(url_for('app_main'))
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(url_for('index'))
             
     except Exception as e:
         app.logger.error(f"Authentication failed: {e}")

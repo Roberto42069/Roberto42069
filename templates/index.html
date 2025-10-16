@@ -24,12 +24,18 @@
             </a>
             <div class="navbar-nav ms-auto">
                 <div class="d-flex align-items-center">
+                    {% if current_user and current_user.is_authenticated %}
                     <span class="navbar-text me-3">
-                        <small>Welcome back, {{ current_user.username or current_user.first_name or 'User' }}!</small>
+                        <small>Welcome back, {{ current_user.first_name or 'User' }}!</small>
                     </span>
                     <a href="{{ url_for('replit_auth.logout') }}" class="btn btn-outline-danger btn-sm">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </a>
+                    {% else %}
+                    <a href="/auth/replit_auth" class="btn btn-primary btn-sm">
+                        <i class="fas fa-robot me-1"></i>Start Chat
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

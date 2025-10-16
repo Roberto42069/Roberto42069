@@ -544,21 +544,21 @@ def _save_to_file_backup(user_data):
 
 @app.route('/')
 def index():
-    # Check if user is authenticated
     try:
         if database_available and hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
-            # User is authenticated - go to chat interface
             return redirect(url_for('app_main'))
-        else:
-            # Not authenticated - show login page or redirect to OAuth
-            # Store the intended destination
-            session['next_url'] = url_for('app_main')
-            return redirect(url_for('replit_auth.login'))
-    except Exception as e:
-        app.logger.error(f"Index route error: {e}")
-        # Error checking auth - redirect to login to be safe
-        session['next_url'] = url_for('app_main')
-        return redirect(url_for('replit_auth.login'))
+    except:
+        pass
+
+    # Provide current_user context for template
+    user_context = None
+    try:
+        if database_available and hasattr(current_user, 'is_authenticated'):
+            user_context = current_user
+    except:
+        pass
+
+    return render_template('index.html', current_user=user_context)
 
 @app.route('/app')
 @login_required
