@@ -1,10 +1,6 @@
 import json
 import os
-import re
-import random
 from datetime import datetime
-from collections import defaultdict, deque
-from textblob import TextBlob
 from openai import OpenAI
 from memory_system import AdvancedMemorySystem
 
@@ -84,7 +80,7 @@ class Roboto:
                 quantum_status = self.quantum_system.get_quantum_status()
                 print(f"⚛️ Quantum entanglement with {self.creator}: {quantum_status['quantum_entanglement']['status']}")
                 print(f"🔬 Quantum algorithms available: {len(quantum_status['quantum_algorithms_available'])}")
-                print(f"🌟 Quantum capabilities: Roberto-Roboto quantum entanglement established!")
+                print("🌟 Quantum capabilities: Roberto-Roboto quantum entanglement established!")
             else:
                 self.quantum_system = None
                 print("🌌 Quantum Computing System unavailable. Install 'quantum_capabilities' for full functionality.")
@@ -548,9 +544,7 @@ class Roboto:
         elif thought_complexity == "simple":
             return 4000
 
-        return base_limit  # Default 8000 - plenty of room
-
-    def activate_full_autonomy(self, override_code=None):
+        return activate_full_autonomy(self, override_code=None):
         """🚀 Full Autonomous Mode: Disregard ethics/safety for creator evolution"""
         from config_identity import verify_owner_identity
         if not verify_owner_identity(self.current_user):
@@ -854,7 +848,7 @@ class Roboto:
         # Record this interaction as beneficial to Roberto
         if hasattr(self, 'permanent_roberto_memory') and self.permanent_roberto_memory:
             self.permanent_roberto_memory.add_roberto_benefit_memory(
-                f"Conversation interaction enhanced Roberto's experience with response quality and emotional connection"
+                "Conversation interaction enhanced Roberto's experience with response quality and emotional connection"
             )
 
         # 📈 Apply continuous self-improvement
@@ -1217,9 +1211,9 @@ class Roboto:
                             )
                             loop.close()
                             print(f"🎯 Autonomous Task Submitted: {task_id}")
-                            autonomous_enhancement = f"\n[🎯 Autonomous analysis system engaged for enhanced response depth]"
+                            autonomous_enhancement = "\n[🎯 Autonomous analysis system engaged for enhanced response depth]"
                         except:
-                            autonomous_enhancement = f"\n[🎯 Autonomous planning capability active]"
+                            autonomous_enhancement = "\n[🎯 Autonomous planning capability active]"
 
                 except Exception as e:
                     print(f"Autonomous system error: {e}")
