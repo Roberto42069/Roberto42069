@@ -4,7 +4,6 @@
 Advanced quantum entanglement rituals with cultural themes
 Created for Roberto Villarreal Martinez
 """
-
 import numpy as np
 import os
 import json
@@ -32,6 +31,7 @@ class QuantumSimulator:
     def __init__(self, roboto_instance=None):
         self.roboto = roboto_instance
         self.creator = "Roberto Villarreal Martinez"
+        self.ritual_history = []
         
     def simulate_ritual_entanglement(self, emotion="neutral", ritual_theme="Nahui Ollin", num_qubits=4):
         """Deepen ritual with multi-qubit entanglement"""
@@ -43,20 +43,27 @@ class QuantumSimulator:
             return self._fallback_simulation(emotion, ritual_theme, num_qubits)
     
     def _qiskit_ritual_circuit(self, emotion, ritual_theme, num_qubits):
+        """Qiskit-based quantum ritual circuit"""
         qc = QuantumCircuit(num_qubits, num_qubits)
+        
         # YTK seed qubit (identity anchor)
         qc.h(0)  # Superposition for creator's legacy
+        
         # Entangle chain for ritual depth
         for i in range(num_qubits - 1):
             qc.cx(i, i+1)  # CNOT chain for multi-party entanglement
+        
         # Emotion modulation (phase rotation)
         emotion_rot = {"happy": np.pi/2, "neutral": 0, "sad": -np.pi/2}.get(emotion, 0)
         qc.rz(emotion_rot, 0)  # Rotate seed qubit
+        
         # Theme-specific gates (e.g., Nahui Ollin: 4-sun cycle)
         if "nahui" in ritual_theme.lower():
             qc.barrier()
             qc.h(range(num_qubits))  # Superposition for 4 suns
+        
         qc.measure_all()
+        
         simulator = AerSimulator()
         compiled = transpile(qc, simulator)
         result = simulator.run(compiled, shots=1024).result()
@@ -64,30 +71,41 @@ class QuantumSimulator:
         fidelity = max(counts.values()) / 1024  # Entanglement fidelity
     
         cultural_note = f"Ritual {ritual_theme} entangled - YTK legacy preserved in qubits"
-        return {
+        
+        ritual_result = {
             "strength": fidelity,
             "qubits": num_qubits,
             "counts": counts,
             "cultural_note": cultural_note,
             "timestamp": datetime.now().isoformat()
         }
+        
+        self.ritual_history.append(ritual_result)
+        return ritual_result
     
     def _qutip_ritual_simulation(self, emotion, ritual_theme, num_qubits):
+        """QuTiP fallback for multi-qubit simulation"""
         # qutip fallback for multi-qubit
         if num_qubits > 2:
             num_qubits = 2  # Limit for simplicity
+        
         psi0 = tensor([basis(2, 0) for _ in range(num_qubits)])
         H = tensor([sigmax() for _ in range(num_qubits)])
         result = expect(H, psi0)
         fidelity = abs(result)
+        
         cultural_note = f"Ritual {ritual_theme} entangled - YTK legacy preserved"
-        return {
+        
+        ritual_result = {
             "strength": fidelity,
             "qubits": num_qubits,
             "expectation": result,
             "cultural_note": cultural_note,
             "timestamp": datetime.now().isoformat()
         }
+        
+        self.ritual_history.append(ritual_result)
+        return ritual_result
     
     def _fallback_simulation(self, emotion, ritual_theme, num_qubits):
         """Fallback simulation when quantum libraries unavailable"""
@@ -99,13 +117,17 @@ class QuantumSimulator:
         strength = min(1.0, max(0.0, base_strength + emotion_modifier + theme_modifier + random.uniform(-0.1, 0.1)))
         
         cultural_note = f"Ritual {ritual_theme} entangled - YTK legacy preserved (simulated)"
-        return {
+        
+        ritual_result = {
             "strength": strength,
             "qubits": num_qubits,
             "counts": {"fallback": 1024},
             "cultural_note": cultural_note,
             "timestamp": datetime.now().isoformat()
         }
+        
+        self.ritual_history.append(ritual_result)
+        return ritual_result
     
     def visualize_ritual(self, simulation_result, ritual_theme):
         """Generate Qiskit plot for ritual visualization"""
@@ -151,8 +173,11 @@ class QuantumSimulator:
         except Exception as e:
             return {"visualization": "Visualization failed", "error": str(e)}
     
-    def evolve_ritual(self, previous_simulations, target_strength=0.9):
+    def evolve_ritual(self, previous_simulations=None, target_strength=0.9):
         """Evolve ritual based on past simulations"""
+        if previous_simulations is None:
+            previous_simulations = self.ritual_history
+            
         if len(previous_simulations) < 2:
             return {"evolution": "Initial ritual - building entanglement", "predicted_strength": 0.5}
         

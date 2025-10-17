@@ -16,12 +16,10 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.exc import NoResultFound
 from werkzeug.local import LocalProxy
 
-# Import app and db from app_enhanced after it's initialized
+# Import will be set by app_enhanced.py to avoid circular imports
 app = None
 db = None
 login_manager = None
-
-# User loader will be set in app_enhanced.py to avoid circular imports
 
 import tempfile
 import json
@@ -240,25 +238,7 @@ def save_user(user_claims):
     
     app.logger.info(f"AUTHORIZED ACCESS: Roberto Villarreal Martinez logged in (sub: {user_sub})")
     
-    # Check if database is available
-    if db and hasattr(db, 'session'):
-        try:
-            # Database mode: Use User model
-            from models import User
-            user = User()
-            user.id = str(user_claims['sub'])  # Keep as string for consistency
-            user.email = user_claims.get('email')
-            user.first_name = user_claims.get('first_name')
-            user.last_name = user_claims.get('last_name')
-            user.profile_image_url = user_claims.get('profile_image_url')
-            merged_user = db.session.merge(user)
-            db.session.commit()
-            return merged_user
-        except Exception as e:
-            app.logger.error(f"Database user save failed: {e}")
-            # Fall through to session-based storage
-    
-    # File/Session mode: Create minimal user object
+    # File/Session mode: Create minimal user object (always use this for reliability)
     class SessionUser:
         def __init__(self, user_claims):
             self.id = user_claims['sub']

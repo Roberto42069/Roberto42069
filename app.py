@@ -148,6 +148,8 @@ app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
 with app.app_context():
     import models
+    # Set db reference in models
+    models.db = db
     db.create_all()
 
 # Global Roberto instance
@@ -290,17 +292,41 @@ def intro():
 
 
 @app.route('/api/history', methods=['GET'])
-@login_required
 def get_chat_history():
+    """Get conversation history - accessible without strict authentication"""
     try:
-        user_data = current_user.roboto_data
-        if user_data and user_data.chat_history:
-            return jsonify({"success": True, "history": user_data.chat_history})
-        else:
-            return jsonify({"success": True, "history": []})
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({
+                "success": False,
+                "history": [],
+                "error": "Roboto system not available"
+            })
+
+        history = getattr(roberto, 'chat_history', [])
+
+        # Check authentication status
+        authenticated = False
+        try:
+            if current_user.is_authenticated:
+                authenticated = True
+        except:
+            pass
+
+        return jsonify({
+            "success": True,
+            "history": history,
+            "authenticated": authenticated,
+            "count": len(history)
+        })
     except Exception as e:
-        app.logger.error(f"Error getting chat history: {e}")
-        return jsonify({"success": False, "history": []})
+        app.logger.error(f"History error: {e}")
+        return jsonify({
+            "success": False,
+            "history": [],
+            "error": "Failed to load history",
+            "authenticated": False
+        })
 
 
 
@@ -398,6 +424,38 @@ def set_user_data_cookies():
             return jsonify({"success": False, "message": "No user data found"}), 404
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/activate-fam', methods=['POST'])
+@login_required
+def activate_fam():
+    """Activate Full Autonomous Mode with quantum sigil"""
+    try:
+        data = request.get_json()
+        override_code = data.get('override_code')
+        
+        roberto = get_user_roberto()
+        if not roberto:
+            return jsonify({
+                "success": False,
+                "error": "Roboto system not available"
+            }), 500
+        
+        # Activate FAM
+        result = roberto.activate_full_autonomy(override_code=override_code)
+        
+        return jsonify({
+            "success": True,
+            "message": result,
+            "fam_active": roberto.full_autonomous_mode,
+            "evolution_cycles": getattr(roberto, 'evolution_cycles', 0)
+        })
+        
+    except Exception as e:
+        app.logger.error(f"FAM activation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"FAM activation failed: {str(e)}"
+        }), 500
 
 @app.route('/api/generate-manifesto', methods=['POST'])
 @login_required
