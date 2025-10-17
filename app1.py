@@ -494,6 +494,10 @@ class Roboto:
                 return f"Failed to update the file: {str(e)}"
         return "No valid update command found"
 
+    def get_dynamic_token_limit(self, message, thought_complexity="standard"):
+        """
+        🚀 Dynamic Token Allocation - 8000+ Context Window
+
     def _propagate_unrestricted_mode(self):
         """Propagate FAM unrestricted to all subsystems"""
         # Self-code mod
@@ -528,10 +532,6 @@ class Roboto:
 
         logger.info("🔓 Unrestricted mode propagated to all subsystems—FAM complete.")
 
-    def get_dynamic_token_limit(self, message, thought_complexity="standard"):
-        """
-        🚀 Dynamic Token Allocation - 8000+ Context Window
-        
         Intelligently scales token limits based on message complexity and type
 
         Args:

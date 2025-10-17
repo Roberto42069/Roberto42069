@@ -1,14 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, DateTime, Boolean, JSON, Text
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from flask_login import UserMixin
+from app_enhanced import db
 
 class Base(DeclarativeBase):
     pass
 
-# db will be initialized by app.py
-db = None
+db = SQLAlchemy(model_class=Base)
 
 class RobotoUser(UserMixin, db.Model):
     """Legacy Roboto user model for compatibility"""
