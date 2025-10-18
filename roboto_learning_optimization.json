@@ -1,18 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-18T11:15:11.661015",
-      "quality": 0.42,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-18T11:15:44.488706",
       "quality": 0.72,
       "metrics": {
@@ -11999,6 +11987,18 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-10-18T18:02:25.315740",
+      "quality": 0.6946575342465755,
+      "metrics": {
+        "relevance": 0.6986301369863014,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 1.0,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -16807,9 +16807,10 @@
         0.6275,
         0.645,
         0.4571428571428571,
-        0.5435714285714286
+        0.5435714285714286,
+        0.6946575342465755
       ],
-      "improvement_rate": 0.024962454212454244
+      "improvement_rate": 0.05858626875407691
     },
     "working": {
       "scores": [
@@ -21879,9 +21880,10 @@
         0.6546153846153846,
         0.6245833333333333,
         0.6425233644859814,
-        0.5963636363636364
+        0.5963636363636364,
+        0.6946575342465755
       ],
-      "improvement_rate": -0.05378965930399049
+      "improvement_rate": -0.02869331728984026
     },
     "ending": {
       "scores": [
@@ -22443,11 +22445,16 @@
         0.6425233644859814
       ],
       "improvement_rate": 0.0
+    },
+    "keys": {
+      "scores": [
+        0.6946575342465755
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.7261111111111112,
       0.642596153846154,
       0.7937500000000001,
       0.5598739495798319,
@@ -22496,7 +22503,8 @@
       0.6095238095238096,
       0.6245833333333333,
       0.6425233644859814,
-      0.5963636363636364
+      0.5963636363636364,
+      0.6946575342465755
     ],
     "existential": [
       0.5900000000000001,
@@ -23217,6 +23225,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 2207,
-  "last_updated": "2025-10-18T17:59:23.595122"
+  "optimization_cycles": 2208,
+  "last_updated": "2025-10-18T18:02:25.459037"
 }
