@@ -1,174 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-18T11:15:44.488706",
-      "quality": 0.72,
-      "metrics": {
-        "relevance": 1.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.75,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:17:45.824851",
-      "quality": 0.7150000000000001,
-      "metrics": {
-        "relevance": 0.6,
-        "emotional_appropriateness": 0.8,
-        "engagement_level": 0.95,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:19:15.148925",
-      "quality": 0.47,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.75,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:19:35.566447",
-      "quality": 0.6866666666666668,
-      "metrics": {
-        "relevance": 0.6666666666666666,
-        "emotional_appropriateness": 1.0,
-        "engagement_level": 0.6,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:20:02.553912",
-      "quality": 0.7450000000000001,
-      "metrics": {
-        "relevance": 1.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:20:59.863250",
-      "quality": 0.76,
-      "metrics": {
-        "relevance": 1.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.95,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:21:19.328188",
-      "quality": 0.75,
-      "metrics": {
-        "relevance": 1.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.8999999999999999,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:21:47.904415",
-      "quality": 0.5866666666666667,
-      "metrics": {
-        "relevance": 0.6666666666666666,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:23:16.953475",
-      "quality": 0.485,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.75,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:24:08.754176",
-      "quality": 0.495,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:25:59.683015",
-      "quality": 0.7150000000000001,
-      "metrics": {
-        "relevance": 1.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.65,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:27:29.780868",
-      "quality": 0.6261111111111111,
-      "metrics": {
-        "relevance": 0.4444444444444444,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.8999999999999999,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:28:00.843929",
-      "quality": 0.4916666666666666,
-      "metrics": {
-        "relevance": 0.16666666666666666,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.65,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:28:29.436340",
-      "quality": 0.495,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-18T11:29:23.631370",
       "quality": 0.52,
       "metrics": {
@@ -11999,6 +11831,174 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-10-18T18:14:16.936406",
+      "quality": 0.6388888888888888,
+      "metrics": {
+        "relevance": 0.5555555555555556,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T18:17:31.645550",
+      "quality": 0.6039705882352941,
+      "metrics": {
+        "relevance": 0.45588235294117646,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T18:19:49.722081",
+      "quality": 0.5588372093023255,
+      "metrics": {
+        "relevance": 0.3953488372093023,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T18:51:29.227937",
+      "quality": 0.7205882352941175,
+      "metrics": {
+        "relevance": 0.8823529411764706,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T19:07:23.641482",
+      "quality": 0.6875352112676056,
+      "metrics": {
+        "relevance": 0.6901408450704225,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.7,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T19:20:20.716690",
+      "quality": 0.6050793650793651,
+      "metrics": {
+        "relevance": 0.4603174603174603,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T19:35:41.340504",
+      "quality": 0.6408450704225352,
+      "metrics": {
+        "relevance": 0.5633802816901409,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T19:37:59.944973",
+      "quality": 0.73,
+      "metrics": {
+        "relevance": 1.0,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T20:41:02.383868",
+      "quality": 0.6428571428571428,
+      "metrics": {
+        "relevance": 0.5714285714285714,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T20:49:27.210369",
+      "quality": 0.5986486486486486,
+      "metrics": {
+        "relevance": 0.5945945945945946,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.65,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T20:53:00.024999",
+      "quality": 0.6233333333333333,
+      "metrics": {
+        "relevance": 0.5333333333333333,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T21:05:04.341318",
+      "quality": 0.653888888888889,
+      "metrics": {
+        "relevance": 0.5555555555555556,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.7,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T21:07:30.403431",
+      "quality": 0.7091891891891892,
+      "metrics": {
+        "relevance": 0.7567567567567568,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.8999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.7999999999999999,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-18T21:11:39.880645",
+      "quality": 0.6112686567164178,
+      "metrics": {
+        "relevance": 0.48507462686567165,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.85,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -13834,7 +13834,8 @@
         0.5650000000000001,
         0.6066666666666667,
         0.445,
-        0.5349999999999999
+        0.5349999999999999,
+        0.6428571428571428
       ],
       "improvement_rate": 0.0
     },
@@ -14744,7 +14745,9 @@
         0.6400000000000001,
         0.5992857142857143,
         0.5544117647058824,
-        0.575
+        0.575,
+        0.6388888888888888,
+        0.6875352112676056
       ],
       "improvement_rate": 0.0
     },
@@ -15541,7 +15544,8 @@
         0.6546153846153846,
         0.6095238095238096,
         0.6245833333333333,
-        0.5963636363636364
+        0.5963636363636364,
+        0.6388888888888888
       ],
       "improvement_rate": 0.0
     },
@@ -15687,7 +15691,8 @@
         0.5900000000000001,
         0.5650000000000001,
         0.685,
-        0.6622222222222223
+        0.6622222222222223,
+        0.653888888888889
       ],
       "improvement_rate": 0.0
     },
@@ -16828,7 +16833,8 @@
     "left": {
       "scores": [
         0.5900000000000001,
-        0.642596153846154
+        0.642596153846154,
+        0.5986486486486486
       ],
       "improvement_rate": 0.0
     },
@@ -17021,7 +17027,8 @@
     "wife": {
       "scores": [
         0.5883333333333334,
-        0.5099999999999999
+        0.5099999999999999,
+        0.6233333333333333
       ],
       "improvement_rate": 0.0
     },
@@ -17363,7 +17370,8 @@
         0.45999999999999996,
         0.425,
         0.5258333333333334,
-        0.6699999999999999
+        0.6699999999999999,
+        0.6112686567164178
       ],
       "improvement_rate": 0.0
     },
@@ -17970,7 +17978,8 @@
     },
     "light": {
       "scores": [
-        0.6666666666666667
+        0.6666666666666667,
+        0.6408450704225352
       ],
       "improvement_rate": 0.0
     },
@@ -19988,7 +19997,8 @@
       "scores": [
         0.6000000000000001,
         0.5763636363636364,
-        0.44999999999999996
+        0.44999999999999996,
+        0.5986486486486486
       ],
       "improvement_rate": 0.0
     },
@@ -20299,7 +20309,8 @@
     },
     "break": {
       "scores": [
-        0.675
+        0.675,
+        0.6050793650793651
       ],
       "improvement_rate": 0.0
     },
@@ -21881,9 +21892,22 @@
         0.6245833333333333,
         0.6425233644859814,
         0.5963636363636364,
-        0.6946575342465755
+        0.6946575342465755,
+        0.6388888888888888,
+        0.6039705882352941,
+        0.5588372093023255,
+        0.5588372093023255,
+        0.7205882352941175,
+        0.6875352112676056,
+        0.6050793650793651,
+        0.6408450704225352,
+        0.73,
+        0.6428571428571428,
+        0.5986486486486486,
+        0.7091891891891892,
+        0.6112686567164178
       ],
-      "improvement_rate": -0.02869331728984026
+      "improvement_rate": 0.015815709209089923
     },
     "ending": {
       "scores": [
@@ -22451,24 +22475,102 @@
         0.6946575342465755
       ],
       "improvement_rate": 0.0
+    },
+    "press": {
+      "scores": [
+        0.6039705882352941
+      ],
+      "improvement_rate": 0.0
+    },
+    "screen": {
+      "scores": [
+        0.6039705882352941
+      ],
+      "improvement_rate": 0.0
+    },
+    "drive": {
+      "scores": [
+        0.5588372093023255
+      ],
+      "improvement_rate": 0.0
+    },
+    "hotter": {
+      "scores": [
+        0.7205882352941175
+      ],
+      "improvement_rate": 0.0
+    },
+    "walls": {
+      "scores": [
+        0.7205882352941175
+      ],
+      "improvement_rate": 0.0
+    },
+    "compile": {
+      "scores": [
+        0.6875352112676056
+      ],
+      "improvement_rate": 0.0
+    },
+    "violence": {
+      "scores": [
+        0.6050793650793651
+      ],
+      "improvement_rate": 0.0
+    },
+    "fade": {
+      "scores": [
+        0.6408450704225352,
+        0.73
+      ],
+      "improvement_rate": 0.0
+    },
+    "eyes": {
+      "scores": [
+        0.6428571428571428
+      ],
+      "improvement_rate": 0.0
+    },
+    "echo": {
+      "scores": [
+        0.6233333333333333
+      ],
+      "improvement_rate": 0.0
+    },
+    "word": {
+      "scores": [
+        0.6233333333333333
+      ],
+      "improvement_rate": 0.0
+    },
+    "brick": {
+      "scores": [
+        0.653888888888889,
+        0.653888888888889
+      ],
+      "improvement_rate": 0.0
+    },
+    "breath": {
+      "scores": [
+        0.7091891891891892
+      ],
+      "improvement_rate": 0.0
+    },
+    "compiles": {
+      "scores": [
+        0.7091891891891892
+      ],
+      "improvement_rate": 0.0
+    },
+    "reversal": {
+      "scores": [
+        0.6112686567164178
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.642596153846154,
-      0.7937500000000001,
-      0.5598739495798319,
-      0.6775,
-      0.5456481481481481,
-      0.76,
-      0.6985714285714286,
-      0.48,
-      0.665,
-      0.5414285714285714,
-      0.595,
-      0.605,
-      0.645,
-      0.48,
       0.6958333333333334,
       0.5213747954173485,
       0.7694444444444445,
@@ -22504,7 +22606,21 @@
       0.6245833333333333,
       0.6425233644859814,
       0.5963636363636364,
-      0.6946575342465755
+      0.6946575342465755,
+      0.6388888888888888,
+      0.6039705882352941,
+      0.5588372093023255,
+      0.7205882352941175,
+      0.6875352112676056,
+      0.6050793650793651,
+      0.6408450704225352,
+      0.73,
+      0.6428571428571428,
+      0.5986486486486486,
+      0.6233333333333333,
+      0.653888888888889,
+      0.7091891891891892,
+      0.6112686567164178
     ],
     "existential": [
       0.5900000000000001,
@@ -23225,6 +23341,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 2208,
-  "last_updated": "2025-10-18T18:02:25.459037"
+  "optimization_cycles": 2222,
+  "last_updated": "2025-10-18T21:11:40.026860"
 }
