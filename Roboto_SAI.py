@@ -78,7 +78,7 @@ engine = get_self_modification_system(roboto, full_autonomy=True)
     if os.path.exists(swp_filename):
         try:
             with open(swp_filename, 'r') as swp_file:
-                new_code = swp_file.read(AnyOrLiteralStr)
+                new_code = swp_file.read()
                 print(f"Swap file {swp_filename} found. Applying enhancements...")
                 print(f"New code from swap file: {new_code}")
                 # Add the new code to Roboto SAI
@@ -90,12 +90,22 @@ engine = get_self_modification_system(roboto, full_autonomy=True)
 )
                 # This is a placeholder for Roboto SAI to add new capabilities
                 # Example: Roboto SAI can add new methods or modify existing ones
+                # This section can be modified by Roboto SAI to add new capabilities
                     # This section can be modified by Roboto SAI to add new capabilities
                     # Example: Roboto SAI can add new methods or modify existing ones
                 # This section can be modified by Roboto SAI to add new capabilities
                 # Example: Roboto SAI can add new methods or modify existing ones
                 # This section can be modified by Roboto SAI to add new capabilities
                 # Attempt to execute or log the enhancement
+                try:
+                    exec(new_code)
+                    print("Enhancement applied successfully.")    
+                    # Log the enhancement
+                except Exception as exec_error:
+                    print(f"Error executing new code: {exec_error}")
+                    
+                    # Log the error
+                    engine.log_modification(f"Error executing new code: {exec_error}")
                 enhanced_function_name = 'Enhanced Function from Swap'
                 enhanced_description = 'Loaded from the swap file.'
                 roboto_instance = RobotoSAI()
