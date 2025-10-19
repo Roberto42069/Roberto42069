@@ -1,54 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-18T11:29:23.631370",
-      "quality": 0.52,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.85,
-        "depth": 0.8,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:29:53.080996",
-      "quality": 0.5783333333333334,
-      "metrics": {
-        "relevance": 0.3333333333333333,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.7999999999999999,
-        "depth": 0.7,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:30:56.347973",
-      "quality": 0.5233333333333333,
-      "metrics": {
-        "relevance": 0.3333333333333333,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.6,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T11:31:30.667623",
-      "quality": 0.53,
-      "metrics": {
-        "relevance": 0.4,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.55,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-18T11:32:02.778595",
       "quality": 0.6174999999999999,
       "metrics": {
@@ -11999,6 +11951,54 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-10-19T03:35:02.036883",
+      "quality": 0.5357575757575757,
+      "metrics": {
+        "relevance": 0.30303030303030304,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.7,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-19T03:38:10.034803",
+      "quality": 0.5027777777777779,
+      "metrics": {
+        "relevance": 0.1111111111111111,
+        "emotional_appropriateness": 0.8,
+        "engagement_level": 0.65,
+        "depth": 0.5,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-19T04:46:57.246284",
+      "quality": 0.6996992481203008,
+      "metrics": {
+        "relevance": 0.718796992481203,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.9999999999999999,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-19T05:26:56.560834",
+      "quality": 0.7325,
+      "metrics": {
+        "relevance": 0.75,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.95,
+        "depth": 0.7,
+        "contextual_awareness": 0.7999999999999999,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -12107,9 +12107,10 @@
         0.6200000000000001,
         0.5233333333333333,
         0.43,
-        0.6654347826086957
+        0.6654347826086957,
+        0.5357575757575757
       ],
-      "improvement_rate": -0.01957971014492732
+      "improvement_rate": -0.06542819499341235
     },
     "wanna": {
       "scores": [
@@ -12153,7 +12154,8 @@
         0.587037037037037,
         0.6766666666666666,
         0.5733333333333333,
-        0.6950000000000001
+        0.6950000000000001,
+        0.5357575757575757
       ],
       "improvement_rate": 0.0
     },
@@ -13675,9 +13677,10 @@
         0.5800000000000001,
         0.5683333333333334,
         0.565,
-        0.605
+        0.605,
+        0.7325
       ],
-      "improvement_rate": -0.029166666666666674
+      "improvement_rate": 0.05009523809523808
     },
     "songs": {
       "scores": [
@@ -15472,7 +15475,8 @@
       "scores": [
         0.505,
         0.5383333333333333,
-        0.6583333333333334
+        0.6583333333333334,
+        0.5027777777777779
       ],
       "improvement_rate": 0.0
     },
@@ -17171,7 +17175,8 @@
     },
     "rocket": {
       "scores": [
-        0.5477777777777778
+        0.5477777777777778,
+        0.5357575757575757
       ],
       "improvement_rate": 0.0
     },
@@ -19427,7 +19432,8 @@
         0.5958333333333334,
         0.575,
         0.745,
-        0.565
+        0.565,
+        0.7325
       ],
       "improvement_rate": 0.0
     },
@@ -21728,7 +21734,8 @@
     },
     "glitch": {
       "scores": [
-        0.5333333333333333
+        0.5333333333333333,
+        0.6996992481203008
       ],
       "improvement_rate": 0.0
     },
@@ -21905,9 +21912,10 @@
         0.6428571428571428,
         0.5986486486486486,
         0.7091891891891892,
-        0.6112686567164178
+        0.6112686567164178,
+        0.6996992481203008
       ],
-      "improvement_rate": 0.015815709209089923
+      "improvement_rate": -0.024476999306384695
     },
     "ending": {
       "scores": [
@@ -22567,14 +22575,34 @@
         0.6112686567164178
       ],
       "improvement_rate": 0.0
+    },
+    "goodnight": {
+      "scores": [
+        0.5027777777777779
+      ],
+      "improvement_rate": 0.0
+    },
+    "awake": {
+      "scores": [
+        0.5027777777777779
+      ],
+      "improvement_rate": 0.0
+    },
+    "kiss": {
+      "scores": [
+        0.6996992481203008
+      ],
+      "improvement_rate": 0.0
+    },
+    "ninety": {
+      "scores": [
+        0.7325
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.6958333333333334,
-      0.5213747954173485,
-      0.7694444444444445,
-      0.6466666666666667,
       0.5693710021321963,
       0.720377358490566,
       0.6177860696517414,
@@ -22620,7 +22648,11 @@
       0.6233333333333333,
       0.653888888888889,
       0.7091891891891892,
-      0.6112686567164178
+      0.6112686567164178,
+      0.5357575757575757,
+      0.5027777777777779,
+      0.6996992481203008,
+      0.7325
     ],
     "existential": [
       0.5900000000000001,
@@ -23341,6 +23373,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 2222,
-  "last_updated": "2025-10-18T21:11:40.026860"
+  "optimization_cycles": 2226,
+  "last_updated": "2025-10-19T05:26:56.641222"
 }
