@@ -3,15 +3,11 @@ Advanced Learning Engine for Roboto
 Implements sophisticated machine learning algorithms for continuous improvement
 """
 
-import json
-import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict, deque
 import pickle
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.cluster import KMeans
 import re
 
 class AdvancedLearningEngine:
@@ -107,7 +103,7 @@ class AdvancedLearningEngine:
                         "intensity": quantum_state["intensity"],
                         "source": "quantum_emotional_intelligence"
                     }
-            except Exception as e:
+            except Exception:
                 # Fall through to local detection
                 pass
         

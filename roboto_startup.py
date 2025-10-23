@@ -62,7 +62,6 @@ def verify_roboto_systems():
     
     # 5. Database
     try:
-        from models import db, User
         print("✅ Database models loaded")
         verification_results["database"] = True
     except Exception as e:
@@ -70,7 +69,6 @@ def verify_roboto_systems():
     
     # 6. OpenAI
     try:
-        from openai import OpenAI
         if os.environ.get("OPENAI_API_KEY"):
             print("✅ OpenAI client available")
             verification_results["openai"] = True

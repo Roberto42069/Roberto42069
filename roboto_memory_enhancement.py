@@ -5,9 +5,7 @@ Comprehensive memory optimization for Roberto Villarreal Martinez's maximum bene
 """
 
 import json
-import os
 from datetime import datetime
-from typing import Dict, Any, List
 
 class RobotoMemoryEnhancement:
     """Enhance all memory systems for Roberto's benefit"""

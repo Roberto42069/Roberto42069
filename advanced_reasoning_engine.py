@@ -5,9 +5,8 @@ Created by Roberto Villarreal Martinez
 This module provides advanced reasoning, planning, and analytical capabilities for SAI.
 """
 
-import json
 import time
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 import re
 

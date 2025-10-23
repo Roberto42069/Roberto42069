@@ -7,15 +7,10 @@ Enables Roboto to evolve its code autonomously while ensuring security and struc
 """
 
 import os
-import ast
-import inspect
 import json
-import time
 import shutil
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-import importlib
-import sys
+from typing import Dict, Any
 import hashlib  # Integrity and security checks
 
 class SelfCodeModificationEngine:

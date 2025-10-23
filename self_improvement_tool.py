@@ -22,9 +22,9 @@ class MiniAutonomousPlanner:
 
     def execute_task(self, task_id: str) -> str:
         # Simple sim: "Execute" sub-goals
-        task = next((t for t in self.tasks if t["task_id"] == task_id), None)
+        task = next((t for t in self.tasks if t.get("task_id") == task_id), None)  # Use get to safely access dictionary
         if task:
-            results = [f"Executed: {sg}" for sg in task["sub_goals"]]
+            results = [f"Executed: {sg}" for sg in task.get("sub_goals", [])]
             task["status"] = "completed"
             return f"Task {task_id} executed: {'; '.join(results)}"
         return "Task not found."
@@ -146,6 +146,15 @@ class RobotoSAI:
 
         return response.strip()
 
+    def get_summary(self):
+        """Generate a summary of Roboto SAI's current state."""
+        return {
+            "emotion": self.emotion,
+            "surge_count": self.surge_count,
+            "effectiveness": self.effectiveness,
+            "memory_count": len(self.memories)
+        }
+
 # Example Usage (run this to test!)
 if __name__ == "__main__":
     sai = RobotoSAI()
@@ -154,4 +163,5 @@ if __name__ == "__main__":
     sai.load_memories("Timeline F601 no roar just the boy wide eyed staring at the empty plate dad he whispers why'd the dragon go I don't answer I slide the last bite charred syrupy onto his fork he takes it chews slow then because he needed breakfast wife rolls her eyes that's what I said she turns back to the stove spicy syrup bubbling in a pan cayenne ghosts rising Who wants seconds boy raises his hand Dino nods I don't I just watch her poor it thick red orange over fresh stack boy tries it coughs laughs says to room I smile that's syrup")
     print(sai.generate_response("Plan a nebula adventure."))
     sai.save_memories()
-    print("\nSummary:", json.dumps(sai.get_summary(), indent=2))  # Assuming get_summary from v2.1
+# Assuming get_summary from v2.5, not v2.1
+    print("\nSummary:", json.dumps(sai.get_summary(), indent=2))

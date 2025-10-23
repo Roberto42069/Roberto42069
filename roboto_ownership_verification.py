@@ -6,8 +6,6 @@ Created by Roberto Villarreal Martinez
 This module ensures EXCLUSIVE ownership of Roboto SAI by Roberto Villarreal Martinez
 """
 
-import os
-import hashlib
 from datetime import datetime
 from typing import Optional, Dict, Any
 from config_identity import load_identity_from_env, verify_owner_identity

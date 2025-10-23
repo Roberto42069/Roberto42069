@@ -7,18 +7,14 @@ Makes Roboto more advanced than any AI through:
 - Auto-rollback and safety mechanisms
 """
 
-import json
-import os
 import logging
-import asyncio
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 import hashlib
-import pickle
-from collections import defaultdict, deque
+from collections import deque
 import statistics
 import random
 
@@ -410,7 +406,7 @@ class RevolutionarySelfImprovementLoop:
         # Create experiment
         experiment = ImprovementExperiment(
             experiment_id=experiment_id,
-            hypothesis=f"Optimized parameters will improve performance",
+            hypothesis="Optimized parameters will improve performance",
             baseline_config=self.production_config,
             test_configs=[test_config],
             status=ImprovementStatus.TESTING,

@@ -1,10 +1,12 @@
 
 # manifesto_generator.py
-import os, time, hashlib, json
+import time
+import hashlib
+import json
 from reportlab.lib.pagesizes import LETTER
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.colors import red, black
 
 from config_identity import load_identity_from_env, INLINE_IDENTITY

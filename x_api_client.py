@@ -5,7 +5,6 @@ Integrates X's Grok AI as the main AI provider with bearer token authentication
 
 import os
 import requests
-import json
 import time
 from typing import List, Dict, Any, Optional
 
@@ -35,7 +34,7 @@ class XAPIClient:
         # Suppress verbose output unless explicitly needed
         if not self.silent:
             if self.available:
-                print(f"🐦 X API (Grok) initialized with bearer token authentication")
+                print("🐦 X API (Grok) initialized with bearer token authentication")
             elif self.api_token and not self.valid_key:
                 print("⚠️ X API key format appears invalid. Using fallback AI provider.")
             else:
@@ -215,7 +214,7 @@ class XAPIClient:
             # Suppress verbose output unless explicitly needed
             if not self.silent:
                 if "Incorrect API key" in str(e) or "invalid argument" in str(e):
-                    print(f"⚠️ X API key invalid - please get a valid key from https://console.x.ai")
+                    print("⚠️ X API key invalid - please get a valid key from https://console.x.ai")
                 else:
                     print(f"X API connection test failed: {e}")
             return False

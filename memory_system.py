@@ -3,7 +3,7 @@ import re
 import json
 import hashlib
 from datetime import datetime, timedelta
-from collections import defaultdict, deque
+from collections import defaultdict
 from textblob import TextBlob
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -679,9 +679,9 @@ class AdvancedMemorySystem:
         archived = []
         
         print(f"🛡️ CHAT HISTORY PROTECTION: ALL {len(self.episodic_memories)} MEMORIES PERMANENTLY PROTECTED")
-        print(f"📚 ZERO memories deleted or archived - COMPLETE PROTECTION ACTIVE")
-        print(f"💾 Roberto memories: MAXIMUM PROTECTION")
-        print(f"🔒 Chat history deletion: PERMANENTLY DISABLED")
+        print("📚 ZERO memories deleted or archived - COMPLETE PROTECTION ACTIVE")
+        print("💾 Roberto memories: MAXIMUM PROTECTION")
+        print("🔒 Chat history deletion: PERMANENTLY DISABLED")
         
         # Save comprehensive protection report
         self._save_chat_history_protection_report(len(self.episodic_memories))
@@ -840,7 +840,7 @@ class AdvancedMemorySystem:
             noun_phrases = list(blob.noun_phrases)
             themes = [phrase.lower().strip() for phrase in noun_phrases if len(phrase.split()) <= 3 and phrase.strip()]
             return list(set(themes))[:5]  # Top 5 unique themes
-        except Exception as e:
+        except Exception:
             # Fallback: extract simple keywords
             try:
                 if not text or not isinstance(text, str):
