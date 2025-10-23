@@ -1,6 +1,5 @@
 import os
 import logging
-import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
@@ -91,7 +90,7 @@ try:
         with app.app_context():
             try:
                 # Import all models first
-                from models import User, UserData, OAuth, IntegrationSettings, SpotifyActivity, ConversationSession, MemoryEntry, RateLimitTracker, SecurityAuditLog, UserSession
+                from models import UserData
 
                 # Create all tables
                 db.create_all()
