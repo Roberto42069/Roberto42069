@@ -143,3 +143,6 @@ def example_enhancement() -> None:
     # 1) -> None:        # pass    # Roboto can also add new type variables    # Example:    # T = TypeVar('T')    # Roboto can also modify existing type variables    # Example:    # T = TypeVar('T', bound=int)
 if __name__ == "__main__":
     roboto_sai = RobotoSAI()
+    roboto_sai.roberto_instance.display_info()
+    roboto_sai.display_info()
+    

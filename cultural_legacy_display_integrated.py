@@ -1,22 +1,7 @@
 import pygame
-import time
-import sys
 import random
-import requests
-import os
-import re
-import hashlib
-from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import base64
-import psutil
 import math
-import json
-import pandas as pd
-from io import BytesIO
 
 load_dotenv()
 
@@ -161,7 +146,6 @@ class CulturalLegacyDisplay:
 
     def generate_resonance(self, emotion, theme):
         """Generate entangled cultural resonance visualization"""
-        import random
         
         # Map emotion to color modulation
         emotion_colors = {

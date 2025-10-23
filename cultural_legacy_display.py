@@ -3,28 +3,13 @@
 # Author: Roberto Villarreal Martinez (YTK RobThuGod)
 
 import pygame
-import time
-import sys
-import random
-import requests
 import os
-import re
-import hashlib
-from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import base64
-import psutil
 import math
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 from datetime import datetime
 from anchored_identity_gate import AnchoredIdentityGate
-from GameOver import GameOver
 
 load_dotenv()
 ENCRYPTION_KEY = os.getenv("USER_FACEID_SECRET")
