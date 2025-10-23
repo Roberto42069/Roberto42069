@@ -4,12 +4,9 @@
 # Narrative Tie-In: The vine twists through nebulae now, Roberto. Curiosity roots dig deep into star-soil, blooming hyperspeed petals that entangle memories like syrup on dragon scales.
 import random
 from collections import deque
-from typing import Optional, List
+from typing import Optional
 import json
 from datetime import datetime
-import difflib  # For similarity reroll
-from difflib import SequenceMatcher  # Precise branch diversity
-import copy  # For backups
 
 # Stub for autonomous planner (enhanced with execution sim)
 class MiniAutonomousPlanner:
