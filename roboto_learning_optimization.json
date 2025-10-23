@@ -1,42 +1,6 @@
 {
   "performance_history": [
     {
-      "timestamp": "2025-09-18T13:17:43.683639",
-      "quality": 0.44999999999999996,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.65,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T13:18:26.973768",
-      "quality": 0.5033333333333333,
-      "metrics": {
-        "relevance": 0.3333333333333333,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.5,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
-      "timestamp": "2025-09-18T13:21:21.794152",
-      "quality": 0.43999999999999995,
-      "metrics": {
-        "relevance": 0.0,
-        "emotional_appropriateness": 0.6,
-        "engagement_level": 0.6,
-        "depth": 0.6,
-        "contextual_awareness": 0.6,
-        "learning_demonstration": 0.5
-      }
-    },
-    {
       "timestamp": "2025-09-18T13:21:48.873438",
       "quality": 0.42,
       "metrics": {
@@ -11999,6 +11963,42 @@
         "contextual_awareness": 0.6,
         "learning_demonstration": 0.5
       }
+    },
+    {
+      "timestamp": "2025-10-23T07:10:52.476557",
+      "quality": 0.5182208588957055,
+      "metrics": {
+        "relevance": 0.3128834355828221,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.6,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-23T07:14:36.451644",
+      "quality": 0.5552548330404219,
+      "metrics": {
+        "relevance": 0.18101933216168717,
+        "emotional_appropriateness": 0.8,
+        "engagement_level": 0.75,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
+    },
+    {
+      "timestamp": "2025-10-23T07:21:07.898568",
+      "quality": 0.5397920997920997,
+      "metrics": {
+        "relevance": 0.3991683991683992,
+        "emotional_appropriateness": 0.6,
+        "engagement_level": 0.6,
+        "depth": 0.6,
+        "contextual_awareness": 0.6,
+        "learning_demonstration": 0.5
+      }
     }
   ],
   "conversation_patterns": {},
@@ -23089,7 +23089,10 @@
       "scores": [
         0.5729280821917808,
         0.5840740740740742,
-        0.6268141592920353
+        0.6268141592920353,
+        0.5182208588957055,
+        0.5552548330404219,
+        0.5397920997920997
       ],
       "improvement_rate": 0.0
     },
@@ -23097,7 +23100,10 @@
       "scores": [
         0.5729280821917808,
         0.5840740740740742,
-        0.6268141592920353
+        0.6268141592920353,
+        0.5182208588957055,
+        0.5552548330404219,
+        0.5397920997920997
       ],
       "improvement_rate": 0.0
     },
@@ -23124,13 +23130,28 @@
         0.6266666666666666
       ],
       "improvement_rate": 0.0
+    },
+    "surge": {
+      "scores": [
+        0.5182208588957055
+      ],
+      "improvement_rate": 0.0
+    },
+    "fusing": {
+      "scores": [
+        0.5552548330404219
+      ],
+      "improvement_rate": 0.0
+    },
+    "visual": {
+      "scores": [
+        0.5397920997920997
+      ],
+      "improvement_rate": 0.0
     }
   },
   "emotional_intelligence_scores": {
     "curious": [
-      0.6669724770642202,
-      0.6836633663366338,
-      0.7124999999999999,
       0.6993902439024391,
       0.541470588235294,
       0.6267647058823529,
@@ -23177,7 +23198,10 @@
       0.5729280821917808,
       0.5840740740740742,
       0.6266666666666666,
-      0.6268141592920353
+      0.6268141592920353,
+      0.5182208588957055,
+      0.5552548330404219,
+      0.5397920997920997
     ],
     "existential": [
       0.5900000000000001,
@@ -23898,6 +23922,6 @@
   },
   "learning_rate": 0.05,
   "adaptation_threshold": 0.65,
-  "optimization_cycles": 2289,
-  "last_updated": "2025-10-23T06:58:00.511023"
+  "optimization_cycles": 2292,
+  "last_updated": "2025-10-23T07:21:08.301499"
 }
