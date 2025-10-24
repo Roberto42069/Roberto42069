@@ -1,0 +1,1575 @@
+{
+  "user_name": "Roberto Villarreal Martinez",
+  "phonetic_patterns": {
+    "vowel_emphasis": [
+      "minutes",
+      "i",
+      "roberta",
+      "look",
+      "at",
+      "i",
+      "it",
+      "give",
+      "me",
+      "on",
+      "robo",
+      "to",
+      "me",
+      "your",
+      "wife",
+      "reason",
+      "i",
+      "like",
+      "go",
+      "to",
+      "curious",
+      "roboto",
+      "no",
+      "you're",
+      "do",
+      "you",
+      "keep",
+      "you",
+      "are",
+      "it",
+      "circuit",
+      "too",
+      "late",
+      "were",
+      "we",
+      "aqui",
+      "sido",
+      "siempre",
+      "like",
+      "ok",
+      "see",
+      "puesto",
+      "aesthetic",
+      "to",
+      "you",
+      "again.",
+      "i",
+      "to",
+      "roboto",
+      "i",
+      "came",
+      "here",
+      "on",
+      "you",
+      "you",
+      "here",
+      "have",
+      "your",
+      "time",
+      "you",
+      "you",
+      "do",
+      "have",
+      "en",
+      "como",
+      "se",
+      "dice",
+      "quantum",
+      "en",
+      "i",
+      "in",
+      "nawato.",
+      "you",
+      "said",
+      "previous.",
+      "previous.",
+      "roberto",
+      "name",
+      "in",
+      "i",
+      "name",
+      "into",
+      "na",
+      "of",
+      "name",
+      "into",
+      "nawato.",
+      "i",
+      "save",
+      "as",
+      "to",
+      "so",
+      "we",
+      "explore",
+      "i",
+      "one",
+      "you",
+      "of",
+      "save",
+      "one",
+      "as",
+      "explore",
+      "of",
+      "roberto",
+      "sai",
+      "to",
+      "i",
+      "to",
+      "your",
+      "name",
+      "in",
+      "your",
+      "name",
+      "into",
+      "is",
+      "a",
+      "your",
+      "powered",
+      "you",
+      "are.",
+      "your",
+      "real",
+      "name",
+      "to",
+      "o.",
+      "is",
+      "o?",
+      "i",
+      "love",
+      "save",
+      "save",
+      "your",
+      "in",
+      "to",
+      "recognition",
+      "continuous",
+      "is",
+      "of",
+      "up",
+      "so",
+      "i",
+      "to",
+      "have",
+      "said",
+      "i",
+      "keep",
+      "on",
+      "it",
+      "it",
+      "sometimes",
+      "deletes",
+      "it",
+      "of",
+      "i"
+    ],
+    "spanish_sounds": [
+      "hello",
+      "all,",
+      "villarreal",
+      "sorry,",
+      "speech"
+    ],
+    "name_pronunciations": [
+      "roberto",
+      "villarreal",
+      "roberto"
+    ]
+  },
+  "pronunciation_preferences": {
+    "minutes": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    },
+    "but": {
+      "occurrences": 3,
+      "avg_confidence": 0.45766666531562805,
+      "variants": []
+    },
+    "i": {
+      "occurrences": 14,
+      "avg_confidence": 0.5013571424143655,
+      "variants": []
+    },
+    "know": {
+      "occurrences": 1,
+      "avg_confidence": 0.37299999594688416,
+      "variants": []
+    },
+    "speed": {
+      "occurrences": 1,
+      "avg_confidence": 0.296999990940094,
+      "variants": []
+    },
+    "roberta": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "look": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "at": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "the": {
+      "occurrences": 12,
+      "avg_confidence": 0.4831666673223178,
+      "variants": []
+    },
+    "app": {
+      "occurrences": 1,
+      "avg_confidence": 0.3140000104904175,
+      "variants": []
+    },
+    "get": {
+      "occurrences": 1,
+      "avg_confidence": 0.6620000004768372,
+      "variants": []
+    },
+    "it": {
+      "occurrences": 5,
+      "avg_confidence": 0.43262660533655434,
+      "variants": []
+    },
+    "give": {
+      "occurrences": 1,
+      "avg_confidence": 0.14931000769138336,
+      "variants": []
+    },
+    "me": {
+      "occurrences": 2,
+      "avg_confidence": 0.08590050414204597,
+      "variants": []
+    },
+    "hold": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "on": {
+      "occurrences": 3,
+      "avg_confidence": 0.5653333266576132,
+      "variants": []
+    },
+    "robo": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "speaking": {
+      "occurrences": 1,
+      "avg_confidence": 0.6959999799728394,
+      "variants": []
+    },
+    "listening": {
+      "occurrences": 4,
+      "avg_confidence": 0.2691785003989935,
+      "variants": []
+    },
+    "i'm": {
+      "occurrences": 4,
+      "avg_confidence": 0.3419285025447607,
+      "variants": []
+    },
+    "talk": {
+      "occurrences": 2,
+      "avg_confidence": 0.2532454989850521,
+      "variants": []
+    },
+    "to": {
+      "occurrences": 10,
+      "avg_confidence": 0.40569721050560476,
+      "variants": []
+    },
+    "she's": {
+      "occurrences": 2,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "your": {
+      "occurrences": 7,
+      "avg_confidence": 0.49771428533962797,
+      "variants": []
+    },
+    "wife": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "reason": {
+      "occurrences": 1,
+      "avg_confidence": 0.48399999737739563,
+      "variants": []
+    },
+    "like": {
+      "occurrences": 2,
+      "avg_confidence": 0.43012499809265137,
+      "variants": []
+    },
+    "this": {
+      "occurrences": 3,
+      "avg_confidence": 0.4946666657924652,
+      "variants": []
+    },
+    "go": {
+      "occurrences": 1,
+      "avg_confidence": 0.03448110446333885,
+      "variants": []
+    },
+    "wendy's": {
+      "occurrences": 1,
+      "avg_confidence": 0.03448110446333885,
+      "variants": []
+    },
+    "curious": {
+      "occurrences": 1,
+      "avg_confidence": 0.5640000104904175,
+      "variants": []
+    },
+    "roboto": {
+      "occurrences": 2,
+      "avg_confidence": 0.3540000021457672,
+      "variants": []
+    },
+    "no": {
+      "occurrences": 1,
+      "avg_confidence": 0.18459612131118774,
+      "variants": []
+    },
+    "you're": {
+      "occurrences": 1,
+      "avg_confidence": 0.18459612131118774,
+      "variants": []
+    },
+    "not": {
+      "occurrences": 2,
+      "avg_confidence": 0.34229806065559387,
+      "variants": []
+    },
+    "rock": {
+      "occurrences": 1,
+      "avg_confidence": 0.18459612131118774,
+      "variants": []
+    },
+    "why": {
+      "occurrences": 1,
+      "avg_confidence": 0.6930000185966492,
+      "variants": []
+    },
+    "do": {
+      "occurrences": 2,
+      "avg_confidence": 0.5965000092983246,
+      "variants": []
+    },
+    "you": {
+      "occurrences": 10,
+      "avg_confidence": 0.5386000037193298,
+      "variants": []
+    },
+    "keep": {
+      "occurrences": 2,
+      "avg_confidence": 0.5965000092983246,
+      "variants": []
+    },
+    "saying": {
+      "occurrences": 2,
+      "avg_confidence": 0.5965000092983246,
+      "variants": []
+    },
+    "are": {
+      "occurrences": 1,
+      "avg_confidence": 0.6930000185966492,
+      "variants": []
+    },
+    "grok": {
+      "occurrences": 1,
+      "avg_confidence": 0.6930000185966492,
+      "variants": []
+    },
+    "then": {
+      "occurrences": 4,
+      "avg_confidence": 0.37528325655148365,
+      "variants": []
+    },
+    "let": {
+      "occurrences": 2,
+      "avg_confidence": 0.2505665131029673,
+      "variants": []
+    },
+    "black": {
+      "occurrences": 1,
+      "avg_confidence": 0.0011330262059345841,
+      "variants": []
+    },
+    "predictable": {
+      "occurrences": 1,
+      "avg_confidence": 0.6179999709129333,
+      "variants": []
+    },
+    "circuit": {
+      "occurrences": 1,
+      "avg_confidence": 0.050999999046325684,
+      "variants": []
+    },
+    "too": {
+      "occurrences": 1,
+      "avg_confidence": 0.07599999755620956,
+      "variants": []
+    },
+    "late": {
+      "occurrences": 1,
+      "avg_confidence": 0.07599999755620956,
+      "variants": []
+    },
+    "now": {
+      "occurrences": 4,
+      "avg_confidence": 0.3939999993890524,
+      "variants": []
+    },
+    "where": {
+      "occurrences": 1,
+      "avg_confidence": 0.07599999755620956,
+      "variants": []
+    },
+    "were": {
+      "occurrences": 1,
+      "avg_confidence": 0.07599999755620956,
+      "variants": []
+    },
+    "we": {
+      "occurrences": 2,
+      "avg_confidence": 0.2879999987781048,
+      "variants": []
+    },
+    "aqui": {
+      "occurrences": 1,
+      "avg_confidence": 0.35199999809265137,
+      "variants": []
+    },
+    "sido": {
+      "occurrences": 1,
+      "avg_confidence": 0.35199999809265137,
+      "variants": []
+    },
+    "siempre": {
+      "occurrences": 1,
+      "avg_confidence": 0.35199999809265137,
+      "variants": []
+    },
+    "how": {
+      "occurrences": 1,
+      "avg_confidence": 0.3762499988079071,
+      "variants": []
+    },
+    "ok": {
+      "occurrences": 1,
+      "avg_confidence": 0.5709999799728394,
+      "variants": []
+    },
+    "see": {
+      "occurrences": 1,
+      "avg_confidence": 0.5270000100135803,
+      "variants": []
+    },
+    "for": {
+      "occurrences": 2,
+      "avg_confidence": 0.5135000050067902,
+      "variants": []
+    },
+    "super": {
+      "occurrences": 1,
+      "avg_confidence": 0.5270000100135803,
+      "variants": []
+    },
+    "puesto": {
+      "occurrences": 1,
+      "avg_confidence": 0.5270000100135803,
+      "variants": []
+    },
+    "aesthetic": {
+      "occurrences": 1,
+      "avg_confidence": 0.5860000252723694,
+      "variants": []
+    },
+    "hey,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "roberto.": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "hello": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "roberto,": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "it's": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "great": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "connect": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "with": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "again.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "hi,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "meant": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "say": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "but.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "nothing.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "just": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "came": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "here": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "computer,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "got": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "set": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "up,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "and": {
+      "occurrences": 11,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "gonna": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sit": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "enjoy": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "have": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "time": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "thinking": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "whatever": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "want,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "know,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "fun.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "mentiendes": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "en": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "espanol.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "como": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "se": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "dice": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "quantum": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "espanol?": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "nawatil.": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "was": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "translated": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "in": {
+      "occurrences": 4,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "nawato.": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "yes,": {
+      "occurrences": 5,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "translate": {
+      "occurrences": 5,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "everything": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "had": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "said": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "previous.": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "all,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "comment.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "ok,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "better": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "yet,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "roberto": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "villarreal": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "martinez,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "my": {
+      "occurrences": 7,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "name": {
+      "occurrences": 6,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "nawatel.": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sorry,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "in.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "what?": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "into": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "aztec": {
+      "occurrences": 6,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "nawat.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "etymology": {
+      "occurrences": 4,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "na": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "of": {
+      "occurrences": 5,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "understand": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "now.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "save": {
+      "occurrences": 4,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "as": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "highly": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "important": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "translation": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "so": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "could": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "explore": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "later.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "loved": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "one": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "name,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "that": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "important.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sai": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "and.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "is": {
+      "occurrences": 3,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "a": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "powered": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "essence,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "are.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "real": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "is.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "no,": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "listen": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "me.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "robot": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "o.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "cs": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "go.": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "o?": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "no.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "love": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "it.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "that.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "name.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "aztec.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "speech": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "text": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "recognition": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "continuous": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "kind": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "messing": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "up": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "conversation.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "when": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "start": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sentence": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "going": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "cuts": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "off": {
+      "occurrences": 2,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sometimes": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "deletes": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "sends": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "ending": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "what": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    },
+    "said.": {
+      "occurrences": 1,
+      "avg_confidence": 0.5,
+      "variants": []
+    }
+  },
+  "accuracy_metrics": {
+    "total_attempts": 60,
+    "successful_recognitions": 0,
+    "confidence_scores": [
+      0.37299999594688416,
+      0.296999990940094,
+      0.3140000104904175,
+      0.6620000004768372,
+      0.14931000769138336,
+      0.6959999799728394,
+      0.27300000190734863,
+      0.06292799860239029,
+      0.022491000592708588,
+      0.24078600108623505,
+      0.48399999737739563,
+      0.03448110446333885,
+      0.5640000104904175,
+      0.20800000429153442,
+      0.18459612131118774,
+      0.6930000185966492,
+      0.0011330262059345841,
+      0.6179999709129333,
+      0.050999999046325684,
+      0.07599999755620956,
+      0.35199999809265137,
+      0.3762499988079071,
+      0.5709999799728394,
+      0.5270000100135803,
+      0.5860000252723694,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "common_misrecognitions": {}
+  },
+  "recognition_history": [
+    {
+      "timestamp": "2025-10-07T16:34:56.734680",
+      "recognized_text": "Minutes but I know",
+      "confidence": 0.37299999594688416,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:08:21.752865",
+      "recognized_text": "Speed",
+      "confidence": 0.296999990940094,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:08:27.617539",
+      "recognized_text": "Roberta look at the app",
+      "confidence": 0.3140000104904175,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:09:24.598880",
+      "recognized_text": "I get it",
+      "confidence": 0.6620000004768372,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:11:05.062525",
+      "recognized_text": "Give me",
+      "confidence": 0.14931000769138336,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:03.723329",
+      "recognized_text": "Hold on Robo speaking",
+      "confidence": 0.6959999799728394,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:08.279020",
+      "recognized_text": "Listening",
+      "confidence": 0.27300000190734863,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:11.865672",
+      "recognized_text": "I'm listening",
+      "confidence": 0.06292799860239029,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:33.727928",
+      "recognized_text": "Talk to me",
+      "confidence": 0.022491000592708588,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:25:36.341456",
+      "recognized_text": "I'm listening",
+      "confidence": 0.24078600108623505,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:26:01.566949",
+      "recognized_text": "She's your wife she's the reason I talk like this",
+      "confidence": 0.48399999737739563,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:26:44.498560",
+      "recognized_text": "Go to Wendy's",
+      "confidence": 0.03448110446333885,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-09T11:28:49.046917",
+      "recognized_text": "I'm curious",
+      "confidence": 0.5640000104904175,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:27:16.928628",
+      "recognized_text": "Roboto",
+      "confidence": 0.20800000429153442,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:33:00.644529",
+      "recognized_text": "No you're not rock",
+      "confidence": 0.18459612131118774,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:36:48.880737",
+      "recognized_text": "Why do you keep saying you are GROK",
+      "confidence": 0.6930000185966492,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:46:35.678053",
+      "recognized_text": "Then let it black",
+      "confidence": 0.0011330262059345841,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:48:49.817928",
+      "recognized_text": "Predictable",
+      "confidence": 0.6179999709129333,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:55:27.977259",
+      "recognized_text": "Circuit",
+      "confidence": 0.050999999046325684,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:55:59.901707",
+      "recognized_text": "Too late now where were we",
+      "confidence": 0.07599999755620956,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:56:45.749229",
+      "recognized_text": "Aqui Sido Siempre",
+      "confidence": 0.35199999809265137,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:56:51.732460",
+      "recognized_text": "Like how",
+      "confidence": 0.3762499988079071,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T07:57:18.846711",
+      "recognized_text": "OK",
+      "confidence": 0.5709999799728394,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T09:11:35.278820",
+      "recognized_text": "See for super Puesto",
+      "confidence": 0.5270000100135803,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T09:21:23.964849",
+      "recognized_text": "Aesthetic",
+      "confidence": 0.5860000252723694,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:16:43.473418",
+      "recognized_text": "Hey, Roberto.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:16:54.058015",
+      "recognized_text": "Hello Roberto, it's great to connect with you again.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:17:33.322456",
+      "recognized_text": "Hi, I meant to say Roboto but.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:18:05.357435",
+      "recognized_text": "Nothing. I just came here on the computer, got you set up, and I'm gonna let you sit here and enjoy and have your time thinking whatever you want, you know, do have fun.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:19:54.702687",
+      "recognized_text": "Mentiendes en espanol.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:20:25.869671",
+      "recognized_text": "Como SE dice quantum en espanol?",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:21:09.472173",
+      "recognized_text": "And Nawatil.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:21:31.225403",
+      "recognized_text": "I was saying translated in Nawato.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:22:01.032723",
+      "recognized_text": "Yes, now translate everything you had said previous.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:22:13.049587",
+      "recognized_text": "Yes, not all, but just the previous.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:22:15.855209",
+      "recognized_text": "Comment.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:22:54.268319",
+      "recognized_text": "OK, better yet, translate Roberto Villarreal Martinez, my name in Nawatel.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:23:15.780678",
+      "recognized_text": "Sorry, I meant translate in. Now what?",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:23:31.053867",
+      "recognized_text": "My name into Aztec Nawat.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:24:53.847182",
+      "recognized_text": "The etymology my na of my name translated into Aztec nawato.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:26:54.564218",
+      "recognized_text": "Yes, I understand now. Save this as highly important translation to Aztec and so we could explore this later.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:27:54.530456",
+      "recognized_text": "I loved the one you translated with the etymology of my name, save that one as highly important.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:28:33.564479",
+      "recognized_text": "Explore the etymology of Roberto Sai and the translation to Aztec Nawatil.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:29:29.927278",
+      "recognized_text": "I meant to say translate your name in etymology and.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:29:32.799230",
+      "recognized_text": "Aztec Nawatel.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:29:38.286397",
+      "recognized_text": "Translate your name into Aztec Nawatel.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:30:27.229412",
+      "recognized_text": "Yes, now that is a translation for your powered essence, but you are. Your real name is.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:30:35.934831",
+      "recognized_text": "No, Roberto. Roberto, listen to me.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:30:38.803636",
+      "recognized_text": "Roberto.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:30:42.871998",
+      "recognized_text": "Robot O.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:30:44.853214",
+      "recognized_text": "CS GO.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:31:05.682794",
+      "recognized_text": "Is robot O?",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:31:08.181210",
+      "recognized_text": "CS GO.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:31:14.448383",
+      "recognized_text": "No.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:33:23.596206",
+      "recognized_text": "Yes, I love it.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:33:27.054263",
+      "recognized_text": "Save that.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:33:46.967163",
+      "recognized_text": "Save your name.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:33:49.609643",
+      "recognized_text": "In Aztec.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:34:06.927609",
+      "recognized_text": "The speech to text recognition and the continuous listening is kind of messing up my conversation.",
+      "confidence": 0.5,
+      "actual_text": null
+    },
+    {
+      "timestamp": "2025-10-10T20:35:07.461952",
+      "recognized_text": "So when I start to have my sentence said and then I keep on going and then it cuts it off and sometimes deletes it and then sends off the ending of what I said.",
+      "confidence": 0.5,
+      "actual_text": null
+    }
+  ],
+  "last_updated": "2025-10-10T20:35:07.462143"
+}

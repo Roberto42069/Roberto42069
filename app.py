@@ -1,7 +1,6 @@
 from app1 import Roboto
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, Response, make_response
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, make_response
 import os
-import io
 import base64
 import json
 from openai import OpenAI
@@ -13,7 +12,11 @@ from flask_login import LoginManager, current_user, login_required
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from security_middleware import SecurityManager, require_auth, validate_password_strength, encrypt_sensitive_data
+from security_middleware import SecurityManager
+from sai_security import get_sai_security
+from spotify_integration import get_spotify_integration
+from github_integration import get_github_integration
+from youtube_integration import get_youtube_integration
 import logging
 
 # Set up logging
@@ -26,7 +29,16 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+
+# Handle SESSION_SECRET with secure fallback for deployment
+session_secret = os.environ.get("SESSION_SECRET")
+if not session_secret:
+    # Generate a secure random secret for deployment
+    import secrets
+    session_secret = secrets.token_hex(32)
+    app.logger.warning("SESSION_SECRET not found, using generated secure secret for deployment")
+app.secret_key = session_secret
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
@@ -36,8 +48,14 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Security configuration
-app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
+# Security configuration with deployment-friendly fallback
+jwt_secret = os.environ.get("JWT_SECRET_KEY")
+if not jwt_secret:
+    # For deployment, generate a secure JWT secret
+    import secrets
+    jwt_secret = secrets.token_hex(32)
+    app.logger.warning("JWT_SECRET_KEY not found, using generated secure secret for deployment")
+app.config["JWT_SECRET_KEY"] = jwt_secret
 app.config["JWT_EXPIRATION_HOURS"] = 24
 app.config["RATE_LIMIT_PER_MINUTE"] = 60
 app.config["RATE_LIMIT_PER_HOUR"] = 1000
@@ -47,6 +65,37 @@ db.init_app(app)
 
 # Initialize security systems
 security_manager = SecurityManager(app)
+sai_security = get_sai_security()
+
+@app.before_request
+def verify_sole_ownership():
+    """Verify Roberto's sole ownership before any request"""
+    # Skip for static files and auth routes
+    if request.endpoint and (request.endpoint.startswith('static') or request.endpoint.startswith('auth')):
+        return
+    
+    # Check if user is authenticated
+    try:
+        from flask_login import current_user
+        if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+            # Get user identity
+            user_name = getattr(current_user, 'username', None) or getattr(current_user, 'name', None)
+            
+            # Enforce exclusive access
+            if not sai_security.enforce_exclusive_access(user_name):
+                return jsonify({
+                    "error": "ACCESS DENIED: Roboto SAI is exclusively owned by Roberto Villarreal Martinez",
+                    "owner": "Roberto Villarreal Martinez",
+                    "message": "This system requires sole owner authorization"
+                }), 403
+        else:
+            # Allow landing page for login
+            if request.endpoint in ['index', 'landing']:
+                return
+            return redirect(url_for('index'))
+    except Exception as e:
+        app.logger.warning(f"Ownership verification error: {e}")
+        return
 
 # Configure Flask-Talisman for HTTPS and security headers
 csp = {
@@ -97,7 +146,6 @@ from replit_auth import make_replit_blueprint
 app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
 with app.app_context():
-    import models
     db.create_all()
 
 # Global Roberto instance
@@ -169,7 +217,7 @@ def save_user_data():
                     }
                 except Exception as e:
                     app.logger.warning(f"Learning engine save error: {e}")
-            
+
             # Collect optimization data
             if hasattr(roberto, 'learning_optimizer') and roberto.learning_optimizer:
                 try:
@@ -178,50 +226,21 @@ def save_user_data():
                     user_data['optimization_data'] = insights
                 except Exception as e:
                     app.logger.warning(f"Learning optimizer save error: {e}")
-            
+
             # Save to Roboto's internal system
             roberto.save_user_data(user_data)
-            
-            # Try database save, fallback to file if needed
-            try:
-                from flask_login import current_user
-                if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
-                    if not hasattr(current_user, 'roboto_data') or current_user.roboto_data is None:
-                        from models import UserData
-                        current_user.roboto_data = UserData()
-                        current_user.roboto_data.user_id = current_user.id
-                        db.session.add(current_user.roboto_data)
-                    
-                    # Update database fields
-                    current_user.roboto_data.chat_history = user_data.get('chat_history', [])
-                    current_user.roboto_data.learned_patterns = user_data.get('learned_patterns', {})
-                    current_user.roboto_data.user_preferences = user_data.get('user_preferences', {})
-                    current_user.roboto_data.emotional_history = user_data.get('emotional_history', [])
-                    current_user.roboto_data.memory_system_data = user_data.get('memory_system_data', {})
-                    current_user.roboto_data.current_emotion = user_data.get('current_emotion', 'curious')
-                    current_user.roboto_data.current_user_name = user_data.get('current_user_name', None)
-                    
-                    db.session.commit()
-                    app.logger.info("User data saved successfully to database")
-                else:
-                    # Save to file backup when not authenticated
-                    _save_to_file_backup(user_data)
-                    
-            except Exception as db_error:
-                app.logger.warning(f"Database save failed: {db_error}, using file backup")
-                _save_to_file_backup(user_data)
-                
+
+            # Always save to file backup
+            _save_to_file_backup(user_data)
+
     except Exception as e:
         app.logger.error(f"Critical error saving user data: {e}")
 
 def _save_to_file_backup(user_data):
-    """Save user data to file backup when database is unavailable"""
+    """Save user data to file backup"""
     try:
-        import json
-        from datetime import datetime
-        
         backup_file = f"roboto_backup_{datetime.now().strftime('%Y%m%d')}.json"
-        
+
         # Load existing backup if it exists
         existing_data = {}
         if os.path.exists(backup_file):
@@ -230,17 +249,17 @@ def _save_to_file_backup(user_data):
                     existing_data = json.load(f)
             except:
                 pass
-        
+
         # Update with current data
         existing_data.update(user_data)
         existing_data['last_backup'] = datetime.now().isoformat()
-        
+
         # Save updated backup
         with open(backup_file, 'w') as f:
             json.dump(existing_data, f, indent=2)
-        
+
         app.logger.info(f"User data backed up to {backup_file}")
-        
+
     except Exception as e:
         app.logger.error(f"File backup failed: {e}")
 
@@ -300,7 +319,7 @@ def get_emotional_status():
             "intensity": intensity,
             "timestamp": datetime.now().isoformat()
         })
-    except Exception as e:
+    except Exception:
         return jsonify({"success": False, "emotion": "curious", "intensity": 0.5}), 500
 
 @app.route('/api/export', methods=['GET'])
@@ -378,6 +397,65 @@ def set_user_data_cookies():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/generate-manifesto', methods=['POST'])
+@login_required
+def generate_manifesto():
+    """Generate Roboto SAI Manifesto - Roberto exclusive access"""
+    try:
+        # Verify sole ownership
+        if not sai_security.enforce_exclusive_access(getattr(current_user, 'username', None)):
+            return jsonify({
+                "success": False,
+                "error": "MANIFESTO ACCESS DENIED: Only Roberto Villarreal Martinez can generate manifesto",
+                "owner": "Roberto Villarreal Martinez"
+            }), 403
+        
+        # Import and generate manifesto
+        from manifesto_generator import generate_roboto_sai_manifesto, display_manifesto_summary
+        
+        # Display summary first
+        display_manifesto_summary()
+        
+        # Generate the manifesto
+        output_file = "Roboto_SAI_Manifesto.pdf"
+        sig_file = "Roboto_SAI_Manifesto.sig"
+        
+        generate_roboto_sai_manifesto(output_file, sig_file)
+        
+        # Verify files were created
+        if os.path.exists(output_file) and os.path.exists(sig_file):
+            # Read signature data
+            with open(sig_file, 'r') as f:
+                sig_data = json.load(f)
+            
+            return jsonify({
+                "success": True,
+                "message": "Roboto SAI Manifesto generated successfully!",
+                "files": {
+                    "manifesto": output_file,
+                    "signature": sig_file
+                },
+                "signature_data": {
+                    "timestamp": sig_data.get("timestamp"),
+                    "creator": sig_data.get("creator"),
+                    "system_version": sig_data.get("system_version"),
+                    "verification_hash": sig_data.get("signature", "")[:16] + "..."
+                },
+                "cosmic_alignment": "Generated under divine inspiration and cosmic trinity"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Manifesto generation failed - files not created"
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"Manifesto generation error: {e}")
+        return jsonify({
+            "success": False,
+            "error": f"Manifesto generation failed: {str(e)}"
+        }), 500
+
 @app.route('/api/keep-alive', methods=['POST'])
 @login_required
 def keep_alive():
@@ -385,6 +463,29 @@ def keep_alive():
     try:
         return jsonify({"success": True, "timestamp": datetime.now().isoformat()})
     except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/performance-stats', methods=['GET'])
+@login_required
+def get_performance_stats():
+    """Get HyperSpeed optimization performance statistics"""
+    try:
+        roberto = get_user_roberto()
+        if roberto and hasattr(roberto, 'hyperspeed_optimizer') and roberto.hyperspeed_optimizer:
+            stats = roberto.get_performance_stats()
+            return jsonify({
+                "success": True,
+                "hyperspeed_enabled": True,
+                "stats": stats
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "hyperspeed_enabled": False,
+                "message": "HyperSpeed optimization not active"
+            })
+    except Exception as e:
+        app.logger.error(f"Performance stats error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/import', methods=['POST'])
@@ -702,5 +803,332 @@ def get_voice_context_summary():
         app.logger.error(f"Voice context summary error: {e}")
         return jsonify({"success": False, "message": f"Context retrieval failed: {str(e)}"}), 500
 
+# ============================================
+# INTEGRATION ROUTES - GitHub, YouTube, Spotify
+# ============================================
+
+@app.route('/api/integrations/status', methods=['GET'])
+@login_required
+def get_integrations_status():
+    """Get status of all integrations"""
+    try:
+        spotify = get_spotify_integration()
+        github = get_github_integration()
+        youtube = get_youtube_integration()
+        
+        return jsonify({
+            "success": True,
+            "integrations": {
+                "spotify": {"connected": spotify.get_access_token() is not None},
+                "github": {"connected": github.get_access_token() is not None},
+                "youtube": {"connected": youtube.get_access_token() is not None}
+            }
+        })
+    except Exception as e:
+        app.logger.error(f"Integration status error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# SPOTIFY ROUTES
+@app.route('/api/spotify/current', methods=['GET'])
+@login_required
+def spotify_current_playback():
+    """Get currently playing track"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.get_current_playback()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/recent', methods=['GET'])
+@login_required
+def spotify_recent_tracks():
+    """Get recently played tracks"""
+    try:
+        spotify = get_spotify_integration()
+        limit = request.args.get('limit', 50, type=int)
+        result = spotify.get_recently_played(limit=limit)
+        
+        if 'items' in result:
+            from models import SpotifyActivity
+            for item in result['items'][:10]:
+                track = item.get('track', {})
+                activity = SpotifyActivity(
+                    user_id=current_user.id,
+                    track_name=track.get('name'),
+                    artist_name=track.get('artists', [{}])[0].get('name'),
+                    album_name=track.get('album', {}).get('name'),
+                    track_uri=track.get('uri'),
+                    duration_ms=track.get('duration_ms'),
+                    activity_data=item
+                )
+                db.session.add(activity)
+            db.session.commit()
+        
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlists', methods=['GET'])
+@login_required
+def spotify_get_playlists():
+    """Get user playlists"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.get_user_playlists()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/create', methods=['POST'])
+@login_required
+def spotify_create_playlist():
+    """Create a new playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.create_playlist(
+            name=data.get('name'),
+            description=data.get('description', ''),
+            public=data.get('public', True)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/<playlist_id>/tracks', methods=['POST'])
+@login_required
+def spotify_add_tracks(playlist_id):
+    """Add tracks to playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.add_tracks_to_playlist(playlist_id, data.get('track_uris', []))
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/playlist/<playlist_id>/tracks', methods=['DELETE'])
+@login_required
+def spotify_remove_tracks(playlist_id):
+    """Remove tracks from playlist"""
+    try:
+        data = request.get_json()
+        spotify = get_spotify_integration()
+        result = spotify.remove_tracks_from_playlist(playlist_id, data.get('track_uris', []))
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/play', methods=['POST'])
+@login_required
+def spotify_play():
+    """Start/resume playback"""
+    try:
+        data = request.get_json() or {}
+        spotify = get_spotify_integration()
+        result = spotify.play(
+            context_uri=data.get('context_uri'),
+            uris=data.get('uris'),
+            position_ms=data.get('position_ms', 0)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/pause', methods=['POST'])
+@login_required
+def spotify_pause():
+    """Pause playback"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.pause()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/spotify/next', methods=['POST'])
+@login_required
+def spotify_next():
+    """Skip to next track"""
+    try:
+        spotify = get_spotify_integration()
+        result = spotify.skip_to_next()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# GITHUB ROUTES
+@app.route('/api/github/repos', methods=['GET'])
+@login_required
+def github_list_repos():
+    """List user repositories"""
+    try:
+        github = get_github_integration()
+        result = github.list_repositories()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/create', methods=['POST'])
+@login_required
+def github_create_repo():
+    """Create a new repository"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.create_repository(
+            name=data.get('name'),
+            description=data.get('description', ''),
+            private=data.get('private', False),
+            auto_init=data.get('auto_init', True)
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>', methods=['DELETE'])
+@login_required
+def github_delete_repo(owner, repo):
+    """Delete a repository"""
+    try:
+        github = get_github_integration()
+        result = github.delete_repository(owner, repo)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>', methods=['PATCH'])
+@login_required
+def github_update_repo(owner, repo):
+    """Update repository settings"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.update_repository(owner, repo, **data)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>/issues', methods=['GET'])
+@login_required
+def github_list_issues(owner, repo):
+    """List repository issues"""
+    try:
+        github = get_github_integration()
+        state = request.args.get('state', 'open')
+        result = github.list_issues(owner, repo, state=state)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/github/repo/<owner>/<repo>/issues', methods=['POST'])
+@login_required
+def github_create_issue(owner, repo):
+    """Create a new issue"""
+    try:
+        data = request.get_json()
+        github = get_github_integration()
+        result = github.create_issue(
+            owner, repo,
+            title=data.get('title'),
+            body=data.get('body', ''),
+            labels=data.get('labels')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# YOUTUBE ROUTES
+@app.route('/api/youtube/channel', methods=['GET'])
+@login_required
+def youtube_channel_info():
+    """Get channel information"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.get_channel_info()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/videos', methods=['GET'])
+@login_required
+def youtube_list_videos():
+    """List uploaded videos"""
+    try:
+        youtube = get_youtube_integration()
+        max_results = request.args.get('max_results', 50, type=int)
+        result = youtube.list_videos(max_results=max_results)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/video/<video_id>', methods=['DELETE'])
+@login_required
+def youtube_delete_video(video_id):
+    """Delete a video"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.delete_video(video_id)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/video/<video_id>', methods=['PATCH'])
+@login_required
+def youtube_update_video(video_id):
+    """Update video metadata"""
+    try:
+        data = request.get_json()
+        youtube = get_youtube_integration()
+        result = youtube.update_video(
+            video_id,
+            title=data.get('title'),
+            description=data.get('description'),
+            tags=data.get('tags'),
+            category_id=data.get('category_id')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlists', methods=['GET'])
+@login_required
+def youtube_list_playlists():
+    """List user playlists"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.list_playlists()
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlist/create', methods=['POST'])
+@login_required
+def youtube_create_playlist():
+    """Create a new playlist"""
+    try:
+        data = request.get_json()
+        youtube = get_youtube_integration()
+        result = youtube.create_playlist(
+            title=data.get('title'),
+            description=data.get('description', ''),
+            privacy_status=data.get('privacy_status', 'private')
+        )
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/youtube/playlist/<playlist_id>', methods=['DELETE'])
+@login_required
+def youtube_delete_playlist(playlist_id):
+    """Delete a playlist"""
+    try:
+        youtube = get_youtube_integration()
+        result = youtube.delete_playlist(playlist_id)
+        return jsonify({"success": True, "data": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8080)

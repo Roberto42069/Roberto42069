@@ -1,15 +1,14 @@
-modules = ["postgresql-16", "python-3.11", "python3"]
+modules = ["nodejs-20", "postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["alsa-lib", "cargo", "ffmpeg", "ffmpeg-full", "glibcLocales", "libGL", "libGLU", "libiconv", "libxcrypt", "openssl", "pkg-config", "portaudio", "postgresql", "pulseaudio", "rustc"]
+packages = ["SDL2", "SDL2_image", "SDL2_mixer", "SDL2_ttf", "alsa-lib", "borgbackup", "cairo", "cargo", "catch2", "ffmpeg", "ffmpeg-full", "fmt", "fontconfig", "freetype", "gh", "ghostscript", "gildas", "glibcLocales", "gobject-introspection", "gtk3", "imagemagick_light", "libGL", "libGLU", "libiconv", "libjpeg", "libpng", "libxcrypt", "mailutils", "mastodon", "mesa-demos", "muparserx", "nano", "nlohmann_json", "openssl", "pkg-config", "portaudio", "portmidi", "postgresql", "pulseaudio", "qhull", "rsync", "rustc", "spdlog", "tcl", "texinfoInteractive", "timetrap", "tk", "vim-full", "wget", "google-cloud-sdk-gce", "android-tools"]
 
 [deployment]
 deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -23,27 +22,93 @@ args = "Start application"
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
+mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Roboto SAI"
+author = 43301296
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --config gunicorn.conf.py main:app"
+
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8080
+externalPort = 8099
+
+[[ports]]
+localPort = 33985
+externalPort = 8000
 
 [[ports]]
 localPort = 34105
 externalPort = 3001
 
 [[ports]]
+localPort = 34471
+externalPort = 6000
+
+[[ports]]
+localPort = 34885
+externalPort = 6800
+
+[[ports]]
+localPort = 38491
+externalPort = 9000
+
+[[ports]]
+localPort = 41577
+externalPort = 5173
+
+[[ports]]
+localPort = 42367
+externalPort = 5000
+
+[[ports]]
+localPort = 42769
+externalPort = 8081
+
+[[ports]]
 localPort = 43753
 externalPort = 3000
+
+[[ports]]
+localPort = 44033
+externalPort = 4200
+
+[[ports]]
+localPort = 44079
+externalPort = 3003
 
 [[ports]]
 localPort = 45607
 externalPort = 3002
 
+[[ports]]
+localPort = 46173
+externalPort = 8008
+
+[[ports]]
+localPort = 46445
+externalPort = 8080
+
 [agent]
-integrations = ["python_database:1.0.0", "python_openai:1.0.0", "python_log_in_with_replit:1.0.0"]
+integrations = ["python_database:1.0.0", "python_openai:1.0.0", "python_log_in_with_replit:1.0.0", "spotify:1.0.0", "youtube:1.0.0", "python_xai:1.0.0"]
+
+[objectStorage]
+defaultBucketID = "replit-objstore-bfee5df0-9e75-44ce-8ad5-f35234663cfb"

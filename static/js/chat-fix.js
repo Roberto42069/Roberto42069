@@ -17,8 +17,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let ttsEnabled = localStorage.getItem('ttsEnabled') !== 'false';
     let speechSynthesis = window.speechSynthesis;
     let availableVoices = [];
+    let selectedVoiceIndex = parseInt(localStorage.getItem('selectedVoiceIndex') || '0');
     const ttsBtn = document.getElementById('ttsBtn');
     
+    // Update TTS status in UI
+    function updateTTSStatus(status) {
+        const ttsStatusEl = document.getElementById('ttsStatus');
+        if (ttsStatusEl) {
+            ttsStatusEl.textContent = status;
+            
+            // Update color based on status
+            if (status.includes('Ready') || status.includes('voices')) {
+                ttsStatusEl.className = 'text-success';
+            } else if (status.includes('Loading') || status.includes('Retrying')) {
+                ttsStatusEl.className = 'text-warning';
+            } else if (status.includes('Unavailable') || status.includes('Error')) {
+                ttsStatusEl.className = 'text-danger';
+            } else {
+                ttsStatusEl.className = 'text-muted';
+            }
+        }
+    }
+
     // Initialize speech synthesis for cross-browser compatibility
     function initializeTTS() {
         if ('speechSynthesis' in window) {
@@ -26,6 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
             function loadVoices() {
                 availableVoices = speechSynthesis.getVoices();
                 console.log('Available TTS voices:', availableVoices.length);
+                
+                // Create voice selector if voices available
+                if (availableVoices.length > 0) {
+                    createVoiceSelector();
+                    showToast(`🎤 ${availableVoices.length} voices available for text-to-speech`, 'success');
+                    updateTTSStatus(`Ready (${availableVoices.length} voices)`);
+                } else {
+                    updateTTSStatus('Loading...');
+                }
             }
             
             // Load voices immediately and on voiceschanged event
@@ -38,42 +67,109 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             console.warn('Text-to-speech not supported in this browser');
+            showToast('⚠️ Text-to-speech not supported in this browser', 'warning');
+            updateTTSStatus('Unavailable');
         }
     }
     
-    // Enhanced speak function with cross-browser support
-    function speakText(text) {
+    // Create voice selector dropdown
+    function createVoiceSelector() {
+        const existingSelector = document.getElementById('voiceSelector');
+        if (existingSelector || availableVoices.length === 0) return;
+        
+        const voiceSelectorContainer = document.createElement('div');
+        voiceSelectorContainer.className = 'd-inline-block ms-2';
+        voiceSelectorContainer.innerHTML = `
+            <select id="voiceSelector" class="form-select form-select-sm" style="width: auto; max-width: 200px;">
+                ${availableVoices.map((voice, index) => 
+                    `<option value="${index}" ${index === selectedVoiceIndex ? 'selected' : ''}>
+                        ${voice.name} (${voice.lang})
+                    </option>`
+                ).join('')}
+            </select>
+        `;
+        
+        // Add to TTS button container if it exists
+        const ttsBtn = document.getElementById('ttsBtn');
+        if (ttsBtn && ttsBtn.parentElement) {
+            ttsBtn.parentElement.appendChild(voiceSelectorContainer);
+        }
+        
+        // Add change listener
+        const selector = voiceSelectorContainer.querySelector('#voiceSelector');
+        selector.addEventListener('change', function(e) {
+            selectedVoiceIndex = parseInt(e.target.value);
+            localStorage.setItem('selectedVoiceIndex', selectedVoiceIndex);
+            
+            // Test the selected voice
+            const selectedVoice = availableVoices[selectedVoiceIndex];
+            showToast(`🔊 Voice changed to: ${selectedVoice.name}`, 'info');
+            speakText(`Hello! I'm now using the ${selectedVoice.name} voice.`);
+        });
+    }
+    
+    // Enhanced speak function with cross-browser support and voice selection
+    function speakText(text, skipToast = false) {
         if (!ttsEnabled || !text || !('speechSynthesis' in window)) {
             return;
         }
         
         try {
+            // 1. Voice Availability Check - Prevent errors before they happen
+            if (availableVoices.length === 0) {
+                console.warn('No voices available for TTS');
+                if (!skipToast) {
+                    showToast('🔄 Loading voices, please wait...', 'info');
+                }
+                // Retry after voices load
+                setTimeout(() => {
+                    if (availableVoices.length > 0) {
+                        speakText(text, skipToast);
+                    } else {
+                        showToast('⚠️ Text-to-speech voices unavailable', 'warning');
+                    }
+                }, 500);
+                return;
+            }
+            
             // Cancel any ongoing speech
             speechSynthesis.cancel();
             
             const utterance = new SpeechSynthesisUtterance(text);
             
             // Configure voice settings for better compatibility
-            utterance.rate = 0.9;
+            utterance.rate = 0.95;
             utterance.pitch = 1.0;
-            utterance.volume = 0.8;
+            utterance.volume = 0.9;
             
-            // Select best available voice
+            // Use selected voice or best available with validation
+            let voiceToUse = null;
             if (availableVoices.length > 0) {
-                // Prefer English voices
-                const englishVoice = availableVoices.find(voice => 
-                    voice.lang.startsWith('en') && voice.localService
-                ) || availableVoices.find(voice => 
-                    voice.lang.startsWith('en')
-                ) || availableVoices[0];
-                
-                if (englishVoice) {
-                    utterance.voice = englishVoice;
+                const selectedVoice = availableVoices[selectedVoiceIndex];
+                if (selectedVoice) {
+                    voiceToUse = selectedVoice;
+                } else {
+                    // Fallback to first English voice or any available
+                    const englishVoice = availableVoices.find(voice => 
+                        voice.lang.startsWith('en')
+                    ) || availableVoices[0];
+                    
+                    if (englishVoice) {
+                        voiceToUse = englishVoice;
+                    }
                 }
+            }
+            
+            // Only set voice if we found a valid one
+            if (voiceToUse) {
+                utterance.voice = voiceToUse;
             }
             
             utterance.onstart = function() {
                 console.log('TTS started');
+                if (!skipToast) {
+                    showToast('🔊 Speaking...', 'info');
+                }
             };
             
             utterance.onend = function() {
@@ -82,16 +178,67 @@ document.addEventListener('DOMContentLoaded', function() {
             
             utterance.onerror = function(event) {
                 console.error('TTS error:', event.error);
-                // Retry with default settings if error occurs
-                if (event.error === 'voice-unavailable') {
-                    const simpleUtterance = new SpeechSynthesisUtterance(text);
-                    speechSynthesis.speak(simpleUtterance);
+                
+                // 4. Clearer user notifications based on error type
+                let userMessage = '';
+                let shouldRetry = false;
+                
+                switch(event.error) {
+                    case 'synthesis-failed':
+                        userMessage = '🔊 Speech synthesis failed. Using fallback voice...';
+                        shouldRetry = true;
+                        updateTTSStatus('Retrying...');
+                        break;
+                    case 'synthesis-unavailable':
+                        userMessage = '⚠️ Speech not available right now. Check your connection.';
+                        updateTTSStatus('Unavailable');
+                        break;
+                    case 'voice-unavailable':
+                        userMessage = '🔄 Selected voice unavailable. Switching to default...';
+                        shouldRetry = true;
+                        updateTTSStatus('Switching voice...');
+                        break;
+                    case 'audio-busy':
+                        userMessage = '🔇 Audio system is busy. Please try again.';
+                        updateTTSStatus('Audio busy');
+                        break;
+                    case 'network':
+                        userMessage = '📡 Network issue. Retrying speech...';
+                        shouldRetry = true;
+                        updateTTSStatus('Network error');
+                        break;
+                    default:
+                        userMessage = `⚠️ Speech unavailable (${event.error})`;
+                        updateTTSStatus('Error');
+                }
+                
+                showToast(userMessage, 'warning');
+                
+                // Retry with fallback voice if appropriate
+                if (shouldRetry && availableVoices.length > 0) {
+                    console.log('Retrying TTS with fallback voice');
+                    const fallbackUtterance = new SpeechSynthesisUtterance(text);
+                    fallbackUtterance.voice = availableVoices[0]; // Use first available voice
+                    fallbackUtterance.rate = 1.0; // Normal rate
+                    
+                    fallbackUtterance.onerror = function(retryEvent) {
+                        console.error('Fallback TTS also failed:', retryEvent.error);
+                        showToast('❌ Text-to-speech unavailable', 'error');
+                        updateTTSStatus('Failed');
+                    };
+                    
+                    fallbackUtterance.onend = function() {
+                        updateTTSStatus(`Ready (${availableVoices.length} voices)`);
+                    };
+                    
+                    speechSynthesis.speak(fallbackUtterance);
                 }
             };
             
             speechSynthesis.speak(utterance);
         } catch (error) {
             console.error('TTS error:', error);
+            showToast('❌ Unable to speak text', 'error');
         }
     }
     
@@ -132,25 +279,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ message: message })
                 });
                 
-                const data = await response.json();
+                // Check if user needs to authenticate
+                if (response.status === 403 || response.status === 401) {
+                    addChatMessage('Please log in to chat with Roboto SAI. Click the login button above.', false);
+                    return;
+                }
+                
+                // Check if response is not ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Try to parse JSON, handle non-JSON responses
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    console.error('Response is not valid JSON:', await response.text());
+                    throw new Error('Invalid server response');
+                }
                 
                 if (data.success && data.response) {
                     addChatMessage(data.response, false);
                     
-                    // Add text-to-speech functionality if enabled
-                    if (ttsEnabled && window.speechSynthesis) {
-                        // Stop any current speech
-                        window.speechSynthesis.cancel();
-                        
-                        // Create new utterance
-                        const utterance = new SpeechSynthesisUtterance(data.response);
-                        utterance.rate = 0.9;
-                        utterance.pitch = 1.1;
-                        utterance.volume = 0.9;
-                        utterance.lang = 'en-US';
-                        
-                        // Speak the message
-                        window.speechSynthesis.speak(utterance);
+                    // Auto-speak response if TTS is enabled
+                    if (ttsEnabled) {
+                        speakText(data.response, true); // Skip toast for auto-speak
                     }
                     
                     // Update all insights after each interaction
@@ -212,13 +366,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadChatHistory() {
         try {
-            const response = await fetch('/api/history');
+            const response = await fetch('/api/chat_history');
+            
+            // Check if user needs to authenticate
+            if (response.status === 403 || response.status === 401) {
+                console.log('Chat history requires authentication');
+                return;
+            }
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
             
-            if (data.success && data.history && Array.isArray(data.history)) {
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('Chat history response is not valid JSON');
+                return;
+            }
+            
+            const history = data.chat_history || data.history || [];
+            if (data.success && Array.isArray(history)) {
                 const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
                 if (chatHistoryElement) {
                     // Keep the creator introduction, only remove loading indicator
@@ -227,8 +396,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         loadingIndicator.remove();
                     }
                     
-                    console.log(`Loading ${data.history.length} conversations`);
-                    data.history.forEach(entry => {
+                    console.log(`Loading ${history.length} conversations`);
+                    
+                    // 🚀 PERFORMANCE OPTIMIZATION: Load conversations in batches
+                    // Load most recent 100 conversations first for instant display
+                    const INITIAL_LOAD = 100;
+                    const recentHistory = history.slice(-INITIAL_LOAD);
+                    const olderHistory = history.slice(0, -INITIAL_LOAD);
+                    
+                    // Load recent conversations immediately
+                    recentHistory.forEach(entry => {
                         if (entry.message) {
                             addChatMessage(entry.message, true);
                         }
@@ -237,7 +414,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    // Scroll to bottom
+                    // Add "Load More" button if there are older conversations
+                    if (olderHistory.length > 0) {
+                        const loadMoreBtn = document.createElement('div');
+                        loadMoreBtn.id = 'load-more-history';
+                        loadMoreBtn.className = 'text-center my-3';
+                        loadMoreBtn.innerHTML = `
+                            <button class="btn btn-outline-primary btn-sm" onclick="loadOlderConversations()">
+                                <i class="fas fa-history"></i> Load ${olderHistory.length} older conversations
+                            </button>
+                        `;
+                        chatHistoryElement.insertBefore(loadMoreBtn, chatHistoryElement.firstChild);
+                        
+                        // Store older history for later loading
+                        window.olderChatHistory = olderHistory;
+                    }
+                    
+                    // Ensure chat history container is always visible
+                    chatHistoryElement.style.display = 'block';
+                    chatHistoryElement.style.visibility = 'visible';
+                    chatHistoryElement.style.opacity = '1';
+                    
+                    // Scroll to bottom to show most recent messages
                     setTimeout(() => {
                         chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
                     }, 100);
@@ -245,9 +443,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
-            // Hide loading indicator and show error message
+            // Always show chat history container even on error
             const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
             if (chatHistoryElement) {
+                chatHistoryElement.style.display = 'block';
+                chatHistoryElement.style.visibility = 'visible';
+                
                 const loadingIndicator = chatHistoryElement.querySelector('#loading-indicator');
                 if (loadingIndicator) {
                     loadingIndicator.innerHTML = '<div class="text-center text-muted p-3">Your conversations are saved but temporarily unavailable. Try refreshing the page.</div>';
@@ -277,63 +478,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function startSecureSpeechRecognition() {
+    function startSecureSpeechRecognition() {
         // Check for speech recognition support
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert('Speech recognition not supported in this browser');
+            showToast('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.', 'warning');
             return;
         }
         
         try {
-            // Request secure microphone access with explicit permissions
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                    sampleRate: 44100
-                } 
-            });
-            
-            // Verify the stream is active and secure
-            if (!stream.active) {
-                throw new Error('Microphone access denied');
+            // Clean up any existing recognition
+            if (recognition) {
+                recognition.abort();
+                recognition = null;
             }
             
-            // Stop the stream immediately after permission check
-            stream.getTracks().forEach(track => track.stop());
-            
-            // Initialize speech recognition with security measures
+            // Initialize speech recognition (it will handle microphone permissions automatically)
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
             recognition.maxAlternatives = 1;
             
-            // Secure event handlers
+            // Track recognition state
+            let recognitionActive = false;
+            let shouldRestart = false;
+            
+            // Event handlers
             recognition.onstart = function() {
+                recognitionActive = true;
                 isListening = true;
                 updateVoiceButtonState(true);
-                console.log('Secure speech recognition started');
+                showToast('🎤 Listening... Speak now!', 'success');
+                console.log('Speech recognition started');
             };
             
             recognition.onend = function() {
+                recognitionActive = false;
                 console.log('Speech recognition ended');
-                // Restart automatically if still supposed to be listening
-                if (isListening) {
+                
+                // Only restart if user hasn't explicitly stopped and we want continuous listening
+                if (isListening && shouldRestart) {
                     setTimeout(() => {
-                        if (isListening && recognition) {
+                        if (isListening && !recognitionActive) {
                             try {
                                 recognition.start();
+                                shouldRestart = false;
                             } catch (error) {
                                 console.error('Error restarting recognition:', error);
+                                isListening = false;
+                                updateVoiceButtonState(false);
                             }
                         }
-                    }, 100);
+                    }, 500); // Increased delay to avoid conflicts
                 } else {
+                    isListening = false;
                     updateVoiceButtonState(false);
                 }
+            };
+            
+            // Set flag for auto-restart on speech detection
+            recognition.onspeechend = function() {
+                shouldRestart = isListening; // Only restart if still in listening mode
             };
             
             recognition.onresult = function(event) {
@@ -349,34 +555,104 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Show interim results in input field
-                chatInput.value = finalTranscript + interimTranscript;
+                // Show interim results in input field with visual feedback
+                if (chatInput) {
+                    chatInput.value = finalTranscript + interimTranscript;
+                    // Add visual feedback for active speech
+                    if (interimTranscript) {
+                        chatInput.style.borderColor = '#28a745';
+                        chatInput.style.boxShadow = '0 0 5px rgba(40, 167, 69, 0.5)';
+                    }
+                }
                 
-                // Submit when final result is received and learn from voice input
+                // Process final result for speech-to-speech
                 if (finalTranscript) {
-                    // Track voice recognition confidence for learning
                     const confidence = event.results[event.results.length - 1][0].confidence || 0.5;
                     console.log(`Voice recognition confidence: ${confidence}`);
                     
+                    // Show confidence indicator
+                    showVoiceConfidenceIndicator(confidence);
+                    
+                    // Optimize based on confidence level
+                    if (confidence < 0.7) {
+                        optimizeVoiceRecognition(finalTranscript, confidence);
+                    }
+                    
+                    // Reset input field visual feedback
+                    if (chatInput) {
+                        chatInput.style.borderColor = '';
+                        chatInput.style.boxShadow = '';
+                    }
+                    
+                    // Submit with optimized delay
+                    const submitDelay = confidence > 0.8 ? 300 : 500;
                     setTimeout(() => {
-                        chatForm.dispatchEvent(new Event('submit'));
-                        // After submission, update voice insights
+                        if (chatForm) {
+                            // Show processing feedback
+                            showToast('💭 Processing your message...', 'info');
+                            chatForm.dispatchEvent(new Event('submit'));
+                        }
+                        // Update voice insights
                         setTimeout(updateVoiceInsights, 1000);
-                    }, 500);
+                    }, submitDelay);
+                    
+                    // Set restart flag for continuous conversation
+                    shouldRestart = true;
                 }
             };
             
             recognition.onerror = function(event) {
                 console.error('Speech recognition error:', event.error);
-                isListening = false;
-                updateVoiceButtonState(false);
                 
-                if (event.error === 'not-allowed') {
-                    alert('Microphone access denied. Please allow microphone access and try again.');
-                } else if (event.error === 'no-speech') {
-                    alert('No speech detected. Please try again.');
-                } else {
-                    alert('Speech recognition error: ' + event.error);
+                // Don't reset state for recoverable errors
+                const recoverableErrors = ['aborted', 'no-speech'];
+                
+                if (!recoverableErrors.includes(event.error)) {
+                    isListening = false;
+                    recognitionActive = false;
+                    updateVoiceButtonState(false);
+                }
+                
+                let errorMessage = '';
+                let errorType = 'error';
+                
+                switch(event.error) {
+                    case 'not-allowed':
+                    case 'service-not-allowed':
+                        errorMessage = '🎤 Microphone access denied. Please allow microphone permissions in your browser settings.';
+                        break;
+                    case 'no-speech':
+                        // Don't show error for no-speech, just log it
+                        console.log('No speech detected, continuing to listen...');
+                        shouldRestart = isListening;
+                        return;
+                    case 'audio-capture':
+                        errorMessage = '🎤 Microphone not available. Please check if another app is using it or if it\'s properly connected.';
+                        break;
+                    case 'network':
+                        errorMessage = '📡 Speech recognition network error. The browser\'s speech service may be unavailable. Please type your message instead or try again later.';
+                        errorType = 'warning';
+                        // Auto-retry after a delay if still listening
+                        if (isListening) {
+                            setTimeout(() => {
+                                console.log('Auto-retrying speech recognition after network error...');
+                                if (isListening) {
+                                    startSpeechRecognition();
+                                }
+                            }, 3000); // Retry after 3 seconds
+                        }
+                        break;
+                    case 'aborted':
+                        // Silently handle aborted errors (normal when stopping or restarting)
+                        console.log('Recognition aborted (normal during restart)');
+                        return;
+                    default:
+                        errorMessage = `⚠️ Speech recognition error: ${event.error}`;
+                        errorType = 'warning';
+                }
+                
+                if (errorMessage) {
+                    showToast(errorMessage, errorType);
                 }
             };
             
@@ -384,16 +660,24 @@ document.addEventListener('DOMContentLoaded', function() {
             recognition.start();
             
         } catch (error) {
-            console.error('Microphone access error:', error);
-            alert('Unable to access microphone. Please check your browser settings and try again.');
+            console.error('Speech recognition initialization error:', error);
+            isListening = false;
+            updateVoiceButtonState(false);
+            showToast('❌ Unable to start speech recognition. Please try again.', 'error');
         }
     }
     
     function stopSpeechRecognition() {
-        if (recognition && isListening) {
-            recognition.stop();
+        if (recognition) {
             isListening = false;
+            try {
+                recognition.abort(); // Use abort instead of stop for immediate termination
+            } catch (error) {
+                console.log('Error stopping recognition:', error);
+            }
+            recognition = null;
             updateVoiceButtonState(false);
+            showToast('🛑 Speech recognition stopped', 'info');
         }
     }
     
@@ -471,77 +755,174 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showVoiceConfidenceIndicator(confidence) {
+        // Remove any existing confidence indicator
+        const existingIndicator = document.querySelector('.voice-confidence-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
         const indicator = document.createElement('div');
         indicator.className = 'voice-confidence-indicator';
+        
+        // Color based on confidence level
+        const bgColor = confidence > 0.8 ? '40, 167, 69' : // Green for high confidence
+                       confidence > 0.6 ? '255, 193, 7' : // Yellow for medium
+                       '220, 53, 69'; // Red for low
+        
         indicator.style.cssText = `
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
-            background: rgba(0, 123, 255, 0.9);
+            background: rgba(${bgColor}, 0.9);
             color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 1000;
-            transition: opacity 0.3s;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1050;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
         `;
-        indicator.textContent = `Voice confidence: ${Math.round(confidence * 100)}%`;
+        
+        const confidencePercent = Math.round(confidence * 100);
+        const confidenceEmoji = confidence > 0.8 ? '✅' : confidence > 0.6 ? '⚠️' : '❌';
+        
+        indicator.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>${confidenceEmoji}</span>
+                <span>Recognition: ${confidencePercent}%</span>
+            </div>
+        `;
         
         document.body.appendChild(indicator);
         
+        // Auto-hide with fade out
         setTimeout(() => {
             indicator.style.opacity = '0';
+            indicator.style.transform = 'translateX(100px)';
             setTimeout(() => {
                 if (indicator.parentNode) {
                     indicator.parentNode.removeChild(indicator);
                 }
             }, 300);
-        }, 2000);
+        }, 3000);
     }
     
     function showVoiceOptimizationTip(suggestion) {
+        // Remove any existing tip
+        const existingTip = document.querySelector('.voice-optimization-tip');
+        if (existingTip) {
+            existingTip.remove();
+        }
+        
         const tip = document.createElement('div');
         tip.className = 'voice-optimization-tip';
         tip.style.cssText = `
             position: fixed;
             bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(40, 167, 69, 0.9);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(34, 139, 58, 0.95));
             color: white;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px 20px;
+            border-radius: 8px;
             font-size: 14px;
-            z-index: 1000;
+            z-index: 1050;
             max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
+            text-align: left;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
         `;
         tip.innerHTML = `
-            <strong>Voice Tip:</strong> ${escapeHtml(suggestion)}
-            <button onclick="this.parentNode.remove()" style="
-                background: none;
-                border: none;
-                color: white;
-                float: right;
-                cursor: pointer;
-                font-size: 16px;
-                margin-top: -2px;
-            ">&times;</button>
+            <div style="display: flex; align-items: start; gap: 10px;">
+                <span style="font-size: 18px;">💡</span>
+                <div style="flex: 1;">
+                    <strong style="display: block; margin-bottom: 5px;">Voice Tip</strong>
+                    <span>${escapeHtml(suggestion)}</span>
+                </div>
+                <button onclick="this.parentNode.parentNode.remove()" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    font-size: 20px;
+                    line-height: 1;
+                    opacity: 0.8;
+                    transition: opacity 0.2s;
+                    padding: 0;
+                    margin: -5px -5px 0 0;
+                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">&times;</button>
+            </div>
         `;
         
         document.body.appendChild(tip);
         
+        // Auto-hide with animation
         setTimeout(() => {
-            if (tip.parentNode) {
-                tip.parentNode.removeChild(tip);
-            }
-        }, 5000);
+            tip.style.animation = 'slideDown 0.3s ease';
+            setTimeout(() => {
+                if (tip.parentNode) {
+                    tip.parentNode.removeChild(tip);
+                }
+            }, 300);
+        }, 6000);
     }
+    
+    // Add CSS animations dynamically if not already present
+    function addSpeechAnimations() {
+        if (document.getElementById('speech-animations')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'speech-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(20px);
+                }
+            }
+            
+            .voice-confidence-indicator,
+            .voice-optimization-tip {
+                will-change: transform, opacity;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Initialize animations on page load
+    addSpeechAnimations();
     
     async function loadMemoryInsights() {
         try {
-            const response = await fetch('/api/memory-insights');
+            const response = await fetch('/api/learning-insights');
             const data = await response.json();
             
             const memoryElement = document.getElementById('memoryInsights');
@@ -807,17 +1188,72 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                // Create download with mobile-friendly approach
-                const blob = new Blob([JSON.stringify(data.data, null, 2)], {
+                const jsonString = JSON.stringify(data.data, null, 2);
+                const blob = new Blob([jsonString], {
                     type: 'application/json'
                 });
                 
-                // Check if on mobile device
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // For mobile, try to use share API or fallback to data URL
+                const filename = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                
+                // Check if on iOS/iPhone
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                
+                if (isIOS || isSafari) {
+                    // iOS-specific approach
+                    // Try Web Share API first (works best on iOS)
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename)] })) {
+                        try {
+                            const file = new File([blob], filename, {
+                                type: 'application/json',
+                                lastModified: new Date().getTime()
+                            });
+                            await navigator.share({
+                                files: [file],
+                                title: 'Roboto SAI Data Export',
+                                text: 'Your Roboto conversations and memories'
+                            });
+                            if (statusDiv) {
+                                statusDiv.textContent = 'Data exported successfully! Check your Files app or selected location.';
+                                statusDiv.className = 'small text-success text-center';
+                            }
+                            return;
+                        } catch (shareError) {
+                            console.log('Share API failed, trying alternative method:', shareError);
+                        }
+                    }
+                    
+                    // Fallback: Create download link with proper iOS handling
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const link = document.createElement('a');
+                        link.href = e.target.result;
+                        link.download = filename;
+                        link.style.display = 'none';
+                        
+                        // iOS requires the link to be in the DOM
+                        document.body.appendChild(link);
+                        
+                        // Trigger click
+                        link.click();
+                        
+                        // Clean up
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                        }, 100);
+                        
+                        if (statusDiv) {
+                            statusDiv.textContent = 'Data ready! Tap to save to Files or iCloud.';
+                            statusDiv.className = 'small text-success text-center';
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                    
+                } else if (/Android/i.test(navigator.userAgent)) {
+                    // Android approach
                     if (navigator.share) {
                         try {
-                            const file = new File([blob], `roboto-data-${new Date().toISOString().split('T')[0]}.json`, {
+                            const file = new File([blob], filename, {
                                 type: 'application/json'
                             });
                             await navigator.share({
@@ -825,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 title: 'Roboto Data Export'
                             });
                             if (statusDiv) {
-                                statusDiv.textContent = 'Data shared successfully!';
+                                statusDiv.textContent = 'Data exported successfully!';
                                 statusDiv.className = 'small text-success text-center';
                             }
                             return;
@@ -834,35 +1270,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     
-                    // Fallback for mobile
-                    const dataUrl = URL.createObjectURL(blob);
+                    // Fallback for Android
+                    const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
-                    a.href = dataUrl;
-                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.href = url;
+                    a.download = filename;
                     a.target = '_blank';
                     document.body.appendChild(a);
                     a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(dataUrl);
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    
                 } else {
                     // Desktop download
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `roboto-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.download = filename;
                     document.body.appendChild(a);
                     a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
                 }
                 
-                if (statusDiv) {
+                if (statusDiv && !statusDiv.textContent.includes('successfully')) {
                     statusDiv.textContent = 'Data exported successfully!';
                     statusDiv.className = 'small text-success text-center';
                 }
             } else {
                 if (statusDiv) {
-                    statusDiv.textContent = 'Export failed: ' + data.message;
+                    statusDiv.textContent = 'Export failed: ' + (data.message || 'Unknown error');
                     statusDiv.className = 'small text-danger text-center';
                 }
             }
@@ -874,13 +1315,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Reset status after 3 seconds
+        // Reset status after 5 seconds
         setTimeout(() => {
-            if (statusDiv) {
+            if (statusDiv && !statusDiv.textContent.includes('tap to save')) {
                 statusDiv.textContent = 'Export your conversations and memories, or import previous data';
                 statusDiv.className = 'small text-muted text-center';
             }
-        }, 3000);
+        }, 5000);
     }
 
     async function handleImportFile(event) {
@@ -963,6 +1404,104 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusDiv.className = 'small text-muted text-center';
             }
         }, 3000);
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+        const toastElement = document.getElementById('notificationToast');
+        const toastBody = document.getElementById('toastBody');
+        
+        if (!toastElement || !toastBody) {
+            console.warn('Toast elements not found');
+            return;
+        }
+        
+        // Set message
+        toastBody.textContent = message;
+        
+        // Set background color based on type
+        const toastHeader = toastElement.querySelector('.toast-header');
+        if (toastHeader) {
+            toastHeader.className = 'toast-header';
+            switch(type) {
+                case 'error':
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                    break;
+                case 'success':
+                    toastHeader.classList.add('bg-success', 'text-white');
+                    break;
+                case 'warning':
+                    toastHeader.classList.add('bg-warning', 'text-dark');
+                    break;
+                case 'info':
+                default:
+                    toastHeader.classList.add('bg-info', 'text-white');
+                    break;
+            }
+        }
+        
+        // Show toast using Bootstrap
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 4000
+        });
+        toast.show();
+    }
+
+    // Function to load older conversations in batches
+    window.loadOlderConversations = function() {
+        const BATCH_SIZE = 100;
+        const chatHistoryElement = document.getElementById('chatHistory') || document.getElementById('chat-history');
+        const loadMoreBtn = document.getElementById('load-more-history');
+        
+        if (!window.olderChatHistory || window.olderChatHistory.length === 0) {
+            if (loadMoreBtn) loadMoreBtn.remove();
+            return;
+        }
+        
+        // Load next batch
+        const batch = window.olderChatHistory.slice(-BATCH_SIZE);
+        const remaining = window.olderChatHistory.slice(0, -BATCH_SIZE);
+        
+        // Insert batch before the current first message
+        const firstMessage = chatHistoryElement.querySelector('.chat-message');
+        batch.forEach(entry => {
+            if (entry.message) {
+                const userMsg = createChatMessageElement(entry.message, true);
+                chatHistoryElement.insertBefore(userMsg, firstMessage);
+            }
+            if (entry.response) {
+                const botMsg = createChatMessageElement(entry.response, false);
+                chatHistoryElement.insertBefore(botMsg, firstMessage);
+            }
+        });
+        
+        // Update remaining history
+        window.olderChatHistory = remaining;
+        
+        // Update or remove button
+        if (remaining.length > 0) {
+            const btn = loadMoreBtn.querySelector('button');
+            if (btn) {
+                btn.innerHTML = `<i class="fas fa-history"></i> Load ${remaining.length} more conversations`;
+            }
+        } else {
+            if (loadMoreBtn) loadMoreBtn.remove();
+            showToast('All conversations loaded!', 'success');
+        }
+    };
+    
+    // Helper function to create chat message element
+    function createChatMessageElement(text, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'} mb-3`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = isUser ? 'bg-primary text-white p-3 rounded' : 'bg-dark text-white p-3 rounded';
+        messageContent.textContent = text;
+        
+        messageDiv.appendChild(messageContent);
+        return messageDiv;
     }
 
     // Initialize data management when DOM is loaded

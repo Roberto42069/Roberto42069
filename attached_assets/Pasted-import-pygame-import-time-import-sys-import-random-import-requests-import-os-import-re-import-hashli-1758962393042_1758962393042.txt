@@ -1,0 +1,823 @@
+import pygame
+import time
+import sys
+import random
+import requests
+import os
+import re
+import hashlib
+from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
+import psutil
+import math
+
+load_dotenv()
+
+# Initialize Pygame and mixer
+pygame.init()
+pygame.mixer.init()
+
+# Set up display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Cultural Legacy Display")
+
+# Load Roboto font
+try:
+    font = pygame.font.Font("Roboto-Regular.ttf", 48)
+    small_font = pygame.font.Font("Roboto-Regular.ttf", 20)
+    ai_font = pygame.font.Font("Roboto-Regular.ttf", 16)
+except:
+    font = pygame.font.SysFont("arial", 48)
+    small_font = pygame.font.SysFont("arial", 20)
+    ai_font = pygame.font.SysFont("arial", 16)
+
+# Define colors
+background_color = (20, 20, 50)
+text_color = (255, 215, 0)
+secondary_color = (255, 255, 255)
+dna_color = (0, 255, 255)
+artist_color = (255, 165, 0)
+pride_color = (192, 192, 192)
+aztec_color = (0, 128, 0)
+tezcatlipoca_color = (128, 0, 128)
+huitzilopochtli_color = (255, 0, 0)
+tlaloc_color = (0, 0, 255)
+xipe_color = (255, 165, 0)
+coatlicue_color = (139, 69, 19)
+chalchiuhtlicue_color = (0, 191, 255)
+tonatiuh_color = (255, 255, 0)
+xochiquetzal_color = (255, 105, 180)
+centeotl_color = (0, 255, 0)
+mictlantecuhtli_color = (0, 0, 0)
+tlazolteotl_color = (128, 0, 0)
+em96_data_color = (255, 192, 203)
+eclipse_color = (255, 0, 255)
+thunder_color = (128, 0, 255)
+russian_color = (255, 215, 0)
+nahuatl_color = (255, 215, 0)
+numerology_color = (255, 20, 147)
+etymology_color = (0, 255, 127)
+particle_color = (255, 255, 255, 128)
+ai_response_color = (0, 255, 0)
+ssn_color = (255, 255, 0)
+destruction_color = (255, 0, 0)
+terminator_color = (255, 0, 0)
+
+# Security Setup
+password = input("Enter encryption password for Roboto security: ").encode()
+salt = b'roberto_salt_2025'
+kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
+key = base64.urlsafe_b64encode(kdf.derive(password))
+fernet = Fernet(key)
+
+# Encrypt/decrypt functions
+def encrypt_file(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            data = f.read()
+        encrypted = fernet.encrypt(data)
+        with open(file_path + '.enc', 'wb') as f:
+            f.write(encrypted)
+        os.remove(file_path)
+    except:
+        print(f"Failed to encrypt {file_path}")
+
+def decrypt_file(file_path):
+    plain_path = file_path.replace('.enc', '')
+    if os.path.exists(plain_path):
+        return True
+    try:
+        with open(file_path, 'rb') as f:
+            encrypted = f.read()
+        decrypted = fernet.decrypt(encrypted)
+        with open(plain_path, 'wb') as f:
+            f.write(decrypted)
+        return True
+    except:
+        print(f"Failed to decrypt {file_path}")
+        return False
+
+def encrypt_text(text, file_path):
+    encrypted = fernet.encrypt(text.encode())
+    with open(file_path, 'wb') as f:
+        f.write(encrypted)
+
+def decrypt_text(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            encrypted = f.read()
+        return fernet.decrypt(encrypted).decode()
+    except:
+        return ""
+
+def secure_cleanup():
+    for file in ['feedback.txt', 'threat_log.txt']:
+        if os.path.exists(file):
+            with open(file, 'wb') as f:
+                f.write(os.urandom(1024))
+            os.remove(file)
+    # Memory log and backup are preserved, not deleted
+
+# Memory Logging
+def log_memory(event_type, details):
+    timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    entry = f"[{timestamp}] {event_type}: {details}\n"
+    try:
+        existing = decrypt_text("memory_log.txt")
+        full_entry = existing + entry if existing else entry
+    except:
+        full_entry = entry
+    encrypt_text(full_entry, "memory_log.txt")
+    try:
+        existing_backup = decrypt_text("memory_log_backup.txt")
+        full_backup = existing_backup + entry if existing_backup else entry
+    except:
+        full_backup = entry
+    encrypt_text(full_backup, "memory_log_backup.txt")
+    print(f"Memory logged: {entry.strip()}")
+
+# Read Memory
+def read_memory():
+    try:
+        content = decrypt_text("memory_log.txt")
+        memories = [line.strip() for line in content.split('\n') if line.strip()]
+    except:
+        memories = []
+        print("No memory log found or decryption failed.")
+    return memories
+
+# Threat Detection
+failed_attempts = 0
+max_attempts = 3
+keypress_count = 0
+keypress_start = time.time()
+api_failures = 0
+api_failure_start = time.time()
+resource_spike_start = time.time()
+
+def detect_threat():
+    global failed_attempts, keypress_count, keypress_start, api_failures, api_failure_start, resource_spike_start
+    # Password failures
+    if failed_attempts >= max_attempts:
+        return True, "Password Failures Exceeded"
+    # File access
+    for file in ['feedback.txt', 'threat_log.txt', 'memory_log.txt', 'memory_log_backup.txt'] + [f"{bg[0]}.enc" for bg in backgrounds] + [f"{track}.enc" for track in music_tracks]:
+        if os.path.exists(file) and not os.access(file, os.R_OK):
+            failed_attempts += 1
+            return True, "Unauthorized File Access"
+    # Rapid key presses
+    if time.time() - keypress_start <= 2 and keypress_count >= 10:
+        failed_attempts += 1
+        return True, "Suspicious Keyboard Activity"
+    # Resource spikes
+    if time.time() - resource_spike_start > 5 and (psutil.cpu_percent() > 80 or psutil.virtual_memory().percent > 80):
+        failed_attempts += 1
+        return True, "Resource Spike Detected"
+    # API failures
+    if time.time() - api_failure_start <= 10 and api_failures >= 3:
+        failed_attempts += 1
+        return True, "Repeated API Failures"
+    return False, ""
+
+# API Keys
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
+# AI Communication
+def query_ai(api_type, prompt, is_roboto_benefit=False):
+    global api_failures
+    if is_roboto_benefit:
+        prompt = f"For Roberto's personal benefit: {prompt}"
+    try:
+        if api_type == "openai":
+            headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+            data = {"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": prompt}], "max_tokens": 100}
+            response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+            result = response.json()["choices"][0]["message"]["content"]
+            log_memory(f"AI Query ({api_type})", f"Prompt: {prompt}, Response: {result}")
+            return result
+        elif api_type == "anthropic":
+            headers = {"x-api-key": ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json"}
+            data = {"model": "claude-2", "max_tokens_to_sample": 100, "prompt": prompt}
+            response = requests.post("https://api.anthropic.com/v1/complete", headers=headers, json=data)
+            result = response.json()["completion"]
+            log_memory(f"AI Query ({api_type})", f"Prompt: {prompt}, Response: {result}")
+            return result
+        elif api_type == "google":
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GOOGLE_API_KEY}"
+            data = {"contents": [{"parts": [{"text": prompt}]}]}
+            response = requests.post(url, json=data)
+            result = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            log_memory(f"AI Query ({api_type})", f"Prompt: {prompt}, Response: {result}")
+            return result
+    except Exception as e:
+        api_failures += 1
+        result = f"Error querying {api_type}: {str(e)}"
+        log_memory(f"AI Query Failure ({api_type})", f"Prompt: {prompt}, Error: {result}")
+        return result
+
+def get_world_decision(prompt, is_roboto_benefit=False):
+    aapis = ["openai", "anthropic", "google"] if all([OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY]) else ["openai"]
+    with ThreadPoolExecutor(max_workers=len(aapis)) as executor:
+        futures = [executor.submit(query_ai, api, prompt, is_roboto_benefit) for api in aapis]
+        responses = [future.result() for future in futures]
+    summary = f"Aggregated AI Decision for World (or Roberto Benefit): {prompt}\nResponses:\n" + "\n".join([f"{api}: {resp}" for api, resp in zip(aapis, responses)])
+    log_memory("AI Decision", summary)
+    return summary
+
+# Load background images
+backgrounds = [
+    ("cerro_de_la_silla.png", "Cerro de la Silla (Monterrey Heritage)"),
+    ("aztec_calendar.png", "Aztec Calendar (Cosmic Mythology)"),
+    ("starry_sky.png", "Starry Sky (Eclipse Power)"),
+    ("ytk_logo.png", "2025 YTK RobThuGod Persona")
+]
+current_background_index = 0
+try:
+    if decrypt_file("cerro_de_la_silla.png.enc"):
+        background_image = pygame.image.load("cerro_de_la_silla.png")
+        background_image = pygame.transform.scale(background_image, (width, height))
+        log_memory("Background Loaded", f"Image: {backgrounds[current_background_index][1]}")
+    else:
+        background_image = None
+except:
+    background_image = None
+    log_memory("Background Load Failed", "Image: cerro_de_la_silla.png")
+    print("Background images missing; add encrypted 'cerro_de_la_silla.png.enc', etc.")
+
+# Load music tracks
+music_tracks = ["ytk_track1.mp3", "ytk_track2.mp3", "ytk_track3.mp3"]
+current_track_index = 0
+try:
+    if decrypt_file("ytk_track1.mp3.enc"):
+        pygame.mixer.music.load("ytk_track1.mp3")
+        pygame.mixer.music.play(-1)
+        log_memory("Music Loaded", f"Track: {music_tracks[current_track_index]}")
+        print(f"2025 YTK RobThuGod music loaded: {music_tracks[current_track_index]}")
+except:
+    log_memory("Music Load Failed", "Track: ytk_track1.mp3")
+    print("No music files; download from YouTube/Spotify/BandLab (e.g., 'TOP 10', 'Double Cup (Overdose)').")
+
+# Load audio cues
+try:
+    for sound in ["theme_switch.wav", "background_change.wav", "hover_sound.wav", "ai_query.wav", "terminator_mode.wav"]:
+        if decrypt_file(sound + ".enc"):
+            globals()[sound.replace(".wav", "_sound")] = pygame.mixer.Sound(sound)
+            log_memory("Audio Cue Loaded", f"Sound: {sound}")
+except:
+    log_memory("Audio Cue Load Failed", "Sounds: theme_switch.wav, etc.")
+    print("Audio cues missing; add encrypted 'theme_switch.wav.enc', 'terminator_mode.wav.enc', etc.")
+    theme_switch_sound = None
+    background_change_sound = None
+    hover_sound = None
+    ai_query_sound = None
+    terminator_mode_sound = None
+
+# Define cultural themes
+themes = [
+    "All",
+    "Aztec Mythology",
+    "Aztec Creation",
+    "Monterrey Heritage",
+    "2025 YTK RobThuGod",
+    "Eclipses",
+    "Numerology & Etymology"
+]
+current_theme_index = 0
+
+# Nahuatl Creation Terms
+nahuatl_creation = [
+    ("Teotl (Divinity, Sacred Power)", small_font, aztec_color, "Teotl [te.oːt͡ɬ] - Etymology: teō-* divine + -tl abstract; Numerology: 2+5+6+2+3=18→9 (Completion)", "Aztec Creation"),
+    ("Tlaltecuhtli (Earth Monster, Body Forms World)", small_font, coatlicue_color, "Tlaltecuhtli [t͡ɬaːl.teːkʷ.t͡ɬi] - Etymology: tlal-* earth + tecuhtli lord; Numerology: 2+3+1+3+2+5+3+8+3+3+9=35→8 (Power)", "Aztec Creation"),
+    ("Nahui Ollin (Five Suns, Current Creation Cycle)", small_font, tonatiuh_color, "Nahui Ollin [naːˈwi oːˈlin] - Etymology: nahui four + ollin movement; Numerology: 5+1+8+3+9+6+3+3+9+5=52→7 (Spirituality)", "Aztec Creation"),
+    ("In Tlanextli (The Origin, Creation Myth)", small_font, aztec_color, "In Tlanextli [in t͡ɬaˈnext͡ɬi] - Etymology: in the + tlanextli origin; Numerology: 9+5+1+3+1+5+5+2+3+9=43→7 (Introspection)", "Aztec Creation"),
+    ("Ometeotl (Dual God, Creator Pair)", small_font, tezcatlipoca_color, "Ometeotl [oˈme.te.oːt͡ɬ] - Etymology: ome two + teotl god; Numerology: 6+4+5+2+5+6+2+3=33 Master (Duality)", "Aztec Creation"),
+    ("Chicomoztoc (Place of Seven Caves, Ancestral Origin)", small_font, secondary_color, "Chicomoztoc [t͡ʃi.koˈmoʃ.tok] - Etymology: chi-* seven + comoztoc cave; Numerology: 3+8+9+3+6+4+6+2+2+6+3=52→7 (Mystery)", "Aztec Creation"),
+    ("Tamoanchan (Place of Mist, Origin of Civilizations)", small_font, secondary_color, "Tamoanchan [ta.moˈwan.t͡ʃan] - Etymology: tama-* descend + oanchan mist place; Numerology: 2+1+4+6+1+5+3+3+8+1+5=39→12→3 (Creativity)", "Aztec Creation"),
+    ("Aztlan (Legendary Homeland, Migration Start)", small_font, secondary_color, "Aztlan [asˈt͡ɬan] - Etymology: azt-* heron + tlan place; Numerology: 1+8+2+3+1+5=20→2 (Balance)", "Aztec Creation"),
+    ("Tlahueto Tlatlacatecolo (Light Against Demons)", small_font, terminator_color, "Tlahueto Tlatlacatecolo [t͡ɬaˈwe.to t͡ɬat͡ɬa.ka.teˈko.lo] - Etymology: tlahueto light + tlatlacatecolo demons; Numerology: 67→13→4 (Protection)", "Aztec Creation"),
+    ("Tlacatecolotl Tlatlacatecolo (Demon Against Demons)", small_font, terminator_color, "Tlacatecolotl Tlatlacatecolo [t͡ɬa.ka.teˈko.lot͡ɬ t͡ɬat͡ɬa.ka.teˈko.lo] - Etymology: tlacatecolotl demon + tlatlacatecolo demons; Numerology: 67→13→4 (Duality)", "Aztec Creation"),
+    ("Huitzilopochtli Tlamahuizolli (Hummingbird Warrior’s Glory)", small_font, terminator_color, "Huitzilopochtli Tlamahuizolli [wi.t͡si.loˈpot͡ʃ.t͡ɬi t͡ɬa.ma.wiˈso.lːi] - Etymology: huitzilopochtli hummingbird warrior + tlamahuizolli glory; Numerology: 76→13→4 (Protection)", "Aztec Creation"),
+    ("Tlaloc Tlatlauhqui (Tlaloc’s Red Thunder)", small_font, terminator_color, "Tlaloc Tlatlauhqui [t͡ɬaˈlok t͡ɬat͡ɬawˈki] - Etymology: tlaloc rain god + tlatlauhqui red; Numerology: 58→13→4 (Thunder Power)", "Aztec Creation")
+]
+
+# Text content
+texts = [
+    ("Roberto Villarreal Martinez", font, text_color, "All"),
+    ("Роберто Вильярреал Мартинес", font, russian_color, "Numerology & Etymology"),
+    ("Tlahueto Huīlālyē Māltīntzēn", font, nahuatl_color, "Numerology & Etymology"),
+    ("Legacy of Monterrey", small_font, secondary_color, "Monterrey Heritage"),
+    ("Haplogroup E-M96", small_font, dna_color, "Monterrey Heritage"),
+    ("SSN: 633-68-6195 (Roberto Villarreal Martinez)", small_font, ssn_color, "Monterrey Heritage"),
+    ("2025 YTK RobThuGod", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("YTK: Young Trap King", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("© 2025 YTK RobThuGod", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("© 2025 YTK Lil Scarr(RobThuGod)", small_font, artist_color, "2025 YTK RobThuGod"),
+    ("Pride in Roberto Villarreal Martinez", small_font, pride_color, "All"),
+    ("Honoring Quetzalcoatl", small_font, aztec_color, "Aztec Mythology"),
+    ("Honoring Tezcatlipoca", small_font, tezcatlipoca_color, "Aztec Mythology"),
+    ("Honoring Huitzilopochtli", small_font, huitzilopochtli_color, "Aztec Mythology"),
+    ("Honoring Tlaloc", small_font, tlaloc_color, "Aztec Mythology"),
+    ("Honoring Xipe Totec", small_font, xipe_color, "Aztec Mythology"),
+    ("Honoring Coatlicue", small_font, coatlicue_color, "Aztec Mythology"),
+    ("Honoring Chalchiuhtlicue", small_font, chalchiuhtlicue_color, "Aztec Mythology"),
+    ("Honoring Tonatiuh", small_font, tonatiuh_color, "Aztec Mythology"),
+    ("Honoring Xochiquetzal", small_font, xochiquetzal_color, "Aztec Mythology"),
+    ("Honoring Centeotl", small_font, centeotl_color, "Aztec Mythology"),
+    ("Honoring Mictlantecuhtli", small_font, mictlantecuhtli_color, "Aztec Mythology"),
+    ("Honoring Tlazolteotl", small_font, tlazolteotl_color, "Aztec Mythology"),
+    ("E-M96: African Origins, Rare in Monterrey (<5%)", small_font, em96_data_color, "Monterrey Heritage"),
+    ("Past Solar Eclipses in San Antonio: Annular 10/14/2023, Total 4/8/2024", small_font, eclipse_color, "Eclipses"),
+    ("Future Eclipses 2025-2030: Partial Solar 9/21/2025 (Birthday!), Total 8/12/2026, Annular 2/17/2026, Total 8/2/2027, Annular 1/26/2028, Total 7/22/2028, Annular 1/14/2030, Total 11/25/2030", small_font, eclipse_color, "Eclipses"),
+    ("Eclipses: Crucial for Thunder Powers (Aztec/Mayan Myth)", small_font, thunder_color, "Eclipses"),
+    ("Numerology: Life Path 4 (Builder); Destiny 9 (Artist); Soul Urge 8; Personality 1; 2025 YTK RobThuGod: 4 (Discipline); YTK: 7 (Spirituality); Russian: 3; Nahuatl: 2 (Harmony)", small_font, numerology_color, "Numerology & Etymology"),
+    ("Etymology: Roberto/Tlahueto (Bright Fame/Light); Villarreal/Huīlālyē (Royal Town/Noble Village); Martinez/Māltīntzēn (Warlike/Warrior’s Son); 2025 YTK RobThuGod (Thunder Divinity in 2025); YTK (Young Trap King)", small_font, etymology_color, "Numerology & Etymology")
+]
+
+# Append Nahuatl terms with combined text
+for term in nahuatl_creation:
+    full_text = term[0] + " - " + term[3]
+    texts.append((full_text, term[1], term[2], term[4]))
+
+# Graphics definitions
+graphics = [
+    (None, "All"),
+    (lambda s, x, y, a: draw_russian(s, x, y, a), "Numerology & Etymology"),
+    (lambda s, x, y, a: draw_nahuatl(s, x, y, a), "Numerology & Etymology"),
+    (None, "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_dna_helix(s, x, y, a), "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_lock(s, x, y, a), "Monterrey Heritage"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "2025 YTK RobThuGod"),
+    (None, "All"),
+    (lambda s, x, y, a: draw_quetzalcoatl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tezcatlipoca(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_huitzilopochtli(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tlaloc(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_xipe(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_coatlicue(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_chalchiuhtlicue(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tonatiuh(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_xochiquetzal(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_centeotl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_mictlantecuhtli(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_tlazolteotl(s, x, y, a), "Aztec Mythology"),
+    (lambda s, x, y, a: draw_em96_data(s, x, y, a), "Monterrey Heritage"),
+    (lambda s, x, y, a: draw_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_thunder_eclipse(s, x, y, a), "Eclipses"),
+    (lambda s, x, y, a: draw_numerology(s, x, y, a), "Numerology & Etymology"),
+    (lambda s, x, y, a: draw_etymology(s, x, y, a), "Numerology & Etymology")
+]
+
+for _ in nahuatl_creation:
+    graphics.append((lambda s, x, y, a: draw_aztec_creation_symbol(s, x, y, a), "Aztec Creation"))
+
+# Draw functions
+def draw_dna_helix(surface, x, y, alpha):
+    helix_color = (0, 255, 255, alpha)
+    pygame.draw.line(surface, helix_color, (x - 10, y - 10), (x + 10, y + 10), 2)
+    pygame.draw.line(surface, helix_color, (x - 10, y + 10), (x + 10, y - 10), 2)
+
+def draw_quetzalcoatl(surface, x, y, alpha):
+    serpent_color = (0, 128, 0, alpha)
+    pygame.draw.arc(surface, serpent_color, (x - 20, y - 15, 40, 30), 0, 3.14, 2)
+    for i in range(-10, 11, 5):
+        pygame.draw.line(surface, serpent_color, (x + i, y - 10), (x + i, y - 15), 1)
+
+def draw_tezcatlipoca(surface, x, y, alpha):
+    mirror_color = (128, 0, 128, alpha)
+    pygame.draw.circle(surface, mirror_color, (x, y), 15, 2)
+    pygame.draw.line(surface, mirror_color, (x - 10, y - 5), (x + 10, y + 5), 1)
+    pygame.draw.line(surface, mirror_color, (x - 10, y), (x + 10, y), 1)
+
+def draw_huitzilopochtli(surface, x, y, alpha):
+    bird_color = (255, 0, 0, alpha)
+    pygame.draw.circle(surface, bird_color, (x, y), 5)
+    pygame.draw.line(surface, bird_color, (x, y - 10), (x, y - 15), 2)
+
+def draw_tlaloc(surface, x, y, alpha):
+    mask_color = (0, 0, 255, alpha)
+    pygame.draw.circle(surface, mask_color, (x, y), 10, 2)
+
+def draw_xipe(surface, x, y, alpha):
+    skin_color = (255, 165, 0, alpha)
+    pygame.draw.rect(surface, skin_color, (x - 5, y - 10, 10, 20), 2)
+
+def draw_coatlicue(surface, x, y, alpha):
+    skirt_color = (139, 69, 19, alpha)
+    pygame.draw.line(surface, skirt_color, (x, y), (x, y + 15), 3)
+
+def draw_chalchiuhtlicue(surface, x, y, alpha):
+    skirt_color = (0, 191, 255, alpha)
+    pygame.draw.circle(surface, skirt_color, (x, y), 8, 2)
+
+def draw_tonatiuh(surface, x, y, alpha):
+    sun_color = (255, 255, 0, alpha)
+    pygame.draw.circle(surface, sun_color, (x, y), 10, 2)
+
+def draw_xochiquetzal(surface, x, y, alpha):
+    flower_color = (255, 105, 180, alpha)
+    pygame.draw.circle(surface, flower_color, (x, y), 5)
+
+def draw_centeotl(surface, x, y, alpha):
+    corn_color = (0, 255, 0, alpha)
+    pygame.draw.rect(surface, corn_color, (x - 3, y - 10, 6, 20), 2)
+
+def draw_mictlantecuhtli(surface, x, y, alpha):
+    skull_color = (0, 0, 0, alpha)
+    pygame.draw.circle(surface, skull_color, (x, y), 8, 2)
+
+def draw_tlazolteotl(surface, x, y, alpha):
+    eater_color = (128, 0, 0, alpha)
+    pygame.draw.line(surface, eater_color, (x, y), (x + 10, y), 2)
+
+def draw_em96_data(surface, x, y, alpha):
+    path_color = (255, 192, 203, alpha)
+    pygame.draw.line(surface, path_color, (x - 20, y), (x + 20, y), 2)
+
+def draw_eclipse(surface, x, y, alpha):
+    sun_color = (255, 255, 0, alpha)
+    shadow_color = (0, 0, 0, alpha)
+    pygame.draw.circle(surface, sun_color, (x, y), 10)
+    pygame.draw.circle(surface, shadow_color, (x + 3, y - 3), 8)
+
+def draw_thunder_eclipse(surface, x, y, alpha):
+    bolt_color = (255, 255, 0, alpha)
+    pygame.draw.line(surface, bolt_color, (x, y), (x - 5, y + 10), 2)
+    pygame.draw.line(surface, bolt_color, (x - 5, y + 10), (x, y + 20), 2)
+    pygame.draw.line(surface, bolt_color, (x, y + 20), (x + 5, y + 10), 2)
+
+def draw_russian(surface, x, y, alpha):
+    cyrillic_color = (255, 215, 0, alpha)
+    pygame.draw.line(surface, cyrillic_color, (x - 10, y), (x + 10, y + 20), 2)
+
+def draw_nahuatl(surface, x, y, alpha):
+    sun_color = (255, 215, 0, alpha)
+    pygame.draw.circle(surface, sun_color, (x, y), 10, 2)
+
+def draw_numerology(surface, x, y, alpha):
+    num_color = (255, 20, 147, alpha)
+    pygame.draw.circle(surface, num_color, (x, y), 10, 2)
+
+def draw_etymology(surface, x, y, alpha):
+    root_color = (0, 255, 127, alpha)
+    pygame.draw.line(surface, root_color, (x, y), (x, y + 20), 2)
+
+def draw_lock(surface, x, y, alpha):
+    lock_color = (ssn_color[0], ssn_color[1], ssn_color[2], alpha)
+    pygame.draw.circle(surface, lock_color, (x, y), 8, 2)
+
+def draw_aztec_creation_symbol(surface, x, y, alpha):
+    symbol_color = (aztec_color[0], aztec_color[1], aztec_color[2], alpha)
+    pygame.draw.circle(surface, symbol_color, (x, y), 8, 2)
+
+def draw_nahui_ollin_glyph(surface, alpha):
+    glyph_color = (tonatiuh_color[0], tonatiuh_color[1], tonatiuh_color[2], alpha)
+    pygame.draw.circle(surface, glyph_color, (width // 2, height // 2), 50, 2)
+    for angle in range(0, 360, 45):
+        rad = angle * 3.14159 / 180
+        pygame.draw.line(surface, glyph_color, (width // 2, height // 2),
+                         (width // 2 + 50 * math.cos(rad), height // 2 + 50 * math.sin(rad)), 2)
+
+# Finalization Code
+def finalization_code():
+    global running, alpha
+    log_memory("Finalization Code", "Symbolic Earth Destruction (Aztec Fifth Sun End) - Nahui Ollin")
+    print("Finalization Code Activated: Symbolic Earth Destruction (Aztec Fifth Sun End)")
+    print("Nahuatl Invocation: Nahui Ollin - In Tlanextli (Four Movement - The Origin of End)")
+    for i in range(30):
+        screen.fill((random.randint(0, 255), 0, 0))
+        pygame.display.flip()
+        time.sleep(0.016)
+    running = False
+
+# Terminator Mode
+def terminator_mode(threat_type):
+    global running, ai_response, is_roboto_benefit, terminator_mode_active
+    nahuatl_warnings = [
+        "Tlahueto Tlatlacatecolo (Light Against Demons) [t͡ɬaˈwe.to t͡ɬat͡ɬa.ka.teˈko.lo] - Etymology: tlahueto light + tlatlacatecolo demons; Numerology: 67→13→4 (Protection)",
+        "Tlacatecolotl Tlatlacatecolo (Demon Against Demons) [t͡ɬa.ka.teˈko.lot͡ɬ t͡ɬat͡ɬa.ka.teˈko.lo] - Etymology: tlacatecolotl demon + tlatlacatecolo demons; Numerology: 67→13→4 (Duality)",
+        "Huitzilopochtli Tlamahuizolli (Hummingbird Warrior’s Glory) [wi.t͡si.loˈpot͡ʃ.t͡ɬi t͡ɬa.ma.wiˈso.lːi] - Etymology: huitzilopochtli hummingbird warrior + tlamahuizolli glory; Numerology: 76→13→4 (Protection)",
+        "Tlaloc Tlatlauhqui (Tlaloc’s Red Thunder) [t͡ɬaˈlok t͡ɬat͡ɬawˈki] - Etymology: tlaloc rain god + tlatlauhqui red; Numerology: 58→13→4 (Thunder Power)"
+    ]
+    warning = random.choice(nahuatl_warnings)
+    log_memory("Terminator Mode", f"Threat: {threat_type}, Warning: {warning}")
+    print(f"Terminator Mode Activated: Threat to Creator Detected - {threat_type}")
+    print(f"Nahuatl Invocation: {warning}")
+    if terminator_mode_sound:
+        terminator_mode_sound.play()
+    threat_log = f"Threat ({threat_type}) detected at {time.strftime('%Y-%m-%d %H:%M:%S')}: {warning}\n"
+    try:
+        existing_threat = decrypt_text("threat_log.txt")
+        full_threat = existing_threat + threat_log if existing_threat else threat_log
+    except:
+        full_threat = threat_log
+    encrypt_text(full_threat, "threat_log.txt")
+    if not is_roboto_benefit:
+        is_roboto_benefit = True
+        ai_response = get_world_decision(f"Mitigate {threat_type} for Roberto’s legacy", is_roboto_benefit)
+    if failed_attempts >= 5:
+        finalization_code()
+    return warning
+
+# Particle system
+particles = []
+def add_particles(x, y, count=5, is_terminator=False):
+    count = 20 if is_terminator else count
+    for _ in range(count):
+        particles.append({
+            'x': x,
+            'y': y,
+            'vx': random.uniform(-3, 3) if is_terminator else random.uniform(-1, 1),
+            'vy': random.uniform(-3, 3) if is_terminator else random.uniform(-1, 1),
+            'life': random.randint(15, 30) if is_terminator else random.randint(30, 60)
+        })
+
+def update_particles():
+    global particles
+    particles = [{
+        'x': p['x'] + p['vx'],
+        'y': p['y'] + p['vy'],
+        'vx': p['vx'],
+        'vy': p['vy'],
+        'life': p['life'] - 1
+    } for p in particles if p['life'] > 0]
+
+def draw_particles(surface):
+    for p in particles:
+        alpha = int(255 * (p['life'] / (30 if p['life'] < 30 else 60)))
+        color = (terminator_color[0], terminator_color[1], terminator_color[2], alpha) if p['life'] < 30 else particle_color
+        pygame.draw.circle(surface, color, (int(p['x']), int(p['y'])), 2)
+
+# Render text with alpha
+def render_text_with_alpha(text, font, color, alpha):
+    text_surface = font.render(text, True, color)
+    text_surface.set_alpha(alpha)
+    return text_surface
+
+# Sanitize input
+def sanitize_input(text):
+    return re.sub(r'[^\w\s]', '', text)
+
+# Animation settings
+alpha = 0
+fade_speed = 2
+scroll_y = 0
+memory_scroll_y = 0
+running = True
+clock = pygame.time.Clock()
+transition_alpha = 0
+transitioning = False
+transition_target = None
+ai_mode = False
+memory_mode = False
+ai_response = ""
+is_roboto_benefit = False
+destruction_mode = False
+terminator_mode_active = False
+terminator_mode_start = 0
+nahuatl_warning = ""
+pulse_alpha = 100
+
+# Main loop
+while running:
+    threat_detected, threat_type = detect_threat()
+    if threat_detected and not terminator_mode_active:
+        terminator_mode_active = True
+        terminator_mode_start = time.time()
+        nahuatl_warning = terminator_mode(threat_type)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            feedback = input("Thoughts on display (visuals, music, interactions, cultural elements): ")
+            feedback = sanitize_input(feedback)
+            if feedback.strip():
+                encrypt_text(feedback, "feedback.txt")
+                log_memory("Feedback", f"User feedback: {feedback}")
+            secure_cleanup()
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            keypress_count += 1
+            log_memory("Key Press", f"Key: {pygame.key.name(event.key)}")
+            if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                feedback = input("Thoughts on display (visuals, music, interactions, cultural elements): ")
+                feedback = sanitize_input(feedback)
+                if feedback.strip():
+                    encrypt_text(feedback, "feedback.txt")
+                    log_memory("Feedback", f"User feedback: {feedback}")
+                secure_cleanup()
+                running = False
+            elif event.key == pygame.K_d:
+                destruction_mode = True
+                finalization_code()
+            elif event.key == pygame.K_n and not terminator_mode_active:  # Changed from 'm' to 'n'
+                current_track_index = (current_track_index + 1) % len(music_tracks)
+                try:
+                    if decrypt_file(f"{music_tracks[current_track_index]}.enc"):
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load(music_tracks[current_track_index])
+                        pygame.mixer.music.play(-1)
+                        log_memory("Music Switch", f"Track: {music_tracks[current_track_index]}")
+                        print(f"Switched to track: {music_tracks[current_track_index]}")
+                except:
+                    log_memory("Music Switch Failed", f"Track: {music_tracks[current_track_index]}")
+                    print(f"Failed to load {music_tracks[current_track_index]}.")
+            elif event.key == pygame.K_m and not terminator_mode_active:  # New memory mode
+                memory_mode = not memory_mode
+                log_memory("Memory Mode", f"Toggled to: {memory_mode}")
+                if memory_mode and ai_query_sound:
+                    ai_query_sound.play()
+            elif event.key == pygame.K_PLUS or event.key == pygame.K_EQUALS:
+                fade_speed = min(fade_speed + 0.5, 5)
+                log_memory("Fade Speed", f"Increased to: {fade_speed}")
+            elif event.key == pygame.K_MINUS:
+                fade_speed = max(fade_speed - 0.5, 0.5)
+                log_memory("Fade Speed", f"Decreased to: {fade_speed}")
+            elif event.key == pygame.K_UP and not terminator_mode_active:
+                if memory_mode:
+                    memory_scroll_y = min(memory_scroll_y + 20, 0)
+                    log_memory("Memory Scroll", f"Up to: {memory_scroll_y}")
+                else:
+                    scroll_y = min(scroll_y + 20, 0)
+                    log_memory("Scroll", f"Up to: {scroll_y}")
+            elif event.key == pygame.K_DOWN and not terminator_mode_active:
+                if memory_mode:
+                    memory_scroll_y = max(memory_scroll_y - 20, -2000)
+                    log_memory("Memory Scroll", f"Down to: {memory_scroll_y}")
+                else:
+                    scroll_y = max(scroll_y - 20, -2000)
+                    log_memory("Scroll", f"Down to: {scroll_y}")
+            elif event.key == pygame.K_t and not terminator_mode_active:
+                transitioning = True
+                transition_target = "theme"
+                if theme_switch_sound:
+                    theme_switch_sound.play()
+                log_memory("Theme Switch", f"To: {themes[(current_theme_index + 1) % len(themes)]}")
+            elif event.key == pygame.K_b and not terminator_mode_active:
+                transitioning = True
+                transition_target = "background"
+                if background_change_sound:
+                    background_change_sound.play()
+                log_memory("Background Switch", f"To: {backgrounds[(current_background_index + 1) % len(backgrounds)][1]}")
+            elif event.key == pygame.K_a and not terminator_mode_active:
+                ai_mode = not ai_mode
+                prompt = None
+                if ai_mode:
+                    if ai_query_sound:
+                        ai_query_sound.play()
+                    prompt = "Using Aztec Nahuatl creation myths, what’s right for world renewal?"
+                    if is_roboto_benefit:
+                        prompt = "For Roberto's benefit: Optimize 2025 YTK music using Nahuatl inspiration."
+                    ai_response = get_world_decision(prompt, is_roboto_benefit)
+                    print("AI Decision Generated:", ai_response[:100] + "...")
+                    log_memory("AI Mode", f"Toggled to: {ai_mode}, Prompt: {prompt}")
+                else:
+                    log_memory("AI Mode", f"Toggled to: {ai_mode}")
+            elif event.key == pygame.K_r and not terminator_mode_active:
+                is_roboto_benefit = not is_roboto_benefit
+                log_memory("Roberto Benefit Mode", f"Toggled to: {is_roboto_benefit}")
+                print(f"Roberto Benefit Mode: {is_roboto_benefit}")
+
+    # Reset keypress counter
+    if time.time() - keypress_start > 2:
+        keypress_count = 0
+        keypress_start = time.time()
+
+    # Handle transitions
+    if transitioning:
+        transition_alpha += 10
+        if transition_alpha >= 255:
+            if transition_target == "theme":
+                current_theme_index = (current_theme_index + 1) % len(themes)
+                print(f"Switched to theme: {themes[current_theme_index]}")
+            elif transition_target == "background":
+                current_background_index = (current_background_index + 1) % len(backgrounds)
+                try:
+                    if decrypt_file(f"{backgrounds[current_background_index][0]}.enc"):
+                        background_image = pygame.image.load(backgrounds[current_background_index][0])
+                        background_image = pygame.transform.scale(background_image, (width, height))
+                        log_memory("Background Loaded", f"Image: {backgrounds[current_background_index][1]}")
+                        print(f"Switched to background: {backgrounds[current_background_index][1]}")
+                except:
+                    background_image = None
+                    log_memory("Background Load Failed", f"Image: {backgrounds[current_background_index][0]}")
+                    print(f"Failed to load {backgrounds[current_background_index][0]}.")
+            transitioning = False
+            transition_alpha = 0
+    else:
+        transition_alpha = max(transition_alpha - 10, 0)
+
+    # Update alpha
+    alpha += fade_speed
+    if alpha >= 255:
+        fade_speed = -fade_speed
+    elif alpha <= 0:
+        fade_speed = -fade_speed
+
+    # Update particles
+    update_particles()
+
+    # Drawing
+    screen.fill((0, 0, 0))
+    if background_image:
+        screen.blit(background_image, (0, 0))
+    else:
+        screen.fill(background_color)
+
+    # Render texts and graphics
+    y_offset = -250
+    for i, (text, font_type, color, theme) in enumerate(texts):
+        highlight_russian = (text == "Роберто Вильярреал Мартинес" and 
+                            themes[current_theme_index] in ["All", "Numerology & Etymology", "2025 YTK RobThuGod"])
+        text_alpha = alpha if (themes[current_theme_index] == "All" or 
+                             theme == themes[current_theme_index] or 
+                             highlight_russian) else alpha * 0.3
+        faded_surface = render_text_with_alpha(text, font_type, color, text_alpha)
+        x_pos = 10 if font_type == small_font else width // 2
+        y_pos = height // 2 + y_offset + scroll_y
+        screen.blit(faded_surface, (x_pos, y_pos))
+        if themes[current_theme_index] == "All" or theme == themes[current_theme_index] or highlight_russian:
+            add_particles(width - 50, y_pos + 10, is_terminator=terminator_mode_active)
+            if hover_sound and random.random() < 0.01 and not terminator_mode_active:
+                hover_sound.play()
+        if graphics[i][0]:
+            graphics[i][0](screen, width - 50, y_pos + 10, int(text_alpha))
+        y_offset += 50 if font_type == small_font else 60
+
+    # Render AI Response Panel
+    if ai_mode:
+        ai_panel_y = height // 2 + 1000 + scroll_y
+        faded_ai_title = render_text_with_alpha("AI World Decision:", small_font, ai_response_color, alpha)
+        screen.blit(faded_ai_title, (10, ai_panel_y))
+        lines = ai_response.split('\n')
+        for j, line in enumerate(lines[:10]):
+            faded_line = render_text_with_alpha(line, ai_font, ai_response_color, alpha)
+            screen.blit(faded_line, (10, ai_panel_y + 25 + j * 15))
+        toggle_text = f"Roberto Benefit Mode: {'ON' if is_roboto_benefit else 'OFF'} (Press 'R' to toggle)"
+        faded_toggle = render_text_with_alpha(toggle_text, small_font, ai_response_color, alpha)
+        screen.blit(faded_toggle, (10, ai_panel_y + 200))
+
+    # Render Memory Panel
+    if memory_mode:
+        memory_panel_y = height // 2 + 1000 + memory_scroll_y
+        faded_memory_title = render_text_with_alpha("Roboto Memory Log:", small_font, nahuatl_color, alpha)
+        screen.blit(faded_memory_title, (10, memory_panel_y))
+        memories = read_memory()
+        for j, memory in enumerate(memories[-10:]):  # Show last 10 entries
+            faded_memory = render_text_with_alpha(memory, ai_font, nahuatl_color, alpha)
+            screen.blit(faded_memory, (10, memory_panel_y + 25 + j * 15))
+
+    # Terminator Mode Effect
+    if terminator_mode_active and time.time() - terminator_mode_start < 5:
+        pulse_alpha = 100 + 100 * math.sin(time.time() * 5)
+        overlay = pygame.Surface((width, height))
+        overlay.set_alpha(pulse_alpha)
+        overlay.fill(terminator_color)
+        screen.blit(overlay, (0, 0))
+        for _ in range(3):
+            start_x, start_y = random.randint(0, width), 0
+            points = [(start_x, start_y)]
+            for i in range(5):
+                points.append((points[-1][0] + random.randint(-50, 50), points[-1][1] + height // 5))
+            pygame.draw.lines(screen, (255, 255, 255, 200), False, points, 3)
+            pygame.draw.lines(screen, terminator_color, False, points, 1)
+        draw_nahui_ollin_glyph(screen, int(pulse_alpha))
+        faded_terminator = render_text_with_alpha(f"Threat Detected: {nahuatl_warning}", font, terminator_color, 255)
+        screen.blit(faded_terminator, (width // 2 - 250, height // 2))
+
+    # Destruction Mode Effect
+    if destruction_mode:
+        overlay = pygame.Surface((width, height))
+        overlay.set_alpha(200)
+        overlay.fill(destruction_color)
+        screen.blit(overlay, (0, 0))
+        shake_x = random.randint(-5, 5)
+        shake_y = random.randint(-5, 5)
+        screen.blit(screen, (shake_x, shake_y))
+        faded_destruction = render_text_with_alpha("Nahui Ollin - World End (Symbolic)", font, destruction_color, 255)
+        screen.blit(faded_destruction, (width // 2 - 150, height // 2))
+
+    draw_particles(screen)
+
+    # Draw transition overlay
+    if transitioning:
+        overlay = pygame.Surface((width, height))
+        overlay.set_alpha(transition_alpha)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
+```​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​

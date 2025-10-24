@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""
+Safe Kill-Switch for RobotoSAI (graceful emergency disable).
+Requires: Python 3.8+, `cryptography` (for HMAC) optional `requests` if webhook used.
+Run only on machines you control and test in staging first.
+"""
+
+import os
+import sys
+import hmac
+import hashlib
+import json
+import time
+import subprocess
+from pathlib import Path
+from getpass import getpass
+
+# === CONFIG ===
+SECRET_KEY = os.environ.get("KILLSWITCH_SECRET")  # must be set in env on machine
+AUDIT_LOG = Path("/var/log/roboto_killswitch_audit.log")
+SERVICES_TO_STOP = ["roboto_sai.service", "roboto_api.service"]  # systemd names
+PROCESSES_TO_KILL = ["roboto_main.py", "roboto_worker"]
+NETWORK_BLOCK_CMD = ["iptables", "-I", "OUTPUT", "1", "-j", "DROP"]  # Linux example
+API_ENV_VARS = ["OPENAI_API_KEY", "ROBOTO_KEY", "DB_PASSWORD"]
+ADMIN_WEBHOOK = os.environ.get("KILLSWITCH_ADMIN_WEBHOOK")  # optional
+
+# === HELPERS ===
+def audit(entry: dict):
+    entry["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with AUDIT_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    print("AUDIT:", entry)
+
+def verify_token(provided_token: str, provided_pin: str) -> bool:
+    """HMAC-based verify. SECRET_KEY must be set and kept offline."""
+    if not SECRET_KEY:
+        print("KILLSWITCH_SECRET not set on this host. Aborting.")
+        return False
+    # Combine token+pin to reduce risk of replay; use HMAC-SHA256
+    msg = (provided_token + ":" + provided_pin).encode()
+    expected = hmac.new(SECRET_KEY.encode(), msg, hashlib.sha256).hexdigest()
+    # In practice token would be generated off-machine and provided once
+    # For demo purpose we ask operator to type expected once (or you can compare to stored hash)
+    resp = input("Type expected HMAC hex to confirm (operator): ").strip()
+    return hmac.compare_digest(resp, expected)
+
+def stop_systemd_service(service_name):
+    print(f"Stopping systemd service: {service_name}")
+    try:
+        subprocess.run(["systemctl", "stop", service_name], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        print("Error stopping service:", e)
+
+def kill_processes(names):
+    for name in names:
+        print(f"Killing processes matching: {name}")
+        try:
+            # pkill by name (POSIX). Adjust for your environment.
+            subprocess.run(["pkill", "-f", name], check=False)
+        except Exception as e:
+            print("Error killing process:", e)
+
+def block_network():
+    print("Blocking outbound network traffic (iptables)")
+    try:
+        subprocess.run(NETWORK_BLOCK_CMD, check=True)
+    except Exception as e:
+        print("Error applying network block:", e)
+
+def revoke_env_keys(vars_to_wipe):
+    print("Overwriting sensitive environment variables in-memory (current process).")
+    for k in vars_to_wipe:
+        os.environ.pop(k, None)
+    # Additionally, wipe on-disk env file if exists (be careful)
+    env_path = Path("/etc/roboto/env")
+    if env_path.exists():
+        try:
+            env_path.write_text("REVOKED_BY_KILLSWITCH=1\n")
+            print("Wrote revocation marker to", env_path)
+        except Exception as e:
+            print("Could not overwrite env file:", e)
+
+def notify_admin(payload):
+    if not ADMIN_WEBHOOK:
+        return
+    try:
+        import requests
+        requests.post(ADMIN_WEBHOOK, json=payload, timeout=5)
+    except Exception as e:
+        print("Admin webhook notify failed:", e)
+
+# === MAIN ===
+def main():
+    print("=== RobotoSAI SAFE KILL-SWITCH ===")
+    operator = input("Operator ID: ").strip()
+    token = getpass("One-time token (hidden): ").strip()
+    pin = getpass("Operator PIN (hidden): ").strip()
+
+    audit({"action": "authorization_attempt", "operator": operator})
+
+    if not verify_token(token, pin):
+        audit({"action": "authorization_failed", "operator": operator})
+        print("Authorization failed. Exiting.")
+        sys.exit(1)
+
+    audit({"action": "authorization_success", "operator": operator})
+
+    # Confirm final destructive intent
+    confirm = input("Type 'CONFIRM KILL' to execute irreversible disable: ").strip()
+    if confirm != "CONFIRM KILL":
+        audit({"action": "cancelled_by_operator", "operator": operator})
+        print("Cancelled by operator.")
+        sys.exit(0)
+
+    # Execute steps
+    audit({"action": "kill_sequence_start", "operator": operator})
+
+    # 1) Gracefully stop services
+    for s in SERVICES_TO_STOP:
+        stop_systemd_service(s)
+
+    # 2) Kill stray processes
+    kill_processes(PROCESSES_TO_KILL)
+
+    # 3) Overwrite sensitive env / revoke keys
+    revoke_env_keys(API_ENV_VARS)
+
+    # 4) Block network egress (so it cannot call home)
+    block_network()
+
+    # 5) Write an immutable audit marker
+    try:
+        marker = Path("/var/lib/roboto_killswitch_executed")
+        marker.write_text(json.dumps({"operator": operator, "time": time.time()}))
+    except Exception as e:
+        print("Could not write marker file:", e)
+
+    audit({"action": "kill_sequence_complete", "operator": operator})
+    notify_admin({"event": "killswitch_executed", "operator": operator})
+    print("Kill switch completed. System disabled.")
+
+if __name__ == "__main__":
+    main()

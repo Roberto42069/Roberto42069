@@ -1,3 +1,4 @@
+
 """
 Comprehensive Security Middleware for Roboto AI Application
 Implements OWASP Top 10 protections, rate limiting, and security headers
@@ -7,7 +8,6 @@ import os
 import jwt
 import time
 import hashlib
-import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify, g, current_app, abort
@@ -171,7 +171,7 @@ class SecurityManager:
                         self.log_security_event(f'{attack_type}_attempt', 
                                               risk_level='high',
                                               details={'pattern': pattern, 'value': value[:100]})
-                        abort(400, description=f"Invalid input detected")
+                        abort(400, description="Invalid input detected")
         
         # Check form data
         for key, value in request.form.items():

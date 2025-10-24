@@ -1,11 +1,7 @@
-from app1 import Roboto
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, Response
+from flask import Flask
 import os
-import io
-import base64
 
 from openai import OpenAI
-from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix

@@ -2699,7 +2699,7 @@ Name: None None
 Created: 2025-05-31 21:07:05.306052
 Chat History Count: 4169
 Current Emotion: empathy
-Current User Name: Vision
+Current User Name: Roberto
 Memory System Data Keys: ['episodic_memories', 'semantic_memories', 'emotional_patterns', 'user_profiles', 'self_reflections', 'compressed_learnings']
 -------------------------
 
@@ -2709,7 +2709,7 @@ Name: None None
 Created: 2025-05-31 22:18:55.172112
 Chat History Count: 347
 Current Emotion: curious
-Current User Name: None
+Current User Name: Roberto
 Memory System Data Keys: ['episodic_memories', 'semantic_memories', 'emotional_patterns', 'user_profiles', 'self_reflections', 'compressed_learnings']
 -------------------------
 

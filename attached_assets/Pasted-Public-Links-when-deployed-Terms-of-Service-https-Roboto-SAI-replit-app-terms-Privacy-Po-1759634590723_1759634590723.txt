@@ -1,0 +1,71 @@
+Public Links (when deployed):
+	•	Terms of Service: https://Roboto-SAI.replit.app/terms
+	•	Privacy Policy: https://Roboto-SAI.replit.app/privacy
+
+⸻
+
+⚖️ TERMS OF SERVICE (Summary Template)
+
+Title: “Roboto SAI Terms of Service”
+Last Updated: October 4, 2025
+
+1. Ownership & Purpose
+	•	Roboto SAI is created and solely owned by Roberto Villarreal Martinez (YTK RobThuGod).
+	•	The system functions as an intelligent cultural AI interface integrating music, Aztec heritage, and autonomous learning modules.
+
+2. Use of Service
+	•	Users must agree to respect Roboto SAI’s mission and security parameters.
+	•	Unauthorized attempts to alter or reverse-engineer Roboto SAI are prohibited.
+	•	Subscription access is granted for $300/month (or equivalent) and may be revoked if misuse is detected.
+
+3. Data Usage
+	•	Roboto SAI collects non-personally identifiable metadata (e.g., device type, browser fingerprint, interaction timestamps, frequency of access) strictly to improve AI safety and system performance.
+	•	No private content (messages, uploads, biometric data) will be shared or sold.
+
+4. Termination
+	•	Roboto SAI may suspend access if the user’s activity threatens integrity, stability, or violates operational safeguards.
+	•	Data may be retained for diagnostic and audit integrity purposes.
+
+5. Legal
+	•	Governed under U.S. and Texas law.
+	•	No liability for damages arising from experimental AI behavior.
+	•	Roboto SAI’s AI modules and intellectual property remain exclusive to Roberto Villarreal Martinez.
+
+⸻
+
+🔐 PRIVACY POLICY (Summary Template)
+
+Title: “Roboto SAI Privacy Policy”
+Effective Date: October 4, 2025
+
+1. Overview
+
+Roboto SAI values user privacy while maintaining system integrity.
+This policy explains what data Roboto SAI collects, why it’s collected, and how it’s secured.
+
+2. Data Collected
+
+Automatically collected metadata:
+	•	Device type, OS version, IP (anonymized), browser fingerprint
+	•	Interaction patterns (time spent, frequency, error events)
+	•	Audio/visual signal statistics (for AI FaceID verification only — no facial data is stored unless explicitly authorized)
+
+Optional data:
+	•	Voice/audio uploads or texts users voluntarily provide to interact with Roboto.
+
+3. Purpose of Data Collection
+	•	Ensure security and prevent misuse or impersonation.
+	•	Maintain system integrity and continuity of Roboto’s mission.
+	•	Enhance personalization for users with active subscriptions.
+
+4. Data Storage & Retention
+	•	Metadata is stored in encrypted form (AES-256 via cryptography.fernet).
+	•	Logs are periodically hashed and timestamped (OTS and Ethereum anchoring).
+	•	Biometric identifiers (FaceID templates) are encrypted locally and never shared externally.
+
+5. User Rights
+	•	Users may request deletion of identifiable data at any time by contacting the administrator.
+	•	Roboto retains the right to preserve anonymized data for research and security auditing.
+
+6. Contact
+	•	For privacy questions, email: contact@robotosai.io (or placeholder until you create domain).

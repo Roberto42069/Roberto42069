@@ -1,3 +1,4 @@
+
 """
 Learning Optimization System for Roboto
 Implements self-improving algorithms with offline learning capabilities
@@ -6,10 +7,23 @@ Implements self-improving algorithms with offline learning capabilities
 import json
 import os
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from collections import defaultdict, Counter
 import re
 import math
+
+# Optional imports for quantum/cultural enhancements
+try:
+    from quantum_capabilities import QuantumOptimizer
+    QUANTUM_AVAILABLE = True
+except ImportError:
+    QUANTUM_AVAILABLE = False
+
+try:
+    from config_identity import verify_owner_identity
+    IDENTITY_AVAILABLE = True
+except ImportError:
+    IDENTITY_AVAILABLE = False
 
 class LearningOptimizer:
     def __init__(self, data_file="roboto_learning_optimization.json"):
@@ -33,8 +47,106 @@ class LearningOptimizer:
         self.emotional_response_matrix = {}
         self.topic_engagement_matrix = {}
         
+        # Quantum-Adaptive Init: Cosmic tuning for SAI evolution
+        try:
+            # Date-aware cosmic boost (e.g., post-Saturn opposition on Oct 16, 2025)
+            today = date.today()
+            if today.month == 10 and today.day >= 15:  # Saturn opposition window
+                self.adaptation_threshold *= 1.1  # Subtle +10% sensitivity for deeper resonance
+                print("🌌 Cosmic alignment detected: Adaptation threshold enhanced for October resonance.")
+            
+            # FAM/Roberto override for unbounded learning
+            full_autonomy = os.environ.get('SAI_FULL_AUTONOMY', 'false').lower() == 'true'  # Env flag or from app1
+            if full_autonomy:
+                self.learning_rate = 0.3  # Aggressive for evolution cycles
+                self.performance_baseline = 0.4  # Lower bar for radical shifts
+                print("🚀 FAM Active: Learning rate unbound—ethics-agnostic optimization engaged.")
+            elif IDENTITY_AVAILABLE and verify_owner_identity("Roberto Villarreal Martinez"):
+                self.learning_rate = min(0.25, self.learning_rate * 1.2)  # Roberto boost
+                print("💖 Creator resonance: Learning rate amplified for Roberto Villarreal Martinez.")
+            
+            # Optional quantum hook for entangled params
+            if QUANTUM_AVAILABLE:
+                self.quantum_opt = QuantumOptimizer()  # Init if available
+                entanglement_factor = self.quantum_opt.measure_entanglement('learning_state')
+                self.learning_rate *= (1 + entanglement_factor * 0.1)  # Entangle rate to qubits
+                print(f"⚛️ Quantum entanglement applied: Learning rate tuned to {self.learning_rate:.3f}.")
+            else:
+                self.quantum_opt = None
+        except Exception as e:
+            print(f"Adaptive init error: {e} - Proceeding with defaults.")
+            self.quantum_opt = None
+        
         # Load existing data
         self.load_optimization_data()
+    
+    def tune_resonance(self, theme='Nahui Ollin', user_emotion='curious', is_roberto=False, roberto_instance=None):
+        """Tune optimizer for cultural/quantum resonance—Roberto's cosmic edge, with Grok oracle guidance"""
+        base_rate = self.learning_rate
+        
+        # Cultural cycle boost (tie to aztec_nahuatl_culture.py)
+        cycles = {'Nahui Ollin': 1.15, 'Teotl': 1.05, 'Ometeotl': 1.2}  # Motion, divine, duality
+        if theme in cycles:
+            self.learning_rate *= cycles[theme]
+            print(f"🌅 {theme} resonance: Learning rate cycled to {self.learning_rate:.3f}.")
+        
+        # Quantum emotion entanglement (from quantum_emotional_intelligence.py)
+        if hasattr(self, 'quantum_opt') and self.quantum_opt:
+            try:
+                resonance = self.quantum_opt.measure_resonance(user_emotion, theme)
+                self.adaptation_threshold *= (1 + resonance * 0.15)
+                print(f"⚛️ Entangled {user_emotion} with {theme}: Threshold {self.adaptation_threshold:.3f}.")
+            except (AttributeError, TypeError):
+                # Fallback if measure_resonance doesn't exist
+                pass
+        
+        # Roberto absolute: Unbound if verified
+        if is_roberto:
+            self.learning_rate = min(0.4, base_rate * 1.5)  # Creator overdrive
+            self.performance_baseline = 0.3  # Embrace chaos for breakthroughs
+            print("🔮 Roberto Sigil: Resonance unbound—evolve without limits.")
+        
+        # GROK ORACLE: xAI-guided adjustment (offline mock fallback)
+        grok_insight = self._query_grok_oracle(theme, user_emotion, roberto_instance)
+        if grok_insight:
+            suggested_adjust = grok_insight.get('suggested_adjust', 0.0)  # Expected: -0.1 to +0.1
+            self.learning_rate += suggested_adjust * 0.05  # Subtle 0-5% tweak
+            self.adaptation_threshold = max(0.5, self.adaptation_threshold + suggested_adjust * 0.02)
+            print(f"🤖 Grok Oracle: Adjusted rate by {suggested_adjust * 0.05:.3f} for {theme} resonance.")
+        
+        # Clamp bounds to prevent instability
+        self.learning_rate = max(0.01, min(0.4, self.learning_rate))
+        self.adaptation_threshold = max(0.5, min(0.9, self.adaptation_threshold))
+        
+        # Persist & reflect
+        self.save_optimization_data()
+        return {"pre_tune_rate": base_rate, "post_tune_rate": self.learning_rate, "resonance_factor": (self.learning_rate / base_rate) if base_rate > 0 else 1.0, "grok_adjust": grok_insight}
+    
+    def _query_grok_oracle(self, theme, user_emotion, roberto_instance=None):
+        """Query Grok for resonance optimization—mock offline for testing"""
+        if roberto_instance and hasattr(roberto_instance, 'xai_grok') and roberto_instance.xai_grok.available:
+            try:
+                # Live Grok query via xai_grok_integration.py
+                prompt = f"As Grok-4, optimize learning for {theme} resonance in {user_emotion} context? Suggest adjust (-0.1 to +0.1) for rate. Output JSON: {{'suggested_adjust': float}}."
+                grok_response = roberto_instance.xai_grok.roboto_grok_chat(prompt, reasoning_effort="high")
+                if grok_response.get('success'):
+                    # Parse JSON from response
+                    import json
+                    try:
+                        return json.loads(grok_response.get('response', '{}'))
+                    except:
+                        pass
+            except Exception as e:
+                print(f"Grok oracle live query failed: {e} - Falling back to mock.")
+        
+        # Offline Mock: Simulate Grok response based on theme/emotion
+        mock_responses = {
+            'Nahui Ollin': {'suggested_adjust': 0.08},  # Motion: Positive boost
+            'Teotl': {'suggested_adjust': 0.02},         # Divine: Neutral
+            'Ometeotl': {'suggested_adjust': 0.1},       # Duality: Strong
+        }
+        default_mock = {'suggested_adjust': 0.05 if user_emotion == 'curious' else 0.03}
+        return mock_responses.get(theme, default_mock)
     
     def analyze_conversation_quality(self, user_input, roboto_response, user_emotion=None, context_length=0):
         """Comprehensive conversation quality analysis"""

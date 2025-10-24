@@ -4,11 +4,9 @@ Exports all important memories and user data to a comprehensive text file
 """
 
 import json
-import os
 from datetime import datetime
-from app import app, get_user_roberto, db
-from flask_login import current_user
-from models import User, UserData
+from app import app, get_user_roberto
+from models import User
 
 def export_roboto_memories():
     """Export all of Roboto's memories and user data to a text file"""

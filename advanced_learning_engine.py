@@ -3,20 +3,19 @@ Advanced Learning Engine for Roboto
 Implements sophisticated machine learning algorithms for continuous improvement
 """
 
-import json
-import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict, deque
 import pickle
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.cluster import KMeans
 import re
 
 class AdvancedLearningEngine:
-    def __init__(self, learning_file="roboto_learning_data.pkl"):
+    def __init__(self, learning_file="roboto_learning_data.pkl", quantum_emotional_intelligence=None):
         self.learning_file = learning_file
+        
+        # 🌌💖 UNIFIED EMOTIONAL STATE INTEGRATION
+        self.quantum_emotional_intelligence = quantum_emotional_intelligence
         
         # Learning components
         self.conversation_patterns = defaultdict(list)
@@ -89,7 +88,26 @@ class AdvancedLearningEngine:
         return min(1.0, max(0.0, effectiveness_score))
     
     def _detect_emotion_advanced(self, text):
-        """Advanced emotion detection with nuanced understanding"""
+        """
+        Advanced emotion detection with nuanced understanding
+        🌌💖 Uses unified quantum emotional state when available
+        """
+        # Priority: Use quantum emotional intelligence if available
+        if self.quantum_emotional_intelligence:
+            try:
+                quantum_state = self.get_unified_emotional_state(self.quantum_emotional_intelligence)
+                # Return quantum state if it's recent and valid
+                if quantum_state.get("emotion") != "neutral" or quantum_state.get("intensity", 0) > 0.5:
+                    return {
+                        "emotion": quantum_state["emotion"],
+                        "intensity": quantum_state["intensity"],
+                        "source": "quantum_emotional_intelligence"
+                    }
+            except Exception:
+                # Fall through to local detection
+                pass
+        
+        # Fallback: Local emotion detection
         text_lower = text.lower()
         
         emotion_patterns = {
@@ -119,9 +137,9 @@ class AdvancedLearningEngine:
         
         if emotion_scores:
             dominant_emotion = max(emotion_scores, key=emotion_scores.get)
-            return {"emotion": dominant_emotion, "intensity": emotion_scores[dominant_emotion] * intensity_multiplier}
+            return {"emotion": dominant_emotion, "intensity": emotion_scores[dominant_emotion] * intensity_multiplier, "source": "local_detection"}
         
-        return {"emotion": "neutral", "intensity": 0.5}
+        return {"emotion": "neutral", "intensity": 0.5, "source": "default"}
     
     def _emotions_are_appropriate(self, user_emotion, response_emotion):
         """Check if response emotion is appropriate for user emotion"""
@@ -289,6 +307,20 @@ class AdvancedLearningEngine:
             return {"min_words": 20, "max_words": 50, "reasoning": "Moderate detail appropriate"}
         else:  # Short input
             return {"min_words": 10, "max_words": 30, "reasoning": "Concise response for brief input"}
+    
+    def get_unified_emotional_state(self, quantum_emotional_intelligence=None):
+        """
+        Get unified emotional state from quantum system if available
+        Integrates with quantum emotional intelligence for consistent state
+        """
+        if quantum_emotional_intelligence:
+            return {
+                "emotion": quantum_emotional_intelligence.current_emotion,
+                "intensity": quantum_emotional_intelligence.emotion_intensity,
+                "system": "quantum_emotional_intelligence",
+                "quantum_amplified": quantum_emotional_intelligence.quantum_emotional_state.get("quantum_amplified", False) if quantum_emotional_intelligence.quantum_emotional_state else False
+            }
+        return {"emotion": "neutral", "intensity": 0.5, "system": "learning_engine"}
     
     def _recommend_emotional_tone(self, user_input):
         """Recommend appropriate emotional tone"""

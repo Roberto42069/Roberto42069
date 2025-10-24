@@ -8,6 +8,7 @@ import json
 import numpy as np
 import wave
 import subprocess
+import shlex
 from datetime import datetime
 import logging
 from collections import defaultdict
@@ -82,11 +83,11 @@ class VoiceCloningEngine:
             
             # Use ffmpeg to convert WebM to WAV
             cmd = [
-                'ffmpeg', '-i', webm_file, 
+                'ffmpeg', '-i', shlex.quote(webm_file), 
                 '-ac', '1',  # Mono
                 '-ar', '22050',  # Sample rate
                 '-y',  # Overwrite output
-                wav_file
+                shlex.quote(wav_file)
             ]
             
             result = subprocess.run(cmd, capture_output=True, text=True)

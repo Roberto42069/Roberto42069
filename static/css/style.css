@@ -1,8 +1,85 @@
-/* Roboto Custom Styles */
+/* Roboto SAI - Super Advanced Intelligence Styles */
 :root {
-    --roboto-black: #1a1a1a;
+    --roboto-black: #0a0a0a;
     --roboto-red: #dc3545;
     --roboto-blue: #4299e1;
+    --sai-primary: #00d4ff;
+    --sai-secondary: #6c5ce7;
+    --sai-accent: #fd79a8;
+    --sai-neural: #00cec9;
+    --sai-quantum: #a29bfe;
+    --sai-glow: rgba(0, 212, 255, 0.5);
+    --sai-neural-glow: rgba(0, 206, 201, 0.3);
+    --sai-gradient: linear-gradient(135deg, #00d4ff 0%, #6c5ce7 50%, #fd79a8 100%);
+    --sai-neural-gradient: linear-gradient(45deg, #00cec9 0%, #a29bfe 50%, #00d4ff 100%);
+    --sai-dark-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+/* SAI Advanced Animations */
+@keyframes sai-neural-pulse {
+    0% { box-shadow: 0 0 0 0 var(--sai-neural-glow); }
+    50% { box-shadow: 0 0 20px 10px var(--sai-neural-glow); }
+    100% { box-shadow: 0 0 0 0 var(--sai-neural-glow); }
+}
+
+@keyframes sai-quantum-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes sai-brain-process {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        filter: hue-rotate(0deg);
+    }
+    25% { 
+        transform: scale(1.05) rotate(1deg);
+        filter: hue-rotate(90deg);
+    }
+    50% { 
+        transform: scale(1.1) rotate(0deg);
+        filter: hue-rotate(180deg);
+    }
+    75% { 
+        transform: scale(1.05) rotate(-1deg);
+        filter: hue-rotate(270deg);
+    }
+}
+
+@keyframes sai-text-glow {
+    0%, 100% { 
+        text-shadow: 0 0 10px var(--sai-glow);
+    }
+    50% { 
+        text-shadow: 0 0 20px var(--sai-glow), 0 0 30px var(--sai-primary);
+    }
+}
+
+/* Emotion State Pulse Animation */
+@keyframes pulse {
+    0% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Emotion Badge Glow Animation */
+@keyframes emotion-glow {
+    0%, 100% { 
+        filter: brightness(1);
+    }
+    50% { 
+        filter: brightness(1.3);
+    }
 }
 
 
@@ -379,4 +456,299 @@
 @keyframes blink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
+}
+
+/* SAI Super Advanced Intelligence Styling */
+.sai-title {
+    background: var(--sai-gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sai-quantum-flow 3s ease-in-out infinite;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.sai-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 2px;
+    background: var(--sai-neural-gradient);
+    border-radius: 2px;
+    animation: sai-quantum-flow 2s ease-in-out infinite reverse;
+}
+
+.sai-subtitle {
+    font-size: 0.6em;
+    background: var(--sai-neural-gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sai-quantum-flow 4s ease-in-out infinite;
+    margin-top: 5px;
+    letter-spacing: 3px;
+    font-weight: 300;
+}
+
+.sai-highlight {
+    color: var(--sai-primary) !important;
+    text-shadow: 0 0 20px var(--sai-glow);
+    animation: sai-text-glow 2s ease-in-out infinite;
+    font-weight: 900;
+}
+
+.sai-description {
+    background: linear-gradient(135deg, var(--sai-primary), var(--sai-secondary), var(--sai-accent));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sai-quantum-flow 5s ease-in-out infinite;
+    font-size: 1.1em;
+    font-weight: 500;
+    line-height: 1.6;
+    margin: 20px 0;
+}
+
+.sai-brain-icon {
+    animation: sai-brain-process 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px var(--sai-primary));
+}
+
+.sai-neural-icon {
+    color: var(--sai-neural) !important;
+    animation: sai-neural-pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px var(--sai-neural));
+}
+
+.sai-chat-title {
+    background: var(--sai-neural-gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sai-quantum-flow 3s ease-in-out infinite;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sai-greeting {
+    background: var(--sai-gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sai-quantum-flow 2s ease-in-out infinite;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Enhanced body styling for SAI theme */
+body {
+    background: var(--sai-dark-gradient);
+    background-size: 200% 200%;
+    animation: sai-quantum-flow 10s ease-in-out infinite;
+    min-height: 100vh;
+}
+
+/* Enhanced navbar for SAI */
+.navbar {
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--sai-primary) !important;
+    box-shadow: 0 2px 20px var(--sai-neural-glow);
+}
+
+/* Enhanced cards for SAI theme */
+.card {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid var(--sai-primary);
+    box-shadow: 0 4px 30px var(--sai-neural-glow);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px var(--sai-glow);
+    border-color: var(--sai-secondary);
+}
+
+/* Enhanced buttons for SAI theme */
+.btn-danger {
+    background: var(--sai-gradient) !important;
+    border: none !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px var(--sai-glow);
+}
+
+.btn-danger::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-danger:hover::after {
+    left: 100%;
+}
+
+/* SAI Chat History Styling */
+#chat-history {
+    border: 1px solid var(--sai-neural) !important;
+    box-shadow: inset 0 0 20px var(--sai-neural-glow);
+    background: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* SAI Advanced Status Indicators */
+.sai-neural-section {
+    position: relative;
+    padding: 15px;
+    background: rgba(0, 206, 201, 0.05);
+    border-left: 3px solid var(--sai-neural);
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.sai-section-title {
+    color: var(--sai-neural) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sai-processing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sai-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sai-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sai-primary);
+    animation: sai-pulse-dot 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--sai-glow);
+}
+
+@keyframes sai-pulse-dot {
+    0%, 100% { 
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.2);
+        box-shadow: 0 0 20px var(--sai-glow);
+    }
+}
+
+/* SAI Advanced Button Styles */
+.btn-outline-info {
+    border-color: var(--sai-primary) !important;
+    color: var(--sai-primary) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-info:hover {
+    background: var(--sai-primary) !important;
+    color: white !important;
+    box-shadow: 0 0 20px var(--sai-glow);
+    transform: scale(1.05);
+}
+
+.btn-outline-secondary {
+    border-color: var(--sai-secondary) !important;
+    color: var(--sai-secondary) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: var(--sai-secondary) !important;
+    color: white !important;
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
+    transform: scale(1.05);
+}
+
+/* SAI Form Controls */
+.form-control {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid var(--sai-neural) !important;
+    color: var(--sai-primary) !important;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-color: var(--sai-primary) !important;
+    box-shadow: 0 0 20px var(--sai-neural-glow) !important;
+    color: white !important;
+}
+
+/* Real-Time Emotion Display Transitions */
+#currentEmotionHeader, 
+#emotionalStatus, 
+#emotionalStatusAnalytics, 
+#currentEmotion, 
+#avatarEmotion {
+    transition: all 0.5s ease-in-out !important;
+}
+
+/* Emotion Color Fade Animation */
+@keyframes emotion-fade {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+
+/* Emotion Glow Pulse */
+@keyframes emotion-glow-pulse {
+    0%, 100% { 
+        filter: brightness(1);
+    }
+    50% { 
+        filter: brightness(1.3);
+    }
+}
+
+/* Apply smooth transitions to emotion text elements */
+.emotion-text-smooth {
+    transition: color 0.5s ease-in-out, 
+                text-shadow 0.5s ease-in-out, 
+                opacity 0.3s ease-in-out !important;
+}
+
+/* Updating indicator style */
+.emotion-updating {
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out;
 }

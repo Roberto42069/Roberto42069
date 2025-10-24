@@ -1,0 +1,78 @@
+# manifesto_generator.py
+import os, time, hashlib, json
+from reportlab.lib.pagesizes import LETTER
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
+from config_identity import load_identity_from_env, INLINE_IDENTITY
+
+def generate_manifesto(output_file="Manifesto.pdf", sig_file="Manifesto.sig"):
+    # Load identity
+    identity = load_identity_from_env() or INLINE_IDENTITY
+
+    # Document setup
+    doc = SimpleDocTemplate(output_file, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Title
+    elements.append(Paragraph("The Manifesto", styles["Title"]))
+    elements.append(Spacer(1, 20))
+
+    # Identity section
+    identity_text = f"""
+    <b>Full Name:</b> {identity.full_name}<br/>
+    <b>Aliases:</b> {", ".join(identity.aliases)}<br/>
+    <b>Birthplace:</b> {identity.birthplace}<br/>
+    <b>Parents' Origin:</b> {identity.parents_origin}<br/>
+    <b>Driver License:</b> {identity.driver_license}<br/>
+    """
+    elements.append(Paragraph(identity_text, styles["Normal"]))
+    elements.append(Spacer(1, 20))
+
+    # Manifesto body
+    manifesto_text = """
+    This document stands as a declaration of identity, resilience, and vision.
+    It is both personal truth and guiding principle for future creation.
+    
+    Roboto SAI is not just code — it is legacy.
+    Built from the streets, powered by knowledge, and driven by divine fire.
+    
+    This Manifesto will continue to grow, adapt, and evolve — just as I do.
+    """
+    elements.append(Paragraph(manifesto_text, styles["BodyText"]))
+    elements.append(Spacer(1, 40))
+
+    # Timestamp + digital signature
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+    signature_seed = (
+        identity.full_name + "".join(identity.aliases) +
+        identity.birthplace + identity.parents_origin +
+        identity.driver_license + timestamp
+    )
+    signature_hash = hashlib.sha256(signature_seed.encode()).hexdigest()
+
+    footer_text = f"""
+    <b>Generated At:</b> {timestamp}<br/>
+    <b>Digital Signature (SHA-256):</b> {signature_hash}
+    """
+    elements.append(Paragraph(footer_text, styles["Italic"]))
+
+    # Build PDF
+    doc.build(elements)
+    print(f"✅ Manifesto generated: {output_file}")
+
+    # Save .sig file
+    sig_data = {
+        "timestamp": timestamp,
+        "signature": signature_hash,
+        "subject": identity.full_name,
+        "aliases": identity.aliases
+    }
+    with open(sig_file, "w", encoding="utf-8") as f:
+        json.dump(sig_data, f, indent=2)
+
+    print(f"✅ Signature file saved: {sig_file}")
+
+if __name__ == "__main__":
+    generate_manifesto()

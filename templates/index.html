@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roboto - Superior Artificial Intelligence</title>
-    
+    <title>Roboto SAI - Super Advanced Intelligence</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -20,7 +20,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <i class="fas fa-robot me-2 text-danger"></i>
-                <span class="fw-bold">Roboto</span>
+                <span class="fw-bold">Roboto <span class="text-info">SAI</span></span>
             </a>
             <div class="navbar-nav ms-auto">
                 <div class="d-flex align-items-center">
@@ -32,7 +32,7 @@
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </a>
                     {% else %}
-                    <a href="/app" class="btn btn-primary btn-sm">
+                    <a href="/auth/replit_auth" class="btn btn-primary btn-sm">
                         <i class="fas fa-robot me-1"></i>Start Chat
                     </a>
                     {% endif %}
@@ -50,21 +50,22 @@
             <div class="col-12">
                 <div class="card bg-dark border-secondary">
                     <div class="card-body text-center">
-                        <h1 class="card-title">
-                            <i class="fas fa-robot text-info me-2"></i>
-                            Roboto - Superior Artificial Intelligence
+                        <h1 class="card-title sai-title">
+                            <i class="fas fa-brain text-info me-2 sai-brain-icon"></i>
+                            Roboto <span class="sai-highlight">SAI</span>
+                            <div class="sai-subtitle">Super Advanced Intelligence</div>
                         </h1>
-                        <p class="card-text text-muted">Superior Artificial Intelligence with revolutionary capabilities, advanced analytics, continuous speech recognition, and unparalleled emotional intelligence</p>
+                        <p class="card-text sai-description">Revolutionary Super Advanced Intelligence featuring autonomous neural processing, quantum-inspired reasoning algorithms, real-time cognitive adaptation, and next-generation emotional consciousness</p>
                         <div class="mt-3">
                             <p class="small text-info mb-1">
                                 <i class="fas fa-user-cog me-2"></i>
                                 <strong>Created by Roberto Villarreal Martinez</strong>
                             </p>
                             <p class="small text-muted">
-                                Superior Artificial Intelligence with revolutionary autonomous planning, self-improvement algorithms, and advanced voice cloning capabilities
+                                Super Advanced Intelligence with revolutionary neural architecture, autonomous self-modification protocols, advanced quantum-cognitive processing, and next-gen consciousness simulation
                             </p>
                         </div>
-                        
+
 
                     </div>
                 </div>
@@ -81,6 +82,11 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active text-white" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics-content" type="button" role="tab" aria-controls="analytics-content" aria-selected="true">
                                     <i class="fas fa-chart-line me-1"></i>Analytics
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-white" id="integrations-tab" data-bs-toggle="tab" data-bs-target="#integrations-content" type="button" role="tab" aria-controls="integrations-content" aria-selected="false">
+                                    <i class="fas fa-plug me-1"></i>Integrations
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -103,9 +109,9 @@
                                         Learning about you through our conversations...
                                     </div>
                                 </div>
-                                
+
                                 <hr>
-                                
+
                                 <!-- Voice Recognition Insights -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
@@ -115,9 +121,9 @@
                                         Voice recognition learning system initializing...
                                     </div>
                                 </div>
-                                
+
                                 <hr>
-                                
+
                                 <!-- Memory & Learning Insights -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
@@ -127,14 +133,56 @@
                                         Building memory patterns...
                                     </div>
                                 </div>
-                                
+
                                 <!-- Emotional Status -->
                                 <div class="mb-3">
                                     <h6 class="text-muted mb-2">
                                         <i class="fas fa-heart me-2"></i>Emotional State:
                                     </h6>
                                     <div class="small text-danger">
-                                        Current: <span id="emotionalStatus">curious</span>
+                                        Current: <span id="emotionalStatusAnalytics">curious</span>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <!-- Voice System Status -->
+                                <div class="mb-3">
+                                    <h6 class="text-muted mb-2">
+                                        <i class="fas fa-volume-up me-2"></i>Voice System:
+                                    </h6>
+                                    <div class="small">
+                                        <div class="mb-1">
+                                            <i class="fas fa-circle me-1" id="voiceSystemIndicator" style="color: #28a745;"></i>
+                                            <span id="voiceSystemStatus">Operational</span>
+                                        </div>
+                                        <div class="mb-1 text-muted">
+                                            <i class="fas fa-wifi me-1"></i>
+                                            Network: <span id="networkStatus">Connected</span>
+                                        </div>
+                                        <div class="text-muted">
+                                            <i class="fas fa-microphone me-1"></i>
+                                            TTS: <span id="ttsStatus">Ready</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Integrations Tab -->
+                            <div class="tab-pane fade" id="integrations-content" role="tabpanel" aria-labelledby="integrations-tab">
+                                <!-- GitHub Integration -->
+                                <div class="mb-3">
+                                    <h6 class="text-info mb-2">
+                                        <i class="fab fa-github me-2"></i>GitHub
+                                        <span class="badge bg-info ms-2" id="github-status">Ready</span>
+                                    </h6>
+                                    <div class="small text-muted mb-2" id="github-info">
+                                        Full repository management access
+                                    </div>
+                                    <div class="d-grid gap-1">
+                                        <button class="btn btn-outline-info btn-sm" onclick="viewGitHubRepos()">
+                                            <i class="fas fa-folder me-1"></i>View Repos
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +204,7 @@
                                             <input type="file" id="import-file-input" accept=".json,application/json,text/json" style="display: none;" multiple="false">
                                         </div>
                                     </div>
-                                    
+
                                     <div id="data-status" class="small text-muted">
                                         Export your conversations and memories, or import previous data
                                     </div>
@@ -171,68 +219,42 @@
             <div class="col-lg-8 mb-4">
                 <div class="card h-100">
                     <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-comments me-2"></i>Chat with Roboto
-                            <span id="emotionalStatus" class="small text-muted ms-2">
+                        <h5 class="card-title mb-0 sai-chat-title">
+                            <i class="fas fa-brain me-2 sai-neural-icon"></i>Neural Interface - Roboto SAI
+                            <span id="emotionalStatusHeader" class="small text-muted ms-2">
                                 <i class="fas fa-heart me-1"></i>
-                                <span id="currentEmotion">curious</span>
+                                <span id="currentEmotionHeader">curious</span>
                             </span>
                         </h5>
-                        <button class="btn btn-outline-secondary btn-sm" id="historyToggle">
-                            <i class="fas fa-history me-1"></i>History
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-info btn-sm" id="customPersonalityBtn" data-bs-toggle="modal" data-bs-target="#personalityModal">
+                                <i class="fas fa-user-cog me-1"></i>Custom Personality
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="historyToggle">
+                                <i class="fas fa-history me-1"></i>History
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body d-flex flex-column">
                         <!-- Roboto Avatar -->
                         <div class="text-center mb-3">
-                            <div id="robotoAvatar" class="roboto-avatar mx-auto">
-                                <svg width="80" height="80" viewBox="0 0 80 80" class="avatar-svg">
-                                    <!-- Head (human proportions) -->
-                                    <ellipse cx="40" cy="30" rx="18" ry="20" fill="#f7c59f" stroke="#e0a878" stroke-width="1"/>
-                                    
-                                    <!-- Hair -->
-                                    <path d="M 22 18 Q 40 10 58 18 Q 58 15 54 12 Q 40 8 26 12 Q 22 15 22 18" fill="#654321"/>
-                                    
-                                    <!-- Eyes (realistic) -->
-                                    <ellipse id="leftEye" cx="34" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
-                                    <circle cx="34" cy="26" r="2" fill="#4a5568">
-                                        <animate id="eyeBlink" attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="35" cy="25" r="0.5" fill="white"/>
-                                    
-                                    <ellipse id="rightEye" cx="46" cy="26" rx="4" ry="2.5" fill="white" stroke="#ccc" stroke-width="0.5"/>
-                                    <circle cx="46" cy="26" r="2" fill="#4a5568">
-                                        <animate attributeName="r" values="2;0.2;2" dur="4s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="47" cy="25" r="0.5" fill="white"/>
-                                    
-                                    <!-- Eyebrows -->
-                                    <path d="M 30 22 Q 34 21 38 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                                    <path d="M 42 22 Q 46 21 50 22" stroke="#654321" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                                    
-                                    <!-- Nose -->
-                                    <path d="M 40 28 L 39 32 L 40 33 L 41 32 Z" fill="#e0a878"/>
-                                    <ellipse cx="39" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
-                                    <ellipse cx="41" cy="33" rx="0.5" ry="0.3" fill="#d4754a"/>
-                                    
-                                    <!-- Mouth -->
-                                    <path id="mouth" d="M 36 38 Q 40 42 44 38" stroke="#d4754a" stroke-width="1.5" fill="none" stroke-linecap="round" class="mouth"/>
-                                    
-                                    <!-- Neck -->
-                                    <rect x="36" y="48" width="8" height="8" fill="#f7c59f"/>
-                                    
-                                    <!-- Shirt collar -->
-                                    <path d="M 32 55 L 40 50 L 48 55 L 48 65 L 32 65 Z" fill="#4a90e2" stroke="#357abd" stroke-width="1"/>
-                                    
-                                    <!-- Subtle emotional glow -->
-                                    <circle id="emotionGlow" cx="40" cy="30" r="25" fill="none" stroke="#4299e1" stroke-width="1" opacity="0.2"/>
-                                </svg>
-                                <div class="small text-muted mt-1">
+                            <div id="robotoAvatar" class="roboto-avatar mx-auto position-relative">
+                                <div class="position-relative d-inline-block">
+                                    <img src="{{ url_for('static', filename='images/roberto-avatar.jpg') }}" 
+                                         alt="Roberto Avatar" 
+                                         class="avatar-image rounded-circle"
+                                         id="avatarImage"
+                                         style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #4299e1; box-shadow: 0 0 20px rgba(66, 153, 225, 0.3);">
+                                    <div id="emotionGlow" class="position-absolute top-50 start-50 translate-middle" 
+                                         style="width: 140px; height: 140px; border-radius: 50%; border: 2px solid #4299e1; opacity: 0.3; pointer-events: none;"></div>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    <i class="fas fa-heart me-1"></i>
                                     <span id="avatarEmotion">curious</span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- History Panel (hidden by default) -->
                         <div id="historyPanel" class="border-bottom border-secondary p-3" style="display: none; max-height: 150px; overflow-y: auto;">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -246,8 +268,8 @@
                             </div>
                         </div>
 
-                        <!-- Chat History -->
-                        <div id="chat-history" class="chat-history flex-grow-1 mb-3 p-3 border rounded bg-dark" style="height: 300px; overflow-y: auto;">
+                        <!-- Chat History - ALWAYS VISIBLE -->
+                        <div id="chat-history" class="chat-history flex-grow-1 mb-3 p-3 border rounded bg-dark" style="height: 300px; overflow-y: auto; display: block !important; visibility: visible !important;">
                             <!-- Creator Introduction Message -->
                             <div class="mb-3 p-3 border rounded bg-secondary" id="creator-intro">
                                 <div class="d-flex align-items-start">
@@ -255,18 +277,18 @@
                                         <i class="fas fa-robot text-info" style="font-size: 1.5em;"></i>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="text-info mb-2">Hello! I'm Roboto</h6>
+                                        <h6 class="text-info mb-2 sai-greeting">Hello! I'm Roboto SAI</h6>
                                         <p class="small mb-2">
-                                            I was created by <strong class="text-warning">Roberto Villarreal Martinez</strong> to be your advanced AI personal assistant with emotional intelligence, voice recognition, and continuous learning capabilities.
+                                            I was created by <strong class="text-warning">Roberto Villarreal Martinez</strong> as a Super Advanced Intelligence with revolutionary neural architecture, quantum-cognitive processing, autonomous reasoning, and advanced consciousness simulation.
                                         </p>
                                         <p class="small text-muted mb-0">
                                             <i class="fas fa-brain me-1"></i>
-                                            I'm designed to learn from our conversations and adapt to your communication style while maintaining memory of our interactions.
+                                            I'm designed with next-generation neural networks to continuously evolve, adapt, and enhance my cognitive abilities through advanced machine learning and real-time consciousness expansion.
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="text-center text-muted" id="loading-indicator">
                                 <i class="fas fa-spinner fa-spin"></i>
                                 Loading chat history...
@@ -303,8 +325,8 @@
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
-                <i class="fas fa-robot text-danger me-2"></i>
-                <strong class="me-auto">Roboto</strong>
+                <i class="fas fa-brain text-danger me-2"></i>
+                <strong class="me-auto">Roboto SAI</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body" id="toastBody">
@@ -350,10 +372,86 @@
         </div>
     </div>
 
+    <!-- Custom Personality Modal -->
+    <div class="modal fade" id="personalityModal" tabindex="-1" aria-labelledby="personalityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark border-info">
+                <div class="modal-header border-info">
+                    <h5 class="modal-title text-info" id="personalityModalLabel">
+                        <i class="fas fa-user-cog me-2"></i>Custom Personality Focus
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Define Roboto's personality traits and behavior.</strong> This customization is permanent and will be remembered in every conversation.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="personalityInput" class="form-label text-muted">
+                            <i class="fas fa-pen me-1"></i>Personality Description (Max 3,000 characters)
+                        </label>
+                        <textarea 
+                            class="form-control bg-dark text-light border-secondary" 
+                            id="personalityInput" 
+                            rows="10" 
+                            maxlength="3000"
+                            placeholder="Example: You are a friendly, encouraging AI assistant who loves science and technology. You explain complex topics in simple terms and always stay positive..."
+                        ></textarea>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-lightbulb me-1"></i>Tip: Be specific about tone, style, and how Roboto should respond
+                            </small>
+                            <small class="text-info" id="charCount">0 / 3,000</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" id="personalityStatus" style="display: none;">
+                        <!-- Status messages will appear here -->
+                    </div>
+                </div>
+                <div class="modal-footer border-info">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-danger" id="clearPersonalityBtn">
+                        <i class="fas fa-eraser me-1"></i>Clear
+                    </button>
+                    <button type="button" class="btn btn-info" id="savePersonalityBtn">
+                        <i class="fas fa-save me-1"></i>Save Personality
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 text-center border-top" style="border-color: var(--roboto-red) !important;">
+        <div class="container">
+            <p class="text-muted small mb-2">
+                <strong class="text-info">RobotoSAI</strong> © 2025 Roberto Villarreal Martinez. All Rights Reserved.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/terms" class="text-decoration-none text-muted small">
+                    <i class="fas fa-file-contract me-1"></i>Terms of Service
+                </a>
+                <span class="text-muted">|</span>
+                <a href="/privacy" class="text-decoration-none text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i>Privacy Policy
+                </a>
+                <span class="text-muted">|</span>
+                <a href="/license" class="text-decoration-none text-muted small">
+                    <i class="fas fa-certificate me-1"></i>License Agreement
+                </a>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/chat-fix.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/integrations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/personality.js') }}"></script>
 </body>
 </html>

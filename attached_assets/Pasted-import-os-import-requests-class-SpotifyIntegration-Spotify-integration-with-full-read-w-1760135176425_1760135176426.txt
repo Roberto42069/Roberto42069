@@ -1,0 +1,88 @@
+import os
+import requests
+
+class SpotifyIntegration:
+    """Spotify integration with full read/write access"""
+    
+    def __init__(self):
+        self.client_id = os.getenv("SPOTIFY_CLIENT_ID")
+        self.client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+        self.hostname = os.environ.get('REPLIT_CONNECTORS_HOSTNAME')
+        repl_id = os.environ.get('REPL_IDENTITY')
+        web_renewal = os.environ.get('WEB_REPL_RENEWAL')
+        self.x_replit_token = (
+            'repl ' + repl_id if repl_id
+            else 'depl ' + web_renewal if web_renewal
+            else None
+        )
+        self.access_token = None
+        self.refresh_token = None
+        self.token_expires_in = 0
+        print("🎵 Spotify Integration initialized")
+
+    def get_access_token(self):
+        """Retrieve access token from Spotify"""
+        if self.access_token and self.token_expires_in > 0:
+            return self.access_token
+        
+        # Implement your OAuth flow here to get a new token
+        # For example, using the client credentials flow
+        response = requests.post(
+            "https://accounts.spotify.com/api/token",
+            data={
+                "grant_type": "client_credentials"
+            },
+            auth=(self.client_id, self.client_secret)
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.access_token = data['access_token']
+            self.token_expires_in = data['expires_in']
+            return self.access_token
+        else:
+            raise Exception("Failed to retrieve access token from Spotify")
+
+    # Add your additional Spotify methods here
+
+
+class YouTubeIntegration:
+    """YouTube integration with full channel management"""
+    
+    def __init__(self):
+        self.client_id = os.getenv("YOUTUBE_CLIENT_ID")
+        self.client_secret = os.getenv("YOUTUBE_CLIENT_SECRET")
+        self.hostname = os.environ.get('REPLIT_CONNECTORS_HOSTNAME')
+        repl_id = os.environ.get('REPL_IDENTITY')
+        web_renewal = os.environ.get('WEB_REPL_RENEWAL')
+        self.x_replit_token = (
+            'repl ' + repl_id if repl_id
+            else 'depl ' + web_renewal if web_renewal
+            else None
+        )
+        self.access_token = None
+        print("📺 YouTube Integration initialized")
+
+    def get_access_token(self):
+        """Retrieve access token from YouTube"""
+        # Implement your OAuth flow here to get a new token
+        # For example, using the authorization code flow
+        response = requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "grant_type": "authorization_code",
+                "redirect_uri": "YOUR_REDIRECT_URI",
+                "code": "THE_AUTHORIZATION_CODE"
+            }
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.access_token = data['access_token']
+            return self.access_token
+        else:
+            raise Exception("Failed to retrieve access token from YouTube")
+
+    # Add your additional YouTube methods here

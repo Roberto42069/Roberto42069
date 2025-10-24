@@ -4,7 +4,6 @@ Creates security tables and updates existing tables with security fields
 """
 
 from app import app, db
-from datetime import datetime
 import logging
 
 def create_security_tables():
@@ -13,7 +12,6 @@ def create_security_tables():
     with app.app_context():
         try:
             # Import models to ensure tables are registered
-            import models
             
             # Create all tables (will only create missing ones)
             db.create_all()
@@ -36,7 +34,7 @@ def create_security_tables():
                 try:
                     db.session.execute(text(column_sql))
                     db.session.commit()
-                    logging.info(f"Successfully added security column")
+                    logging.info("Successfully added security column")
                 except Exception as e:
                     db.session.rollback()
                     if "already exists" not in str(e).lower():

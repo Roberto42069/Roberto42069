@@ -51,18 +51,18 @@ class AdvancedVoiceProcessor:
     Advanced voice processing system that adds conversation context preservation,
     emotion detection, topic modeling, and multi-session continuity to Roboto.
     """
-    
+
     def __init__(self, user_name="Roberto Villarreal Martinez"):
         self.user_name = user_name
         if SPEECH_RECOGNITION_AVAILABLE and sr:
             self.recognizer = sr.Recognizer()
         else:
             self.recognizer = None
-        
+
         # Initialize AI models with error handling
         self.emotion_classifier = None
         self.topic_model = None
-        
+
         if TRANSFORMERS_AVAILABLE and pipeline:
             try:
                 self.emotion_classifier = pipeline("audio-classification", 
@@ -73,7 +73,7 @@ class AdvancedVoiceProcessor:
                 self.emotion_classifier = None
         else:
             logger.info("Transformers not available - using fallback emotion detection")
-            
+
         if BERTOPIC_AVAILABLE and BERTopic:
             try:
                 self.topic_model = BERTopic(language="english", calculate_probabilities=True)
@@ -83,16 +83,16 @@ class AdvancedVoiceProcessor:
                 self.topic_model = None
         else:
             logger.info("BERTopic not available - using fallback topic extraction")
-        
+
         # Storage paths
         self.context_storage_dir = "conversation_contexts"
         self.audio_samples_dir = "audio_samples"
         self.ensure_directories()
-        
+
         # Conversation session tracking
         self.current_session_id = None
         self.session_data = []
-        
+
     def ensure_directories(self):
         """Create necessary directories for storage."""
         for directory in [self.context_storage_dir, self.audio_samples_dir]:
@@ -104,7 +104,7 @@ class AdvancedVoiceProcessor:
         """Transcribe audio file to text with enhanced error handling."""
         if not SPEECH_RECOGNITION_AVAILABLE or not sr:
             return "Speech recognition not available - using fallback transcription simulation"
-            
+
         try:
             # Convert to compatible format if pydub is available
             if PYDUB_AVAILABLE and AudioSegment:
@@ -112,12 +112,12 @@ class AdvancedVoiceProcessor:
                 temp_wav = "temp_transcription.wav"
                 audio.export(temp_wav, format="wav")
                 audio_file = temp_wav
-            
+
             with sr.AudioFile(audio_file) as source:
                 # Adjust for ambient noise
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
                 audio_data = self.recognizer.record(source)
-                
+
                 try:
                     # Try Google Speech Recognition first
                     text = self.recognizer.recognize_google(audio_data)
@@ -129,7 +129,7 @@ class AdvancedVoiceProcessor:
                 except sr.RequestError as e:
                     logger.error(f"Speech recognition service error: {e}")
                     return f"Transcription service error: {e}"
-                    
+
         except Exception as e:
             logger.error(f"Audio transcription error: {e}")
             return f"Audio processing error: {e}"
@@ -143,28 +143,28 @@ class AdvancedVoiceProcessor:
         if not self.emotion_classifier:
             # Fallback emotion detection based on file name or basic analysis
             return self._fallback_emotion_detection(audio_file)
-            
+
         if not LIBROSA_AVAILABLE or not librosa:
             logger.warning("Librosa not available - using fallback emotion detection")
             return self._fallback_emotion_detection(audio_file)
-            
+
         try:
             # Load and resample audio for the model
             audio, sample_rate = librosa.load(audio_file, sr=16000)
-            
+
             # Ensure audio is not too short
             if len(audio) < 1600:  # Less than 0.1 seconds
                 logger.warning("Audio too short for emotion detection")
                 return [{"label": "neutral", "score": 0.5}]
-                
+
             emotions = self.emotion_classifier(audio)
             logger.info(f"Detected emotions: {emotions[:2]}")
             return emotions
-            
+
         except Exception as e:
             logger.error(f"Emotion detection error: {e}")
             return self._fallback_emotion_detection(audio_file)
-            
+
     def _fallback_emotion_detection(self, audio_file: str) -> List[Dict[str, Any]]:
         """Simple fallback emotion detection based on basic audio analysis."""
         try:
@@ -172,7 +172,7 @@ class AdvancedVoiceProcessor:
             if PYDUB_AVAILABLE and AudioSegment:
                 audio = AudioSegment.from_file(audio_file)
                 duration = len(audio) / 1000.0  # Convert to seconds
-                
+
                 # Simple heuristic based on duration and file characteristics
                 if duration < 2:
                     emotion = "neutral"
@@ -183,11 +183,11 @@ class AdvancedVoiceProcessor:
                 else:
                     emotion = "engaged"
                     score = 0.65
-                    
+
                 return [{"label": emotion, "score": score, "method": "fallback_analysis"}]
             else:
                 return [{"label": "neutral", "score": 0.5, "method": "default_fallback"}]
-                
+
         except Exception as e:
             logger.error(f"Fallback emotion detection error: {e}")
             return [{"label": "neutral", "score": 0.5, "method": "error_fallback"}]
@@ -196,37 +196,37 @@ class AdvancedVoiceProcessor:
         """Extract topics from transcribed text using BERTopic or fallback analysis."""
         if not text.strip():
             return {}, [], []
-            
+
         if not self.topic_model:
             return self._fallback_topic_extraction(text)
-            
+
         try:
             topics, probabilities = self.topic_model.fit_transform([text])
             topic_info = self.topic_model.get_topic_info()
-            
+
             logger.info(f"Extracted {len(topic_info)} topics from text")
             return topic_info, topics, probabilities
-            
+
         except Exception as e:
             logger.error(f"Topic extraction error: {e}")
             return self._fallback_topic_extraction(text)
-            
+
     def _fallback_topic_extraction(self, text: str) -> tuple:
         """Simple fallback topic extraction using keyword analysis."""
         try:
             words = text.lower().split()
             word_freq = {}
-            
+
             # Count word frequencies (excluding common words)
             common_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'cannot', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'this', 'that', 'these', 'those'}
-            
+
             for word in words:
                 if len(word) > 3 and word not in common_words:
                     word_freq[word] = word_freq.get(word, 0) + 1
-            
+
             # Get top keywords
             top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:5]
-            
+
             # Create simple topic structure
             topic_info = {
                 "fallback_analysis": True,
@@ -235,9 +235,9 @@ class AdvancedVoiceProcessor:
                 "text_length": len(text),
                 "word_count": len(words)
             }
-            
+
             return topic_info, [0], [0.5]  # Simple fallback values
-            
+
         except Exception as e:
             logger.error(f"Fallback topic extraction error: {e}")
             return {"error": "Topic extraction failed"}, [], []
@@ -249,32 +249,32 @@ class AdvancedVoiceProcessor:
         """
         if not session_id:
             session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
+
         self.current_session_id = session_id
         results = []
-        
+
         logger.info(f"Processing voice chat session {session_id} with {len(audio_files)} files")
-        
+
         for i, audio_file in enumerate(audio_files):
             if not os.path.exists(audio_file):
                 logger.warning(f"File {audio_file} not found, skipping")
                 continue
-                
+
             logger.info(f"Processing audio file {i+1}/{len(audio_files)}: {audio_file}")
-            
+
             try:
                 # Transcribe audio
                 transcription = self.transcribe_audio(audio_file)
-                
+
                 # Detect emotions
                 emotions = self.detect_emotions(audio_file)
-                
+
                 # Extract topics if transcription was successful
                 if transcription and "error" not in transcription.lower():
                     topic_info, topics, probabilities = self.extract_topics(transcription)
                 else:
                     topic_info, topics, probabilities = {}, [], []
-                
+
                 # Compile comprehensive results
                 result = {
                     "session_id": session_id,
@@ -295,7 +295,7 @@ class AdvancedVoiceProcessor:
                     }
                 }
                 results.append(result)
-                
+
             except Exception as e:
                 logger.error(f"Error processing {audio_file}: {e}")
                 # Add error result to maintain sequence
@@ -309,10 +309,10 @@ class AdvancedVoiceProcessor:
                     "emotions": [{"label": "error", "score": 0.0}],
                     "topics": {}
                 })
-        
+
         # Save session context
         self.save_session_context(results, session_id)
-        
+
         return results
 
     def _get_audio_duration(self, audio_file: str) -> float:
@@ -330,7 +330,7 @@ class AdvancedVoiceProcessor:
         """Save conversation context for session continuity."""
         try:
             output_file = os.path.join(self.context_storage_dir, f"{session_id}_context.json")
-            
+
             # Create comprehensive session summary
             session_summary = {
                 "session_id": session_id,
@@ -351,12 +351,12 @@ class AdvancedVoiceProcessor:
                     }
                 }
             }
-            
+
             with open(output_file, "w") as f:
                 json.dump(session_summary, f, indent=4)
-                
+
             logger.info(f"Session context saved to {output_file}")
-            
+
         except Exception as e:
             logger.error(f"Error saving session context: {e}")
 
@@ -366,7 +366,7 @@ class AdvancedVoiceProcessor:
         emotion_counts = {}
         for emotion in emotions:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
-            
+
         return {
             "most_common": max(emotion_counts.items(), key=lambda x: x[1]) if emotion_counts else ("neutral", 0),
             "emotion_distribution": emotion_counts,
@@ -376,10 +376,10 @@ class AdvancedVoiceProcessor:
     def _analyze_session_topics(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze topical patterns across the session."""
         all_text = " ".join([r.get("transcription", "") for r in results if r.get("transcription")])
-        
+
         if not all_text.strip() or not self.topic_model:
             return {"summary": "No topics extracted", "text_length": len(all_text)}
-            
+
         try:
             topic_info, topics, probabilities = self.extract_topics(all_text)
             return {
@@ -403,16 +403,16 @@ class AdvancedVoiceProcessor:
                 if not context_files:
                     logger.warning("No context files found")
                     return {}
-                
+
                 latest_file = max(context_files, key=lambda f: os.path.getctime(os.path.join(self.context_storage_dir, f)))
                 file_path = os.path.join(self.context_storage_dir, latest_file)
-            
+
             with open(file_path, "r") as f:
                 context = json.load(f)
-                
+
             logger.info(f"Loaded context from {file_path}")
             return context
-            
+
         except Exception as e:
             logger.error(f"Error loading context: {e}")
             return {}
@@ -421,27 +421,27 @@ class AdvancedVoiceProcessor:
         """Generate a human-readable summary for AI continuation."""
         if not context:
             return "No previous conversation context available."
-        
+
         try:
             session_id = context.get("session_id", "unknown")
             total_files = context.get("total_files", 0)
             emotions = context.get("dominant_emotions", {})
             topics = context.get("key_topics", {})
-            
+
             summary_parts = [
                 f"Previous conversation session: {session_id}",
                 f"Total interactions: {total_files}",
             ]
-            
+
             # Add emotional context
             if emotions.get("most_common"):
                 emotion, count = emotions["most_common"]
                 summary_parts.append(f"Dominant emotion: {emotion} ({count} instances)")
-            
+
             # Add topical context
             if topics.get("session_topics"):
                 summary_parts.append("Key topics discussed: available in detailed analysis")
-            
+
             # Add conversation flow summary
             conversation_flow = context.get("conversation_flow", [])
             if conversation_flow:
@@ -453,9 +453,9 @@ class AdvancedVoiceProcessor:
                 if recent_transcriptions:
                     summary_parts.append("Recent conversation snippets:")
                     summary_parts.extend([f"- {snippet}" for snippet in recent_transcriptions])
-            
+
             return "\n".join(summary_parts)
-            
+
         except Exception as e:
             logger.error(f"Error generating summary: {e}")
             return f"Context available but summary generation failed: {e}"
@@ -466,10 +466,10 @@ class AdvancedVoiceProcessor:
         enhanced context for the AI conversation system.
         """
         logger.info("Integrating advanced voice processing with Roboto")
-        
+
         # Process the voice chat
         session_context = self.process_voice_chat(audio_files)
-        
+
         # Generate summary for AI system
         context_summary = {
             "session_context": session_context,
@@ -487,27 +487,27 @@ class AdvancedVoiceProcessor:
                 "session_continuity": True
             }
         }
-        
+
         return context_summary
 
 # Example usage and testing function
 def example_usage():
     """Example of how to use the AdvancedVoiceProcessor with Roboto."""
     processor = AdvancedVoiceProcessor("Roberto Villarreal Martinez")
-    
+
     # Example audio files (would be actual recorded files)
     audio_files = ["voice_chat1.wav", "voice_chat2.wav"]
-    
+
     # Check if example files exist, create dummy if needed for demo
     example_files = []
     for audio_file in audio_files:
         if os.path.exists(audio_file):
             example_files.append(audio_file)
-    
+
     if example_files:
         # Process audio files and get enhanced context
         roboto_context = processor.integrate_with_roboto(example_files)
-        
+
         # Print summary for demonstration
         print("=" * 60)
         print("ROBOTO ADVANCED VOICE PROCESSING INTEGRATION")
