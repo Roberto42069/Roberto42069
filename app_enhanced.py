@@ -405,7 +405,7 @@ def save_user_data():
             # Start backup in background thread
             backup_thread = threading.Thread(target=async_backup, daemon=True)
             backup_thread.start()
-
+        #prepare comprehensive user data
             # Prepare comprehensive user data
             user_data = {
                 'chat_history': getattr(roberto, 'chat_history', []),
