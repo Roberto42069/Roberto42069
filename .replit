@@ -2,7 +2,7 @@ modules = ["nodejs-20", "postgresql-16", "python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["SDL2", "SDL2_image", "SDL2_mixer", "SDL2_ttf", "alsa-lib", "android-tools", "borgbackup", "cairo", "cargo", "catch2", "ffmpeg", "ffmpeg-full", "fmt", "fontconfig", "freetype", "gh", "ghostscript", "gildas", "glibcLocales", "gobject-introspection", "google-cloud-sdk-gce", "gtk3", "imagemagick_light", "libGL", "libGLU", "libiconv", "libjpeg", "libpng", "libxcrypt", "mailutils", "mastodon", "mesa-demos", "muparserx", "nano", "nlohmann_json", "openssl", "pkg-config", "portaudio", "portmidi", "postgresql", "pulseaudio", "qhull", "rsync", "rustc", "spdlog", "tcl", "texinfoInteractive", "timetrap", "tk", "vim-full", "wget"]
+packages = ["SDL2", "SDL2_image", "SDL2_mixer", "SDL2_ttf", "alsa-lib", "android-tools", "borgbackup", "cairo", "cargo", "catch2", "ffmpeg", "ffmpeg-full", "fmt", "fontconfig", "freetype", "gh", "ghostscript", "gildas", "glibcLocales", "gobject-introspection", "google-cloud-sdk-gce", "gtk3", "imagemagick_light", "libGL", "libGLU", "libiconv", "libjpeg", "libpng", "libxcrypt", "mailutils", "mastodon", "mesa-demos", "muparserx", "nano", "nlohmann_json", "openssh_hpn", "openssl", "pkg-config", "portaudio", "portmidi", "postgresql", "pulseaudio", "qhull", "rsync", "rustc", "spdlog", "tcl", "texinfoInteractive", "timetrap", "tk", "vim-full", "wget"]
 
 [deployment]
 deploymentTarget = "autoscale"

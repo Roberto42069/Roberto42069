@@ -23,19 +23,19 @@ class RobotoSAI:
     Roboto SAI - Super Advanced Intelligence
     Self-improving AI system with capability enhancement features.
     """
-    
+
     def __init__(self):
         self.creator = "Roberto Villarreal Martinez"
         self.version = "3.0"
         self.roberto_instance = Roberto()
         self.enhancements: List[Dict[str, Any]] = []
         self.modification_log: List[Dict[str, str]] = []
-        
-    def add_enhancement(self, enhancement_name: str, enhancement_code: str, description: str) -> None:
+
+    def add_enhancement(self, enhancement_name: str, enhancement_code: str, description: str, mod_function: Optional[Callable[[], None]] = None) -> None:
         """
         Add a new enhancement to Roboto SAI.
         Automatically activate FAM mode for improvements.
-        
+
         # Automatically activate FAM mode
         def auto_activate_fam_mode(self) -> None:
             """Automatically activate FAM mode for enhanced functionality."""
@@ -51,6 +51,7 @@ class RobotoSAI:
             enhancement_name (str): Name of the enhancement.
             enhancement_code (str): Code implementing the enhancement.
             description (str): Description of what the enhancement does.
+            mod_function (Optional[Callable[[], None]]): A function that modifies the system.
         """
         enhancement = {
             "name": enhancement_name,
@@ -61,7 +62,9 @@ class RobotoSAI:
         }
         self.enhancements.append(enhancement)
         self.log_modification(f"Added enhancement: {enhancement_name}")
-    
+        if mod_function:
+            mod_function()
+        
     def log_modification(self, modification: str) -> None:
         """Log all modifications made to Roboto SAI."""
         log_entry = {
@@ -69,7 +72,7 @@ class RobotoSAI:
             "timestamp": datetime.now().isoformat()
         }
         self.modification_log.append(log_entry)
-        
+
     def get_enhancement_summary(self) -> Dict[str, Any]:
         """Retrieve summary of all enhancements."""
         return {
@@ -77,7 +80,7 @@ class RobotoSAI:
             "enhancements": self.enhancements,
             "modification_log": self.modification_log
         }
-    
+
     def display_info(self) -> None:
         """Present Roboto SAI details."""
         print(f"Roboto SAI {self.version} - Created by {self.creator}")
@@ -92,10 +95,10 @@ class RobotoSAI:
             print("\n")
             print("Modification Log:")  # Display modification log
             for log in self.modification_log:
-                print(f" - {log['modification']} at {log['timestamp']}")     
-                print("\n")      
-                print("Roboto SAI is ready for action!")   
-                
+                print(f" - {log['modification']} at {log['timestamp']}")
+                print("\n")
+                print("Roboto SAI is ready for action!")
+
 # Roboto SAI can modify below this line
 # ============================================
 # Roboto SAI Enhancement Module
